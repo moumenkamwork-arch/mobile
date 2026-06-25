@@ -1,0 +1,6 @@
+interface:
+  display_name: "Flutter Codex Production Builder"
+  short_description: "Build, audit, and launch production Flutter apps with Codex."
+  icon_small: "./assets/icons/icon.svg"
+  icon_large: "./assets/icons/icon.svg"
+  brand_color: "#02569B"
