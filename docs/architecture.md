@@ -1,6 +1,6 @@
 # Promoo Flutter architecture plan
 
-Last updated: 2026-06-25
+Last updated: 2026-06-26
 
 ## Current project state
 
@@ -12,7 +12,16 @@ Last updated: 2026-06-25
 - `lib/theme/` contains brand color, spacing, radius, shadow, typography, and Material theme tokens.
 - `lib/shared/widgets/` contains reusable Promoo UI primitives and state components.
 - `lib/shell/` contains the placeholder splash and bottom-navigation app shell.
-- No feature screens, feature folders, auth guard, DTO codegen, localization setup, or real API integration exists yet.
+- `lib/features/home/` contains the first complete vertical slice.
+- `lib/features/services/` contains the second complete vertical slice.
+- `lib/features/leaderboard/` contains the Cup / Leaderboard vertical slice.
+- `lib/features/seats/` contains the Seats vertical slice.
+- `lib/features/profile/` contains the Profile + Packages vertical slice.
+- `lib/features/search/` contains the Search vertical slice.
+- `lib/features/auth/` contains the Auth Lite vertical slice.
+- `lib/features/chat/` contains the Chat skeleton vertical slice.
+- `lib/features/notifications/` contains the Notifications skeleton vertical slice.
+- No full auth guards, DTO codegen, localization setup, production realtime, push SDK setup, or other real feature integrations exist yet.
 - `flutter_svg` is installed because brand assets are SVG files.
 - Riverpod, go_router, and Dio are installed for the architecture foundation.
 - No code generation, secure storage, Google Fonts, Supabase, Firebase, Stripe, image picker, or notification packages are installed yet.
@@ -39,7 +48,7 @@ Do not build all screens first and integrate backend later.
 - Dio for REST API transport.
 - Typed DTOs/models, likely with code generation after package review.
 - Centralized response parsing and typed failures.
-- Secure token storage abstraction when auth starts.
+- Secure token storage abstraction when auth persistence is intentionally added.
 - Flutter `gen_l10n` and ARB files when localization setup starts.
 - Mock/fake repositories for development and tests only.
 
@@ -52,7 +61,7 @@ Core setup implemented packages:
 Deferred packages:
 
 - `google_fonts`; Tajawal remains recommended, but the current implementation uses system fallback because adding `google_fonts` failed on this Windows setup without Developer Mode symlink support.
-- secure storage until auth lite implements real token persistence.
+- secure storage until Auth Lite is hardened with real token persistence.
 - generated DTO/model tooling until the first API vertical slice needs it.
 
 ## Proposed folder structure
@@ -104,52 +113,201 @@ lib/
     home/
       data/
         datasources/
+          home_data_source.dart
+          home_fake_data_source.dart
+          home_remote_data_source.dart
         dto/
+          home_content_dto.dart
         repositories/
+          home_repository_impl.dart
       domain/
         entities/
+          home_content.dart
         repositories/
-        usecases/
+          home_repository.dart
       presentation/
         controllers/
+          home_controller.dart
         screens/
+          home_screen.dart
         widgets/
     services/
       data/
+        datasources/
+          services_data_source.dart
+          services_fake_data_source.dart
+          services_remote_data_source.dart
+        dto/
+          services_dto.dart
+        repositories/
+          services_repository_impl.dart
       domain/
+        entities/
+          promoo_service.dart
+        repositories/
+          services_repository.dart
       presentation/
+        controllers/
+          services_controller.dart
+        screens/
+          services_screen.dart
+        widgets/
     leaderboard/
       data/
+        datasources/
+          leaderboard_data_source.dart
+          leaderboard_fake_data_source.dart
+          leaderboard_remote_data_source.dart
+        dto/
+          leaderboard_dto.dart
+        repositories/
+          leaderboard_repository_impl.dart
       domain/
+        entities/
+          leaderboard_profile.dart
+        repositories/
+          leaderboard_repository.dart
       presentation/
+        controllers/
+          leaderboard_controller.dart
+        screens/
+          leaderboard_screen.dart
+        widgets/
     seats/
       data/
+        datasources/
+          seats_data_source.dart
+          seats_fake_data_source.dart
+          seats_remote_data_source.dart
+        dto/
+          seats_dto.dart
+        repositories/
+          seats_repository_impl.dart
       domain/
+        entities/
+          seat.dart
+        repositories/
+          seats_repository.dart
       presentation/
+        controllers/
+          seats_controller.dart
+        screens/
+          seats_screen.dart
+        widgets/
     profile/
       data/
+        datasources/
+          profile_data_source.dart
+          profile_fake_data_source.dart
+          profile_remote_data_source.dart
+        dto/
+          profile_dto.dart
+        repositories/
+          profile_repository_impl.dart
       domain/
+        entities/
+          promoo_profile.dart
+        repositories/
+          profile_repository.dart
       presentation/
+        controllers/
+          profile_controller.dart
+        screens/
+          profile_screen.dart
+        widgets/
     subscriptions/
       data/
       domain/
       presentation/
     search/
       data/
+        datasources/
+          search_data_source.dart
+          search_fake_data_source.dart
+          search_remote_data_source.dart
+        dto/
+          search_dto.dart
+        repositories/
+          search_repository_impl.dart
       domain/
+        entities/
+          search_result.dart
+        repositories/
+          search_repository.dart
       presentation/
+        controllers/
+          search_controller.dart
+        screens/
+          search_screen.dart
+        widgets/
     auth/
       data/
+        datasources/
+          auth_data_source.dart
+          auth_fake_data_source.dart
+          auth_remote_data_source.dart
+        dto/
+          auth_dto.dart
+        repositories/
+          auth_repository_impl.dart
+        session/
+          auth_session_store.dart
       domain/
+        entities/
+          auth_session.dart
+        repositories/
+          auth_repository.dart
       presentation/
+        controllers/
+          auth_controller.dart
+        screens/
+          login_screen.dart
+          register_screen.dart
+        widgets/
     chat/
       data/
+        datasources/
+          chat_data_source.dart
+          chat_fake_data_source.dart
+          chat_remote_data_source.dart
+        dto/
+          chat_dto.dart
+        repositories/
+          chat_repository_impl.dart
       domain/
+        entities/
+          chat.dart
+        repositories/
+          chat_repository.dart
       presentation/
+        controllers/
+          chat_controller.dart
+          chat_room_controller.dart
+        screens/
+          chat_list_screen.dart
+          chat_room_screen.dart
+        widgets/
     notifications/
       data/
+        datasources/
+          notifications_data_source.dart
+          notifications_fake_data_source.dart
+          notifications_remote_data_source.dart
+        dto/
+          notifications_dto.dart
+        repositories/
+          notifications_repository_impl.dart
       domain/
+        entities/
+          app_notification.dart
+        repositories/
+          notifications_repository.dart
       presentation/
+        controllers/
+          notifications_controller.dart
+        screens/
+          notifications_screen.dart
+        widgets/
 test/
   core/
   features/
@@ -190,8 +348,11 @@ The folder structure should be introduced incrementally. Do not create every fea
   - `PROMOO_ENV`
   - `PROMOO_BASE_URL`
   - `PROMOO_USE_MOCKS`
+  - `PROMOO_FALLBACK_CURRENCY`
 - Default development base URL is `http://localhost:3000/api/v1`.
+- Default fallback currency is `AED`; it is used only when a service price has no API currency.
 - Never store API secrets, Stripe secret keys, Firebase private keys, or Supabase service role keys in Flutter.
+- Auth Lite stores session state in memory only. Access and refresh tokens are not persisted until a secure storage package is explicitly added.
 - Use backend endpoints for subscriptions and payments.
 - Use backend REST endpoints for chat send/read operations; realtime can be planned later behind an interface.
 
@@ -206,7 +367,7 @@ The folder structure should be introduced incrementally. Do not create every fea
 
 - go_router is added.
 - Route paths and names are centralized in `lib/routing/route_names.dart`.
-- Current placeholder routes only:
+- Current shell routes:
   - `/`
   - `/splash`
   - `/home`
@@ -214,9 +375,25 @@ The folder structure should be introduced incrementally. Do not create every fea
   - `/cup`
   - `/seats`
   - `/profile`
+  - `/search`
+  - `/login`
+  - `/register`
+  - `/chats`
+  - `/chats/:roomId`
+  - `/notifications`
+- `/home` is implemented by the Home vertical slice.
+- `/services` is implemented by the Services vertical slice.
+- `/cup` is implemented by the Cup / Leaderboard vertical slice.
+- `/seats` is implemented by the Seats vertical slice.
+- `/profile` is implemented by the Profile + Packages vertical slice as demo current-profile behavior.
+- `/profiles/:id` is implemented by the Profile + Packages vertical slice for public profile detail.
+- `/search` is implemented by the Search vertical slice and is reachable from the Home search teaser.
+- `/login` and `/register` are public routes implemented by Auth Lite and live outside the bottom-navigation shell.
+- `/chats` and `/chats/:roomId` are public routes at the router layer but conceptually auth-required; their repositories show login-required state in real mode without an in-memory access token.
+- `/notifications` is public at the router layer but conceptually auth-required; its repository shows login-required state in real mode without an in-memory access token.
 - A `ShellRoute` provides the placeholder bottom navigation for Home, Services, Cup, Seats, and Profile.
-- The shell is structural only; feature vertical slices are not implemented.
-- Guard authenticated routes after auth lite exists.
+- The shell is structural; Home, Services, Cup, Seats, Profile, and Search have real feature content.
+- Auth Lite does not add complex route guards yet; authenticated route guards belong to the later auth hardening/protected-flow step.
 - Validate route parameters at boundaries.
 
 ## Design-system integration
@@ -228,6 +405,88 @@ The folder structure should be introduced incrementally. Do not create every fea
 - Tajawal remains the target UI font; current theme uses system fallback.
 - Add Tajawal through bundled font assets or `google_fonts` only when the local build environment supports the dependency.
 - Reusable state components exist for loading, empty, error, and retry-ready UI.
+
+## Implemented vertical slices
+
+### Home
+
+- Endpoint: `GET /home`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<HomeContent>`.
+- Domain layer: `HomeContent` plus highlight, category, service preview, offer preview, profile preview, and story entities.
+- Presentation layer: Riverpod controller with loading, success, empty, error, retry, and refresh behavior; Home screen with dark premium sections.
+- Widgets consume domain entities and do not call APIs directly.
+
+### Services
+
+- Endpoints: `GET /categories`, `GET /services`, `GET /services?category_id={id}`, `GET /services?q={text}`, and repository support for `GET /services/:id`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<T>`.
+- Domain layer: `ServiceCategory`, `PromooService`, `ServiceProvider`, and `ServicePrice`.
+- Presentation layer: Riverpod controller with categories, selected category, search query, loading, success, empty, error, retry, and refresh behavior.
+- UI renders services as listing/contact oriented cards only; no purchase, order, checkout, or payment flow exists.
+
+### Cup / Leaderboard
+
+- Endpoint: `GET /leaderboard?page=1&limit=20&type=all`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<List<LeaderboardProfile>>`.
+- Domain layer: `LeaderboardProfile`, `LeaderboardRank`, and `LeaderboardType`.
+- Presentation layer: Riverpod controller with loading, success, empty, error, retry, and refresh behavior.
+- UI renders a top 3 podium/highlight section plus a ranked list; no profile detail routing or search fallback exists.
+
+### Seats
+
+- Endpoints: `GET /seats`, `GET /seats/me`, and `POST /seats/:id/book`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<T>`.
+- Domain layer: `Seat`, `SeatTier`, `SeatStatus`, `SeatPrice`, `SeatHolder`, and `SeatBookingResult`.
+- Presentation layer: Riverpod controller with loading, success, empty, error, retry, refresh, selected tier, booking pending, booking auth-required, booking unavailable, booking success, and booking error behavior.
+- UI renders public seat listing, Gold/Silver/Bronze tier filters, status badges, and safe booking CTA.
+- Real booking is not triggered from UI until Auth lite/token storage exists; repository/data-source booking support is ready for that later phase.
+
+### Profile + Packages
+
+- Endpoints: `GET /profiles/:idOrUsername`, `GET /profiles/me`, and `PUT /profiles/me`.
+- Package source: profile packages are represented by services connected to the profile, fetched from `GET /services` and filtered client-side until the backend exposes a profile service filter.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<T>`.
+- Domain layer: `PromooProfile`, `ProfileAccountType`, `ProfileStats`, `ProfilePackage`, `ProfilePackagePrice`, and `ProfileUpdateDraft`.
+- Presentation layer: Riverpod controller with loading, success, empty/not found, error, retry, refresh, and safe action states.
+- UI renders the demo Profile tab, public profile detail route, header, avatar/name/account type, verification badge, stats, about section, action buttons, and packages.
+- Follow, message, and edit actions do not mutate backend state until Auth, Chat, upload, and edit flows exist.
+
+### Search
+
+- Endpoint: `GET /search`.
+- Confirmed query parameters: `q`, `type`, `page`, `limit`, `categoryId`, `minPrice`, `maxPrice`, `location`, and `accountType`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, repository implementation returning `Result<SearchResultsPage>`.
+- Domain layer: `SearchResultsPage`, `SearchResultType`, `SearchFilterType`, `SearchProfileResult`, `SearchServiceResult`, `SearchOfferResult`, `SearchAdResult`, provider and price value objects.
+- Presentation layer: Riverpod controller with idle, loading, success, empty, error, retry, refresh, selected filter, and stale-result protection.
+- UI renders submit-based search, filter chips, mixed profile/service/offer/ad result cards, and profile result navigation to `/profiles/:id`.
+- Service, offer, and ad results remain display-only until their detail/contact flows are scoped.
+
+### Auth Lite
+
+- Endpoints: `POST /auth/register/email`, `POST /auth/login/email`, `POST /auth/refresh`, and `POST /auth/logout`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, in-memory session store, and repository implementation returning `Result<T>`.
+- Domain layer: `AuthSession`, `AuthUser`, `AuthTokens`, `AuthAccountType`, and `AuthRepository`.
+- Presentation layer: Riverpod controller with unauthenticated, authenticating, authenticated, validation-error, error, and logging-out states.
+- UI renders public login/register screens and authenticated-session panels only; it does not add social login, phone/OTP, account deletion, profile edit, uploads, payments, push, or checkout behavior.
+- Existing public feature screens remain public. Profile and Seats login-required actions can route to `/login`, but protected backend mutations remain deferred.
+
+### Chat
+
+- Endpoints: `GET /chats`, `POST /chats`, `GET /chats/:roomId/messages`, `POST /chats/:roomId/messages`, and `PATCH /chats/:roomId/read`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, and repository implementation returning `Result<T>`.
+- Domain layer: `ChatRoom`, `ChatMessage`, `ChatParticipant`, `ChatMessageStatus`, and `ChatRepository`.
+- Presentation layer: Riverpod room-list controller plus route-scoped conversation controller with loading, success, empty, error, refreshing, sending, and send-error states.
+- UI renders a REST-backed skeleton inbox and conversation screen. Fake mode supports demo message sending; real mode requires the Auth Lite in-memory access token.
+- Production realtime, Supabase realtime, WebSockets, media upload, voice messages, moderation, and complex auth guards remain deferred.
+
+### Notifications
+
+- Endpoints: `GET /notifications`, `PATCH /notifications/:id/read`, `PATCH /notifications/read-all`, `DELETE /notifications/:id`, and `POST /notifications/token`.
+- Data layer: remote data source using `ApiClient`, fake data source selected by `PROMOO_USE_MOCKS`, defensive DTO parser, and repository implementation returning `Result<T>`.
+- Domain layer: `AppNotification`, `NotificationType`, and `NotificationsRepository`.
+- Presentation layer: Riverpod controller with loading, success, empty, error, refreshing, mark-read, mark-all-read, delete, and action-failure states.
+- UI renders notification cards, unread indicators, type labels/icons, mark-all-read, delete, and safe navigation to `/chats/:roomId` only when a notification carries a room id.
+- `POST /notifications/token` exists only in the repository/data layer for now. Firebase FCM setup, push permissions, local notifications, and background handlers remain deferred.
 
 ## Testing plan by slice
 

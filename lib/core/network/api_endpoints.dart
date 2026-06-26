@@ -2,6 +2,12 @@ class ApiEndpoints {
   const ApiEndpoints._();
 
   static const home = '/home';
+  static const offers = '/offers';
+  static const activeAds = '/ads/active';
+  static const loginEmail = '/auth/login/email';
+  static const registerEmail = '/auth/register/email';
+  static const refreshToken = '/auth/refresh';
+  static const logout = '/auth/logout';
   static const categories = '/categories';
   static const services = '/services';
   static const seats = '/seats';
@@ -19,6 +25,8 @@ class ApiEndpoints {
 
   static String serviceById(String id) => '/services/$id';
 
+  static String offerById(String id) => '/offers/$id';
+
   static String bookSeat(String id) => '/seats/$id/book';
 
   static String profileByIdOrUsername(String idOrUsername) {
@@ -30,4 +38,6 @@ class ApiEndpoints {
   static String markChatRead(String roomId) => '/chats/$roomId/read';
 
   static String markNotificationRead(String id) => '/notifications/$id/read';
+
+  static String notificationById(String id) => '/notifications/$id';
 }

@@ -1,0 +1,128 @@
+import 'package:flutter/material.dart';
+
+import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../theme/app_colors.dart';
+import '../../../../theme/app_radius.dart';
+import '../../../../theme/app_spacing.dart';
+import '../../domain/entities/promoo_profile.dart';
+
+class ProfilePackageCard extends StatelessWidget {
+  const ProfilePackageCard({super.key, required this.package});
+
+  final ProfilePackage package;
+
+  @override
+  Widget build(BuildContext context) {
+    return PromooCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _PackageIcon(package: package),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        package.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    if (package.price != null) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(
+                        package.price!.label,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: AppColors.primaryYellow,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (package.description != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    package.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    if (package.categoryName != null)
+                      _Chip(label: package.categoryName!),
+                    if (package.deliveryDays != null)
+                      _Chip(label: '${package.deliveryDays} day delivery'),
+                    const _Chip(label: 'Contact only'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PackageIcon extends StatelessWidget {
+  const _PackageIcon({required this.package});
+
+  final ProfilePackage package;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = package.imageUrls.isEmpty ? null : package.imageUrls.first;
+
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: AppColors.elevatedSurface,
+        borderRadius: AppRadius.card,
+        border: Border.all(color: AppColors.border),
+        image: imageUrl == null
+            ? null
+            : DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
+      ),
+      child: imageUrl == null
+          ? const Icon(
+              Icons.local_offer_rounded,
+              color: AppColors.primaryYellow,
+            )
+          : null,
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadius.pill,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+    );
+  }
+}

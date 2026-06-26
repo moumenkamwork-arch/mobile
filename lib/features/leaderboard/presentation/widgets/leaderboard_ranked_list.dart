@@ -1,0 +1,37 @@
+import 'package:flutter/material.dart';
+
+import '../../../../shared/widgets/promoo_section_header.dart';
+import '../../../../theme/app_spacing.dart';
+import '../../domain/entities/leaderboard_profile.dart';
+import 'leaderboard_profile_card.dart';
+
+class LeaderboardRankedList extends StatelessWidget {
+  const LeaderboardRankedList({super.key, required this.profiles});
+
+  final List<LeaderboardProfile> profiles;
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedProfiles = [...profiles]
+      ..sort((a, b) => a.rank.value.compareTo(b.rank.value));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const PromooSectionHeader(
+          title: 'Ranking',
+          subtitle: 'Active companies, influencers, and service providers',
+        ),
+        const SizedBox(height: AppSpacing.md),
+        for (var i = 0; i < sortedProfiles.length; i++) ...[
+          LeaderboardProfileCard(
+            profile: sortedProfiles[i],
+            highlight: sortedProfiles[i].rank.isPodium,
+          ),
+          if (i != sortedProfiles.length - 1)
+            const SizedBox(height: AppSpacing.md),
+        ],
+      ],
+    );
+  }
+}

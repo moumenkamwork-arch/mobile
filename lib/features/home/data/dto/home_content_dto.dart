@@ -1,0 +1,921 @@
+import '../../domain/entities/home_content.dart';
+
+class HomeContentDto {
+  const HomeContentDto({
+    this.highlight,
+    this.categories = const [],
+    this.services = const [],
+    this.offers = const [],
+    this.profiles = const [],
+    this.stories = const [],
+  });
+
+  final HomeHighlightDto? highlight;
+  final List<HomeCategoryDto> categories;
+  final List<HomeServicePreviewDto> services;
+  final List<HomeOfferPreviewDto> offers;
+  final List<HomeProfilePreviewDto> profiles;
+  final List<HomeStoryDto> stories;
+
+  factory HomeContentDto.empty() {
+    return const HomeContentDto();
+  }
+
+  factory HomeContentDto.fromJsonFlexible(Object? value) {
+    if (value == null) {
+      return HomeContentDto.empty();
+    }
+
+    final root = _mapFrom(value);
+    if (root == null) {
+      throw const FormatException(
+        'Expected home response data to be an object.',
+      );
+    }
+
+    final source = _homeSource(root);
+    final promooOfTheDay = _mapFrom(
+      _firstPresent(source, const [
+        'promoo_of_the_day',
+        'promooOfTheDay',
+        'highlight',
+        'featured',
+        'featured_offer',
+      ]),
+    );
+    final firstAd = _firstMapFrom(
+      _firstPresent(source, const ['ads', 'banners', 'promotions']),
+    );
+
+    return HomeContentDto(
+      highlight: promooOfTheDay != null
+          ? HomeHighlightDto.fromJson(
+              promooOfTheDay,
+              fallbackType: HomeContentDetailType.offer,
+            )
+          : firstAd == null
+          ? null
+          : HomeHighlightDto.fromJson(
+              firstAd,
+              fallbackBadge: 'Promoted',
+              fallbackType: HomeContentDetailType.ad,
+            ),
+      stories: _mapsFrom(
+        _firstPresent(source, const ['stories', 'highlights']),
+      ).map(HomeStoryDto.fromJson).toList(growable: false),
+      categories: _mapsFrom(
+        source['categories'],
+      ).map(HomeCategoryDto.fromJson).toList(growable: false),
+      profiles: _mapsFrom(
+        _firstPresent(source, const [
+          'featured_profiles',
+          'featuredProfiles',
+          'profiles',
+          'influencers',
+        ]),
+      ).map(HomeProfilePreviewDto.fromJson).toList(growable: false),
+      offers: _mapsFrom(
+        _firstPresent(source, const [
+          'latest_offers',
+          'latestOffers',
+          'offers',
+          'promotions',
+        ]),
+      ).map(HomeOfferPreviewDto.fromJson).toList(growable: false),
+      services: _mapsFrom(
+        source['services'],
+      ).map(HomeServicePreviewDto.fromJson).toList(growable: false),
+    );
+  }
+
+  factory HomeContentDto.fixture() {
+    return const HomeContentDto(
+      highlight: HomeHighlightDto(
+        id: 'offer-featured',
+        title: 'Promoo of the day',
+        subtitle: 'Premium visibility for a limited-time marketplace offer.',
+        badge: 'Featured',
+        actionLabel: 'View details',
+      ),
+      categories: [
+        HomeCategoryDto(id: 'beauty', name: 'Beauty'),
+        HomeCategoryDto(id: 'events', name: 'Events'),
+        HomeCategoryDto(id: 'food', name: 'Food'),
+        HomeCategoryDto(id: 'fitness', name: 'Fitness'),
+      ],
+      services: [
+        HomeServicePreviewDto(
+          id: 'service-content',
+          title: 'Premium content package',
+          subtitle: 'Creator-ready promotion service',
+          categoryName: 'Marketing',
+          location: 'Dubai',
+        ),
+        HomeServicePreviewDto(
+          id: 'service-events',
+          title: 'Event coverage',
+          subtitle: 'Photo and short-form video coverage',
+          categoryName: 'Events',
+          location: 'Dubai',
+        ),
+      ],
+      offers: [
+        HomeOfferPreviewDto(
+          id: 'offer-1',
+          title: 'Launch week promotion',
+          subtitle: 'A highlighted offer for early Promoo partners.',
+        ),
+        HomeOfferPreviewDto(
+          id: 'offer-2',
+          title: 'Creator bundle',
+          subtitle: 'A limited package for marketplace discovery.',
+        ),
+      ],
+      profiles: [
+        HomeProfilePreviewDto(
+          id: 'profile-1',
+          name: 'Noura Studio',
+          username: 'noura.studio',
+          accountType: 'influencer',
+          isVerified: true,
+        ),
+        HomeProfilePreviewDto(
+          id: 'profile-2',
+          name: 'Promoo Partner',
+          username: 'promoo.partner',
+          accountType: 'company',
+        ),
+      ],
+      stories: [
+        HomeStoryDto(id: 'story-1', title: 'Today'),
+        HomeStoryDto(id: 'story-2', title: 'Featured'),
+      ],
+    );
+  }
+
+  HomeContent toDomain() {
+    return HomeContent(
+      highlight: highlight?.toDomain(),
+      categories: [
+        for (var i = 0; i < categories.length; i++)
+          if (categories[i].name != null)
+            categories[i].toDomain(fallbackId: 'category-$i'),
+      ],
+      services: [
+        for (var i = 0; i < services.length; i++)
+          if (services[i].title != null)
+            services[i].toDomain(fallbackId: 'service-$i'),
+      ],
+      offers: [
+        for (var i = 0; i < offers.length; i++)
+          if (offers[i].title != null)
+            offers[i].toDomain(fallbackId: 'offer-$i'),
+      ],
+      profiles: [
+        for (var i = 0; i < profiles.length; i++)
+          if (profiles[i].name != null)
+            profiles[i].toDomain(fallbackId: 'profile-$i'),
+      ],
+      stories: [
+        for (var i = 0; i < stories.length; i++)
+          if (stories[i].title != null)
+            stories[i].toDomain(fallbackId: 'story-$i'),
+      ],
+    );
+  }
+}
+
+class HomeHighlightDto {
+  const HomeHighlightDto({
+    this.id,
+    this.title,
+    this.detailType = HomeContentDetailType.offer,
+    this.subtitle,
+    this.imageUrl,
+    this.badge,
+    this.actionLabel,
+  });
+
+  final String? id;
+  final String? title;
+  final HomeContentDetailType detailType;
+  final String? subtitle;
+  final String? imageUrl;
+  final String? badge;
+  final String? actionLabel;
+
+  factory HomeHighlightDto.fromJson(
+    Map<String, Object?> json, {
+    String? fallbackBadge,
+    HomeContentDetailType fallbackType = HomeContentDetailType.offer,
+  }) {
+    return HomeHighlightDto(
+      id: _readString(json, const ['id', 'offer_id', 'ad_id']),
+      title: _readString(json, const ['title', 'name', 'headline']),
+      detailType: _detailTypeFromValue(
+        _readString(json, const ['type', 'kind', 'ad_type', 'content_type']),
+        fallbackType,
+      ),
+      subtitle: _readString(json, const [
+        'subtitle',
+        'description',
+        'summary',
+        'body',
+      ]),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'banner_url',
+        'media_url',
+        'cover_url',
+      ]),
+      badge:
+          _readString(json, const ['badge', 'label', 'placement']) ??
+          fallbackBadge,
+      actionLabel: _readString(json, const ['action_label', 'actionLabel']),
+    );
+  }
+
+  HomeHighlight toDomain() {
+    return HomeHighlight(
+      id: id ?? title ?? 'home-highlight',
+      title: title ?? 'Featured on Promoo',
+      detailType: detailType,
+      subtitle: subtitle,
+      imageUrl: imageUrl,
+      badge: badge ?? 'Featured',
+      actionLabel: actionLabel ?? 'View details',
+    );
+  }
+}
+
+class HomeCategoryDto {
+  const HomeCategoryDto({this.id, this.name, this.iconUrl});
+
+  final String? id;
+  final String? name;
+  final String? iconUrl;
+
+  factory HomeCategoryDto.fromJson(Map<String, Object?> json) {
+    return HomeCategoryDto(
+      id: _readString(json, const ['id', 'category_id', 'slug']),
+      name: _readString(json, const ['name', 'title', 'label']),
+      iconUrl: _readString(json, const ['icon_url', 'iconUrl', 'image_url']),
+    );
+  }
+
+  HomeCategory toDomain({required String fallbackId}) {
+    return HomeCategory(
+      id: id ?? fallbackId,
+      name: name ?? 'Category',
+      iconUrl: iconUrl,
+    );
+  }
+}
+
+class HomeServicePreviewDto {
+  const HomeServicePreviewDto({
+    this.id,
+    this.title,
+    this.subtitle,
+    this.imageUrl,
+    this.categoryName,
+    this.location,
+  });
+
+  final String? id;
+  final String? title;
+  final String? subtitle;
+  final String? imageUrl;
+  final String? categoryName;
+  final String? location;
+
+  factory HomeServicePreviewDto.fromJson(Map<String, Object?> json) {
+    final category = _mapFrom(json['category']);
+
+    return HomeServicePreviewDto(
+      id: _readString(json, const ['id', 'service_id']),
+      title: _readString(json, const ['title', 'name', 'service_name']),
+      subtitle: _readString(json, const [
+        'subtitle',
+        'description',
+        'short_description',
+        'summary',
+      ]),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'thumbnail_url',
+      ]),
+      categoryName:
+          _readString(json, const ['category_name', 'categoryName']) ??
+          (category == null
+              ? null
+              : _readString(category, const ['name', 'title'])),
+      location: _readString(json, const ['location', 'city', 'address']),
+    );
+  }
+
+  HomeServicePreview toDomain({required String fallbackId}) {
+    return HomeServicePreview(
+      id: id ?? fallbackId,
+      title: title ?? 'Service',
+      subtitle: subtitle,
+      imageUrl: imageUrl,
+      categoryName: categoryName,
+      location: location,
+    );
+  }
+}
+
+class HomeOfferPreviewDto {
+  const HomeOfferPreviewDto({
+    this.id,
+    this.title,
+    this.detailType = HomeContentDetailType.offer,
+    this.subtitle,
+    this.imageUrl,
+  });
+
+  final String? id;
+  final String? title;
+  final HomeContentDetailType detailType;
+  final String? subtitle;
+  final String? imageUrl;
+
+  factory HomeOfferPreviewDto.fromJson(Map<String, Object?> json) {
+    return HomeOfferPreviewDto(
+      id: _readString(json, const ['id', 'offer_id']),
+      title: _readString(json, const ['title', 'name', 'headline']),
+      detailType: _detailTypeFromValue(
+        _readString(json, const ['type', 'kind', 'content_type']),
+        HomeContentDetailType.offer,
+      ),
+      subtitle: _readString(json, const ['subtitle', 'description', 'summary']),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'thumbnail_url',
+      ]),
+    );
+  }
+
+  HomeOfferPreview toDomain({required String fallbackId}) {
+    return HomeOfferPreview(
+      id: id ?? fallbackId,
+      title: title ?? 'Offer',
+      detailType: detailType,
+      subtitle: subtitle,
+      imageUrl: imageUrl,
+    );
+  }
+}
+
+class HomeProfilePreviewDto {
+  const HomeProfilePreviewDto({
+    this.id,
+    this.name,
+    this.username,
+    this.avatarUrl,
+    this.accountType,
+    this.isVerified = false,
+  });
+
+  final String? id;
+  final String? name;
+  final String? username;
+  final String? avatarUrl;
+  final String? accountType;
+  final bool isVerified;
+
+  factory HomeProfilePreviewDto.fromJson(Map<String, Object?> json) {
+    final profile = _mapFrom(json['profile']) ?? json;
+
+    return HomeProfilePreviewDto(
+      id:
+          _readString(profile, const ['id', 'profile_id']) ??
+          _readString(json, const ['id', 'profile_id']),
+      name: _readString(profile, const [
+        'full_name',
+        'display_name',
+        'name',
+        'username',
+      ]),
+      username: _readString(profile, const ['username']),
+      avatarUrl: _readString(profile, const ['avatar_url', 'avatarUrl']),
+      accountType: _readString(profile, const ['account_type', 'accountType']),
+      isVerified: _readBool(profile, const ['is_verified', 'isVerified']),
+    );
+  }
+
+  HomeProfilePreview toDomain({required String fallbackId}) {
+    return HomeProfilePreview(
+      id: id ?? fallbackId,
+      name: name ?? username ?? 'Profile',
+      username: username,
+      avatarUrl: avatarUrl,
+      accountType: accountType,
+      isVerified: isVerified,
+    );
+  }
+}
+
+class HomeStoryDto {
+  const HomeStoryDto({
+    this.id,
+    this.title,
+    this.imageUrl,
+    this.profileName,
+    this.profileAvatarUrl,
+  });
+
+  final String? id;
+  final String? title;
+  final String? imageUrl;
+  final String? profileName;
+  final String? profileAvatarUrl;
+
+  factory HomeStoryDto.fromJson(Map<String, Object?> json) {
+    final profile = _mapFrom(json['profile']);
+
+    return HomeStoryDto(
+      id: _readString(json, const ['id', 'story_id']),
+      title:
+          _readString(json, const ['title', 'name']) ??
+          (profile == null
+              ? null
+              : _readString(profile, const ['full_name', 'name', 'username'])),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'media_url',
+      ]),
+      profileName: profile == null
+          ? null
+          : _readString(profile, const ['full_name', 'name', 'username']),
+      profileAvatarUrl: profile == null
+          ? null
+          : _readString(profile, const ['avatar_url', 'avatarUrl']),
+    );
+  }
+
+  HomeStory toDomain({required String fallbackId}) {
+    return HomeStory(
+      id: id ?? fallbackId,
+      title: title ?? 'Story',
+      imageUrl: imageUrl,
+      profileName: profileName,
+      profileAvatarUrl: profileAvatarUrl,
+    );
+  }
+}
+
+class HomeContentDetailDto {
+  const HomeContentDetailDto({
+    this.id,
+    required this.type,
+    this.title,
+    this.description,
+    this.imageUrl,
+    this.badge,
+    this.provider,
+    this.categoryName,
+    this.tags = const [],
+    this.price,
+    this.currency,
+    this.location,
+    this.promoCode,
+    this.validUntil,
+    this.terms,
+  });
+
+  final String? id;
+  final HomeContentDetailType type;
+  final String? title;
+  final String? description;
+  final String? imageUrl;
+  final String? badge;
+  final HomeContentProviderDto? provider;
+  final String? categoryName;
+  final List<String> tags;
+  final num? price;
+  final String? currency;
+  final String? location;
+  final String? promoCode;
+  final String? validUntil;
+  final String? terms;
+
+  factory HomeContentDetailDto.fromJsonFlexible(
+    Object? value, {
+    required HomeContentDetailType fallbackType,
+  }) {
+    final source = _detailSource(value);
+    if (source == null) {
+      throw const FormatException(
+        'Expected home detail response data to be an object.',
+      );
+    }
+
+    return HomeContentDetailDto.fromJson(source, fallbackType: fallbackType);
+  }
+
+  factory HomeContentDetailDto.fromJson(
+    Map<String, Object?> json, {
+    required HomeContentDetailType fallbackType,
+  }) {
+    final profile = _mapFrom(json['profile']) ?? _mapFrom(json['provider']);
+    final category = _mapFrom(json['category']);
+    final mediaUrls = _readStringList(json, const [
+      'media_urls',
+      'mediaUrls',
+      'image_urls',
+      'imageUrls',
+      'images',
+    ]);
+    final directImage = _readString(json, const [
+      'image_url',
+      'imageUrl',
+      'media_url',
+      'mediaUrl',
+      'cover_url',
+      'coverUrl',
+      'thumbnail_url',
+      'thumbnailUrl',
+    ]);
+    final providerId =
+        _readString(json, const ['profile_id', 'provider_id']) ??
+        _readString(profile, const ['id', 'profile_id']);
+
+    return HomeContentDetailDto(
+      id: _readString(json, const ['id', 'offer_id', 'ad_id']),
+      type: _detailTypeFromValue(
+        _readString(json, const ['type', 'kind', 'ad_type', 'content_type']),
+        fallbackType,
+      ),
+      title: _readString(json, const ['title', 'name', 'headline']),
+      description: _readString(json, const [
+        'description',
+        'subtitle',
+        'summary',
+        'body',
+        'details',
+      ]),
+      imageUrl: directImage ?? (mediaUrls.isEmpty ? null : mediaUrls.first),
+      badge: _readString(json, const [
+        'badge',
+        'label',
+        'placement',
+        'ad_type',
+      ]),
+      provider: profile == null
+          ? providerId == null
+                ? null
+                : HomeContentProviderDto(id: providerId)
+          : HomeContentProviderDto.fromJson(profile, fallbackId: providerId),
+      categoryName:
+          _readString(json, const ['category_name', 'categoryName']) ??
+          _readCategoryName(category),
+      tags: _readStringList(json, const ['tags', 'service_tags']),
+      price: _readNum(json, const [
+        'offer_price',
+        'price',
+        'amount',
+        'discount_price',
+      ]),
+      currency: _readString(json, const ['currency']),
+      location:
+          _readString(json, const [
+            'location',
+            'city',
+            'area',
+            'full_address',
+            'address',
+          ]) ??
+          _readString(profile, const ['location', 'city']),
+      promoCode: _readString(json, const [
+        'promo_code',
+        'promoCode',
+        'code',
+        'coupon_code',
+      ]),
+      validUntil: _readString(json, const [
+        'valid_until',
+        'validUntil',
+        'end_date',
+        'endDate',
+        'expires_at',
+        'expiresAt',
+      ]),
+      terms: _readString(json, const ['terms', 'conditions', 'terms_text']),
+    );
+  }
+
+  static List<HomeContentDetailDto> listFromJsonFlexible(
+    Object? value, {
+    required HomeContentDetailType fallbackType,
+  }) {
+    return [
+      for (final map in _mapsFrom(value))
+        HomeContentDetailDto.fromJson(map, fallbackType: fallbackType),
+    ];
+  }
+
+  HomeContentDetail toDomain({
+    required String fallbackId,
+    required String fallbackCurrency,
+  }) {
+    return HomeContentDetail(
+      id: id ?? fallbackId,
+      type: type,
+      title: title ?? type.label,
+      description: description,
+      imageUrl: imageUrl,
+      badge: badge ?? type.label,
+      provider: provider?.toDomain(),
+      categoryName: categoryName,
+      tags: tags,
+      price: price == null
+          ? null
+          : HomeContentPrice(
+              amount: price!,
+              currency: _cleanCurrency(currency) ?? fallbackCurrency,
+            ),
+      location: location,
+      promoCode: promoCode,
+      validUntil: validUntil,
+      terms: terms,
+    );
+  }
+}
+
+class HomeContentProviderDto {
+  const HomeContentProviderDto({
+    required this.id,
+    this.name,
+    this.username,
+    this.avatarUrl,
+    this.accountType,
+    this.isVerified = false,
+  });
+
+  final String id;
+  final String? name;
+  final String? username;
+  final String? avatarUrl;
+  final String? accountType;
+  final bool isVerified;
+
+  factory HomeContentProviderDto.fromJson(
+    Map<String, Object?> json, {
+    String? fallbackId,
+  }) {
+    return HomeContentProviderDto(
+      id:
+          _readString(json, const ['id', 'profile_id', 'provider_id']) ??
+          fallbackId ??
+          'provider',
+      name: _readString(json, const [
+        'full_name',
+        'display_name',
+        'name',
+        'username',
+      ]),
+      username: _readString(json, const ['username']),
+      avatarUrl: _readString(json, const ['avatar_url', 'avatarUrl']),
+      accountType: _readString(json, const ['account_type', 'accountType']),
+      isVerified: _readBool(json, const ['is_verified', 'isVerified']),
+    );
+  }
+
+  HomeContentProvider toDomain() {
+    return HomeContentProvider(
+      id: id,
+      name: name,
+      username: username,
+      avatarUrl: avatarUrl,
+      accountType: accountType,
+      isVerified: isVerified,
+    );
+  }
+}
+
+Map<String, Object?> _homeSource(Map<String, Object?> root) {
+  final data = _mapFrom(root['data']);
+  if (data != null && _looksLikeHomeData(data)) {
+    return data;
+  }
+
+  final home = _mapFrom(root['home']);
+  if (home != null) {
+    return home;
+  }
+
+  final feed = _mapFrom(root['feed']);
+  if (feed != null) {
+    return feed;
+  }
+
+  final sections = _mapFrom(root['sections']);
+  if (sections != null) {
+    return sections;
+  }
+
+  return root;
+}
+
+Map<String, Object?>? _detailSource(Object? value) {
+  final root = _mapFrom(value);
+  if (root == null) {
+    return null;
+  }
+
+  final data = _mapFrom(root['data']);
+  if (data != null) {
+    return _detailSource(data);
+  }
+
+  for (final key in const ['offer', 'ad', 'item', 'promotion', 'details']) {
+    final nested = _mapFrom(root[key]);
+    if (nested != null) {
+      return nested;
+    }
+  }
+
+  return root;
+}
+
+bool _looksLikeHomeData(Map<String, Object?> map) {
+  const keys = [
+    'stories',
+    'categories',
+    'featured_profiles',
+    'featuredProfiles',
+    'promoo_of_the_day',
+    'promooOfTheDay',
+    'latest_offers',
+    'latestOffers',
+    'services',
+    'ads',
+  ];
+
+  return keys.any(map.containsKey);
+}
+
+Object? _firstPresent(Map<String, Object?> map, List<String> keys) {
+  for (final key in keys) {
+    if (map.containsKey(key)) {
+      return map[key];
+    }
+  }
+  return null;
+}
+
+List<Map<String, Object?>> _mapsFrom(Object? value) {
+  final unwrapped = _unwrapListContainer(value);
+  if (unwrapped is List) {
+    final maps = <Map<String, Object?>>[];
+    for (final item in unwrapped) {
+      final mapped = _mapFrom(item);
+      if (mapped != null) {
+        maps.add(mapped);
+      }
+    }
+    return maps;
+  }
+  return const [];
+}
+
+Object? _unwrapListContainer(Object? value) {
+  if (value is List) {
+    return value;
+  }
+
+  final map = _mapFrom(value);
+  if (map == null) {
+    return value;
+  }
+
+  for (final key in const ['data', 'items', 'results', 'list', 'records']) {
+    final nested = map[key];
+    if (nested is List) {
+      return nested;
+    }
+  }
+
+  return value;
+}
+
+Map<String, Object?>? _firstMapFrom(Object? value) {
+  final maps = _mapsFrom(value);
+  if (maps.isNotEmpty) {
+    return maps.first;
+  }
+  return _mapFrom(value);
+}
+
+Map<String, Object?>? _mapFrom(Object? value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is Map<String, Object?>) {
+    return value;
+  }
+  if (value is Map) {
+    return Map<String, Object?>.from(value);
+  }
+  return null;
+}
+
+String? _readString(Map<String, Object?>? map, List<String> keys) {
+  if (map == null) {
+    return null;
+  }
+  for (final key in keys) {
+    final value = map[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+    if (value is num || value is bool) {
+      return value.toString();
+    }
+  }
+  return null;
+}
+
+bool _readBool(Map<String, Object?>? map, List<String> keys) {
+  if (map == null) {
+    return false;
+  }
+  for (final key in keys) {
+    final value = map[key];
+    if (value is bool) {
+      return value;
+    }
+  }
+  return false;
+}
+
+num? _readNum(Map<String, Object?>? map, List<String> keys) {
+  if (map == null) {
+    return null;
+  }
+  for (final key in keys) {
+    final value = map[key];
+    if (value is num) {
+      return value;
+    }
+    if (value is String) {
+      return num.tryParse(value);
+    }
+  }
+  return null;
+}
+
+List<String> _readStringList(Map<String, Object?> map, List<String> keys) {
+  for (final key in keys) {
+    final value = map[key];
+    if (value is List) {
+      return [
+        for (final item in value)
+          if (item is String && item.trim().isNotEmpty) item.trim(),
+      ];
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      return value
+          .split(',')
+          .map((part) => part.trim())
+          .where((part) => part.isNotEmpty)
+          .toList(growable: false);
+    }
+  }
+  return const [];
+}
+
+String? _readCategoryName(Map<String, Object?>? category) {
+  return _readString(category, const [
+    'name',
+    'name_en',
+    'nameEn',
+    'name_ar',
+    'nameAr',
+    'title',
+  ]);
+}
+
+HomeContentDetailType _detailTypeFromValue(
+  String? value,
+  HomeContentDetailType fallbackType,
+) {
+  final parsed = HomeContentDetailTypeValue.fromRouteValue(value);
+  return parsed == HomeContentDetailType.unknown ? fallbackType : parsed;
+}
+
+String? _cleanCurrency(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return null;
+  }
+  return value.trim().toUpperCase();
+}

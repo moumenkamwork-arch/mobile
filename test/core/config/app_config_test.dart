@@ -10,6 +10,7 @@ void main() {
     expect(config.baseUrl, AppConfig.defaultDevelopmentBaseUrl);
     expect(config.normalizedBaseUrl, AppConfig.defaultDevelopmentBaseUrl);
     expect(config.useMocks, isFalse);
+    expect(config.fallbackCurrency, AppConfig.defaultFallbackCurrency);
   });
 
   test('normalizedBaseUrl removes trailing slash', () {

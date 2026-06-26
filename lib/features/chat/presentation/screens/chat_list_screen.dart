@@ -1,0 +1,200 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_empty_state.dart';
+import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../theme/app_colors.dart';
+import '../../../../theme/app_spacing.dart';
+import '../controllers/chat_controller.dart';
+import '../widgets/chat_room_card.dart';
+
+class ChatListScreen extends ConsumerWidget {
+  const ChatListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(chatControllerProvider);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            RefreshIndicator(
+              color: AppColors.primaryYellow,
+              backgroundColor: AppColors.elevatedSurface,
+              onRefresh: () =>
+                  ref.read(chatControllerProvider.notifier).refresh(),
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      AppSpacing.screenHorizontal,
+                      AppSpacing.lg,
+                      AppSpacing.screenHorizontal,
+                      AppSpacing.xxl,
+                    ),
+                    sliver: SliverList.list(
+                      children: [
+                        _ChatHeader(
+                          onBack: () => _goBack(context),
+                          onNotifications: () =>
+                              context.go(AppRoutes.notifications),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        _ChatBody(
+                          state: state,
+                          onRetry: () =>
+                              ref.read(chatControllerProvider.notifier).retry(),
+                          onLogin: () => context.go(AppRoutes.login),
+                          onRoomSelected: (roomId) =>
+                              context.go(AppRoutes.chatRoom(roomId)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (state.isRefreshing)
+              const PositionedDirectional(
+                top: 0,
+                start: 0,
+                end: 0,
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatHeader extends StatelessWidget {
+  const _ChatHeader({required this.onBack, required this.onNotifications});
+
+  final VoidCallback onBack;
+  final VoidCallback onNotifications;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          tooltip: 'Back',
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Chats', style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                'Keep campaign conversations in one place.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          tooltip: 'Notifications',
+          onPressed: onNotifications,
+          icon: const Icon(Icons.notifications_none_rounded),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChatBody extends StatelessWidget {
+  const _ChatBody({
+    required this.state,
+    required this.onRetry,
+    required this.onLogin,
+    required this.onRoomSelected,
+  });
+
+  final ChatState state;
+  final VoidCallback onRetry;
+  final VoidCallback onLogin;
+  final ValueChanged<String> onRoomSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (state.status) {
+      ChatStatus.loading => const SizedBox(
+        height: 420,
+        child: PromooLoadingIndicator(message: 'Loading chats'),
+      ),
+      ChatStatus.empty => const SizedBox(
+        height: 420,
+        child: PromooEmptyState(
+          title: 'No chats yet',
+          message: 'Your conversations will appear here.',
+          icon: Icons.chat_bubble_outline_rounded,
+        ),
+      ),
+      ChatStatus.error =>
+        state.isAuthRequired
+            ? SizedBox(
+                height: 420,
+                child: _AuthRequiredState(
+                  message: state.failure?.message,
+                  onLogin: onLogin,
+                ),
+              )
+            : SizedBox(
+                height: 420,
+                child: PromooErrorState(
+                  title: 'Could not load chats',
+                  message: state.failure?.message ?? 'Something went wrong.',
+                  onRetry: onRetry,
+                ),
+              ),
+      ChatStatus.success || ChatStatus.refreshing => Column(
+        children: [
+          for (var i = 0; i < state.rooms.length; i++) ...[
+            ChatRoomCard(
+              room: state.rooms[i],
+              onTap: () => onRoomSelected(state.rooms[i].id),
+            ),
+            if (i != state.rooms.length - 1)
+              const SizedBox(height: AppSpacing.md),
+          ],
+        ],
+      ),
+    };
+  }
+}
+
+class _AuthRequiredState extends StatelessWidget {
+  const _AuthRequiredState({required this.onLogin, this.message});
+
+  final VoidCallback onLogin;
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    return PromooEmptyState(
+      title: 'Login required',
+      message: message ?? 'Sign in to use Promoo chat.',
+      icon: Icons.lock_outline_rounded,
+      actionLabel: 'Go to login',
+      onActionPressed: onLogin,
+    );
+  }
+}
+
+void _goBack(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go(AppRoutes.home);
+  }
+}

@@ -18,4 +18,5 @@ class AppSpacing {
   static const touchTarget = 44.0;
   static const buttonHeight = 48.0;
   static const bottomNavHeight = 76.0;
+  static const shellScrollBottom = bottomNavHeight + xl;
 }

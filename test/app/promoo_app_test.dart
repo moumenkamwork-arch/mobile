@@ -8,7 +8,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: PromooApp()));
 
     expect(find.byType(PromooLogo), findsOneWidget);
-    expect(find.text('Design system shell'), findsOneWidget);
-    expect(find.text('Preview app shell'), findsOneWidget);
+    expect(find.text('Welcome to Promoo'), findsOneWidget);
+    expect(find.text('Enter Promoo'), findsOneWidget);
   });
 }

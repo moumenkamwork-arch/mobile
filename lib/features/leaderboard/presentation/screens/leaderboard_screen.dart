@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../shared/widgets/promoo_empty_state.dart';
+import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../theme/app_colors.dart';
+import '../../../../theme/app_spacing.dart';
+import '../controllers/leaderboard_controller.dart';
+import '../widgets/leaderboard_podium.dart';
+import '../widgets/leaderboard_ranked_list.dart';
+
+class LeaderboardScreen extends ConsumerWidget {
+  const LeaderboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(leaderboardControllerProvider);
+
+    return switch (state.status) {
+      LeaderboardStatus.loading => const PromooLoadingIndicator(
+        message: 'Loading leaderboard',
+      ),
+      LeaderboardStatus.error => _LeaderboardErrorView(state: state),
+      LeaderboardStatus.empty ||
+      LeaderboardStatus.success ||
+      LeaderboardStatus.refreshing => _LeaderboardContentView(
+        state: state,
+        onRefresh: () =>
+            ref.read(leaderboardControllerProvider.notifier).refresh(),
+      ),
+    };
+  }
+}
+
+class _LeaderboardErrorView extends ConsumerWidget {
+  const _LeaderboardErrorView({required this.state});
+
+  final LeaderboardState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (state.hasContent) {
+      return Stack(
+        children: [
+          _LeaderboardContentView(
+            state: state,
+            onRefresh: () =>
+                ref.read(leaderboardControllerProvider.notifier).refresh(),
+          ),
+          PositionedDirectional(
+            top: AppSpacing.md,
+            start: AppSpacing.md,
+            end: AppSpacing.md,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppColors.elevatedSurface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.error),
+              ),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                child: Text(
+                  state.failure?.message ?? 'Could not refresh leaderboard.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return PromooErrorState(
+      title: 'Could not load leaderboard',
+      message: state.failure?.message ?? 'Something went wrong. Try again.',
+      onRetry: () => ref.read(leaderboardControllerProvider.notifier).retry(),
+    );
+  }
+}
+
+class _LeaderboardContentView extends StatelessWidget {
+  const _LeaderboardContentView({required this.state, required this.onRefresh});
+
+  final LeaderboardState state;
+  final RefreshCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        RefreshIndicator(
+          color: AppColors.primaryYellow,
+          backgroundColor: AppColors.elevatedSurface,
+          onRefresh: onRefresh,
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.screenVertical,
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.shellScrollBottom,
+                ),
+                sliver: SliverList.list(
+                  children: [
+                    Text(
+                      'Cup',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'The Promoo leaderboard ranked by follower reach.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    if (state.profiles.isEmpty)
+                      const PromooEmptyState(
+                        title: 'No leaderboard yet',
+                        message:
+                            'Ranked profiles will appear here when they are available.',
+                        icon: Icons.emoji_events_rounded,
+                      )
+                    else ...[
+                      LeaderboardPodium(
+                        profiles: state.profiles.take(3).toList(),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      LeaderboardRankedList(profiles: state.profiles),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (state.isRefreshing)
+          const PositionedDirectional(
+            top: 0,
+            start: 0,
+            end: 0,
+            child: LinearProgressIndicator(minHeight: 2),
+          ),
+      ],
+    );
+  }
+}

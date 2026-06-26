@@ -5,8 +5,8 @@ import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
-  testWidgets('shell navigation renders main placeholder tabs', (tester) async {
-    final router = createAppRouter(initialLocation: AppRoutes.home);
+  testWidgets('shell navigation renders main tabs', (tester) async {
+    final router = createAppRouter(initialLocation: AppRoutes.profile);
     addTearDown(router.dispose);
 
     await tester.pumpWidget(
@@ -17,17 +17,11 @@ void main() {
     for (final tab in ['Home', 'Services', 'Cup', 'Seats', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
-    expect(
-      find.text('Home vertical slice is not started yet.'),
-      findsOneWidget,
-    );
+    expect(find.text('Noura Studio'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Services'));
+    await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Services vertical slice is not started yet.'),
-      findsOneWidget,
-    );
+    expect(find.text('Packages'), findsOneWidget);
   });
 }

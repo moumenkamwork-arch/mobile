@@ -35,6 +35,7 @@ class ApiClient {
   Future<ApiResponse<T>> get<T>(
     String path, {
     Map<String, Object?>? queryParameters,
+    Map<String, Object?>? headers,
     T Function(Object? data)? decode,
     CancelToken? cancelToken,
   }) {
@@ -42,6 +43,7 @@ class ApiClient {
       () => _dio.get<Object?>(
         path,
         queryParameters: queryParameters,
+        options: _options(headers),
         cancelToken: cancelToken,
       ),
       decode: decode,
@@ -52,6 +54,7 @@ class ApiClient {
     String path, {
     Object? data,
     Map<String, Object?>? queryParameters,
+    Map<String, Object?>? headers,
     T Function(Object? data)? decode,
     CancelToken? cancelToken,
   }) {
@@ -60,6 +63,7 @@ class ApiClient {
         path,
         data: data,
         queryParameters: queryParameters,
+        options: _options(headers),
         cancelToken: cancelToken,
       ),
       decode: decode,
@@ -70,6 +74,7 @@ class ApiClient {
     String path, {
     Object? data,
     Map<String, Object?>? queryParameters,
+    Map<String, Object?>? headers,
     T Function(Object? data)? decode,
     CancelToken? cancelToken,
   }) {
@@ -78,6 +83,7 @@ class ApiClient {
         path,
         data: data,
         queryParameters: queryParameters,
+        options: _options(headers),
         cancelToken: cancelToken,
       ),
       decode: decode,
@@ -88,6 +94,7 @@ class ApiClient {
     String path, {
     Object? data,
     Map<String, Object?>? queryParameters,
+    Map<String, Object?>? headers,
     T Function(Object? data)? decode,
     CancelToken? cancelToken,
   }) {
@@ -96,6 +103,7 @@ class ApiClient {
         path,
         data: data,
         queryParameters: queryParameters,
+        options: _options(headers),
         cancelToken: cancelToken,
       ),
       decode: decode,
@@ -126,5 +134,13 @@ class ApiClient {
     } on FormatException catch (error) {
       throw ApiException.parsing(error.message);
     }
+  }
+
+  Options? _options(Map<String, Object?>? headers) {
+    if (headers == null || headers.isEmpty) {
+      return null;
+    }
+
+    return Options(headers: headers);
   }
 }

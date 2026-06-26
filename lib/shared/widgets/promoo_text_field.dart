@@ -13,6 +13,7 @@ class PromooTextField extends StatelessWidget {
     this.obscureText = false,
     this.enabled = true,
     this.onChanged,
+    this.onSubmitted,
   });
 
   final TextEditingController? controller;
@@ -25,6 +26,7 @@ class PromooTextField extends StatelessWidget {
   final bool obscureText;
   final bool enabled;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class PromooTextField extends StatelessWidget {
       obscureText: obscureText,
       enabled: enabled,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
