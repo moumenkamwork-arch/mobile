@@ -167,9 +167,13 @@ class _ProfileContentView extends ConsumerWidget {
                       ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
-                    ProfileAboutSection(profile: profile),
+                    ProfilePackagesSection(packages: state.packages),
                     const SizedBox(height: AppSpacing.lg),
-                    ProfileMediaSection(mediaUrls: profile.mediaUrls),
+                    ProfileMediaSection(
+                      mediaUrls: profile.mediaUrls,
+                      profileName: profile.displayName,
+                      avatarUrl: profile.avatarUrl,
+                    ),
                     if (showOwnerPreview) ...[
                       const SizedBox(height: AppSpacing.lg),
                       ProfileToolsPreview(
@@ -178,7 +182,7 @@ class _ProfileContentView extends ConsumerWidget {
                       ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
-                    ProfilePackagesSection(packages: state.packages),
+                    ProfileAboutSection(profile: profile),
                   ],
                 ),
               ),

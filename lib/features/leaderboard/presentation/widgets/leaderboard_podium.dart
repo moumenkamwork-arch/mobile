@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/leaderboard_profile.dart';
 
 class LeaderboardPodium extends StatelessWidget {
-  const LeaderboardPodium({super.key, required this.profiles});
+  const LeaderboardPodium({
+    super.key,
+    required this.profiles,
+    this.onProfileSelected,
+  });
 
   final List<LeaderboardProfile> profiles;
+  final ValueChanged<LeaderboardProfile>? onProfileSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +71,25 @@ class LeaderboardPodium extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          _ChampionTile(profile: champion),
+          _ChampionTile(
+            profile: champion,
+            onTap: onProfileSelected == null
+                ? null
+                : () => onProfileSelected!(champion),
+          ),
           if (runnersUp.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
                 for (var i = 0; i < runnersUp.length; i++) ...[
-                  Expanded(child: _RunnerUpTile(profile: runnersUp[i])),
+                  Expanded(
+                    child: _RunnerUpTile(
+                      profile: runnersUp[i],
+                      onTap: onProfileSelected == null
+                          ? null
+                          : () => onProfileSelected!(runnersUp[i]),
+                    ),
+                  ),
                   if (i != runnersUp.length - 1)
                     const SizedBox(width: AppSpacing.sm),
                 ],
@@ -85,101 +103,170 @@ class LeaderboardPodium extends StatelessWidget {
 }
 
 class _ChampionTile extends StatelessWidget {
-  const _ChampionTile({required this.profile});
+  const _ChampionTile({required this.profile, this.onTap});
 
   final LeaderboardProfile profile;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: const Color(0x24FFE604),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.primaryYellow),
-      ),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 34,
-            backgroundColor: AppColors.brandBlack,
-            backgroundImage: profile.avatarUrl == null
-                ? null
-                : NetworkImage(profile.avatarUrl!),
-            child: profile.avatarUrl == null
-                ? Text(
-                    _initialsFor(profile.displayName),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        child: Ink(
+          width: double.infinity,
+          padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: const Color(0x24FFE604),
+            borderRadius: AppRadius.card,
+            border: Border.all(color: AppColors.primaryYellow),
+          ),
+          child: Column(
+            children: [
+              Stack(
+                alignment: AlignmentDirectional.bottomEnd,
+                children: [
+                  _LeaderboardAvatar(profile: profile, radius: 42),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
                       color: AppColors.primaryYellow,
-                      fontWeight: FontWeight.w800,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.brandBlack),
                     ),
-                  )
-                : null,
+                    child: const Icon(
+                      Icons.emoji_events_rounded,
+                      color: AppColors.brandBlack,
+                      size: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                profile.displayName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                'Champion / ${profile.followersLabel}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: AppColors.primaryYellow,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            profile.displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            profile.followersLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(color: AppColors.primaryYellow),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
 class _RunnerUpTile extends StatelessWidget {
-  const _RunnerUpTile({required this.profile});
+  const _RunnerUpTile({required this.profile, this.onTap});
 
   final LeaderboardProfile profile;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 128),
-      padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.borderStrong),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            profile.rank.label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: AppColors.primaryYellow,
-              fontWeight: FontWeight.w800,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 152),
+          child: Ink(
+            padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: AppColors.cardSurface,
+              borderRadius: AppRadius.card,
+              border: Border.all(color: AppColors.borderStrong),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  profile.rank.label,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: AppColors.primaryYellow,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                _LeaderboardAvatar(profile: profile, radius: 25),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  profile.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  profile.followersLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            profile.displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            profile.followersLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LeaderboardAvatar extends StatelessWidget {
+  const _LeaderboardAvatar({required this.profile, required this.radius});
+
+  final LeaderboardProfile profile;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final diameter = radius * 2;
+
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+        color: AppColors.brandBlack,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.primaryYellow.withValues(alpha: 0.72),
+          width: 2,
+        ),
+      ),
+      child: ClipOval(
+        child: profile.avatarUrl == null
+            ? Center(
+                child: Text(
+                  _initialsFor(profile.displayName),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppColors.primaryYellow,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              )
+            : PromooImage(
+                imageUrl: profile.avatarUrl,
+                fallbackIcon: Icons.person_rounded,
+                semanticLabel: profile.displayName,
+              ),
       ),
     );
   }

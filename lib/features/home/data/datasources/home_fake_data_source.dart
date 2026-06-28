@@ -9,6 +9,21 @@ final homeFakeDataSourceProvider = Provider<HomeFakeDataSource>((ref) {
   return const HomeFakeDataSource();
 });
 
+const _demoBusinessImage =
+    'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80';
+const _demoCafeImage =
+    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80';
+const _demoBeautyImage =
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80';
+const _demoDigitalImage =
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80';
+const _demoWellnessImage =
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80';
+const _demoCreatorImage =
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80';
+const _demoTeamImage =
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80';
+
 class HomeFakeDataSource implements HomeDataSource {
   const HomeFakeDataSource();
 
@@ -38,88 +53,161 @@ const _fakeDetails = [
   HomeContentDetailDto(
     id: 'offer-featured',
     type: HomeContentDetailType.offer,
-    title: 'Promoo of the day',
+    title: 'Boutique launch visibility pack',
     description:
-        'Premium visibility for a limited-time marketplace offer with a curated provider ready for direct contact.',
-    badge: 'Featured',
+        'A premium placement package for brands preparing a curated launch across Promoo stories, offers, and provider discovery.',
+    imageUrl: _demoBusinessImage,
+    badge: 'Promoo of the day',
     provider: HomeContentProviderDto(
-      id: 'profile-demo',
-      name: 'Noura Studio',
-      username: 'noura.studio',
+      id: 'profile-saffron-social',
+      name: 'Saffron Social Studio',
+      username: 'saffron.social',
       accountType: 'company',
       isVerified: true,
     ),
-    categoryName: 'Marketing',
-    tags: ['Featured', 'Launch', 'Content'],
-    price: 1200,
+    categoryName: 'Influencer Campaigns',
+    tags: ['Featured', 'Launch', 'Creator coverage'],
+    price: 2200,
     currency: 'AED',
     location: 'Dubai',
     validUntil: '2026-08-30',
-    terms: 'Availability depends on provider schedule.',
+    terms:
+        'Includes a curated placement plan, provider coordination, and one campaign review call.',
   ),
   HomeContentDetailDto(
     id: 'offer-1',
     type: HomeContentDetailType.offer,
-    title: 'Launch week promotion',
+    title: 'Cafe opening spotlight',
     description:
-        'A highlighted offer for early Promoo partners preparing a first campaign launch.',
-    badge: 'Limited offer',
+        'A discovery-focused offer for a new cafe opening, including launch visuals and city-audience placement.',
+    imageUrl: _demoCafeImage,
+    badge: 'Top offer',
     provider: HomeContentProviderDto(
-      id: 'profile-demo',
-      name: 'Noura Studio',
-      username: 'noura.studio',
+      id: 'profile-pearl-cafe',
+      name: 'Pearl District Cafe',
+      username: 'pearl.district',
       accountType: 'company',
       isVerified: true,
     ),
-    categoryName: 'Marketing',
-    tags: ['Campaign', 'Social', 'Launch'],
-    price: 1200,
+    categoryName: 'Restaurants & Cafes',
+    tags: ['Cafe', 'Opening', 'City discovery'],
+    price: 1500,
     currency: 'AED',
-    location: 'Dubai',
-    promoCode: 'PROMOO-LAUNCH',
+    location: 'Sharjah',
+    promoCode: 'PEARLSPOTLIGHT',
     validUntil: '2026-08-30',
     terms:
-        'Promo code is shown for demo only until production offers confirm codes.',
+        'Available for scheduled opening windows and provider-confirmed campaign dates.',
   ),
   HomeContentDetailDto(
     id: 'offer-2',
     type: HomeContentDetailType.offer,
-    title: 'Creator bundle',
+    title: 'Wellness week visibility',
     description:
-        'A limited package for marketplace discovery with short-form content and profile placement.',
+        'A polished awareness package for wellness providers preparing a seasonal visibility push.',
+    imageUrl: _demoWellnessImage,
     badge: 'For you',
     provider: HomeContentProviderDto(
-      id: 'provider-lens',
-      name: 'Maya Lens',
-      username: 'maya.lens',
-      accountType: 'influencer',
+      id: 'profile-calmfit',
+      name: 'CalmFit Wellness',
+      username: 'calmfit.wellness',
+      accountType: 'company',
       isVerified: true,
     ),
-    categoryName: 'Creator services',
-    tags: ['Creator', 'Video', 'Discovery'],
-    price: 950,
+    categoryName: 'Health & Fitness',
+    tags: ['Wellness', 'Awareness', 'Lifestyle'],
+    price: 1350,
     currency: 'AED',
     location: 'Abu Dhabi',
     validUntil: '2026-09-15',
   ),
   HomeContentDetailDto(
-    id: 'ad-1',
-    type: HomeContentDetailType.ad,
-    title: 'Featured marketplace spotlight',
-    description: 'Promoted placement for active campaigns in the Promoo feed.',
-    badge: 'Promoted',
+    id: 'offer-3',
+    type: HomeContentDetailType.offer,
+    title: 'Beauty launch feature',
+    description:
+        'An image-first visibility package for salon, beauty, and grooming launches that need a refined first impression.',
+    imageUrl: _demoBeautyImage,
+    badge: 'Top offer',
     provider: HomeContentProviderDto(
-      id: 'profile-demo',
-      name: 'Noura Studio',
-      username: 'noura.studio',
+      id: 'profile-velvet-beauty',
+      name: 'Velvet Beauty Lounge',
+      username: 'velvet.beauty',
       accountType: 'company',
       isVerified: true,
     ),
-    tags: ['Sponsored', 'Marketplace'],
-    price: 500,
+    categoryName: 'Beauty & Wellness',
+    tags: ['Beauty', 'Opening', 'Editorial'],
+    price: 1800,
+    currency: 'AED',
+    location: 'Dubai',
+    validUntil: '2026-09-05',
+  ),
+  HomeContentDetailDto(
+    id: 'offer-4',
+    type: HomeContentDetailType.offer,
+    title: 'Creator campaign pick',
+    description:
+        'A curated creator-led campaign placement for brands preparing a polished awareness push.',
+    imageUrl: _demoCreatorImage,
+    badge: 'For you',
+    provider: HomeContentProviderDto(
+      id: 'profile-lina-atelier',
+      name: 'Lina Atelier',
+      username: 'lina.atelier',
+      accountType: 'influencer',
+      isVerified: true,
+    ),
+    categoryName: 'Influencer Campaigns',
+    tags: ['Creators', 'Campaign', 'Premium'],
+    price: 2100,
+    currency: 'AED',
+    location: 'Dubai',
+    validUntil: '2026-09-12',
+  ),
+  HomeContentDetailDto(
+    id: 'offer-5',
+    type: HomeContentDetailType.offer,
+    title: 'Flash offer 24H',
+    description:
+        'A short-window discovery placement for campaigns that need immediate attention from high-intent audiences.',
+    imageUrl: _demoDigitalImage,
+    badge: 'Limited time',
+    provider: HomeContentProviderDto(
+      id: 'profile-saffron-social',
+      name: 'Saffron Social Studio',
+      username: 'saffron.social',
+      accountType: 'company',
+      isVerified: true,
+    ),
+    categoryName: 'Digital Marketing',
+    tags: ['Flash offer', '24H', 'Visibility'],
+    price: 1250,
+    currency: 'AED',
+    location: 'Dubai',
+    validUntil: '2026-08-20',
+  ),
+  HomeContentDetailDto(
+    id: 'ad-1',
+    type: HomeContentDetailType.ad,
+    title: 'Featured campaign spotlight',
+    description:
+        'A premium discovery placement for active campaigns that need stronger visibility during launch week.',
+    imageUrl: _demoTeamImage,
+    badge: 'Featured placement',
+    provider: HomeContentProviderDto(
+      id: 'profile-saffron-social',
+      name: 'Saffron Social Studio',
+      username: 'saffron.social',
+      accountType: 'company',
+      isVerified: true,
+    ),
+    categoryName: 'Digital Marketing',
+    tags: ['Spotlight', 'Campaign'],
+    price: 900,
     currency: 'AED',
     location: 'Dubai',
     terms:
-        'Sponsored placement details are finalized in the production ads flow.',
+        'Placement details are confirmed with the provider before activation.',
   ),
 ];

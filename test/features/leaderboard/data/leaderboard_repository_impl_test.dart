@@ -12,9 +12,9 @@ void main() {
     final fakeDataSource = _RecordingDataSource(
       response: const LeaderboardProfilesDto([
         LeaderboardProfileDto(
-          id: 'fake-profile',
+          id: 'profile-saffron-social',
           rank: 1,
-          displayName: 'Fake Leader',
+          displayName: 'Saffron Social Studio',
           followersCount: 100,
         ),
       ]),
@@ -37,8 +37,8 @@ void main() {
     expect(fakeDataSource.lastType, LeaderboardType.influencer);
     result.when(
       success: (profiles) {
-        expect(profiles.single.id, 'fake-profile');
-        expect(profiles.single.displayName, 'Fake Leader');
+        expect(profiles.single.id, 'profile-saffron-social');
+        expect(profiles.single.displayName, 'Saffron Social Studio');
       },
       failure: (failure) => fail('Expected success, got $failure'),
     );
@@ -48,9 +48,9 @@ void main() {
     final remoteDataSource = _RecordingDataSource(
       response: const LeaderboardProfilesDto([
         LeaderboardProfileDto(
-          id: 'remote-profile',
+          id: 'profile-remote-leader',
           rank: 1,
-          displayName: 'Remote Leader',
+          displayName: 'Remote Campaign Leader',
           followersCount: 250,
         ),
       ]),
@@ -69,7 +69,8 @@ void main() {
 
     expect(remoteDataSource.lastType, LeaderboardType.all);
     result.when(
-      success: (profiles) => expect(profiles.single.id, 'remote-profile'),
+      success: (profiles) =>
+          expect(profiles.single.id, 'profile-remote-leader'),
       failure: (failure) => fail('Expected success, got $failure'),
     );
   });

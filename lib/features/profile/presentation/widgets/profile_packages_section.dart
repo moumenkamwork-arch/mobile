@@ -18,7 +18,7 @@ class ProfilePackagesSection extends StatelessWidget {
       children: [
         const PromooSectionHeader(
           title: 'Packages',
-          subtitle: 'Profile services for display and contact only',
+          subtitle: 'Profile services ready for client discovery',
         ),
         const SizedBox(height: AppSpacing.md),
         if (packages.isEmpty)

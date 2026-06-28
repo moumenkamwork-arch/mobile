@@ -6,6 +6,7 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
@@ -182,30 +183,19 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.elevatedSurface,
-              borderRadius: const BorderRadiusDirectional.vertical(
-                top: Radius.circular(AppRadius.lg),
-              ),
-              image: imageUrl == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.cover,
-                    ),
+          ClipRRect(
+            borderRadius: const BorderRadiusDirectional.vertical(
+              top: Radius.circular(AppRadius.lg),
             ),
-            child: imageUrl == null
-                ? const Center(
-                    child: Icon(
-                      Icons.storefront_rounded,
-                      color: AppColors.primaryYellow,
-                      size: 52,
-                    ),
-                  )
-                : null,
+            child: SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: PromooImage(
+                imageUrl: imageUrl,
+                semanticLabel: service.title,
+                fallbackIcon: Icons.storefront_rounded,
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
@@ -459,18 +449,22 @@ class _ProviderAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final avatarUrl = provider?.avatarUrl;
-    return CircleAvatar(
-      radius: 28,
-      backgroundColor: AppColors.elevatedSurface,
-      backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl),
-      child: avatarUrl == null
-          ? Icon(
-              provider == null
-                  ? Icons.storefront_rounded
-                  : Icons.person_rounded,
-              color: AppColors.primaryYellow,
-            )
-          : null,
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: const BoxDecoration(
+        color: AppColors.elevatedSurface,
+        shape: BoxShape.circle,
+      ),
+      child: ClipOval(
+        child: PromooImage(
+          imageUrl: avatarUrl,
+          semanticLabel: provider?.name ?? 'Service provider',
+          fallbackIcon: provider == null
+              ? Icons.storefront_rounded
+              : Icons.person_rounded,
+        ),
+      ),
     );
   }
 }

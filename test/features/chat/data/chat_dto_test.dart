@@ -10,15 +10,15 @@ void main() {
         {
           'room': {'id': 'room-1', 'last_message_at': '2026-06-26T09:20:00Z'},
           'otherParticipant': {
-            'id': 'profile-1',
-            'full_name': 'Noura Studio',
+            'id': 'profile-saffron-social',
+            'full_name': 'Saffron Social Studio',
             'avatar_url': 'https://example.com/avatar.png',
           },
           'lastMessage': {
             'id': 'message-1',
             'room_id': 'room-1',
-            'sender_id': 'profile-1',
-            'content': 'Brief ready',
+            'sender_id': 'profile-saffron-social',
+            'content': 'Launch plan ready',
             'type': 'text',
             'created_at': '2026-06-26T09:20:00Z',
           },
@@ -28,12 +28,12 @@ void main() {
       'meta': {'page': 1},
     });
 
-    final rooms = dto.toDomain(currentUserId: 'demo-user');
+    final rooms = dto.toDomain(currentUserId: 'current-user');
 
     expect(rooms.single.id, 'room-1');
-    expect(rooms.single.participant.displayName, 'Noura Studio');
+    expect(rooms.single.participant.displayName, 'Saffron Social Studio');
     expect(rooms.single.unreadCount, 2);
-    expect(rooms.single.lastMessage?.content, 'Brief ready');
+    expect(rooms.single.lastMessage?.content, 'Launch plan ready');
   });
 
   test('parses messages and marks current user messages as mine', () {
@@ -43,7 +43,7 @@ void main() {
         {
           'id': 'message-1',
           'room_id': 'room-1',
-          'sender_id': 'demo-user',
+          'sender_id': 'current-user',
           'content': 'Hello',
           'type': 'text',
           'created_at': '2026-06-26T09:10:00Z',
@@ -52,18 +52,21 @@ void main() {
         {
           'id': 'message-2',
           'room_id': 'room-1',
-          'sender': {'id': 'profile-1', 'full_name': 'Noura Studio'},
-          'content': 'Welcome',
+          'sender': {
+            'id': 'profile-saffron-social',
+            'full_name': 'Saffron Social Studio',
+          },
+          'content': 'Welcome, we can help with the launch plan.',
           'created_at': '2026-06-26T09:12:00Z',
         },
       ],
     });
 
-    final messages = dto.toDomain(currentUserId: 'demo-user');
+    final messages = dto.toDomain(currentUserId: 'current-user');
 
     expect(messages, hasLength(2));
     expect(messages.first.isMine, isTrue);
     expect(messages.first.status, ChatMessageStatus.read);
-    expect(messages.last.sender?.displayName, 'Noura Studio');
+    expect(messages.last.sender?.displayName, 'Saffron Social Studio');
   });
 }

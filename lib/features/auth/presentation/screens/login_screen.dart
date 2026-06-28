@@ -12,6 +12,7 @@ import '../controllers/auth_controller.dart';
 import '../widgets/auth_message_banner.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
+import '../widgets/auth_social_login_preview.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -140,6 +141,8 @@ class _LoginForm extends StatelessWidget {
                 ? null
                 : () => context.go(AppRoutes.register),
           ),
+          const SizedBox(height: AppSpacing.lg),
+          const AuthSocialLoginPreview(),
           const SizedBox(height: AppSpacing.md),
           Text(
             'Forgot password is coming soon.',

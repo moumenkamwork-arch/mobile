@@ -28,7 +28,7 @@ void main() {
     expect(result.isSuccess, isTrue);
     result.when(
       success: (rooms) =>
-          expect(rooms.first.participant.displayName, 'Noura Studio'),
+          expect(rooms.first.participant.displayName, 'Saffron Social Studio'),
       failure: (failure) => fail('Expected success, got $failure'),
     );
   });
@@ -89,7 +89,7 @@ void main() {
 }
 
 const _session = AuthSession(
-  user: AuthUser(id: 'demo-user', email: 'demo@promoo.app'),
+  user: AuthUser(id: 'current-user', email: 'alya@promoo.app'),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 
@@ -106,7 +106,10 @@ class _RecordingChatDataSource implements ChatDataSource {
     return ChatRoomsDto.fromJsonFlexible([
       {
         'room': {'id': 'room-1'},
-        'otherParticipant': {'id': 'profile-1', 'full_name': 'Noura Studio'},
+        'otherParticipant': {
+          'id': 'profile-saffron-social',
+          'full_name': 'Saffron Social Studio',
+        },
       },
     ]);
   }
@@ -140,7 +143,7 @@ class _RecordingChatDataSource implements ChatDataSource {
     return ChatMessageDto.fromJson({
       'id': 'message-1',
       'room_id': roomId,
-      'sender_id': 'demo-user',
+      'sender_id': 'current-user',
       'content': content,
       'created_at': '2026-06-26T09:10:00Z',
     });

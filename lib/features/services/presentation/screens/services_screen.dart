@@ -6,6 +6,7 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/promoo_service.dart';
@@ -115,10 +116,40 @@ class _ServicesContentView extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Discover listings and contact providers.',
+                      'Choose a category, then explore provider listings.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.lg),
+                    PromooSectionHeader(
+                      title: 'Service categories',
+                      subtitle: state.selectedCategoryId == null
+                          ? 'Browse the main Promoo service groups'
+                          : 'Category selected',
+                      actionLabel: state.selectedCategoryId == null
+                          ? null
+                          : 'Clear',
+                      onActionPressed: state.selectedCategoryId == null
+                          ? null
+                          : () => ref
+                                .read(servicesControllerProvider.notifier)
+                                .selectCategory(null),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    ServicesCategoryList(
+                      categories: state.categories,
+                      selectedCategoryId: state.selectedCategoryId,
+                      onSelected: (categoryId) {
+                        ref
+                            .read(servicesControllerProvider.notifier)
+                            .selectCategory(categoryId);
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    const PromooSectionHeader(
+                      title: 'Listings',
+                      subtitle: 'Search services or open a listing to contact',
+                    ),
+                    const SizedBox(height: AppSpacing.md),
                     ServicesSearchField(
                       query: state.searchQuery,
                       onSubmitted: (query) {
@@ -131,16 +162,6 @@ class _ServicesContentView extends ConsumerWidget {
                           : () => ref
                                 .read(servicesControllerProvider.notifier)
                                 .clearSearch(),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    ServicesCategoryList(
-                      categories: state.categories,
-                      selectedCategoryId: state.selectedCategoryId,
-                      onSelected: (categoryId) {
-                        ref
-                            .read(servicesControllerProvider.notifier)
-                            .selectCategory(categoryId);
-                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     if (state.services.isEmpty)

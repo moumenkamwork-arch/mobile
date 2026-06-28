@@ -10,7 +10,7 @@ void main() {
         {
           'id': 'notification-1',
           'title': 'New message',
-          'body': 'Noura Studio sent an update.',
+          'body': 'Saffron Social Studio sent a campaign update.',
           'type': 'message',
           'data': {'room_id': 'room-1'},
           'is_read': false,

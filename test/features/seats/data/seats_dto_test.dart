@@ -14,9 +14,9 @@ void main() {
           'status': 'available',
           'position': 1,
           'profile': {
-            'id': 'profile-1',
-            'full_name': 'Noura Studio',
-            'username': 'noura.studio',
+            'id': 'profile-saffron-social',
+            'full_name': 'Saffron Social Studio',
+            'username': 'saffron.social',
             'avatar_url': 'https://example.com/avatar.png',
           },
         },
@@ -30,7 +30,7 @@ void main() {
     expect(seats.single.status, SeatStatus.available);
     expect(seats.single.position, 1);
     expect(seats.single.price?.label, '2500 AED');
-    expect(seats.single.holder?.name, 'Noura Studio');
+    expect(seats.single.holder?.name, 'Saffron Social Studio');
   });
 
   test('parses direct and nested variants with unknown values', () {
@@ -63,7 +63,7 @@ void main() {
       'success': true,
       'data': {
         'checkoutUrl': 'https://checkout.example/session',
-        'sessionId': 'cs_test_123',
+        'sessionId': 'seat-hold-123',
         'paymentId': 'pi_123',
         'status': 'pending',
       },
@@ -72,7 +72,7 @@ void main() {
     final result = dto.toDomain();
 
     expect(result.checkoutUrl, 'https://checkout.example/session');
-    expect(result.sessionId, 'cs_test_123');
+    expect(result.sessionId, 'seat-hold-123');
     expect(result.paymentId, 'pi_123');
     expect(result.status, SeatStatus.pending);
     expect(result.hasCheckoutUrl, isTrue);

@@ -47,7 +47,7 @@ class PromooShell extends StatelessWidget {
       icon: Icons.emoji_events_rounded,
     ),
     PromooShellTab(
-      label: 'Seats',
+      label: 'Influencer',
       route: AppRoutes.seats,
       icon: Icons.event_seat_rounded,
     ),

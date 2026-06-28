@@ -9,9 +9,9 @@ void main() {
       'data': {
         'user': {
           'id': 'user-1',
-          'email': 'demo@promoo.app',
+          'email': 'alya@promoo.app',
           'user_metadata': {
-            'full_name': 'Demo User',
+            'full_name': 'Alya Hassan',
             'account_type': 'company',
           },
           'email_confirmed_at': '2026-06-26T00:00:00.000Z',
@@ -28,8 +28,8 @@ void main() {
     final session = dto.toDomain();
 
     expect(session.isAuthenticated, isTrue);
-    expect(session.user.email, 'demo@promoo.app');
-    expect(session.user.fullName, 'Demo User');
+    expect(session.user.email, 'alya@promoo.app');
+    expect(session.user.fullName, 'Alya Hassan');
     expect(session.user.accountType, AuthAccountType.company);
     expect(session.tokens?.accessToken, 'access-1');
   });
@@ -58,7 +58,7 @@ void main() {
         'refresh_token': 'new-refresh',
         'user': {
           'id': 'user-1',
-          'email': 'demo@promoo.app',
+          'email': 'alya@promoo.app',
           'user_metadata': {'account_type': 'service_provider'},
         },
       },

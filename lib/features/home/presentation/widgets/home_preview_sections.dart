@@ -3,10 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/home_content.dart';
+
+enum HomeOfferPreviewLayout { hero, compact }
 
 class HomeServicesPreviewSection extends StatelessWidget {
   const HomeServicesPreviewSection({super.key, required this.services});
@@ -15,43 +19,68 @@ class HomeServicesPreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PreviewSection(
+    if (services.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _CarouselSection(
       title: 'Services',
-      subtitle: 'Explore providers ready for contact',
-      children: [
-        for (final service in services.take(3))
-          _PreviewTile(
-            title: service.title,
-            subtitle: _joinNonEmpty([service.categoryName, service.location]),
-            fallbackIcon: Icons.storefront_rounded,
-            onTap: () => context.go(AppRoutes.serviceById(service.id)),
-          ),
-      ],
+      subtitle: 'Premium campaign services ready for contact',
+      height: 214,
+      itemCount: services.length,
+      viewportFraction: 0.62,
+      itemBuilder: (context, index) {
+        final service = services[index];
+        return _ServiceImageCard(
+          service: service,
+          onTap: () => context.go(AppRoutes.serviceById(service.id)),
+        );
+      },
     );
   }
 }
 
 class HomeOffersPreviewSection extends StatelessWidget {
-  const HomeOffersPreviewSection({super.key, required this.offers});
+  const HomeOffersPreviewSection({
+    super.key,
+    required this.offers,
+    this.title = 'For You',
+    this.subtitle = 'Selected offers for today',
+    this.layout = HomeOfferPreviewLayout.compact,
+  });
 
   final List<HomeOfferPreview> offers;
+  final String title;
+  final String subtitle;
+  final HomeOfferPreviewLayout layout;
 
   @override
   Widget build(BuildContext context) {
-    return _PreviewSection(
-      title: 'Promotions',
-      subtitle: 'Available offers from Promoo partners',
-      children: [
-        for (final offer in offers.take(3))
-          _PreviewTile(
-            title: offer.title,
-            subtitle: offer.subtitle,
-            fallbackIcon: Icons.local_offer_rounded,
-            onTap: () => context.go(
-              AppRoutes.homeItemDetail(offer.detailType.routeValue, offer.id),
-            ),
-          ),
-      ],
+    if (offers.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final isHero = layout == HomeOfferPreviewLayout.hero;
+
+    return _CarouselSection(
+      title: title,
+      subtitle: subtitle,
+      height: isHero ? 252 : 216,
+      itemCount: offers.length,
+      viewportFraction: isHero ? 1 : 0.6,
+      itemBuilder: (context, index) {
+        final offer = offers[index];
+
+        void openOffer() {
+          context.go(
+            AppRoutes.homeItemDetail(offer.detailType.routeValue, offer.id),
+          );
+        }
+
+        return isHero
+            ? _TopOfferCard(offer: offer, onTap: openOffer)
+            : _ForYouOfferCard(offer: offer, onTap: openOffer);
+      },
     );
   }
 }
@@ -77,6 +106,352 @@ class HomeProfilesPreviewSection extends StatelessWidget {
             fallbackIcon: profile.isVerified
                 ? Icons.verified_rounded
                 : Icons.person_rounded,
+          ),
+      ],
+    );
+  }
+}
+
+class _CarouselSection extends StatefulWidget {
+  const _CarouselSection({
+    required this.title,
+    required this.subtitle,
+    required this.height,
+    required this.itemCount,
+    required this.viewportFraction,
+    required this.itemBuilder,
+  });
+
+  final String title;
+  final String subtitle;
+  final double height;
+  final int itemCount;
+  final double viewportFraction;
+  final IndexedWidgetBuilder itemBuilder;
+
+  @override
+  State<_CarouselSection> createState() => _CarouselSectionState();
+}
+
+class _CarouselSectionState extends State<_CarouselSection> {
+  late final PageController _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: widget.viewportFraction);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PromooSectionHeader(title: widget.title, subtitle: widget.subtitle),
+        const SizedBox(height: AppSpacing.md),
+        SizedBox(
+          height: widget.height,
+          child: PageView.builder(
+            controller: _pageController,
+            padEnds: false,
+            itemCount: widget.itemCount,
+            onPageChanged: (index) => setState(() => _currentIndex = index),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                  end: index == widget.itemCount - 1 ? 0 : AppSpacing.md,
+                ),
+                child: widget.itemBuilder(context, index),
+              );
+            },
+          ),
+        ),
+        if (widget.itemCount > 1) ...[
+          const SizedBox(height: AppSpacing.sm),
+          _CarouselIndicator(
+            count: widget.itemCount,
+            activeIndex: _currentIndex,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _TopOfferCard extends StatelessWidget {
+  const _TopOfferCard({required this.offer, required this.onTap});
+
+  final HomeOfferPreview offer;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ImageCardShell(
+      imageUrl: offer.imageUrl,
+      semanticLabel: offer.title,
+      fallbackIcon: Icons.local_offer_rounded,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _PillLabel(label: 'Top offer'),
+            const Spacer(),
+            Text(
+              offer.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            if (offer.subtitle != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                offer.subtitle!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ForYouOfferCard extends StatelessWidget {
+  const _ForYouOfferCard({required this.offer, required this.onTap});
+
+  final HomeOfferPreview offer;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ImageCardShell(
+      imageUrl: offer.imageUrl,
+      semanticLabel: offer.title,
+      fallbackIcon: Icons.auto_awesome_rounded,
+      onTap: onTap,
+      borderColor: AppColors.primaryYellow.withValues(alpha: 0.64),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Spacer(),
+            Text(
+              offer.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            if (offer.subtitle != null) ...[
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                offer.subtitle!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ServiceImageCard extends StatelessWidget {
+  const _ServiceImageCard({required this.service, required this.onTap});
+
+  final HomeServicePreview service;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ImageCardShell(
+      imageUrl: service.imageUrl,
+      semanticLabel: service.title,
+      fallbackIcon: Icons.campaign_rounded,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _PillLabel(label: 'Service'),
+            const Spacer(),
+            Text(
+              service.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              _joinNonEmpty([service.categoryName, service.location]) ??
+                  'Provider service',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ImageCardShell extends StatelessWidget {
+  const _ImageCardShell({
+    required this.imageUrl,
+    required this.semanticLabel,
+    required this.fallbackIcon,
+    required this.onTap,
+    required this.child,
+    this.borderColor = AppColors.borderStrong,
+  });
+
+  final String? imageUrl;
+  final String semanticLabel;
+  final IconData fallbackIcon;
+  final VoidCallback onTap;
+  final Widget child;
+  final Color borderColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: AppRadius.card,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: AppRadius.card,
+          border: Border.all(color: borderColor),
+        ),
+        child: Material(
+          color: AppColors.cardSurface,
+          child: InkWell(
+            onTap: onTap,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                PromooImage(
+                  imageUrl: imageUrl,
+                  semanticLabel: semanticLabel,
+                  fallbackIcon: fallbackIcon,
+                ),
+                const _CardImageOverlay(),
+                child,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardImageOverlay extends StatelessWidget {
+  const _CardImageOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.topCenter,
+          end: AlignmentDirectional.bottomCenter,
+          colors: [
+            AppColors.background.withValues(alpha: 0.12),
+            AppColors.background.withValues(alpha: 0.18),
+            AppColors.background.withValues(alpha: 0.78),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PillLabel extends StatelessWidget {
+  const _PillLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: AppColors.primaryYellow,
+          borderRadius: AppRadius.pill,
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xxs,
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.brandBlack,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CarouselIndicator extends StatelessWidget {
+  const _CarouselIndicator({required this.count, required this.activeIndex});
+
+  final int count;
+  final int activeIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var index = 0; index < count; index++)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            width: index == activeIndex ? 28 : 8,
+            height: 8,
+            margin: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.xxs,
+            ),
+            decoration: BoxDecoration(
+              color: index == activeIndex
+                  ? AppColors.primaryYellow
+                  : AppColors.borderStrong,
+              borderRadius: AppRadius.pill,
+            ),
           ),
       ],
     );
@@ -117,18 +492,15 @@ class _PreviewTile extends StatelessWidget {
     required this.title,
     required this.fallbackIcon,
     this.subtitle,
-    this.onTap,
   });
 
   final String title;
   final String? subtitle;
   final IconData fallbackIcon;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return PromooCard(
-      onTap: onTap,
       padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
       child: Row(
         children: [

@@ -11,6 +11,7 @@ import '../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/search/presentation/screens/search_screen.dart';
+import '../features/seats/presentation/screens/seat_checkout_preview_screen.dart';
 import '../features/seats/presentation/screens/seats_screen.dart';
 import '../features/services/presentation/screens/service_detail_screen.dart';
 import '../features/services/presentation/screens/services_screen.dart';
@@ -111,6 +112,19 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
             builder: (context, state) => const SeatsScreen(),
           ),
           GoRoute(
+            path: AppRoutes.seatCheckoutPreview,
+            name: RouteNames.seatCheckoutPreview,
+            builder: (context, state) {
+              final query = state.uri.queryParameters;
+              return SeatCheckoutPreviewScreen(
+                seatId: query['seatId'] ?? '',
+                title: query['title'] ?? '',
+                tierLabel: query['tier'] ?? '',
+                priceLabel: query['price'] ?? '',
+              );
+            },
+          ),
+          GoRoute(
             path: AppRoutes.profile,
             name: RouteNames.profile,
             builder: (context, state) => const ProfileScreen(),
@@ -139,7 +153,7 @@ int _selectedIndexForPath(String path) {
     _ when path.startsWith('/home/items/') => 0,
     _ when path.startsWith('/services/') => 1,
     AppRoutes.cup => 2,
-    AppRoutes.seats => 3,
+    _ when path.startsWith('/seats') => 3,
     AppRoutes.profile => 4,
     _ when path.startsWith('/profiles/') => 4,
     AppRoutes.search => 0,

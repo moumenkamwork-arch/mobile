@@ -31,8 +31,8 @@ void main() {
 
     final state = container.read(profileControllerProvider);
     expect(state.status, ProfileStatus.success);
-    expect(state.profile?.displayName, 'Noura Studio');
-    expect(state.packages.single.title, 'Content package');
+    expect(state.profile?.displayName, 'Saffron Social Studio');
+    expect(state.packages.single.title, 'Boutique launch campaign');
   });
 
   test('uses target provider for public profile route', () async {
@@ -42,7 +42,7 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
-        profileTargetProvider.overrideWithValue('noura.studio'),
+        profileTargetProvider.overrideWithValue('saffron.social'),
         profileRepositoryProvider.overrideWithValue(repository),
       ],
     );
@@ -52,7 +52,7 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
-    expect(repository.lastProfileTarget, 'noura.studio');
+    expect(repository.lastProfileTarget, 'saffron.social');
     expect(
       container.read(profileControllerProvider).status,
       ProfileStatus.success,
@@ -139,9 +139,9 @@ void main() {
 }
 
 const _profile = PromooProfile(
-  id: 'profile-demo',
-  displayName: 'Noura Studio',
-  username: 'noura.studio',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
+  username: 'saffron.social',
   accountType: ProfileAccountType.company,
   stats: ProfileStats(followers: 185400, following: 124, services: 1),
   isVerified: true,
@@ -149,8 +149,8 @@ const _profile = PromooProfile(
 
 const _package = ProfilePackage(
   id: 'package-1',
-  title: 'Content package',
-  price: ProfilePackagePrice(amount: 750, currency: 'AED'),
+  title: 'Boutique launch campaign',
+  price: ProfilePackagePrice(amount: 2200, currency: 'AED'),
 );
 
 class _ProfileRepository implements ProfileRepository {

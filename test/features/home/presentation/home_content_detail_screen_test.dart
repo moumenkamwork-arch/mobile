@@ -31,23 +31,24 @@ void main() {
             HomeContentDetail(
               id: 'offer-1',
               type: HomeContentDetailType.offer,
-              title: 'Launch week promotion',
-              description: 'A highlighted offer for launch partners.',
-              badge: 'Limited offer',
+              title: 'Cafe opening spotlight',
+              description: 'Discovery placement for a new cafe launch.',
+              badge: 'Top offer',
               provider: HomeContentProvider(
-                id: 'profile-demo',
-                name: 'Noura Studio',
-                username: 'noura.studio',
+                id: 'profile-pearl-cafe',
+                name: 'Pearl District Cafe',
+                username: 'pearl.district',
                 accountType: 'company',
                 isVerified: true,
               ),
-              categoryName: 'Marketing',
-              tags: ['Launch', 'Social'],
-              price: HomeContentPrice(amount: 1200, currency: 'AED'),
-              location: 'Dubai',
-              promoCode: 'PROMOO-LAUNCH',
+              categoryName: 'Restaurants & Cafes',
+              tags: ['Cafe', 'Opening'],
+              price: HomeContentPrice(amount: 1500, currency: 'AED'),
+              location: 'Sharjah',
+              promoCode: 'PEARLSPOTLIGHT',
               validUntil: '2026-08-30',
-              terms: 'Availability depends on provider schedule.',
+              terms:
+                  'Available for scheduled opening windows and provider-confirmed campaign dates.',
             ),
           ),
         ),
@@ -55,10 +56,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Launch week promotion'), findsOneWidget);
-    expect(find.text('1200 AED'), findsOneWidget);
-    expect(find.text('Noura Studio'), findsWidgets);
-    expect(find.text('Dubai'), findsWidgets);
+    expect(find.text('Cafe opening spotlight'), findsOneWidget);
+    expect(find.text('1500 AED'), findsOneWidget);
+    expect(find.text('Pearl District Cafe'), findsWidgets);
+    expect(find.text('Sharjah'), findsWidgets);
 
     await tester.scrollUntilVisible(
       find.text('Contact'),

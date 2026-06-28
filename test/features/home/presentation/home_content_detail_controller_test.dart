@@ -21,7 +21,7 @@ void main() {
               HomeContentDetail(
                 id: 'offer-1',
                 type: HomeContentDetailType.offer,
-                title: 'Launch week promotion',
+                title: 'Cafe opening spotlight',
               ),
             ),
           ),
@@ -40,7 +40,7 @@ void main() {
 
     final state = container.read(homeContentDetailControllerProvider(request));
     expect(state.status, HomeContentDetailStatus.success);
-    expect(state.detail?.title, 'Launch week promotion');
+    expect(state.detail?.title, 'Cafe opening spotlight');
   });
 
   test('emits validation error for invalid request', () async {

@@ -21,13 +21,13 @@ void main() {
       fakeDataSource: const SearchFakeDataSource(),
     );
 
-    final result = await repository.search(query: 'noura');
+    final result = await repository.search(query: 'studio');
 
     expect(result.isSuccess, isTrue);
     result.when(
       success: (page) {
         expect(page.results, isNotEmpty);
-        expect(page.results.first.title, 'Noura Studio');
+        expect(page.results.first.title, 'Saffron Social Studio');
       },
       failure: (failure) => fail('Expected success, got $failure'),
     );
@@ -92,7 +92,7 @@ void main() {
       fakeDataSource: _ThrowingDataSource(),
     );
 
-    final result = await repository.search(query: 'noura');
+    final result = await repository.search(query: 'studio');
 
     expect(result.isFailure, isTrue);
     result.when(

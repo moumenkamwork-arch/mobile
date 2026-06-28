@@ -10,7 +10,7 @@ import 'package:promoo_app/theme/app_theme.dart';
 void main() {
   const mockConfig = AppConfig(
     environment: AppEnvironment.development,
-    baseUrl: 'https://api.promoo.test/api/v1',
+    baseUrl: 'https://api.promoo.example/api/v1',
     useMocks: true,
   );
 
@@ -19,17 +19,29 @@ void main() {
     const _RouteSmokeCase(AppRoutes.home, 'Promoo'),
     _RouteSmokeCase(
       AppRoutes.homeItemDetail('offer', 'offer-1'),
-      'Launch week promotion',
+      'Cafe opening spotlight',
     ),
     const _RouteSmokeCase(AppRoutes.services, 'Services'),
     _RouteSmokeCase(
-      AppRoutes.serviceById('service-content'),
-      'Premium content package',
+      AppRoutes.serviceById('service-influencer-launch'),
+      'Boutique influencer launch package',
     ),
     const _RouteSmokeCase(AppRoutes.cup, 'Cup'),
     const _RouteSmokeCase(AppRoutes.seats, 'Influencer Seats'),
-    const _RouteSmokeCase(AppRoutes.profile, 'Noura Studio'),
-    _RouteSmokeCase(AppRoutes.profileById('noura.studio'), 'Noura Studio'),
+    _RouteSmokeCase(
+      AppRoutes.seatCheckout(
+        seatId: 'seat-gold-2',
+        title: 'Gold Seat 2',
+        tier: 'Gold visibility placement',
+        price: '2500 AED',
+      ),
+      'Checkout preview',
+    ),
+    const _RouteSmokeCase(AppRoutes.profile, 'Saffron Social Studio'),
+    _RouteSmokeCase(
+      AppRoutes.profileById('saffron.social'),
+      'Saffron Social Studio',
+    ),
     const _RouteSmokeCase(AppRoutes.search, 'Search Promoo'),
     const _RouteSmokeCase(
       AppRoutes.login,

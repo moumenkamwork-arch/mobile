@@ -66,7 +66,7 @@ void main() {
       _buildSearchScreen(_PendingSearchRepository(Completer())),
     );
 
-    await tester.enterText(find.byType(TextField), 'noura');
+    await tester.enterText(find.byType(TextField), 'studio');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pump();
 
@@ -81,12 +81,12 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byType(TextField), 'noura');
+    await tester.enterText(find.byType(TextField), 'studio');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Noura Studio'), findsOneWidget);
-    expect(find.text('@noura.studio'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsOneWidget);
+    expect(find.text('@saffron.social'), findsOneWidget);
     expect(find.text('Verified'), findsOneWidget);
   });
 
@@ -113,13 +113,13 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byType(TextField), 'noura');
+    await tester.enterText(find.byType(TextField), 'studio');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Noura Studio'));
+    await tester.tap(find.text('Saffron Social Studio'));
     await tester.pumpAndSettle();
 
-    expect(find.text('@noura.studio'), findsOneWidget);
+    expect(find.text('@saffron.social'), findsOneWidget);
     expect(find.text('Packages'), findsOneWidget);
   });
 
@@ -145,14 +145,14 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byType(TextField), 'content');
+    await tester.enterText(find.byType(TextField), 'launch');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Premium content package'));
+    await tester.tap(find.text('Boutique influencer launch package'));
     await tester.pumpAndSettle();
 
     expect(find.text('Service details'), findsOneWidget);
-    expect(find.text('Premium content package'), findsOneWidget);
+    expect(find.text('Boutique influencer launch package'), findsOneWidget);
   });
 
   testWidgets('offer result navigates to home detail route', (tester) async {
@@ -173,15 +173,15 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byType(TextField), 'launch');
+    await tester.enterText(find.byType(TextField), 'cafe');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Launch week promotion'));
+    await tester.tap(find.text('Cafe opening spotlight'));
     await tester.pumpAndSettle();
 
     expect(find.text('Offer'), findsAtLeastNWidgets(1));
-    expect(find.text('Launch week promotion'), findsOneWidget);
-    expect(find.text('1200 AED'), findsOneWidget);
+    expect(find.text('Cafe opening spotlight'), findsOneWidget);
+    expect(find.text('1500 AED'), findsOneWidget);
   });
 
   testWidgets('ad result navigates to home detail route', (tester) async {
@@ -205,11 +205,11 @@ void main() {
     await tester.enterText(find.byType(TextField), 'spotlight');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Featured marketplace spotlight'));
+    await tester.tap(find.text('Featured campaign spotlight'));
     await tester.pumpAndSettle();
 
     expect(find.text('Promotion'), findsAtLeastNWidgets(1));
-    expect(find.text('Featured marketplace spotlight'), findsOneWidget);
+    expect(find.text('Featured campaign spotlight'), findsOneWidget);
   });
 }
 
@@ -226,9 +226,9 @@ Widget _buildSearchScreen(SearchRepository repository) {
 const _successPage = SearchResultsPage(
   results: [
     SearchProfileResult(
-      id: 'profile-demo',
-      title: 'Noura Studio',
-      username: 'noura.studio',
+      id: 'profile-saffron-social',
+      title: 'Saffron Social Studio',
+      username: 'saffron.social',
       isVerified: true,
     ),
   ],
@@ -237,11 +237,11 @@ const _successPage = SearchResultsPage(
 const _servicePage = SearchResultsPage(
   results: [
     SearchServiceResult(
-      id: 'service-content',
-      title: 'Premium content package',
-      description: 'Short-form content.',
-      price: SearchResultPrice(amount: 750, currency: 'AED'),
-      categoryName: 'Marketing',
+      id: 'service-influencer-launch',
+      title: 'Boutique influencer launch package',
+      description: 'Creator coverage and campaign guidance.',
+      price: SearchResultPrice(amount: 2200, currency: 'AED'),
+      categoryName: 'Influencer Campaigns',
     ),
   ],
 );
@@ -250,10 +250,10 @@ const _offerPage = SearchResultsPage(
   results: [
     SearchOfferResult(
       id: 'offer-1',
-      title: 'Launch week promotion',
-      description: 'A highlighted offer for launch partners.',
-      price: SearchResultPrice(amount: 1200, currency: 'AED'),
-      categoryName: 'Marketing',
+      title: 'Cafe opening spotlight',
+      description: 'Discovery placement for a new cafe launch.',
+      price: SearchResultPrice(amount: 1500, currency: 'AED'),
+      categoryName: 'Restaurants & Cafes',
     ),
   ],
 );
@@ -262,42 +262,48 @@ const _adPage = SearchResultsPage(
   results: [
     SearchAdResult(
       id: 'ad-1',
-      title: 'Featured marketplace spotlight',
-      description: 'Promoted placement for active campaigns.',
+      title: 'Featured campaign spotlight',
+      description: 'Premium discovery placement for active campaigns.',
     ),
   ],
 );
 
 const _profile = PromooProfile(
-  id: 'profile-demo',
-  displayName: 'Noura Studio',
-  username: 'noura.studio',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
+  username: 'saffron.social',
   accountType: ProfileAccountType.company,
   stats: ProfileStats(followers: 185400, services: 1),
 );
 
 const _serviceDetail = PromooService(
-  id: 'service-content',
-  title: 'Premium content package',
-  description: 'Short-form content.',
-  category: ServiceCategory(id: 'cat-marketing', name: 'Marketing'),
-  provider: ServiceProvider(id: 'profile-demo', name: 'Noura Studio'),
-  price: ServicePrice(amount: 750, currency: 'AED'),
+  id: 'service-influencer-launch',
+  title: 'Boutique influencer launch package',
+  description: 'Creator coverage and campaign guidance.',
+  category: ServiceCategory(
+    id: 'cat-influencer-campaigns',
+    name: 'Influencer Campaigns',
+  ),
+  provider: ServiceProvider(
+    id: 'profile-saffron-social',
+    name: 'Saffron Social Studio',
+  ),
+  price: ServicePrice(amount: 2200, currency: 'AED'),
 );
 
 const _offerDetail = HomeContentDetail(
   id: 'offer-1',
   type: HomeContentDetailType.offer,
-  title: 'Launch week promotion',
-  description: 'A highlighted offer for launch partners.',
-  price: HomeContentPrice(amount: 1200, currency: 'AED'),
+  title: 'Cafe opening spotlight',
+  description: 'Discovery placement for a new cafe launch.',
+  price: HomeContentPrice(amount: 1500, currency: 'AED'),
 );
 
 const _adDetail = HomeContentDetail(
   id: 'ad-1',
   type: HomeContentDetailType.ad,
-  title: 'Featured marketplace spotlight',
-  description: 'Promoted placement for active campaigns.',
+  title: 'Featured campaign spotlight',
+  description: 'Premium discovery placement for active campaigns.',
 );
 
 class _SearchRepository implements SearchRepository {

@@ -37,7 +37,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Result<PromooProfile>> getDemoProfile() async {
     try {
       final dto = await fakeDataSource.fetchDemoProfile();
-      return Result.success(dto.toDomain(fallbackId: 'profile-demo'));
+      return Result.success(dto.toDomain(fallbackId: 'profile-current'));
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {

@@ -40,7 +40,7 @@ class AuthScreenFrame extends StatelessWidget {
                         if (context.canPop()) {
                           context.pop();
                         } else {
-                          context.go(AppRoutes.home);
+                          context.go(AppRoutes.splash);
                         }
                       },
                       icon: const Icon(Icons.arrow_back_rounded),

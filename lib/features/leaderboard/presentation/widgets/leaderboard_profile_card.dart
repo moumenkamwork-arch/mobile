@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
@@ -11,10 +12,12 @@ class LeaderboardProfileCard extends StatelessWidget {
     super.key,
     required this.profile,
     this.highlight = false,
+    this.onTap,
   });
 
   final LeaderboardProfile profile;
   final bool highlight;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,7 @@ class LeaderboardProfileCard extends StatelessWidget {
       elevated: highlight,
       borderColor: highlight ? AppColors.primaryYellow : AppColors.border,
       color: highlight ? AppColors.elevatedSurface : AppColors.cardSurface,
+      onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -64,6 +68,11 @@ class LeaderboardProfileCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: highlight ? AppColors.primaryYellow : AppColors.textMuted,
           ),
         ],
       ),
@@ -120,19 +129,37 @@ class _ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final avatarUrl = profile.avatarUrl;
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: AppColors.surface,
-      backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl),
-      child: avatarUrl == null
-          ? Text(
-              _initialsFor(profile.displayName),
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: AppColors.primaryYellow,
-                fontWeight: FontWeight.w800,
+    final diameter = radius * 2;
+
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: profile.rank.isPodium
+              ? AppColors.primaryYellow
+              : AppColors.borderStrong,
+        ),
+      ),
+      child: ClipOval(
+        child: avatarUrl == null
+            ? Center(
+                child: Text(
+                  _initialsFor(profile.displayName),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: AppColors.primaryYellow,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              )
+            : PromooImage(
+                imageUrl: avatarUrl,
+                fallbackIcon: Icons.person_rounded,
+                semanticLabel: profile.displayName,
               ),
-            )
-          : null,
+      ),
     );
   }
 }

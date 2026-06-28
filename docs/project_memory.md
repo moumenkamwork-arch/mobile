@@ -1,6 +1,6 @@
 # Promoo project memory
 
-Last updated: 2026-06-26
+Last updated: 2026-06-27
 
 ## Current state
 
@@ -23,6 +23,7 @@ Last updated: 2026-06-26
 - Search vertical slice is implemented.
 - Auth Lite vertical slice is implemented with in-memory session state.
 - Chat + Notifications skeleton slices are implemented.
+- Prototype Section Alignment Patch is implemented for the visible demo surface.
 - `google_fonts` is not installed; the theme uses system fallback while documenting Tajawal as the target UI font.
 
 ## Inspected files
@@ -50,7 +51,9 @@ Last updated: 2026-06-26
 - `docs/design/design_system.md`: implemented design-system rules and component inventory.
 - `docs/client_walkthrough_checklist.md`: mock-mode run commands, client demo flow, walkthrough QA checklist, known limitations, and SVG warning note.
 - `docs/client_demo_handoff.md`: final mock-mode client demo handoff, run commands, walkthrough order, positioning, limitations, and QA checklist.
+- `docs/demo_data_notes.md`: mock-mode data strategy, fictional consistency map, AED-only rule, and backend replacement plan.
 - `docs/prototype_comparison_audit.md`: documentation-only comparison of old prototype screenshots against the current Flutter MVP.
+- `docs/prototype_section_contract.md`: visible-section contract for aligning the MVP demo surface with the original prototype structure while keeping the premium PROMOO design.
 - `../promo_backend/docs/promoo-api-reference.json`: read-only high-level API contract source.
 - `../promo_backend/src/routes/service.routes.ts`, `../promo_backend/src/controllers/service.controller.ts`, and `../promo_backend/src/services/service.service.ts`: read-only Service detail route and response-shape confirmation.
 - `../promo_backend/src/routes/offer.routes.ts`, `../promo_backend/src/controllers/offer.controller.ts`, `../promo_backend/src/services/offer.service.ts`, and `../promo_backend/src/validators/offer.validator.ts`: read-only Offer route and detail response confirmation.
@@ -103,7 +106,7 @@ The MVP must stay close to the prototype: black UI, strong yellow accents, moder
 
 ## MVP phase state
 
-Current phase: `19. Final Android Walkthrough + Client Demo Handoff`.
+Current phase: `Final Pre-Client Patch Step 5`.
 
 Completed to date:
 
@@ -120,7 +123,7 @@ Completed to date:
 - Initial black/yellow theme tokens created from brand guidance.
 - Design tokens expanded across colors, spacing, radius, typography, shadows, and Material component themes.
 - Shared widgets added: scaffold, logo, button, card, text field, loading, empty, error, and section header.
-- Placeholder app shell added with bottom navigation tabs for Home, Services, Cup, Seats, and Profile.
+- Placeholder app shell initially added Home, Services, Cup, Seats, and Profile tabs; Prompt 20 later changed only the visible `/seats` tab label to `Influencer`.
 - Splash placeholder uses `assets/brand/promoo3.svg`; compact logo usage uses `assets/brand/promoo.svg`.
 - Home feature slice added with UI, DTO/model mapping, repository, Riverpod controller/provider, remote data source, fake data source, loading/error/empty/retry states, and focused tests.
 - Services feature slice added with categories, service list/search/category filter, detail repository support, DTO/model mapping, repository, Riverpod controller/provider, remote data source, fake data source, loading/error/empty/retry states, and focused tests.
@@ -138,9 +141,10 @@ Completed to date:
 - Prototype picture comparison audit reviewed `../promo_backend/Projects-Pictures` read-only and documented differences against the Flutter MVP without code changes. No P0 client-demo blockers were identified if the demo is framed as the scoped MVP.
 - Service Detail + Contact MVP added `/services/:id`, a lightweight service detail screen, safe contact actions, and detail navigation from Services, Search service results, and Home service previews. Purchase, checkout, orders, reviews, ratings, and real chat-room creation remain excluded.
 - Home Top Offer / For You Detail MVP added `/home/items/:type/:id`, a lightweight Home content detail screen for offers/promotions/ads, safe contact and location notices, and detail navigation from Home highlight cards, Home promotion cards, Search offer results, and Search ad results. Offer purchase, checkout, final maps, final share/favorite behavior, and real provider-specific chat creation remain excluded.
-- Seats / Influencer visual alignment updated the `/seats` screen with client-facing "Influencer Seats" copy, Gold/Silver/Bronze tier explanation, and a compact visibility grid while keeping the bottom navigation label as "Seats" and the backend route as `/seats`.
+- Seats / Influencer visual alignment updated the `/seats` screen with client-facing "Influencer Seats" copy, Gold/Silver/Bronze tier explanation, and a compact visibility grid. Prompt 20 later changed only the visible bottom navigation label to "Influencer"; backend route remains `/seats`.
 - Profile Media + Management Preview MVP added a media/posts grid, mock demo media behind `ProfileFakeDataSource`, and a Profile-tab-only tools preview for Manage profile, Create offers, Saved items, Support, and Language. Actions remain safe "coming soon" previews; real edit submission, uploads, settings, add-ad wizard, saved/following, support, language persistence, logout, checkout, and payments remain deferred.
 - Final Android Walkthrough + Client Demo Handoff created `docs/client_demo_handoff.md` with exact mock-mode run commands, final demo flow, demo positioning, client-safe limitations, and final QA checklist. No new app features were added.
+- Final Section Accuracy QA separated Home's Top Offers and Promoo of the Day into distinct visible sections, moved Profile packages before media/tools/about/details, and confirmed Services, Influencer/Seats, Cup, Login/Register, and Chat/Notifications entry points remain section-aligned.
 
 Next recommended action:
 
@@ -257,7 +261,7 @@ Typography note:
 - Flutter repository/data source supports `getSeats`, `getMySeats`, and `bookSeat`.
 - Flutter UI does not perform real booking yet because Auth lite and token storage are not implemented.
 - Available-seat CTA shows a safe `Login required` / deferred-auth message and does not open checkout URLs.
-- The shell tab remains labeled `Seats` to preserve route/backend alignment and avoid navigation churn; the screen header uses `Influencer Seats` for client-facing prototype terminology.
+- The shell tab is visibly labeled `Influencer` for the client walkthrough while route/backend naming remains `/seats`; the screen header uses `Influencer Seats` for client-facing prototype terminology.
 - Seats UI now includes a compact visibility grid and tier explanation for Gold visibility, Silver placement, and Bronze visibility.
 - DTO parsing is defensive and supports direct lists, wrapped lists, nested `items`/`seats`, nested `profile`/`holder`, and booking response variants.
 - Seat price displays API currency when present and falls back to `AppConfig.fallbackCurrency` (`AED`) when price exists but currency is missing.
@@ -312,7 +316,7 @@ Typography note:
 - Flutter parses user metadata defensively, including `full_name`, `account_type`, avatar, and nested session/user variants.
 - Auth Lite uses in-memory session storage only. Tokens are not persisted across app restarts until secure storage is intentionally added.
 - `/login` and `/register` are public routes outside the bottom-navigation shell.
-- Existing public Home, Services, Cup, Seats, Profile, and Search screens remain public; no complex auth guards were added.
+- Existing public Home, Services, Cup, Influencer/Seats, Profile, and Search screens remain public; no complex auth guards were added.
 - Profile and Seats login-required CTAs can navigate to `/login`, but real follow, edit, booking, checkout, and profile mutation flows remain deferred.
 - Social login, phone login, OTP final flow, account deletion, Firebase/Supabase client SDKs, push notifications, Stripe, and checkout were not added.
 - `PROMOO_USE_MOCKS=true` makes the Auth repository use `AuthFakeDataSource`; fake auth data remains behind the data-source/repository boundary and is not embedded in widgets.
@@ -373,6 +377,64 @@ Typography note:
 - Profile is structurally complete for the MVP public profile plus packages display, but not for the prototype's account-management/profile-owner flows.
 - No P0 client-demo blocker was identified from the screenshots if the walkthrough is presented as the scoped MVP.
 
+## Prototype section alignment notes
+
+- Created `docs/prototype_section_contract.md` before code changes to record the keep/rename/hide decisions per page.
+- Home now prioritizes the prototype-facing sections: Stories, Top Offers, For You, and Promoo of the Day. Extra Home discovery surfaces such as categories and featured profiles remain in code/data but are hidden from the primary demo surface.
+- Final QA confirms Home now shows distinct Stories, Top Offers, For You, and Promoo of the Day sections.
+- Home header now has safe Chat and Notifications entry points using existing routes.
+- Services now presents a category grid first, then search/listings, matching the prototype's service-category landing structure.
+- The visible bottom navigation label for `/seats` changed from `Seats` to `Influencer`; route and backend naming remain `/seats`.
+- Profile packages are shown before media/tools/about-details so the walkthrough better matches the prototype's package-first profile flow.
+- Login/Register now show Apple, Google, and Facebook visual sign-in buttons with safe coming-soon feedback only. No social SDKs or packages were added.
+- The new build preserves the approved premium visual design while aligning visible page sections with the original prototype structure.
+
+## Realistic mock demo data notes
+
+- Mock-mode data was polished for final client review without adding features, routes, packages, backend calls, navigation changes, or design changes.
+- Fictional demo content now centers on Saffron Social Studio plus related fictional providers across Home, Services, Search, Profile, Influencer Seats, Cup / Leaderboard, Chat, and Notifications.
+- Services categories now use Beauty & Wellness, Restaurants & Cafes, Events & Photography, Fashion & Styling, Health & Fitness, Home & Lifestyle, Digital Marketing, and Influencer Campaigns.
+- Mock-mode service, profile package, seat, offer, and search prices are AED-only.
+- Profile media uses neutral internal `promoo-media://` references and remains behind `ProfileFakeDataSource`.
+- Chat and Notifications use professional campaign, package, profile-view, and offer-interest copy with no private contact data.
+- Added `test/demo_data/demo_data_quality_test.dart` to verify AED-only mock pricing, placeholder-free visible fake-source strings, and cross-feature identity consistency.
+- `docs/demo_data_notes.md` records the strategy and replacement plan for the backend-integration phase.
+
+## Final pre-client patch Step 1 + Step 2 notes
+
+- Step 1 replaced the static launch welcome with a native Flutter animated PROMOO intro using black background, yellow glow, staged logo/welcome/CTA reveal, and a CTA to `/login`.
+- Login/Register visuals were intentionally preserved. Auth Lite remains unchanged; after a successful login/register session, the existing `Continue` action enters Home.
+- Auth screen fallback back navigation now returns to the launch intro instead of bypassing auth into Home.
+- Step 2 upgraded Home while preserving the section contract: Stories, Top Offers, For You, Promoo of the Day, and Services.
+- Stories now open a fullscreen image-based story viewer with progress bars, profile/avatar header, close action, previous/next tap zones, and tasteful black/yellow styling.
+- Top Offers, For You, and Services now use swiper-style PageView cards with professional-looking fictional imagery and resilient image fallback behavior.
+- Promoo of the Day now uses an image-first hero treatment.
+- Visual reference screenshots were inspected only as references and were not bundled into app assets.
+
+## Final pre-client patch Step 3 + Step 4 notes
+
+- Step 3 upgraded Cup / Leaderboard with realistic mock avatars, stronger top-three treatment, and clickable podium/list items that open existing public profile routes.
+- Cup fake leaderboard IDs now align with mock profile IDs so `/profiles/:id` resolves during the walkthrough.
+- Profile headers now use resilient image rendering for avatar and cover images.
+- Profile media now uses a two-column image-led grid and opens a fullscreen story-style viewer with like/comment/share/view affordances. Real upload, persistence, comments, likes, and sharing remain deferred.
+- Step 4 upgraded Influencer Seats with a denser profile/open-seat visibility grid while keeping backend naming and route stability as `/seats`.
+- Occupied seats open an influencer preview bottom sheet with Follow and View profile actions. Follow remains safe coming-soon feedback; View profile uses the existing public profile route.
+- Available seats open a seat detail bottom sheet. `Book Now` opens a demo checkout preview at `/seats/checkout`; no repository booking, payment SDK, checkout URL, WebView, Stripe, or real payment flow is executed.
+- Influencer Seats fake data now includes occupied, pending, and available Gold/Silver/Bronze placements with mock holder avatars behind `SeatsFakeDataSource`.
+- Visual reference screenshots were inspected only as references and were not bundled into app assets.
+
+## Final pre-client patch Step 5 notes
+
+- Step 5 prepared Android client-review APK readiness without adding backend integration, real payments, real booking, uploads, realtime, push notifications, production social auth, packages, or broad architecture refactors.
+- Android app label is now `Promoo` in `android/app/src/main/AndroidManifest.xml`.
+- Android launcher icons were manually generated from the approved embedded PROMOO logo artwork in `assets/brand/promoo.svg`; no launcher-icon package was added.
+- Android adaptive icon resources were added for API 26+ and legacy mipmap launcher/round icons were replaced for older launchers.
+- Main Android manifest includes Internet permission so release APKs can load network-hosted demo imagery while still using mock app data when built with `PROMOO_USE_MOCKS=true`.
+- Influencer seat preview bottom sheets now use scroll protection for shorter Android screens.
+- Created `docs/client_apk_review_checklist.md` with split/universal APK commands, output paths, app name/icon checks, mock-mode checks, main flow checklist, and client-safe limitations.
+- `docs/client_demo_handoff.md` now includes APK build commands and the requirement to build the client APK with `--dart-define=PROMOO_USE_MOCKS=true`.
+- Added `test/android/android_client_apk_config_test.dart` to verify Android label, icon references, release Internet permission, and launcher icon files.
+
 ## Validation history
 
 - 2026-06-25: `flutter analyze` passed after brand asset/dependency setup.
@@ -399,3 +461,9 @@ Typography note:
 - 2026-06-26: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Seats / Influencer visual alignment. Full test suite passed with 169 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-26: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Profile Media + Management Preview MVP. Full test suite passed with 171 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-26: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Android Walkthrough + Client Demo Handoff. Full test suite passed with 171 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Prototype Section Alignment Patch. Full test suite passed with 171 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Section Accuracy QA Before Client Review. Full test suite passed with 171 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Realistic Mock Demo Data Polish. Full test suite passed with 174 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 1 + Step 2. Full test suite passed with 177 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 3 + Step 4. Full test suite passed with 181 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed after Final Pre-Client Patch Step 5. Full test suite passed with 182 tests; known non-fatal SVG `<style/>` warnings remain.

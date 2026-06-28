@@ -21,16 +21,16 @@ void main() {
 
   test('fake service detail returns requested service', () async {
     final dto = await const ServicesFakeDataSource().fetchServiceById(
-      'service-content',
+      'service-influencer-launch',
     );
     final service = dto.toDomain(
-      fallbackId: 'service-content',
+      fallbackId: 'service-influencer-launch',
       fallbackCurrency: 'AED',
     );
 
-    expect(service.id, 'service-content');
-    expect(service.title, 'Premium content package');
-    expect(service.provider?.id, 'profile-demo');
+    expect(service.id, 'service-influencer-launch');
+    expect(service.title, 'Boutique influencer launch package');
+    expect(service.provider?.id, 'profile-saffron-social');
     expect(service.price?.currency, 'AED');
   });
 

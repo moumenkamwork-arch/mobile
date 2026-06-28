@@ -38,7 +38,7 @@ void main() {
 
     final future = container
         .read(searchControllerProvider.notifier)
-        .submitSearch('noura');
+        .submitSearch('saffron');
 
     expect(
       container.read(searchControllerProvider).status,
@@ -49,7 +49,7 @@ void main() {
 
     final state = container.read(searchControllerProvider);
     expect(state.status, SearchStatus.success);
-    expect(state.results.single.title, 'Noura Studio');
+    expect(state.results.single.title, 'Saffron Social Studio');
   });
 
   test('emits empty when repository returns no results', () async {
@@ -87,7 +87,7 @@ void main() {
 
     await container
         .read(searchControllerProvider.notifier)
-        .submitSearch('noura');
+        .submitSearch('saffron');
 
     final state = container.read(searchControllerProvider);
     expect(state.status, SearchStatus.error);
@@ -105,7 +105,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      container.read(searchControllerProvider.notifier).updateQuery('maya');
+      container.read(searchControllerProvider.notifier).updateQuery('lina');
       await container
           .read(searchControllerProvider.notifier)
           .selectFilter(SearchFilterType.influencers);
@@ -122,9 +122,9 @@ void main() {
 const _successPage = SearchResultsPage(
   results: [
     SearchProfileResult(
-      id: 'profile-demo',
-      title: 'Noura Studio',
-      username: 'noura.studio',
+      id: 'profile-saffron-social',
+      title: 'Saffron Social Studio',
+      username: 'saffron.social',
       isVerified: true,
     ),
   ],

@@ -391,8 +391,8 @@ The folder structure should be introduced incrementally. Do not create every fea
 - `/login` and `/register` are public routes implemented by Auth Lite and live outside the bottom-navigation shell.
 - `/chats` and `/chats/:roomId` are public routes at the router layer but conceptually auth-required; their repositories show login-required state in real mode without an in-memory access token.
 - `/notifications` is public at the router layer but conceptually auth-required; its repository shows login-required state in real mode without an in-memory access token.
-- A `ShellRoute` provides the placeholder bottom navigation for Home, Services, Cup, Seats, and Profile.
-- The shell is structural; Home, Services, Cup, Seats, Profile, and Search have real feature content.
+- A `ShellRoute` provides the bottom navigation for Home, Services, Cup, Influencer, and Profile.
+- The shell is structural; Home, Services, Cup, Influencer/Seats, Profile, and Search have real feature content.
 - Auth Lite does not add complex route guards yet; authenticated route guards belong to the later auth hardening/protected-flow step.
 - Validate route parameters at boundaries.
 

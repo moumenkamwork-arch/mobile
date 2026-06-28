@@ -8,6 +8,8 @@ Use this checklist to run the Flutter MVP in mock mode for a client walkthrough.
 
 Do not present this as production-ready. This is a demo build for product flow, visual direction, and MVP scope alignment.
 
+For APK handoff, also use `docs/client_apk_review_checklist.md`. The client APK must be built with `--dart-define=PROMOO_USE_MOCKS=true`.
+
 ## Mock mode run commands
 
 Mock mode is enabled through Dart defines:
@@ -63,10 +65,10 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 4. Cup: open the Cup tab, show the top 3 podium and ranking list.
 5. Seats: open Seats, present the page as Influencer Seats, show the visibility grid, Gold/Silver/Bronze tiers, and safe login-required booking behavior.
 6. Profile: open Profile, show profile header, stats, media grid, Profile tools preview, packages, and safe Follow/Message/Edit behavior.
-7. Search: open Search, try `studio` or `content`, switch filters, and tap a profile result.
-8. Login: open Login. For mock mode use `demo@promoo.app` and `password123`.
+7. Search: open Search, try `studio`, `launch`, `cafe`, or `spotlight`, switch filters, and tap a result.
+8. Login: open Login. For mock mode use a valid email such as `alya@promoo.app` and `password123`.
 9. Register: show account type selection. For mock mode use any valid email and password of at least 8 characters.
-10. Chats: open Chats, select `Noura Studio`, and send a short demo message.
+10. Chats: open Chats, select `Saffron Social Studio`, and send a short inquiry message.
 11. Notifications: open Notifications, show unread states, mark all read, and open a message notification.
 
 ## Screen walkthrough checklist
@@ -79,8 +81,8 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 | Cup / Leaderboard | `/cup` | Podium and ranked list render with realistic demo profiles. | Automated route smoke passed. |
 | Seats | `/seats` | Influencer Seats header, visibility grid, tier explanation, statuses, AED pricing, login-required booking notice. | Automated route smoke passed. |
 | Profile | `/profile` | Demo profile, media grid, Profile tools preview, packages, safe action notices, chat CTA. | Automated route smoke passed. |
-| Public profile | `/profiles/noura.studio` | Public profile detail route renders profile content without owner tools. | Automated route smoke passed. |
-| Search | `/search` | Idle state is clear; use `studio` or `content` for demo results. | Automated route smoke passed. |
+| Public profile | `/profiles/saffron.social` | Public profile detail route renders profile content without owner tools. | Automated route smoke passed. |
+| Search | `/search` | Idle state is clear; use `studio`, `launch`, `cafe`, or `spotlight` for demo results. | Automated route smoke passed. |
 | Login | `/login` | Email/password form, validation, mock sign-in. | Automated route smoke passed. |
 | Register | `/register` | Email registration form and account type selector. | Automated route smoke passed. |
 | Chats | `/chats` | Demo rooms render in mock mode. | Automated route smoke passed. |
@@ -113,7 +115,7 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 - Auth Lite stores sessions in memory only.
 - Services and profile packages are display/contact only; no purchase flow exists.
 - Seat booking does not open checkout in the app.
-- The bottom navigation label remains Seats for route/backend consistency; the screen header uses Influencer Seats for client-facing terminology.
+- The bottom navigation label is Influencer for the client walkthrough; the route/backend naming remains `/seats`.
 - Profile follow/edit actions do not mutate backend state yet.
 - Profile media/tools are a client demo preview. Real edit submission, avatar/cover/media uploads, add-ad wizard, settings, saved/following, support, language persistence, and production logout remain pending.
 - Profile-specific chat start is not implemented; the Profile Message action opens the chat inbox.

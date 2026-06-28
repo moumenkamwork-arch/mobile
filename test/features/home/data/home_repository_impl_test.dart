@@ -24,7 +24,7 @@ void main() {
     expect(result.isSuccess, isTrue);
     result.when(
       success: (content) {
-        expect(content.highlight?.title, 'Promoo of the day');
+        expect(content.highlight?.title, 'Boutique launch visibility pack');
         expect(content.categories, isNotEmpty);
       },
       failure: (failure) => fail('Expected success, got $failure'),
@@ -44,8 +44,8 @@ void main() {
         detailDto: HomeContentDetailDto(
           id: 'offer-1',
           type: HomeContentDetailType.offer,
-          title: 'Launch week promotion',
-          price: 1200,
+          title: 'Cafe opening spotlight',
+          price: 1500,
         ),
       ),
     );
@@ -60,8 +60,8 @@ void main() {
     expect(result.isSuccess, isTrue);
     result.when(
       success: (detail) {
-        expect(detail.title, 'Launch week promotion');
-        expect(detail.price?.label, '1200 AED');
+        expect(detail.title, 'Cafe opening spotlight');
+        expect(detail.price?.label, '1500 AED');
       },
       failure: (failure) => fail('Expected success, got $failure'),
     );
@@ -75,7 +75,7 @@ void main() {
         detailDto: HomeContentDetailDto(
           id: 'ad-1',
           type: HomeContentDetailType.ad,
-          title: 'Featured marketplace spotlight',
+          title: 'Featured campaign spotlight',
         ),
       );
       final repository = HomeRepositoryImpl(
@@ -98,7 +98,7 @@ void main() {
       expect(result.isSuccess, isTrue);
       result.when(
         success: (detail) =>
-            expect(detail.title, 'Featured marketplace spotlight'),
+            expect(detail.title, 'Featured campaign spotlight'),
         failure: (failure) => fail('Expected success, got $failure'),
       );
     },

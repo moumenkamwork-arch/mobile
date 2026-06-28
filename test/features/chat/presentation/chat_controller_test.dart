@@ -25,7 +25,7 @@ void main() {
 
     final state = container.read(chatControllerProvider);
     expect(state.status, ChatStatus.success);
-    expect(state.rooms.single.participant.displayName, 'Noura Studio');
+    expect(state.rooms.single.participant.displayName, 'Saffron Social Studio');
   });
 
   test('chat controller emits error when repository fails', () async {
@@ -80,8 +80,8 @@ void main() {
 }
 
 const _participant = ChatParticipant(
-  id: 'profile-1',
-  displayName: 'Noura Studio',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
 );
 
 final _room = ChatRoom(
@@ -95,7 +95,7 @@ final _message = ChatMessage(
   id: 'message-1',
   roomId: 'room-1',
   senderId: 'profile-1',
-  content: 'Brief ready',
+  content: 'Launch plan ready',
   createdAt: DateTime(2026, 6, 26, 9, 20),
   sender: _participant,
 );
@@ -103,7 +103,7 @@ final _message = ChatMessage(
 final _sentMessage = ChatMessage(
   id: 'message-2',
   roomId: 'room-1',
-  senderId: 'demo-user',
+  senderId: 'current-user',
   content: 'Thanks',
   createdAt: DateTime(2026, 6, 26, 9, 21),
   isMine: true,

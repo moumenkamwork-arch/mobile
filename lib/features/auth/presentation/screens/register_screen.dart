@@ -13,6 +13,7 @@ import '../widgets/auth_account_type_selector.dart';
 import '../widgets/auth_message_banner.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
+import '../widgets/auth_social_login_preview.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -171,6 +172,8 @@ class _RegisterForm extends StatelessWidget {
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.login),
           ),
+          const SizedBox(height: AppSpacing.lg),
+          const AuthSocialLoginPreview(),
         ],
       ),
     );

@@ -1,12 +1,12 @@
 # Prototype comparison audit
 
-Last updated: 2026-06-26
+Last updated: 2026-06-27
 
 ## Scope
 
 This audit compares the old prototype screenshots in `../promo_backend/Projects-Pictures` against the current Flutter MVP. The screenshots are reference material only. The current PROMOO black/yellow premium design system remains the source of truth.
 
-No Flutter code changes were made for the original audit. Post-audit updates: Prompt 15 implemented the P1 lightweight Service Detail + Contact improvement, Prompt 16 implemented the P1 lightweight Home Top Offer / For You Detail improvement, Prompt 17 improved Seats / Influencer visual alignment, and Prompt 18 added the Profile media/tools preview while keeping the audit findings as reference.
+No Flutter code changes were made for the original audit. Post-audit updates: Prompt 15 implemented the P1 lightweight Service Detail + Contact improvement, Prompt 16 implemented the P1 lightweight Home Top Offer / For You Detail improvement, Prompt 17 improved Seats / Influencer visual alignment, Prompt 18 added the Profile media/tools preview, Prompt 20 aligned the visible demo sections to the prototype contract while keeping the premium PROMOO design, Prompt 21 performed final section-accuracy QA, and the final pre-client Step 3/4 patch added Cup-to-profile navigation, Profile media viewing, Influencer seat bottom sheets, and a demo checkout preview.
 
 ## Prototype folders reviewed
 
@@ -30,7 +30,7 @@ No Flutter code changes were made for the original audit. Post-audit updates: Pr
 
 No P0 blocker was found from the prototype comparison if the client demo is positioned as the scoped Flutter MVP and not as a full clone of the older prototype.
 
-The main remaining structural gaps are P1/P2 scope gaps: richer Home visual carousel parity, exact Influencer seat/payment parity, full profile management/edit/upload/add-ad screens, sticky map/location behavior, and package checkout. The service detail/contact gap identified by this audit has been partially addressed by Prompt 15, the Home top-offer/for-you detail gap has been partially addressed by Prompt 16, the Seats/Influencer visual-alignment gap has been partially addressed by Prompt 17, and the Profile media/management preview gap has been partially addressed by Prompt 18.
+The main remaining structural gaps are P1/P2 scope gaps: full profile management/edit/upload/add-ad screens, sticky map/location behavior, package checkout, and real payment/realtime/production hardening. The service detail/contact gap identified by this audit has been partially addressed by Prompt 15, the Home top-offer/for-you detail gap has been partially addressed by Prompt 16, the Seats/Influencer visual-alignment gap has been partially addressed by Prompt 17, the Profile media/management preview gap has been partially addressed by Prompt 18, the visible-section mismatch has been addressed by Prompt 20, and Step 3/4 further improved Cup navigation, Profile media viewing, and Influencer seat/payment-preview parity.
 
 ## Screen inventory compared
 
@@ -93,16 +93,13 @@ Prototype sections found:
 
 Current Flutter sections implemented:
 
-- Home header/logo.
-- Search teaser.
-- Highlight/promoted area.
+- Home header/logo with Chat and Notifications entry points.
 - Stories strip.
-- Category strip.
-- Services preview.
-- Promotions/offers preview.
+- Top Offers section.
+- For You section.
+- Promoo of the Day highlight.
 - Lightweight Home detail route for top-offer/promotion/ad content.
 - Safe Home detail contact section with Contact, Open chats, View provider profile, and Location notice actions when data exists.
-- Featured profiles preview.
 - Loading, empty, error, retry, and refresh states.
 
 Missing sections:
@@ -111,14 +108,12 @@ Missing sections:
 - Rich image-led Top Offers carousel with page dots.
 - Dedicated For You full list route.
 - Sticky Location/Contact action bar and final map/contact behavior.
-- Header chat/notification badges on Home.
 - Influencer/seat highlight module on Home.
 
 Differences:
 
-- Current Home is more structured around MVP data sections and less image-heavy than the prototype.
+- Current Home now follows the prototype's visible section structure while remaining less image-heavy than the prototype.
 - Current Home now has lightweight detail drill-in for top offer and promotion/ad content, but not full prototype carousel/detail parity.
-- Current Home has a global Search teaser; the prototype emphasizes visual section browsing.
 - Current Home keeps fake/demo data behind data sources, while the prototype screenshots appear fully static.
 
 Decision:
@@ -143,8 +138,8 @@ Prototype sections found:
 Current Flutter sections implemented:
 
 - Services screen with title/subtitle.
-- Search field.
-- Horizontal categories list.
+- Category grid first.
+- Search field after categories.
 - Service listing cards.
 - Lightweight `/services/:id` service detail screen.
 - Service detail contact section with safe Contact provider, Open chats, and View provider profile actions.
@@ -159,7 +154,7 @@ Missing sections:
 - Favorite/share actions.
 - Ratings/reviews, intentionally hidden for MVP.
 - Promo code, terms, and best price when unavailable from API.
-- Image-heavy category grid layout.
+- Image-heavy category artwork matching the static prototype.
 
 Differences:
 
@@ -189,38 +184,39 @@ Prototype sections found:
 Current Flutter sections implemented:
 
 - Seats screen with client-facing Influencer Seats header.
-- Compact visibility grid for current placement slots.
+- Dense visibility grid with occupied profile seats and empty "Place Your Seat" cells.
+- Occupied influencer preview bottom sheet.
+- Available seat detail bottom sheet.
+- Demo checkout preview with cardholder/card/expiry/CVV fields.
 - Gold/Silver/Bronze tier explanation.
 - Gold/Silver/Bronze tier filtering.
 - Seat cards with tier/status/price/currency.
 - Safe booking notice and login-required behavior.
 - Repository/data source supports `POST /seats/:id/book` and parses checkout/session fields defensively.
-- No checkout launch or payment UI.
+- Checkout preview is UI-only and does not process payment.
 - Loading, empty, error, retry, refresh, and booking state handling.
 
 Missing sections:
 
-- Exact prototype dense seat grid with occupied profile avatars and empty "Place Your Seat" cells.
-- Influencer tab naming, if the client expects the old bottom-tab label.
-- Tier explanation bottom sheet; current MVP uses inline explanation instead.
-- Real checkout/payment screen.
+- Exact 1:1 prototype grid artwork and animation.
+- Real checkout/payment processing.
 
 Differences:
 
 - Current screen is safer and more backend-aligned for MVP because booking requires auth and payments are deferred.
-- Bottom navigation remains `Seats`; the screen header uses `Influencer Seats` for prototype terminology without changing backend route naming.
-- Current grid is a lightweight placement overview, not a 1:1 copy of the old prototype grid.
-- Prototype shows a payment flow that is intentionally out of scope.
+- Bottom navigation now uses the visible label `Influencer`; backend route naming remains `/seats`.
+- Current grid is closer to the old prototype concept, but still uses the approved premium PROMOO design.
+- Prototype shows a payment flow; current app shows a safe checkout preview only.
 
 Decision:
 
 - Acceptable for MVP if explained as "Influencer Seats" with booking gated until Auth/payment hardening.
-- Prompt 17 addressed the key visual expectation with a compact grid and tier explanation while keeping the route as `/seats`.
+- Prompt 17 addressed the page-level visual expectation, and the final pre-client Step 4 patch added occupied/open seat bottom sheets plus a checkout preview while keeping the route as `/seats`.
 
 Priority:
 
-- P1: validate with the client whether the bottom tab should remain "Seats" or become "Influencer" after the walkthrough.
-- P2: checkout/payment and card entry are deferred until Stripe/payment scope.
+- P1: validate with the client whether the visible `Influencer` label should remain for release while backend naming stays `/seats`.
+- P2: real checkout/payment processing remains deferred until Stripe/payment scope.
 
 ## Cup / Leaderboard
 
@@ -236,19 +232,19 @@ Current Flutter sections implemented:
 - Cup screen using `GET /leaderboard`.
 - Top 3 podium/highlight section.
 - Ranked profile list.
+- Clickable podium and ranked cards that open `/profiles/:id`.
 - Profile name, account type, bio/metadata, and follower count handling.
 - Loading, empty, error, retry, and refresh states.
 
 Missing sections:
 
 - Header chat/notification badges on Cup.
-- Tap-through to ranked profile detail from cards.
-- Story/media/chat flows from leaderboard cards.
+- Direct chat start from leaderboard cards.
 
 Differences:
 
 - Current Cup uses a podium plus ranked list, while the prototype uses large stacked ranking cards.
-- Current implementation is backend-aligned and avoids adding profile detail tap behavior in the Cup slice.
+- Current implementation is backend-aligned and now supports profile detail tap-through for the client walkthrough.
 
 Decision:
 
@@ -256,8 +252,7 @@ Decision:
 
 Priority:
 
-- P1: add profile-card navigation when profile-routing behavior is intentionally expanded.
-- P2: profile media/story/chat entry points from Cup.
+- P2: direct chat entry points from Cup remain deferred.
 
 ## Profile + Packages
 
@@ -276,7 +271,7 @@ Current Flutter sections implemented:
 - Follow, Message, and Edit profile safe actions.
 - Action notice for login-required or coming-soon behavior.
 - About section.
-- Media/posts preview grid.
+- Media/posts preview grid with fullscreen story-style viewer.
 - Profile-tab-only tools preview with Manage profile, Create offers, Saved items, Support, and Language entries.
 - Packages section and package cards.
 - Public profile route `/profiles/:id`.
@@ -290,12 +285,12 @@ Missing sections:
 - Full Following, Saved, MyPackages, Support, language selection, and Logout menu behavior.
 - Add New Offer/Add New AD multi-step flow.
 - Package detail/checkout flow.
-- Real follow/message/contact mutations.
+- Real media engagement persistence and follow/message/contact mutations.
 
 Differences:
 
 - Current Profile is a public profile plus packages display. The prototype also includes account-management and creator/ad-management surfaces.
-- Current media/tools areas are a polished preview for client demo, not production management.
+- Current media/tools areas are a polished preview for client demo, including a story-style media viewer, not production management.
 - Current packages are represented as profile services for display/contact only. The prototype treats packages as purchasable cards that lead toward checkout.
 
 Decision:
@@ -303,7 +298,7 @@ Decision:
 - Structurally complete for MVP public profile and packages display.
 - Partially aligned with the prototype's account-management/profile-owner experience through a preview surface only.
 - Edit profile is expected as a separate screen based on the prototype.
-- Media/posts are represented as an MVP grid preview; full offers/ad management is not implemented.
+- Media/posts are represented as an MVP grid preview with fullscreen viewing; full offers/ad management is not implemented.
 - Packages are partially represented: naming, pricing, and card concept align, but package checkout/details are intentionally deferred.
 - Follow/message/contact actions are present but safe/deferred, not fully aligned with the prototype's expected interactions.
 
@@ -459,9 +454,9 @@ Priority:
 ## Main matches
 
 - Black/yellow premium visual direction is consistent.
-- Bottom navigation covers the same core product areas, with naming differences around Seats/Influencer.
-- Home includes stories, services, offers/promotions, featured/profile discovery, and highlighted content.
-- Services supports categories, search, and listings.
+- Bottom navigation covers the same core product areas and now uses `Influencer` for the `/seats` tab.
+- Home primary demo surface includes Stories, Top Offers, For You, and Promoo of the Day.
+- Services supports category-first discovery, search, and listings.
 - Cup supports ranked profiles.
 - Seats supports Gold/Silver/Bronze tiers and AED pricing.
 - Profile includes identity, stats, actions, about content, and packages.
@@ -475,8 +470,16 @@ Priority:
 - Profile-owner screens are still preview-only: full edit profile, management/settings, add new ad/offer, saved/following/support/language/logout behavior are not implemented.
 - Profile media/posts grid now exists as an MVP preview.
 - Package checkout/detail flow is not implemented.
-- Header chat/notification badges are not consistently present on all shell screens.
-- Social login providers and forgot password are deferred.
+- Header chat/notification entry points are present on Home and existing Chat/Notifications routes remain available.
+- Social login provider visuals are present as safe coming-soon actions; approved real provider auth remains later scope.
+
+## Prompt 20 section alignment addendum
+
+- `docs/prototype_section_contract.md` records the current visible-section decisions and Prompt 21 final QA result.
+- The new build preserves the approved premium visual design while aligning visible page sections with the original prototype structure.
+- Extra Home discovery sections are hidden from the primary demo surface rather than removed from feature code.
+- Services now leads with categories, and the `/seats` tab is labeled `Influencer` for the client-facing walkthrough.
+- Prompt 21 confirms Home has distinct Stories, Top Offers, For You, and Promoo of the Day sections, and Profile packages appear before media/tools/about-details.
 
 ## Recommended changes
 
@@ -487,7 +490,6 @@ P0 before client demo:
 P1 soon:
 
 - Improve service detail Location/Contact behavior if a map action or provider-specific chat-room creation becomes part of the demo scope.
-- Confirm after the walkthrough whether the bottom tab should stay "Seats" or change to "Influencer" for client-facing terminology.
 - Improve Home visual hierarchy/carousel parity and sticky map/contact behavior if the client expects closer prototype matching.
 - Add package detail/contact behavior without checkout unless payments are explicitly scoped.
 - Add profile-card navigation from Cup ranked rows if expected in walkthrough.

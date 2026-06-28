@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
@@ -125,9 +127,15 @@ class _LeaderboardContentView extends StatelessWidget {
                     else ...[
                       LeaderboardPodium(
                         profiles: state.profiles.take(3).toList(),
+                        onProfileSelected: (profile) =>
+                            context.go(AppRoutes.profileById(profile.id)),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      LeaderboardRankedList(profiles: state.profiles),
+                      LeaderboardRankedList(
+                        profiles: state.profiles,
+                        onProfileSelected: (profile) =>
+                            context.go(AppRoutes.profileById(profile.id)),
+                      ),
                     ],
                   ],
                 ),

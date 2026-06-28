@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/home/data/dto/home_content_dto.dart';
@@ -10,6 +12,7 @@ import 'package:promoo_app/features/home/data/repositories/home_repository_impl.
 import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
 import 'package:promoo_app/features/home/presentation/screens/home_screen.dart';
+import 'package:promoo_app/features/home/presentation/widgets/home_story_viewer.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_empty_state.dart';
@@ -18,6 +21,12 @@ import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
+  const mockConfig = AppConfig(
+    environment: AppEnvironment.development,
+    baseUrl: 'https://api.promoo.example/api/v1',
+    useMocks: true,
+  );
+
   testWidgets('renders loading state', (tester) async {
     await tester.pumpWidget(
       _buildHomeScreen(
@@ -37,9 +46,29 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Promoo of the day'), findsOneWidget);
+    expect(find.text('Stories'), findsOneWidget);
+    expect(find.text('Maya Studio'), findsOneWidget);
+    expect(find.text('Top Offers'), findsOneWidget);
+    expect(find.byTooltip('Chats'), findsOneWidget);
+    expect(find.byTooltip('Notifications'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('For You'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('For You'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Promoo of the Day'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Promoo of the Day'), findsOneWidget);
+    expect(find.text('Boutique launch visibility pack'), findsOneWidget);
     expect(find.text('View details'), findsOneWidget);
-    expect(find.text('Categories'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Services'),
@@ -49,13 +78,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Services'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.text('Featured profiles'),
-      250,
-      scrollable: find.byType(Scrollable).first,
+    expect(find.text('Categories'), findsNothing);
+    expect(find.text('Featured profiles'), findsNothing);
+  });
+
+  testWidgets('tapping a story opens immersive story viewer', (tester) async {
+    await tester.pumpWidget(
+      _buildHomeScreen(
+        _HomeRepository(Result.success(HomeContentDto.fixture().toDomain())),
+      ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Featured profiles'), findsOneWidget);
+
+    await tester.tap(find.text('Maya Studio'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 260));
+
+    expect(find.byType(HomeStoryViewer), findsOneWidget);
+    expect(find.byTooltip('Close story'), findsOneWidget);
+    expect(find.text('Launch day edits are ready for review.'), findsOneWidget);
+    expect(find.text('Maya Studio'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close story'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeStoryViewer), findsNothing);
   });
 
   testWidgets('highlight card navigates to home detail route', (tester) async {
@@ -72,9 +118,10 @@ void main() {
                 HomeContentDetail(
                   id: 'offer-featured',
                   type: HomeContentDetailType.offer,
-                  title: 'Promoo of the day',
-                  description: 'Premium visibility for demo partners.',
-                  price: HomeContentPrice(amount: 1200, currency: 'AED'),
+                  title: 'Boutique launch visibility pack',
+                  description:
+                      'Premium visibility for curated launch partners.',
+                  price: HomeContentPrice(amount: 2200, currency: 'AED'),
                 ),
               ),
             ),
@@ -85,11 +132,53 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.text('View details'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();
 
     expect(find.text('Offer'), findsAtLeastNWidgets(1));
-    expect(find.text('1200 AED'), findsOneWidget);
+    expect(find.text('2200 AED'), findsOneWidget);
+  });
+
+  testWidgets('service swiper card navigates to service detail route', (
+    tester,
+  ) async {
+    final router = createAppRouter(initialLocation: AppRoutes.home);
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appConfigProvider.overrideWithValue(mockConfig),
+          homeRepositoryProvider.overrideWithValue(
+            _HomeRepository(
+              Result.success(HomeContentDto.fixture().toDomain()),
+            ),
+          ),
+        ],
+        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Boutique influencer launch package'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Boutique influencer launch package').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Service details'), findsOneWidget);
+    expect(find.text('Boutique influencer launch package'), findsOneWidget);
   });
 
   testWidgets('renders empty state', (tester) async {

@@ -15,8 +15,8 @@ void main() {
           const _ServicesRepository(
             detailResult: Result.success(
               PromooService(
-                id: 'service-content',
-                title: 'Premium content package',
+                id: 'service-influencer-launch',
+                title: 'Boutique influencer launch package',
               ),
             ),
           ),
@@ -26,7 +26,9 @@ void main() {
     addTearDown(container.dispose);
 
     expect(
-      container.read(serviceDetailControllerProvider('service-content')).status,
+      container
+          .read(serviceDetailControllerProvider('service-influencer-launch'))
+          .status,
       ServiceDetailStatus.loading,
     );
 
@@ -34,10 +36,10 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     final state = container.read(
-      serviceDetailControllerProvider('service-content'),
+      serviceDetailControllerProvider('service-influencer-launch'),
     );
     expect(state.status, ServiceDetailStatus.success);
-    expect(state.service?.id, 'service-content');
+    expect(state.service?.id, 'service-influencer-launch');
   });
 
   test('emits error when service id is missing', () async {

@@ -80,7 +80,7 @@ void main() {
 }
 
 const _session = AuthSession(
-  user: AuthUser(id: 'demo-user', email: 'demo@promoo.app'),
+  user: AuthUser(id: 'current-user', email: 'alya@promoo.app'),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 

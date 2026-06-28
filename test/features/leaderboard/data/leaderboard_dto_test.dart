@@ -9,8 +9,8 @@ void main() {
         {
           'rank': 1,
           'id': 'profile-1',
-          'full_name': 'Noura Studio',
-          'username': 'noura.studio',
+          'full_name': 'Saffron Social Studio',
+          'username': 'saffron.social',
           'avatar_url': 'https://example.com/avatar.png',
           'bio': 'Campaign studio',
           'account_type': 'company',
@@ -26,8 +26,8 @@ void main() {
 
     expect(profiles.single.id, 'profile-1');
     expect(profiles.single.rank.value, 1);
-    expect(profiles.single.displayName, 'Noura Studio');
-    expect(profiles.single.username, 'noura.studio');
+    expect(profiles.single.displayName, 'Saffron Social Studio');
+    expect(profiles.single.username, 'saffron.social');
     expect(profiles.single.accountTypeLabel, 'Company');
     expect(profiles.single.followersCount, 185400);
     expect(profiles.single.followersLabel, '185.4K followers');
@@ -42,7 +42,7 @@ void main() {
           {
             'profile': {
               'profile_id': 'profile-2',
-              'displayName': 'Omar Creative',
+              'displayName': 'Lina Atelier',
               'followersCount': '142900',
               'accountType': 'influencer',
             },
@@ -55,7 +55,7 @@ void main() {
 
     expect(profiles.single.id, 'profile-2');
     expect(profiles.single.rank.value, 1);
-    expect(profiles.single.displayName, 'Omar Creative');
+    expect(profiles.single.displayName, 'Lina Atelier');
     expect(profiles.single.followersCount, 142900);
     expect(profiles.single.accountTypeLabel, 'Influencer');
   });

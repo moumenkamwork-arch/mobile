@@ -29,21 +29,24 @@ void main() {
         const _ServicesRepository(
           detailResult: Result.success(
             PromooService(
-              id: 'service-content',
-              title: 'Premium content package',
-              description: 'Short-form social content for campaigns.',
-              category: ServiceCategory(id: 'cat-marketing', name: 'Marketing'),
+              id: 'service-influencer-launch',
+              title: 'Boutique influencer launch package',
+              description: 'Creator coverage and campaign guidance.',
+              category: ServiceCategory(
+                id: 'cat-influencer-campaigns',
+                name: 'Influencer Campaigns',
+              ),
               provider: ServiceProvider(
-                id: 'profile-demo',
-                name: 'Noura Studio',
-                username: 'noura.studio',
-                accountType: 'service_provider',
+                id: 'profile-saffron-social',
+                name: 'Saffron Social Studio',
+                username: 'saffron.social',
+                accountType: 'company',
                 isVerified: true,
               ),
-              price: ServicePrice(amount: 750, currency: 'AED'),
+              price: ServicePrice(amount: 2200, currency: 'AED'),
               location: 'Dubai',
               deliveryDays: 5,
-              tags: ['Content', 'Video'],
+              tags: ['Campaign', 'Reels', 'Stories'],
             ),
           ),
         ),
@@ -51,21 +54,26 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Premium content package'), findsWidgets);
-    expect(find.text('750 AED'), findsOneWidget);
-    expect(find.text('Marketing'), findsOneWidget);
-    expect(find.text('Noura Studio'), findsWidgets);
+    expect(find.text('Boutique influencer launch package'), findsWidgets);
+    expect(find.text('2200 AED'), findsOneWidget);
+    expect(find.text('Influencer Campaigns'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsWidgets);
     expect(find.text('Dubai'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Contact provider'),
       240,
       scrollable: find.byType(Scrollable),
     );
+    await tester.ensureVisible(
+      find.widgetWithText(ElevatedButton, 'Contact provider'),
+    );
+    await tester.drag(find.byType(Scrollable), const Offset(0, -160));
+    await tester.pumpAndSettle();
     expect(find.text('Contact provider'), findsOneWidget);
     expect(find.text('Open chats'), findsOneWidget);
     expect(find.text('View provider profile'), findsOneWidget);
 
-    await tester.tap(find.text('Contact provider'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Contact provider'));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Contact flow coming soon'), findsOneWidget);
@@ -95,7 +103,7 @@ Widget _buildServiceDetailScreen(ServicesRepository repository) {
     child: MaterialApp(
       theme: AppTheme.dark,
       home: const Scaffold(
-        body: ServiceDetailScreen(serviceId: 'service-content'),
+        body: ServiceDetailScreen(serviceId: 'service-influencer-launch'),
       ),
     ),
   );

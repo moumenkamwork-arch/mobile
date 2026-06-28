@@ -82,7 +82,7 @@ void main() {
 final _notification = AppNotification(
   id: 'notification-1',
   title: 'New message',
-  body: 'Noura Studio sent an update.',
+  body: 'Saffron Social Studio sent a campaign update.',
   type: NotificationType.message,
   createdAt: DateTime(2026, 6, 26, 9, 22),
   data: const {'room_id': 'room-1'},

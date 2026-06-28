@@ -19,44 +19,50 @@ class ServicesCategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length + 1,
-        separatorBuilder: (context, index) {
-          return const SizedBox(width: AppSpacing.xs);
-        },
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _CategoryChip(
-              label: 'All',
-              selected: selectedCategoryId == null,
-              onTap: () => onSelected(null),
-            );
-          }
+    final items = [
+      const ServiceCategory(id: '', name: 'All services'),
+      ...categories,
+    ];
 
-          final category = categories[index - 1];
-          return _CategoryChip(
-            label: category.name,
-            selected: selectedCategoryId == category.id,
-            onTap: () => onSelected(category.id),
-          );
-        },
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.xs,
+        crossAxisSpacing: AppSpacing.xs,
+        childAspectRatio: 1.55,
       ),
+      itemBuilder: (context, index) {
+        final category = items[index];
+        final isAll = index == 0;
+        final selected = isAll
+            ? selectedCategoryId == null
+            : selectedCategoryId == category.id;
+
+        return _CategoryCard(
+          label: category.name,
+          selected: selected,
+          icon: _iconForCategory(category.name),
+          onTap: () => onSelected(isAll ? null : category.id),
+        );
+      },
     );
   }
 }
 
-class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({
     required this.label,
     required this.selected,
+    required this.icon,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
+  final IconData icon;
   final VoidCallback onTap;
 
   @override
@@ -69,29 +75,77 @@ class _CategoryChip extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: AppRadius.pill,
+          borderRadius: AppRadius.card,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            alignment: Alignment.center,
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: AppSpacing.md,
-            ),
+            padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: selected ? AppColors.primaryYellow : AppColors.surface,
-              borderRadius: AppRadius.pill,
+              color: selected ? AppColors.elevatedSurface : AppColors.surface,
+              borderRadius: AppRadius.card,
               border: Border.all(
                 color: selected ? AppColors.primaryYellow : AppColors.border,
               ),
             ),
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: selected ? AppColors.brandBlack : AppColors.textPrimary,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.primaryYellow
+                        : AppColors.elevatedSurface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: selected
+                          ? AppColors.primaryYellow
+                          : AppColors.borderStrong,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: selected
+                        ? AppColors.brandBlack
+                        : AppColors.primaryYellow,
+                    size: 20,
+                  ),
+                ),
+                Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+}
+
+IconData _iconForCategory(String label) {
+  final normalized = label.toLowerCase();
+  if (normalized.contains('influencer') ||
+      normalized.contains('creator') ||
+      normalized.contains('content')) {
+    return Icons.auto_awesome_rounded;
+  }
+  if (normalized.contains('ad') || normalized.contains('marketing')) {
+    return Icons.campaign_rounded;
+  }
+  if (normalized.contains('design') || normalized.contains('brand')) {
+    return Icons.brush_rounded;
+  }
+  if (normalized.contains('business') || normalized.contains('growth')) {
+    return Icons.trending_up_rounded;
+  }
+  return Icons.storefront_rounded;
 }

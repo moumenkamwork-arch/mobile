@@ -6,6 +6,7 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
@@ -211,30 +212,19 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.elevatedSurface,
-              borderRadius: const BorderRadiusDirectional.vertical(
-                top: Radius.circular(AppRadius.lg),
-              ),
-              image: detail.imageUrl == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage(detail.imageUrl!),
-                      fit: BoxFit.cover,
-                    ),
+          ClipRRect(
+            borderRadius: const BorderRadiusDirectional.vertical(
+              top: Radius.circular(AppRadius.lg),
             ),
-            child: detail.imageUrl == null
-                ? Center(
-                    child: Icon(
-                      _iconFor(detail.type),
-                      color: AppColors.primaryYellow,
-                      size: 52,
-                    ),
-                  )
-                : null,
+            child: SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: PromooImage(
+                imageUrl: detail.imageUrl,
+                semanticLabel: detail.title,
+                fallbackIcon: _iconFor(detail.type),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
@@ -386,18 +376,20 @@ class _ProviderSection extends StatelessWidget {
         PromooCard(
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: AppColors.elevatedSurface,
-                backgroundImage: provider.avatarUrl == null
-                    ? null
-                    : NetworkImage(provider.avatarUrl!),
-                child: provider.avatarUrl == null
-                    ? const Icon(
-                        Icons.person_rounded,
-                        color: AppColors.primaryYellow,
-                      )
-                    : null,
+              Container(
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  color: AppColors.elevatedSurface,
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: PromooImage(
+                    imageUrl: provider.avatarUrl,
+                    semanticLabel: provider.displayName,
+                    fallbackIcon: Icons.person_rounded,
+                  ),
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

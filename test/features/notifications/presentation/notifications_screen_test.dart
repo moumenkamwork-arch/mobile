@@ -54,7 +54,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Conversation'), findsOneWidget);
-      expect(find.text('Brief ready'), findsOneWidget);
+      expect(find.text('Launch plan ready'), findsOneWidget);
     },
   );
 }
@@ -69,7 +69,7 @@ Widget _buildNotificationsScreen(NotificationsRepository repository) {
 final _notification = AppNotification(
   id: 'notification-1',
   title: 'New message',
-  body: 'Noura Studio sent an update.',
+  body: 'Saffron Social Studio sent a campaign update.',
   type: NotificationType.message,
   createdAt: DateTime(2026, 6, 26, 9, 22),
   data: const {'room_id': 'room-1'},
@@ -78,8 +78,8 @@ final _notification = AppNotification(
 final _message = ChatMessage(
   id: 'message-1',
   roomId: 'room-1',
-  senderId: 'profile-1',
-  content: 'Brief ready',
+  senderId: 'profile-saffron-social',
+  content: 'Launch plan ready',
   createdAt: DateTime(2026, 6, 26, 9, 20),
 );
 
@@ -156,7 +156,7 @@ class _ChatRepository implements ChatRepository {
       ChatMessage(
         id: 'sent-1',
         roomId: roomId,
-        senderId: 'demo-user',
+        senderId: 'current-user',
         content: content,
         createdAt: DateTime(2026, 6, 26, 9, 21),
         isMine: true,
@@ -170,8 +170,8 @@ class _ChatRepository implements ChatRepository {
       ChatRoom(
         id: 'room-1',
         participant: const ChatParticipant(
-          id: 'profile-1',
-          displayName: 'Noura Studio',
+          id: 'profile-saffron-social',
+          displayName: 'Saffron Social Studio',
         ),
       ),
     );

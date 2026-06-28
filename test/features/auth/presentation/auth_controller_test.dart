@@ -61,7 +61,7 @@ void main() {
 
     final future = container
         .read(authControllerProvider.notifier)
-        .loginWithEmail(email: 'demo@promoo.app', password: 'password123');
+        .loginWithEmail(email: 'alya@promoo.app', password: 'password123');
 
     expect(
       container.read(authControllerProvider).status,
@@ -73,7 +73,7 @@ void main() {
 
     final state = container.read(authControllerProvider);
     expect(state.status, AuthStatus.authenticated);
-    expect(state.session?.user.email, 'demo@promoo.app');
+    expect(state.session?.user.email, 'alya@promoo.app');
   });
 
   test('emits error when login fails', () async {
@@ -93,7 +93,7 @@ void main() {
 
     await container
         .read(authControllerProvider.notifier)
-        .loginWithEmail(email: 'demo@promoo.app', password: 'password123');
+        .loginWithEmail(email: 'alya@promoo.app', password: 'password123');
 
     final state = container.read(authControllerProvider);
     expect(state.status, AuthStatus.error);
@@ -131,7 +131,11 @@ void main() {
 }
 
 const _session = AuthSession(
-  user: AuthUser(id: 'user-1', email: 'demo@promoo.app', fullName: 'Demo User'),
+  user: AuthUser(
+    id: 'user-1',
+    email: 'alya@promoo.app',
+    fullName: 'Alya Hassan',
+  ),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 

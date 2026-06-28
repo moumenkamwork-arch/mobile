@@ -6,15 +6,14 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/home_content.dart';
 import '../controllers/home_controller.dart';
-import '../widgets/home_category_strip.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_highlight_card.dart';
 import '../widgets/home_preview_sections.dart';
-import '../widgets/home_search_teaser.dart';
 import '../widgets/home_story_strip.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -109,6 +108,9 @@ class _HomeContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topOffers = content.offers.take(3).toList(growable: false);
+    final forYouOffers = content.offers.skip(3).toList(growable: false);
+
     return Stack(
       children: [
         RefreshIndicator(
@@ -127,10 +129,30 @@ class _HomeContentView extends StatelessWidget {
                 sliver: SliverList.list(
                   children: [
                     const HomeHeader(),
-                    const SizedBox(height: AppSpacing.lg),
-                    const HomeSearchTeaser(),
+                    if (content.stories.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      HomeStoryStrip(stories: content.stories),
+                    ],
+                    if (topOffers.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      HomeOffersPreviewSection(
+                        title: 'Top Offers',
+                        subtitle: 'Featured offers from Promoo partners',
+                        offers: topOffers,
+                        layout: HomeOfferPreviewLayout.hero,
+                      ),
+                    ],
+                    if (forYouOffers.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      HomeOffersPreviewSection(offers: forYouOffers),
+                    ],
                     if (content.highlight != null) ...[
                       const SizedBox(height: AppSpacing.lg),
+                      const PromooSectionHeader(
+                        title: 'Promoo of the Day',
+                        subtitle: "Today's featured Promoo pick",
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                       HomeHighlightCard(
                         highlight: content.highlight!,
                         onTap: () {
@@ -143,25 +165,9 @@ class _HomeContentView extends StatelessWidget {
                         },
                       ),
                     ],
-                    if (content.stories.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      HomeStoryStrip(stories: content.stories),
-                    ],
-                    if (content.categories.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      HomeCategoryStrip(categories: content.categories),
-                    ],
                     if (content.services.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
                       HomeServicesPreviewSection(services: content.services),
-                    ],
-                    if (content.offers.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      HomeOffersPreviewSection(offers: content.offers),
-                    ],
-                    if (content.profiles.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      HomeProfilesPreviewSection(profiles: content.profiles),
                     ],
                   ],
                 ),

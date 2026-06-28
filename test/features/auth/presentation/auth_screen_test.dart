@@ -24,6 +24,26 @@ void main() {
     expect(find.text('Login'), findsWidgets);
     expect(find.text('Create account'), findsOneWidget);
 
+    await tester.scrollUntilVisible(
+      find.byTooltip('Google'),
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Apple'), findsOneWidget);
+    expect(find.byTooltip('Google'), findsOneWidget);
+    expect(find.byTooltip('Facebook'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Google'));
+    await tester.pumpAndSettle();
+    expect(find.text('Google sign-in coming soon'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.widgetWithText(ElevatedButton, 'Login'),
+      -160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
 
@@ -39,7 +59,7 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Email'),
-      'demo@promoo.app',
+      'alya@promoo.app',
     );
     await tester.enterText(
       find.widgetWithText(TextField, 'Password'),
@@ -49,7 +69,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Signed in'), findsOneWidget);
-    expect(find.text('Demo User'), findsOneWidget);
+    expect(find.text('Alya Hassan'), findsOneWidget);
   });
 
   testWidgets('register screen renders account type controls', (tester) async {
@@ -61,6 +81,16 @@ void main() {
     expect(find.text('Account type'), findsOneWidget);
     expect(find.text('Company'), findsOneWidget);
     expect(find.text('Influencer'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byTooltip('Apple'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Apple'), findsOneWidget);
+    expect(find.byTooltip('Google'), findsOneWidget);
+    expect(find.byTooltip('Facebook'), findsOneWidget);
   });
 
   testWidgets('profile login-required CTA navigates to login', (tester) async {
@@ -106,14 +136,18 @@ Widget _buildAuthScreen(Widget screen, AuthRepository repository) {
 }
 
 const _session = AuthSession(
-  user: AuthUser(id: 'user-1', email: 'demo@promoo.app', fullName: 'Demo User'),
+  user: AuthUser(
+    id: 'user-1',
+    email: 'alya@promoo.app',
+    fullName: 'Alya Hassan',
+  ),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 
 const _profile = PromooProfile(
-  id: 'profile-demo',
-  displayName: 'Noura Studio',
-  username: 'noura.studio',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
+  username: 'saffron.social',
   accountType: ProfileAccountType.company,
   stats: ProfileStats(followers: 185400, services: 1),
 );

@@ -9,6 +9,7 @@ class RouteNames {
   static const serviceDetail = 'serviceDetail';
   static const cup = 'cup';
   static const seats = 'seats';
+  static const seatCheckoutPreview = 'seatCheckoutPreview';
   static const profile = 'profile';
   static const profileDetail = 'profileDetail';
   static const search = 'search';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const serviceDetail = '/services/:id';
   static const cup = '/cup';
   static const seats = '/seats';
+  static const seatCheckoutPreview = '/seats/checkout';
   static const profile = '/profile';
   static const profileDetail = '/profiles/:id';
   static const search = '/search';
@@ -46,6 +48,23 @@ class AppRoutes {
   }
 
   static String serviceById(String id) => '/services/$id';
+
+  static String seatCheckout({
+    required String seatId,
+    required String title,
+    required String tier,
+    required String price,
+  }) {
+    final query = Uri(
+      queryParameters: {
+        'seatId': seatId,
+        'title': title,
+        'tier': tier,
+        'price': price,
+      },
+    ).query;
+    return '$seatCheckoutPreview?$query';
+  }
 
   static String chatRoom(String roomId) => '/chats/$roomId';
 }

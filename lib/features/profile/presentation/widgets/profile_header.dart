@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
@@ -101,31 +102,40 @@ class _Cover extends StatelessWidget {
   Widget build(BuildContext context) {
     final coverUrl = profile.coverUrl;
 
-    return Container(
-      height: 108,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: const BorderRadiusDirectional.vertical(
-          top: Radius.circular(AppRadius.lg),
-        ),
-        image: coverUrl == null
-            ? null
-            : DecorationImage(image: NetworkImage(coverUrl), fit: BoxFit.cover),
+    return ClipRRect(
+      borderRadius: const BorderRadiusDirectional.vertical(
+        top: Radius.circular(AppRadius.lg),
       ),
-      child: coverUrl == null
-          ? Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
-                child: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: AppColors.primaryYellow.withValues(alpha: 0.9),
-                  size: 42,
+      child: Container(
+        height: 108,
+        width: double.infinity,
+        decoration: const BoxDecoration(color: AppColors.surface),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: PromooImage(
+                imageUrl: coverUrl,
+                fallbackIcon: Icons.workspace_premium_rounded,
+                semanticLabel: '${profile.displayName} cover',
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: AlignmentDirectional.topCenter,
+                    end: AlignmentDirectional.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      AppColors.brandBlack.withValues(alpha: 0.42),
+                    ],
+                  ),
                 ),
               ),
-            )
-          : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -139,19 +149,31 @@ class _Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final avatarUrl = profile.avatarUrl;
 
-    return CircleAvatar(
-      radius: 32,
-      backgroundColor: AppColors.brandBlack,
-      backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl),
-      child: avatarUrl == null
-          ? Text(
-              _initialsFor(profile.displayName),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.primaryYellow,
-                fontWeight: FontWeight.w800,
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: AppColors.brandBlack,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.primaryYellow, width: 2),
+      ),
+      child: ClipOval(
+        child: avatarUrl == null
+            ? Center(
+                child: Text(
+                  _initialsFor(profile.displayName),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppColors.primaryYellow,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              )
+            : PromooImage(
+                imageUrl: avatarUrl,
+                fallbackIcon: Icons.person_rounded,
+                semanticLabel: profile.displayName,
               ),
-            )
-          : null,
+      ),
     );
   }
 }

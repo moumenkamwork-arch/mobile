@@ -19,8 +19,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Chats'), findsOneWidget);
-    expect(find.text('Noura Studio'), findsOneWidget);
-    expect(find.text('Brief ready'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsOneWidget);
+    expect(find.text('Launch plan ready'), findsOneWidget);
   });
 
   testWidgets('chat routes open list and conversation', (tester) async {
@@ -39,11 +39,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Noura Studio'));
+    await tester.tap(find.text('Saffron Social Studio'));
     await tester.pumpAndSettle();
 
     expect(find.text('Conversation'), findsOneWidget);
-    expect(find.text('Brief ready'), findsOneWidget);
+    expect(find.text('Launch plan ready'), findsOneWidget);
   });
 
   testWidgets('chat room adds keyboard-aware input padding', (tester) async {
@@ -84,15 +84,15 @@ Widget _buildChatListScreen(ChatRepository repository) {
 }
 
 const _participant = ChatParticipant(
-  id: 'profile-1',
-  displayName: 'Noura Studio',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
 );
 
 final _message = ChatMessage(
   id: 'message-1',
   roomId: 'room-1',
-  senderId: 'profile-1',
-  content: 'Brief ready',
+  senderId: 'profile-saffron-social',
+  content: 'Launch plan ready',
   createdAt: DateTime(2026, 6, 26, 9, 20),
 );
 
@@ -140,7 +140,7 @@ class _ChatRepository implements ChatRepository {
       ChatMessage(
         id: 'sent-1',
         roomId: roomId,
-        senderId: 'demo-user',
+        senderId: 'current-user',
         content: content,
         createdAt: DateTime(2026, 6, 26, 9, 21),
         isMine: true,

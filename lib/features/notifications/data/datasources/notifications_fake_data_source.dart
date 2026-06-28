@@ -14,7 +14,7 @@ class NotificationsFakeDataSource implements NotificationsDataSource {
         {
           'id': 'notification-1',
           'title': 'New message',
-          'body': 'Noura Studio sent a campaign update.',
+          'body': 'Saffron Social Studio sent a campaign update.',
           'type': 'message',
           'data': {'room_id': 'chat-room-1'},
           'is_read': false,
@@ -22,19 +22,27 @@ class NotificationsFakeDataSource implements NotificationsDataSource {
         },
         {
           'id': 'notification-2',
-          'title': 'New follower',
-          'body': 'Lens Media started following your profile.',
-          'type': 'follow',
+          'title': 'Package interest',
+          'body': 'Pearl District Cafe viewed your launch campaign package.',
+          'type': 'package_interest',
           'is_read': false,
           'created_at': '2026-06-25T16:10:00.000Z',
         },
         {
           'id': 'notification-3',
-          'title': 'Promoo update',
-          'body': 'Promoo updates and reminders will appear here.',
-          'type': 'system',
+          'title': 'Offer activity',
+          'body': 'Your cafe opening spotlight received new interest.',
+          'type': 'offer_update',
           'is_read': true,
           'created_at': '2026-06-24T11:30:00.000Z',
+        },
+        {
+          'id': 'notification-4',
+          'title': 'Profile view',
+          'body': 'Lina Atelier viewed your profile tools and packages.',
+          'type': 'profile_view',
+          'is_read': true,
+          'created_at': '2026-06-23T14:05:00.000Z',
         },
       ];
 

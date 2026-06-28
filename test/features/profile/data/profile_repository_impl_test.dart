@@ -55,7 +55,7 @@ void main() {
     result.when(
       success: (profile) {
         expect(profile.id, ProfileFakeDataSource.demoProfileId);
-        expect(profile.displayName, 'Noura Studio');
+        expect(profile.displayName, 'Saffron Social Studio');
       },
       failure: (failure) => fail('Expected success, got $failure'),
     );

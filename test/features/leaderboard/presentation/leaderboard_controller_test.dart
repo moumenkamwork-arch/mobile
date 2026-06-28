@@ -17,7 +17,7 @@ void main() {
               LeaderboardProfile(
                 id: 'profile-1',
                 rank: LeaderboardRank(1),
-                displayName: 'Noura Studio',
+                displayName: 'Saffron Social Studio',
                 followersCount: 185400,
               ),
             ]),
@@ -37,7 +37,7 @@ void main() {
 
     final state = container.read(leaderboardControllerProvider);
     expect(state.status, LeaderboardStatus.success);
-    expect(state.profiles.single.displayName, 'Noura Studio');
+    expect(state.profiles.single.displayName, 'Saffron Social Studio');
   });
 
   test('emits empty when repository returns no profiles', () async {

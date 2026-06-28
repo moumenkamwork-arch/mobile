@@ -30,15 +30,18 @@ void main() {
       _buildServicesScreen(
         const _ServicesRepository(
           categoriesResult: Result.success([
-            ServiceCategory(id: 'cat-1', name: 'Marketing'),
+            ServiceCategory(id: 'cat-1', name: 'Influencer Campaigns'),
           ]),
           servicesResult: Result.success([
             PromooService(
               id: 'service-1',
-              title: 'Premium content package',
-              description: 'Short-form social content.',
-              category: ServiceCategory(id: 'cat-1', name: 'Marketing'),
-              price: ServicePrice(amount: 750, currency: 'AED'),
+              title: 'Boutique influencer launch package',
+              description: 'Creator coverage and campaign guidance.',
+              category: ServiceCategory(
+                id: 'cat-1',
+                name: 'Influencer Campaigns',
+              ),
+              price: ServicePrice(amount: 2200, currency: 'AED'),
             ),
           ]),
         ),
@@ -47,10 +50,20 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Services'), findsOneWidget);
-    expect(find.text('All'), findsOneWidget);
-    expect(find.text('Marketing'), findsWidgets);
-    expect(find.text('Premium content package'), findsOneWidget);
-    expect(find.text('750 AED'), findsOneWidget);
+    expect(find.text('Service categories'), findsOneWidget);
+    expect(find.text('All services'), findsOneWidget);
+    expect(find.text('Influencer Campaigns'), findsWidgets);
+    expect(find.text('Listings'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Boutique influencer launch package'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Boutique influencer launch package'), findsOneWidget);
+    expect(find.text('2200 AED'), findsOneWidget);
   });
 
   testWidgets('service card navigates to service detail route', (tester) async {
@@ -63,15 +76,18 @@ void main() {
           servicesRepositoryProvider.overrideWithValue(
             const _ServicesRepository(
               categoriesResult: Result.success([
-                ServiceCategory(id: 'cat-1', name: 'Marketing'),
+                ServiceCategory(id: 'cat-1', name: 'Influencer Campaigns'),
               ]),
               servicesResult: Result.success([
                 PromooService(
-                  id: 'service-content',
-                  title: 'Premium content package',
-                  description: 'Short-form social content.',
-                  category: ServiceCategory(id: 'cat-1', name: 'Marketing'),
-                  price: ServicePrice(amount: 750, currency: 'AED'),
+                  id: 'service-influencer-launch',
+                  title: 'Boutique influencer launch package',
+                  description: 'Creator coverage and campaign guidance.',
+                  category: ServiceCategory(
+                    id: 'cat-1',
+                    name: 'Influencer Campaigns',
+                  ),
+                  price: ServicePrice(amount: 2200, currency: 'AED'),
                 ),
               ]),
             ),
@@ -82,7 +98,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Premium content package'));
+    await tester.scrollUntilVisible(
+      find.text('Boutique influencer launch package'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Boutique influencer launch package'));
     await tester.pumpAndSettle();
 
     expect(find.text('Service details'), findsOneWidget);

@@ -19,7 +19,7 @@ class AuthFakeDataSource implements AuthDataSource {
   }) async {
     _throwIfInvalid(password);
 
-    return _sessionFor(email: email, fullName: 'Promoo Demo User');
+    return _sessionFor(email: email, fullName: 'Alya Hassan');
   }
 
   @override
@@ -47,7 +47,7 @@ class AuthFakeDataSource implements AuthDataSource {
       );
     }
 
-    return _sessionFor(email: 'demo@promoo.app', fullName: 'Promoo Demo User');
+    return _sessionFor(email: 'alya@promoo.app', fullName: 'Alya Hassan');
   }
 
   @override
@@ -70,7 +70,7 @@ class AuthFakeDataSource implements AuthDataSource {
     final normalizedEmail = email.trim().toLowerCase();
     return AuthSessionDto.fromJsonFlexible({
       'user': {
-        'id': 'auth-demo-user',
+        'id': 'auth-alya-hassan',
         'email': normalizedEmail,
         'user_metadata': {
           'full_name': fullName,
@@ -79,8 +79,8 @@ class AuthFakeDataSource implements AuthDataSource {
         'email_confirmed_at': '2026-06-26T00:00:00.000Z',
       },
       'session': {
-        'access_token': 'fake-access-token',
-        'refresh_token': 'fake-refresh-token',
+        'access_token': 'local-access-token',
+        'refresh_token': 'local-refresh-token',
         'token_type': 'bearer',
         'expires_in': 3600,
       },

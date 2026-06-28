@@ -8,9 +8,9 @@ void main() {
       'success': true,
       'data': {
         'id': 'profile-1',
-        'full_name': 'Noura Studio',
-        'username': 'noura.studio',
-        'bio': 'Premium content studio.',
+        'full_name': 'Saffron Social Studio',
+        'username': 'saffron.social',
+        'bio': 'Boutique campaign studio.',
         'location': 'Dubai',
         'website': 'https://example.com',
         'avatar_url': 'https://example.com/avatar.png',
@@ -24,16 +24,16 @@ void main() {
           {'url': 'https://example.com/post-2.mp4'},
         ],
         'is_verified': true,
-        'categories': {'name_en': 'Marketing'},
+        'categories': {'name_en': 'Digital Marketing'},
       },
     });
 
     final profile = dto.toDomain(fallbackId: 'fallback');
 
     expect(profile.id, 'profile-1');
-    expect(profile.displayName, 'Noura Studio');
+    expect(profile.displayName, 'Saffron Social Studio');
     expect(profile.accountType, ProfileAccountType.company);
-    expect(profile.categoryName, 'Marketing');
+    expect(profile.categoryName, 'Digital Marketing');
     expect(profile.stats.followers, 185400);
     expect(profile.stats.services, 3);
     expect(profile.mediaUrls, [
@@ -47,7 +47,7 @@ void main() {
     final dto = PromooProfileDto.fromJsonFlexible({
       'profile': {
         'profileId': 'profile-2',
-        'displayName': 'Omar Creative',
+        'displayName': 'Lina Atelier',
         'accountType': 'influencer',
         'stats': {'followers': '142900', 'offers': 7},
       },
@@ -56,7 +56,7 @@ void main() {
     final profile = dto.toDomain(fallbackId: 'fallback');
 
     expect(profile.id, 'profile-2');
-    expect(profile.displayName, 'Omar Creative');
+    expect(profile.displayName, 'Lina Atelier');
     expect(profile.accountType, ProfileAccountType.influencer);
     expect(profile.stats.followers, 142900);
     expect(profile.stats.offers, 7);
@@ -68,12 +68,12 @@ void main() {
         {
           'id': 'service-1',
           'profile_id': 'profile-1',
-          'title': 'Content package',
-          'description': 'Campaign content.',
-          'price': 750,
-          'category': {'name_en': 'Marketing'},
+          'title': 'Boutique launch campaign',
+          'description': 'Creator coverage and launch positioning.',
+          'price': 2200,
+          'category': {'name_en': 'Influencer Campaigns'},
           'delivery_days': 5,
-          'tags': ['Content'],
+          'tags': ['Campaign'],
         },
         {
           'id': 'service-2',
@@ -91,10 +91,10 @@ void main() {
     );
 
     expect(packages.single.id, 'service-1');
-    expect(packages.single.title, 'Content package');
-    expect(packages.single.price?.label, '750 AED');
-    expect(packages.single.categoryName, 'Marketing');
+    expect(packages.single.title, 'Boutique launch campaign');
+    expect(packages.single.price?.label, '2200 AED');
+    expect(packages.single.categoryName, 'Influencer Campaigns');
     expect(packages.single.deliveryDays, 5);
-    expect(packages.single.tags, ['Content']);
+    expect(packages.single.tags, ['Campaign']);
   });
 }

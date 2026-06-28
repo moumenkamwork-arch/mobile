@@ -14,10 +14,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (final tab in ['Home', 'Services', 'Cup', 'Seats', 'Profile']) {
+    for (final tab in ['Home', 'Services', 'Cup', 'Influencer', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
-    expect(find.text('Noura Studio'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();

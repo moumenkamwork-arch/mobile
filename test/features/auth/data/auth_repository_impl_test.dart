@@ -26,7 +26,7 @@ void main() {
       );
 
       final result = await repository.loginWithEmail(
-        email: 'demo@promoo.app',
+        email: 'alya@promoo.app',
         password: 'password123',
       );
 
@@ -86,7 +86,7 @@ void main() {
     );
 
     final result = await repository.loginWithEmail(
-      email: 'demo@promoo.app',
+      email: 'alya@promoo.app',
       password: 'fail',
     );
 
@@ -120,19 +120,19 @@ void main() {
   });
 }
 
-AuthSessionDto _sessionDto({String email = 'demo@promoo.app'}) {
+AuthSessionDto _sessionDto({String email = 'alya@promoo.app'}) {
   return AuthSessionDto.fromJsonFlexible({
     'user': {
       'id': 'user-1',
       'email': email,
-      'user_metadata': {'full_name': 'Demo User'},
+      'user_metadata': {'full_name': 'Alya Hassan'},
     },
     'session': {'access_token': 'access-1', 'refresh_token': 'refresh-1'},
   });
 }
 
 const _session = AuthSession(
-  user: AuthUser(id: 'user-1', email: 'demo@promoo.app'),
+  user: AuthUser(id: 'user-1', email: 'alya@promoo.app'),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 

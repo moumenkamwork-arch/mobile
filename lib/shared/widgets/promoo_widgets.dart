@@ -2,6 +2,7 @@ export 'promoo_button.dart';
 export 'promoo_card.dart';
 export 'promoo_empty_state.dart';
 export 'promoo_error_state.dart';
+export 'promoo_image.dart';
 export 'promoo_loading_indicator.dart';
 export 'promoo_logo.dart';
 export 'promoo_scaffold.dart';

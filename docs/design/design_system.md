@@ -46,7 +46,7 @@ Last updated: 2026-06-25
 
 ## App shell
 
-- Shell route tabs: Home, Services, Cup, Seats, Profile.
+- Shell route tabs: Home, Services, Cup, Influencer, Profile. The Influencer tab uses the `/seats` route.
 - Active tab uses brand yellow.
 - Inactive tabs use muted text.
 - Bottom navigation uses safe-area padding, rounded dark surface, and directional spacing.

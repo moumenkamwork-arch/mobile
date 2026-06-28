@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
@@ -10,6 +12,8 @@ import 'package:promoo_app/features/leaderboard/domain/entities/leaderboard_prof
 import 'package:promoo_app/features/leaderboard/domain/repositories/leaderboard_repository.dart';
 import 'package:promoo_app/features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import 'package:promoo_app/features/leaderboard/presentation/widgets/leaderboard_podium.dart';
+import 'package:promoo_app/routing/app_router.dart';
+import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_theme.dart';
@@ -32,8 +36,8 @@ void main() {
             LeaderboardProfile(
               id: 'profile-1',
               rank: LeaderboardRank(1),
-              displayName: 'Noura Studio',
-              username: 'noura.studio',
+              displayName: 'Saffron Social Studio',
+              username: 'saffron.social',
               accountType: 'company',
               followersCount: 185400,
               isVerified: true,
@@ -41,7 +45,7 @@ void main() {
             LeaderboardProfile(
               id: 'profile-2',
               rank: LeaderboardRank(2),
-              displayName: 'Omar Creative',
+              displayName: 'Lina Atelier',
               accountType: 'influencer',
               followersCount: 142900,
             ),
@@ -55,8 +59,8 @@ void main() {
     expect(find.byType(LeaderboardPodium), findsOneWidget);
     expect(find.text('Top of the Cup'), findsOneWidget);
     expect(find.text('Ranking'), findsOneWidget);
-    expect(find.text('Noura Studio'), findsWidgets);
-    expect(find.text('185.4K followers'), findsWidgets);
+    expect(find.text('Saffron Social Studio'), findsWidgets);
+    expect(find.textContaining('185.4K followers'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
@@ -74,7 +78,32 @@ void main() {
     expect(find.text('Could not load leaderboard'), findsOneWidget);
     expect(find.text('No connection'), findsOneWidget);
   });
+
+  testWidgets('cup profile card opens public profile route', (tester) async {
+    final router = createAppRouter(initialLocation: AppRoutes.cup);
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appConfigProvider.overrideWithValue(_mockConfig)],
+        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Saffron Social Studio').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Follow'), findsOneWidget);
+    expect(find.text('@saffron.social'), findsOneWidget);
+  });
 }
+
+const _mockConfig = AppConfig(
+  environment: AppEnvironment.development,
+  baseUrl: 'https://api.promoo.example/api/v1',
+  useMocks: true,
+);
 
 Widget _buildLeaderboardScreen(LeaderboardRepository repository) {
   return ProviderScope(

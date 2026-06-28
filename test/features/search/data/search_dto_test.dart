@@ -10,8 +10,8 @@ void main() {
         'profiles': [
           {
             'id': 'profile-1',
-            'full_name': 'Noura Studio',
-            'username': 'noura.studio',
+            'full_name': 'Saffron Social Studio',
+            'username': 'saffron.social',
             'account_type': 'company',
             'is_verified': true,
           },
@@ -19,22 +19,25 @@ void main() {
         'services': [
           {
             'id': 'service-1',
-            'title': 'Premium content package',
-            'price': 750,
+            'title': 'Boutique influencer launch package',
+            'price': 2200,
             'currency': 'aed',
-            'profile': {'id': 'profile-1', 'full_name': 'Noura Studio'},
+            'profile': {
+              'id': 'profile-1',
+              'full_name': 'Saffron Social Studio',
+            },
           },
         ],
         'offers': [
           {
             'id': 'offer-1',
-            'title': 'Launch offer',
-            'offer_price': 1200,
-            'profile': {'id': 'profile-1', 'full_name': 'Noura Studio'},
+            'title': 'Cafe opening spotlight',
+            'offer_price': 1500,
+            'profile': {'id': 'profile-2', 'full_name': 'Pearl District Cafe'},
           },
         ],
         'ads': [
-          {'id': 'ad-1', 'title': 'Featured spotlight'},
+          {'id': 'ad-1', 'title': 'Featured campaign spotlight'},
         ],
       },
     });
@@ -46,8 +49,8 @@ void main() {
     expect(page.results[1], isA<SearchServiceResult>());
     expect(page.results[2], isA<SearchOfferResult>());
     expect(page.results[3], isA<SearchAdResult>());
-    expect((page.results[1] as SearchServiceResult).price?.label, '750 AED');
-    expect((page.results[2] as SearchOfferResult).price?.label, '1200 AED');
+    expect((page.results[1] as SearchServiceResult).price?.label, '2200 AED');
+    expect((page.results[2] as SearchOfferResult).price?.label, '1500 AED');
   });
 
   test('parses paginated service list response with meta', () {
@@ -76,8 +79,8 @@ void main() {
     final dto = SearchResultsDto.fromJsonFlexible([
       {
         'id': 'profile-1',
-        'full_name': 'Maya Lens',
-        'username': 'maya.lens',
+        'full_name': 'Lina Atelier',
+        'username': 'lina.atelier',
         'account_type': 'influencer',
       },
     ], filter: SearchFilterType.influencers);
@@ -86,8 +89,8 @@ void main() {
         dto.toDomain(fallbackCurrency: 'AED').results.single
             as SearchProfileResult;
 
-    expect(profile.title, 'Maya Lens');
-    expect(profile.username, 'maya.lens');
+    expect(profile.title, 'Lina Atelier');
+    expect(profile.username, 'lina.atelier');
     expect(profile.accountType, 'influencer');
   });
 }

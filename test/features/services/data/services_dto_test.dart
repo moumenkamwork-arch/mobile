@@ -32,8 +32,8 @@ void main() {
           'description': 'Photo and video coverage.',
           'price': 1200,
           'profile': {
-            'id': 'provider-1',
-            'full_name': 'Lens Partner',
+            'id': 'profile-framehouse',
+            'full_name': 'Framehouse Events',
             'is_verified': true,
           },
           'category': {'id': 'cat-events', 'name_en': 'Events'},
@@ -47,7 +47,7 @@ void main() {
 
     expect(services.single.title, 'Event coverage');
     expect(services.single.price?.label, '1200 SAR');
-    expect(services.single.provider?.name, 'Lens Partner');
+    expect(services.single.provider?.name, 'Framehouse Events');
     expect(services.single.provider?.isVerified, isTrue);
     expect(services.single.category?.name, 'Events');
     expect(services.single.deliveryDays, 3);
@@ -63,7 +63,7 @@ void main() {
         'price': '900.50',
         'currency': 'aed',
         'location': 'Dubai',
-        'media_urls': ['https://cdn.promoo.test/service.jpg'],
+        'media_urls': ['https://example.com/service.jpg'],
       },
     });
 
@@ -72,6 +72,6 @@ void main() {
     expect(service.id, 'service-2');
     expect(service.price?.label, '900.50 AED');
     expect(service.location, 'Dubai');
-    expect(service.imageUrls.single, 'https://cdn.promoo.test/service.jpg');
+    expect(service.imageUrls.single, 'https://example.com/service.jpg');
   });
 }

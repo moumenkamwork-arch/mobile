@@ -6,9 +6,14 @@ import '../../domain/entities/leaderboard_profile.dart';
 import 'leaderboard_profile_card.dart';
 
 class LeaderboardRankedList extends StatelessWidget {
-  const LeaderboardRankedList({super.key, required this.profiles});
+  const LeaderboardRankedList({
+    super.key,
+    required this.profiles,
+    this.onProfileSelected,
+  });
 
   final List<LeaderboardProfile> profiles;
+  final ValueChanged<LeaderboardProfile>? onProfileSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,9 @@ class LeaderboardRankedList extends StatelessWidget {
           LeaderboardProfileCard(
             profile: sortedProfiles[i],
             highlight: sortedProfiles[i].rank.isPodium,
+            onTap: onProfileSelected == null
+                ? null
+                : () => onProfileSelected!(sortedProfiles[i]),
           ),
           if (i != sortedProfiles.length - 1)
             const SizedBox(height: AppSpacing.md),

@@ -43,8 +43,8 @@ void main() {
       AppSpacing.shellScrollBottom,
     );
 
-    expect(find.text('Noura Studio'), findsOneWidget);
-    expect(find.text('@noura.studio'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsOneWidget);
+    expect(find.text('@saffron.social'), findsOneWidget);
 
     await tester.tap(find.text('Follow'));
     await tester.pumpAndSettle();
@@ -58,6 +58,24 @@ void main() {
     expect(find.text('Open chats'), findsOneWidget);
 
     await tester.scrollUntilVisible(
+      find.text('Packages'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Packages'), findsAtLeastNWidgets(1));
+    await tester.scrollUntilVisible(
+      find.text('Boutique launch campaign'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Boutique launch campaign'), findsOneWidget);
+    expect(find.text('2200 AED'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
       find.text('Media'),
       260,
       scrollable: find.byType(Scrollable).first,
@@ -65,7 +83,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Media'), findsOneWidget);
-    expect(find.text('Post 1'), findsOneWidget);
+    expect(find.text('Launch campaign spotlight'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('profile-media-tile-0')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('profile-media-viewer')), findsOneWidget);
+    expect(find.text('Likes'), findsOneWidget);
+    expect(find.text('Comments'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close media'));
+    await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
       find.text('Profile tools'),
@@ -80,24 +108,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage profile coming soon'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.text('Packages'),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Packages'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Content package'),
-      180,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Content package'), findsOneWidget);
-    expect(find.text('750 AED'), findsOneWidget);
   });
 
   testWidgets('renders empty media state', (tester) async {
@@ -130,21 +140,21 @@ void main() {
           profileResult: Result.success(_profile),
           packagesResult: Result.success([_package]),
         ),
-        idOrUsername: 'noura.studio',
+        idOrUsername: 'saffron.social',
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Noura Studio'), findsOneWidget);
+    expect(find.text('Saffron Social Studio'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.text('Content package'),
+      find.text('Boutique launch campaign'),
       260,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Profile tools'), findsNothing);
-    expect(find.text('Content package'), findsOneWidget);
+    expect(find.text('Boutique launch campaign'), findsOneWidget);
   });
 
   testWidgets('renders error state', (tester) async {
@@ -180,16 +190,16 @@ Widget _buildProfileScreen(
 }
 
 const _profile = PromooProfile(
-  id: 'profile-demo',
-  displayName: 'Noura Studio',
-  username: 'noura.studio',
-  bio: 'Premium content studio.',
+  id: 'profile-saffron-social',
+  displayName: 'Saffron Social Studio',
+  username: 'saffron.social',
+  bio: 'Boutique campaign studio for premium launches.',
   accountType: ProfileAccountType.company,
   stats: ProfileStats(followers: 185400, following: 124, services: 1),
   mediaUrls: [
-    'mock://profile-demo/post-1',
-    'mock://profile-demo/post-2',
-    'mock://profile-demo/reel-3',
+    'promoo-media://saffron-social/post-1',
+    'promoo-media://saffron-social/post-2',
+    'promoo-media://saffron-social/reel-3',
   ],
   isVerified: true,
 );
@@ -203,9 +213,9 @@ const _profileWithoutMedia = PromooProfile(
 
 const _package = ProfilePackage(
   id: 'package-1',
-  title: 'Content package',
-  description: 'Campaign content.',
-  price: ProfilePackagePrice(amount: 750, currency: 'AED'),
+  title: 'Boutique launch campaign',
+  description: 'Creator coverage and launch positioning.',
+  price: ProfilePackagePrice(amount: 2200, currency: 'AED'),
 );
 
 class _ProfileRepository implements ProfileRepository {

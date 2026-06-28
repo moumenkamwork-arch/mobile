@@ -1,5 +1,39 @@
 import '../../domain/entities/home_content.dart';
 
+const _demoBusinessImage =
+    'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80';
+const _demoCafeImage =
+    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80';
+const _demoBeautyImage =
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80';
+const _demoDigitalImage =
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80';
+const _demoFoodImage =
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80';
+const _demoEventImage =
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80';
+const _demoPhotographyImage =
+    'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=900&q=80';
+const _demoLifestyleImage =
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80';
+const _demoWellnessImage =
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80';
+const _demoTeamImage =
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80';
+const _demoCreatorImage =
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80';
+
+const _demoAvatarMaya =
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80';
+const _demoAvatarOmar =
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80';
+const _demoAvatarLina =
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=240&q=80';
+const _demoAvatarAdam =
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80';
+const _demoAvatarNadine =
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80';
+
 class HomeContentDto {
   const HomeContentDto({
     this.highlight,
@@ -92,63 +126,154 @@ class HomeContentDto {
     return const HomeContentDto(
       highlight: HomeHighlightDto(
         id: 'offer-featured',
-        title: 'Promoo of the day',
-        subtitle: 'Premium visibility for a limited-time marketplace offer.',
-        badge: 'Featured',
+        title: 'Boutique launch visibility pack',
+        subtitle: 'Premium placement for a curated brand launch across Promoo.',
+        imageUrl: _demoBusinessImage,
+        badge: 'Promoo of the day',
         actionLabel: 'View details',
       ),
       categories: [
-        HomeCategoryDto(id: 'beauty', name: 'Beauty'),
-        HomeCategoryDto(id: 'events', name: 'Events'),
-        HomeCategoryDto(id: 'food', name: 'Food'),
-        HomeCategoryDto(id: 'fitness', name: 'Fitness'),
+        HomeCategoryDto(id: 'beauty-wellness', name: 'Beauty & Wellness'),
+        HomeCategoryDto(id: 'restaurants-cafes', name: 'Restaurants & Cafes'),
+        HomeCategoryDto(id: 'events-photography', name: 'Events & Photography'),
+        HomeCategoryDto(
+          id: 'influencer-campaigns',
+          name: 'Influencer Campaigns',
+        ),
       ],
       services: [
         HomeServicePreviewDto(
-          id: 'service-content',
-          title: 'Premium content package',
-          subtitle: 'Creator-ready promotion service',
-          categoryName: 'Marketing',
+          id: 'service-influencer-launch',
+          title: 'Boutique influencer launch package',
+          subtitle: 'Curated creator coverage for launch campaigns',
+          imageUrl: _demoCreatorImage,
+          categoryName: 'Influencer Campaigns',
           location: 'Dubai',
         ),
         HomeServicePreviewDto(
-          id: 'service-events',
-          title: 'Event coverage',
-          subtitle: 'Photo and short-form video coverage',
-          categoryName: 'Events',
+          id: 'service-product-photography',
+          title: 'Product photography session',
+          subtitle: 'Editorial visuals for products and profiles',
+          imageUrl: _demoPhotographyImage,
+          categoryName: 'Events & Photography',
+          location: 'Dubai',
+        ),
+        HomeServicePreviewDto(
+          id: 'service-cafe-opening',
+          title: 'Cafe promotion package',
+          subtitle: 'Launch visibility for restaurants and cafes',
+          imageUrl: _demoCafeImage,
+          categoryName: 'Restaurants & Cafes',
+          location: 'Sharjah',
+        ),
+        HomeServicePreviewDto(
+          id: 'service-wellness-awareness',
+          title: 'Wellness awareness package',
+          subtitle: 'Premium reach for fitness and wellness brands',
+          imageUrl: _demoWellnessImage,
+          categoryName: 'Health & Fitness',
+          location: 'Abu Dhabi',
+        ),
+        HomeServicePreviewDto(
+          id: 'service-fashion-styling',
+          title: 'Seasonal styling content pack',
+          subtitle: 'Creator-ready visuals for fashion launches',
+          imageUrl: _demoBeautyImage,
+          categoryName: 'Fashion & Styling',
           location: 'Dubai',
         ),
       ],
       offers: [
         HomeOfferPreviewDto(
           id: 'offer-1',
-          title: 'Launch week promotion',
-          subtitle: 'A highlighted offer for early Promoo partners.',
+          title: 'Cafe opening spotlight',
+          subtitle: 'Discovery placement for a new cafe launch.',
+          imageUrl: _demoCafeImage,
         ),
         HomeOfferPreviewDto(
           id: 'offer-2',
-          title: 'Creator bundle',
-          subtitle: 'A limited package for marketplace discovery.',
+          title: 'Wellness week visibility',
+          subtitle: 'Premium awareness push for wellness providers.',
+          imageUrl: _demoWellnessImage,
+        ),
+        HomeOfferPreviewDto(
+          id: 'offer-3',
+          title: 'Beauty launch feature',
+          subtitle: 'Editorial visibility for premium salon openings.',
+          imageUrl: _demoBeautyImage,
+        ),
+        HomeOfferPreviewDto(
+          id: 'offer-4',
+          title: 'Creator campaign pick',
+          subtitle: 'A curated campaign package selected for today.',
+          imageUrl: _demoCreatorImage,
+        ),
+        HomeOfferPreviewDto(
+          id: 'offer-5',
+          title: 'Flash offer 24H',
+          subtitle: 'Short-window placement for high-intent discovery.',
+          imageUrl: _demoDigitalImage,
+        ),
+        HomeOfferPreviewDto(
+          id: 'ad-1',
+          title: 'Featured campaign spotlight',
+          detailType: HomeContentDetailType.ad,
+          subtitle: 'Prominent visibility for active launch campaigns.',
+          imageUrl: _demoTeamImage,
         ),
       ],
       profiles: [
         HomeProfilePreviewDto(
-          id: 'profile-1',
-          name: 'Noura Studio',
-          username: 'noura.studio',
-          accountType: 'influencer',
+          id: 'profile-saffron-social',
+          name: 'Saffron Social Studio',
+          username: 'saffron.social',
+          accountType: 'company',
           isVerified: true,
         ),
         HomeProfilePreviewDto(
-          id: 'profile-2',
-          name: 'Promoo Partner',
-          username: 'promoo.partner',
-          accountType: 'company',
+          id: 'profile-lina-atelier',
+          name: 'Lina Atelier',
+          username: 'lina.atelier',
+          accountType: 'influencer',
+          isVerified: true,
         ),
       ],
       stories: [
-        HomeStoryDto(id: 'story-1', title: 'Today'),
-        HomeStoryDto(id: 'story-2', title: 'Featured'),
+        HomeStoryDto(
+          id: 'story-maya',
+          title: 'Launch day edits are ready for review.',
+          imageUrl: _demoBusinessImage,
+          profileName: 'Maya Studio',
+          profileAvatarUrl: _demoAvatarMaya,
+        ),
+        HomeStoryDto(
+          id: 'story-omar',
+          title: 'Event coverage slots opened for the weekend.',
+          imageUrl: _demoEventImage,
+          profileName: 'Omar Visuals',
+          profileAvatarUrl: _demoAvatarOmar,
+        ),
+        HomeStoryDto(
+          id: 'story-lina',
+          title: 'New styling picks for premium creators.',
+          imageUrl: _demoLifestyleImage,
+          profileName: 'Lina Atelier',
+          profileAvatarUrl: _demoAvatarLina,
+        ),
+        HomeStoryDto(
+          id: 'story-pearl',
+          title: 'Cafe launch tastings start this evening.',
+          imageUrl: _demoFoodImage,
+          profileName: 'Pearl District',
+          profileAvatarUrl: _demoAvatarAdam,
+        ),
+        HomeStoryDto(
+          id: 'story-calmfit',
+          title: 'Wellness visibility package is live this week.',
+          imageUrl: _demoWellnessImage,
+          profileName: 'CalmFit',
+          profileAvatarUrl: _demoAvatarNadine,
+        ),
       ],
     );
   }
