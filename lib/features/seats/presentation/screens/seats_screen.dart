@@ -486,7 +486,7 @@ class _AvailableSeatPreview extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'This opens a checkout preview for the walkthrough. Real booking remains safe until login and payment are enabled.',
+          'This opens a checkout preview for the walkthrough. Booking and payment open in the next phase.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],

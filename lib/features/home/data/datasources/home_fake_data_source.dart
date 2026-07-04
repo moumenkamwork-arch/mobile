@@ -210,4 +210,48 @@ const _fakeDetails = [
     terms:
         'Placement details are confirmed with the provider before activation.',
   ),
+  HomeContentDetailDto(
+    id: 'offer-6',
+    type: HomeContentDetailType.offer,
+    title: 'Restaurant reel boost',
+    description:
+        'A short-form food content placement for restaurants preparing a polished lunch, dinner, or seasonal menu push.',
+    imageUrl: _demoCafeImage,
+    badge: 'For you',
+    provider: HomeContentProviderDto(
+      id: 'profile-pearl-cafe',
+      name: 'Pearl District Cafe',
+      username: 'pearl.district',
+      accountType: 'company',
+      isVerified: true,
+    ),
+    categoryName: 'Restaurants & Cafes',
+    tags: ['Food', 'Reels', 'Discovery'],
+    price: 1250,
+    currency: 'AED',
+    location: 'Sharjah',
+    validUntil: '2026-09-08',
+  ),
+  HomeContentDetailDto(
+    id: 'offer-7',
+    type: HomeContentDetailType.offer,
+    title: 'Event coverage window',
+    description:
+        'A focused event-visibility package for weekend openings, private launches, and branded experiences.',
+    imageUrl: _demoTeamImage,
+    badge: 'For you',
+    provider: HomeContentProviderDto(
+      id: 'profile-framehouse',
+      name: 'Framehouse Events',
+      username: 'framehouse.events',
+      accountType: 'service_provider',
+      isVerified: true,
+    ),
+    categoryName: 'Events & Photography',
+    tags: ['Events', 'Coverage', 'Stories'],
+    price: 1750,
+    currency: 'AED',
+    location: 'Dubai',
+    validUntil: '2026-09-18',
+  ),
 ];

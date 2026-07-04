@@ -81,10 +81,10 @@ class SeatVisibilityGrid extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: sortedSeats.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
+                crossAxisCount: 4,
                 crossAxisSpacing: AppSpacing.xs,
                 mainAxisSpacing: AppSpacing.xs,
-                childAspectRatio: 0.68,
+                childAspectRatio: 0.62,
               ),
               itemBuilder: (context, index) {
                 final seat = sortedSeats[index];
@@ -153,7 +153,7 @@ class _SeatGridSlot extends StatelessWidget {
               color: seat.isAvailable
                   ? AppColors.surface
                   : AppColors.cardSurface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: seat.isAvailable ? tierColor : AppColors.borderStrong,
               ),
@@ -215,8 +215,8 @@ class _HolderAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 52,
-      height: 52,
+      width: 46,
+      height: 46,
       decoration: BoxDecoration(
         color: AppColors.brandBlack,
         shape: BoxShape.circle,
@@ -241,15 +241,15 @@ class _AvailableSeatIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 52,
-      height: 52,
+      width: 46,
+      height: 46,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: tierColor.withValues(alpha: 0.12),
         shape: BoxShape.circle,
         border: Border.all(color: tierColor.withValues(alpha: 0.68)),
       ),
-      child: Icon(Icons.event_seat_rounded, color: tierColor, size: 26),
+      child: Icon(Icons.event_seat_rounded, color: tierColor, size: 24),
     );
   }
 }

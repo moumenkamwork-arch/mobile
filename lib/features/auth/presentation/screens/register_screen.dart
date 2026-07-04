@@ -172,6 +172,13 @@ class _RegisterForm extends StatelessWidget {
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.login),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          PromooButton.tertiary(
+            label: 'Continue as Guest',
+            icon: Icons.explore_rounded,
+            fullWidth: true,
+            onPressed: state.isBusy ? null : () => context.go(AppRoutes.home),
+          ),
           const SizedBox(height: AppSpacing.lg),
           const AuthSocialLoginPreview(),
         ],

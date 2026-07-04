@@ -13,12 +13,13 @@ class SeatsPremiumHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final availableCount = seats.where((seat) => seat.isAvailable).length;
+    final occupiedCount = seats.length - availableCount;
 
     return PromooCard(
       elevated: true,
       borderColor: AppColors.primaryYellow,
       color: AppColors.elevatedSurface,
-      padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,11 +45,13 @@ class SeatsPremiumHeader extends StatelessWidget {
                   children: [
                     Text(
                       'Influencer Seats',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      'Gold, Silver, and Bronze placement for premium Promoo visibility.',
+                      'Gold, Silver, and Bronze visibility slots.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -56,11 +59,13 @@ class SeatsPremiumHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           Row(
             children: [
               _HeaderMetric(label: 'Available', value: '$availableCount'),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.xs),
+              _HeaderMetric(label: 'Occupied', value: '$occupiedCount'),
+              const SizedBox(width: AppSpacing.xs),
               _HeaderMetric(label: 'Total seats', value: '${seats.length}'),
             ],
           ),
@@ -86,7 +91,7 @@ class _HeaderMetric extends StatelessWidget {
           border: Border.all(color: AppColors.border),
         ),
         child: Padding(
-          padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+          padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

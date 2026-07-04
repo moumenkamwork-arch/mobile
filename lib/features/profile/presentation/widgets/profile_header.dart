@@ -84,6 +84,17 @@ class ProfileHeader extends StatelessWidget {
                     if (profile.isFeatured) const _MetaChip(label: 'Featured'),
                   ],
                 ),
+                if (profile.bio != null && profile.bio!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    profile.bio!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

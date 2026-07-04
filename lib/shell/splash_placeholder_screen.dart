@@ -4,9 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../routing/route_names.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
-import '../shared/widgets/promoo_button.dart';
 import '../shared/widgets/promoo_logo.dart';
-import '../theme/app_spacing.dart';
 
 class SplashPlaceholderScreen extends StatefulWidget {
   const SplashPlaceholderScreen({super.key});
@@ -22,52 +20,104 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
   late final Animation<double> _glowScale;
   late final Animation<double> _logoOpacity;
   late final Animation<double> _logoScale;
-  late final Animation<Offset> _welcomeOffset;
-  late final Animation<double> _welcomeOpacity;
-  late final Animation<double> _ctaOpacity;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..forward();
+    _controller =
+        AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 5600),
+          )
+          ..addStatusListener(_handleIntroStatus)
+          ..forward();
 
-    _glowScale = Tween<double>(
-      begin: 0.72,
-      end: 1.16,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-    _logoOpacity = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.08, 0.56, curve: Curves.easeOut),
-    );
-    _logoScale = Tween<double>(begin: 0.92, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.06, 0.62, curve: Curves.easeOutCubic),
+    _glowScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.72,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 28,
       ),
-    );
-    _welcomeOffset =
-        Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _controller,
-            curve: const Interval(0.42, 0.82, curve: Curves.easeOutCubic),
-          ),
-        );
-    _welcomeOpacity = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.42, 0.82, curve: Curves.easeOut),
-    );
-    _ctaOpacity = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.68, 1, curve: Curves.easeOut),
-    );
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.08,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 34,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.08,
+          end: 1.16,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 22,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.16,
+          end: 1.08,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 16,
+      ),
+    ]).animate(_controller);
+    _logoOpacity = TweenSequence<double>([
+      TweenSequenceItem(tween: ConstantTween<double>(0), weight: 18),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0,
+          end: 1,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 28,
+      ),
+      TweenSequenceItem(tween: ConstantTween<double>(1), weight: 38),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1,
+          end: 0,
+        ).chain(CurveTween(curve: Curves.easeInOutCubic)),
+        weight: 16,
+      ),
+    ]).animate(_controller);
+    _logoScale = TweenSequence<double>([
+      TweenSequenceItem(tween: ConstantTween<double>(0.9), weight: 16),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.9,
+          end: 1.07,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.07,
+          end: 1.03,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 28,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.03,
+          end: 1.08,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 14,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.08,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInOutCubic)),
+        weight: 12,
+      ),
+    ]).animate(_controller);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller
+      ..removeStatusListener(_handleIntroStatus)
+      ..dispose();
     super.dispose();
   }
 
@@ -88,78 +138,49 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
             ),
           ),
           Align(
-            alignment: const Alignment(0, -0.12),
+            alignment: Alignment.center,
             child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppSpacing.lg,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _glowScale.value,
-                          child: Opacity(
-                            opacity: _logoOpacity.value,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: AppRadius.card,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primaryYellow.withValues(
-                                      alpha: 0.22,
-                                    ),
-                                    blurRadius: 54,
-                                    spreadRadius: 8,
-                                  ),
-                                ],
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _glowScale.value,
+                    child: Opacity(
+                      opacity: _logoOpacity.value,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: AppRadius.card,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryYellow.withValues(
+                                alpha: 0.28 + (_controller.value * 0.12),
                               ),
-                              child: Transform.scale(
-                                scale: _logoScale.value,
-                                child: child,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      child: const PromooLogo.full(width: 196, height: 128),
-                    ),
-                    const SizedBox(height: AppSpacing.xxl),
-                    FadeTransition(
-                      opacity: _welcomeOpacity,
-                      child: SlideTransition(
-                        position: _welcomeOffset,
-                        child: Column(
-                          children: [
-                            Text(
-                              'Welcome to Promoo',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(
-                              'Discover services, creators, and premium campaign spaces.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              blurRadius: 86,
+                              spreadRadius: 14,
                             ),
                           ],
                         ),
+                        child: Transform.scale(
+                          scale: _logoScale.value,
+                          child: child,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xl),
-                    FadeTransition(
-                      opacity: _ctaOpacity,
-                      child: PromooButton.primary(
-                        label: 'Enter Promoo',
-                        icon: Icons.arrow_forward_rounded,
-                        onPressed: () => context.go(AppRoutes.login),
-                      ),
-                    ),
-                  ],
+                  );
+                },
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final logoWidth = (constraints.maxWidth * 0.72)
+                        .clamp(240.0, 310.0)
+                        .toDouble();
+
+                    return PromooLogo.fullCropped(
+                      width: logoWidth,
+                      height: 160,
+                      artworkScale: 2.65,
+                      semanticLabel: 'Promoo intro logo',
+                    );
+                  },
                 ),
               ),
             ),
@@ -167,6 +188,12 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
         ],
       ),
     );
+  }
+
+  void _handleIntroStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed && mounted) {
+      context.go(AppRoutes.login);
+    }
   }
 }
 
@@ -190,6 +217,41 @@ class _LaunchGlowPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: center, radius: radius));
 
     canvas.drawCircle(center, radius, warmPaint);
+
+    final shimmerProgress = ((progress - 0.26) / 0.54).clamp(0.0, 1.0);
+    if (shimmerProgress > 0 && shimmerProgress < 1) {
+      final shimmerCenter = Offset(
+        size.width * (-0.18 + (1.36 * shimmerProgress)),
+        size.height * 0.45,
+      );
+      final shimmerRect = Rect.fromCenter(
+        center: shimmerCenter,
+        width: size.width * 0.32,
+        height: size.height * 0.8,
+      );
+      final shimmerPaint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            AppColors.softYellow.withValues(alpha: 0.14),
+            Colors.transparent,
+          ],
+          stops: const [0, 0.5, 1],
+        ).createShader(shimmerRect);
+
+      canvas
+        ..save()
+        ..translate(shimmerCenter.dx, shimmerCenter.dy)
+        ..rotate(-0.32)
+        ..translate(-shimmerCenter.dx, -shimmerCenter.dy)
+        ..drawRRect(
+          RRect.fromRectAndRadius(shimmerRect, const Radius.circular(120)),
+          shimmerPaint,
+        )
+        ..restore();
+    }
 
     final sweepTop = size.height * (0.28 + progress * 0.12);
     final sweepPaint = Paint()

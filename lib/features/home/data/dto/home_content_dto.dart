@@ -221,6 +221,18 @@ class HomeContentDto {
           subtitle: 'Prominent visibility for active launch campaigns.',
           imageUrl: _demoTeamImage,
         ),
+        HomeOfferPreviewDto(
+          id: 'offer-6',
+          title: 'Restaurant reel boost',
+          subtitle: 'Short-form food content for lunch and dinner discovery.',
+          imageUrl: _demoFoodImage,
+        ),
+        HomeOfferPreviewDto(
+          id: 'offer-7',
+          title: 'Event coverage window',
+          subtitle: 'Premium story coverage for weekend events.',
+          imageUrl: _demoEventImage,
+        ),
       ],
       profiles: [
         HomeProfilePreviewDto(
@@ -245,6 +257,23 @@ class HomeContentDto {
           imageUrl: _demoBusinessImage,
           profileName: 'Maya Studio',
           profileAvatarUrl: _demoAvatarMaya,
+          items: [
+            HomeStoryItemDto(
+              id: 'story-maya-1',
+              title: 'Launch day edits are ready for review.',
+              imageUrl: _demoBusinessImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-maya-2',
+              title: 'Final campaign frames are being selected.',
+              imageUrl: _demoTeamImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-maya-3',
+              title: 'Premium brand visuals go live tonight.',
+              imageUrl: _demoDigitalImage,
+            ),
+          ],
         ),
         HomeStoryDto(
           id: 'story-omar',
@@ -252,6 +281,23 @@ class HomeContentDto {
           imageUrl: _demoEventImage,
           profileName: 'Omar Visuals',
           profileAvatarUrl: _demoAvatarOmar,
+          items: [
+            HomeStoryItemDto(
+              id: 'story-omar-1',
+              title: 'Event coverage slots opened for the weekend.',
+              imageUrl: _demoEventImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-omar-2',
+              title: 'Behind-the-scenes reels are in progress.',
+              imageUrl: _demoPhotographyImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-omar-3',
+              title: 'Weekend launch stories are filling quickly.',
+              imageUrl: _demoTeamImage,
+            ),
+          ],
         ),
         HomeStoryDto(
           id: 'story-lina',
@@ -259,6 +305,23 @@ class HomeContentDto {
           imageUrl: _demoLifestyleImage,
           profileName: 'Lina Atelier',
           profileAvatarUrl: _demoAvatarLina,
+          items: [
+            HomeStoryItemDto(
+              id: 'story-lina-1',
+              title: 'New styling picks for premium creators.',
+              imageUrl: _demoLifestyleImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-lina-2',
+              title: 'Soft neutral edits for summer campaigns.',
+              imageUrl: _demoBeautyImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-lina-3',
+              title: 'Creator-ready looks are now available.',
+              imageUrl: _demoCreatorImage,
+            ),
+          ],
         ),
         HomeStoryDto(
           id: 'story-pearl',
@@ -266,6 +329,23 @@ class HomeContentDto {
           imageUrl: _demoFoodImage,
           profileName: 'Pearl District',
           profileAvatarUrl: _demoAvatarAdam,
+          items: [
+            HomeStoryItemDto(
+              id: 'story-pearl-1',
+              title: 'Cafe launch tastings start this evening.',
+              imageUrl: _demoFoodImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-pearl-2',
+              title: 'New opening menu shots are ready.',
+              imageUrl: _demoCafeImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-pearl-3',
+              title: 'Morning launch coverage starts tomorrow.',
+              imageUrl: _demoBusinessImage,
+            ),
+          ],
         ),
         HomeStoryDto(
           id: 'story-calmfit',
@@ -273,6 +353,23 @@ class HomeContentDto {
           imageUrl: _demoWellnessImage,
           profileName: 'CalmFit',
           profileAvatarUrl: _demoAvatarNadine,
+          items: [
+            HomeStoryItemDto(
+              id: 'story-calmfit-1',
+              title: 'Wellness visibility package is live this week.',
+              imageUrl: _demoWellnessImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-calmfit-2',
+              title: 'Recovery campaign slots are open.',
+              imageUrl: _demoLifestyleImage,
+            ),
+            HomeStoryItemDto(
+              id: 'story-calmfit-3',
+              title: 'Mindful movement content is ready for launch.',
+              imageUrl: _demoTeamImage,
+            ),
+          ],
         ),
       ],
     );
@@ -554,6 +651,7 @@ class HomeStoryDto {
     this.imageUrl,
     this.profileName,
     this.profileAvatarUrl,
+    this.items = const [],
   });
 
   final String? id;
@@ -561,29 +659,41 @@ class HomeStoryDto {
   final String? imageUrl;
   final String? profileName;
   final String? profileAvatarUrl;
+  final List<HomeStoryItemDto> items;
 
   factory HomeStoryDto.fromJson(Map<String, Object?> json) {
     final profile = _mapFrom(json['profile']);
+    final directTitle =
+        _readString(json, const ['title', 'name']) ??
+        (profile == null
+            ? null
+            : _readString(profile, const ['full_name', 'name', 'username']));
+    final directImage = _readString(json, const [
+      'image_url',
+      'imageUrl',
+      'cover_url',
+      'media_url',
+    ]);
+    final itemMaps = _mapsFrom(
+      _firstPresent(json, const [
+        'items',
+        'story_items',
+        'storyItems',
+        'media',
+      ]),
+    );
 
     return HomeStoryDto(
       id: _readString(json, const ['id', 'story_id']),
-      title:
-          _readString(json, const ['title', 'name']) ??
-          (profile == null
-              ? null
-              : _readString(profile, const ['full_name', 'name', 'username'])),
-      imageUrl: _readString(json, const [
-        'image_url',
-        'imageUrl',
-        'cover_url',
-        'media_url',
-      ]),
+      title: directTitle,
+      imageUrl: directImage,
       profileName: profile == null
           ? null
           : _readString(profile, const ['full_name', 'name', 'username']),
       profileAvatarUrl: profile == null
           ? null
           : _readString(profile, const ['avatar_url', 'avatarUrl']),
+      items: itemMaps.map(HomeStoryItemDto.fromJson).toList(growable: false),
     );
   }
 
@@ -594,6 +704,41 @@ class HomeStoryDto {
       imageUrl: imageUrl,
       profileName: profileName,
       profileAvatarUrl: profileAvatarUrl,
+      items: [
+        for (var i = 0; i < items.length; i++)
+          if (items[i].title != null)
+            items[i].toDomain(fallbackId: '${id ?? fallbackId}-$i'),
+      ],
+    );
+  }
+}
+
+class HomeStoryItemDto {
+  const HomeStoryItemDto({this.id, this.title, this.imageUrl});
+
+  final String? id;
+  final String? title;
+  final String? imageUrl;
+
+  factory HomeStoryItemDto.fromJson(Map<String, Object?> json) {
+    return HomeStoryItemDto(
+      id: _readString(json, const ['id', 'story_item_id', 'media_id']),
+      title: _readString(json, const ['title', 'name', 'caption', 'text']),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'media_url',
+        'url',
+      ]),
+    );
+  }
+
+  HomeStoryItem toDomain({required String fallbackId}) {
+    return HomeStoryItem(
+      id: id ?? fallbackId,
+      title: title ?? 'Story update',
+      imageUrl: imageUrl,
     );
   }
 }

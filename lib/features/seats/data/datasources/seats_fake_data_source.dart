@@ -51,6 +51,29 @@ class SeatsFakeDataSource implements SeatsDataSource {
       ),
     ),
     SeatDto(
+      id: 'seat-gold-4',
+      tier: 'gold',
+      price: 2500,
+      currency: 'AED',
+      status: 'available',
+      position: 4,
+    ),
+    SeatDto(
+      id: 'seat-gold-5',
+      tier: 'gold',
+      price: 2500,
+      currency: 'AED',
+      status: 'booked',
+      position: 5,
+      holder: SeatHolderDto(
+        id: 'profile-calmfit',
+        name: 'CalmFit Wellness',
+        username: 'calmfit.wellness',
+        avatarUrl:
+            'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=320&q=80',
+      ),
+    ),
+    SeatDto(
       id: 'seat-silver-1',
       tier: 'silver',
       price: 1500,
@@ -97,6 +120,29 @@ class SeatsFakeDataSource implements SeatsDataSource {
       position: 4,
     ),
     SeatDto(
+      id: 'seat-silver-5',
+      tier: 'silver',
+      price: 1500,
+      currency: 'AED',
+      status: 'available',
+      position: 5,
+    ),
+    SeatDto(
+      id: 'seat-silver-6',
+      tier: 'silver',
+      price: 1500,
+      currency: 'AED',
+      status: 'booked',
+      position: 6,
+      holder: SeatHolderDto(
+        id: 'profile-orchid-style',
+        name: 'Orchid Styling Co.',
+        username: 'orchid.style',
+        avatarUrl:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=320&q=80',
+      ),
+    ),
+    SeatDto(
       id: 'seat-bronze-1',
       tier: 'bronze',
       price: 900,
@@ -134,6 +180,45 @@ class SeatsFakeDataSource implements SeatsDataSource {
       currency: 'AED',
       status: 'available',
       position: 4,
+    ),
+    SeatDto(
+      id: 'seat-bronze-5',
+      tier: 'bronze',
+      price: 900,
+      currency: 'AED',
+      status: 'booked',
+      position: 5,
+      holder: SeatHolderDto(
+        id: 'profile-vista-home',
+        name: 'Vista Home Living',
+        username: 'vista.home',
+        avatarUrl:
+            'https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?auto=format&fit=crop&w=320&q=80',
+      ),
+    ),
+    SeatDto(
+      id: 'seat-bronze-6',
+      tier: 'bronze',
+      price: 900,
+      currency: 'AED',
+      status: 'available',
+      position: 6,
+    ),
+    SeatDto(
+      id: 'seat-bronze-7',
+      tier: 'bronze',
+      price: 900,
+      currency: 'AED',
+      status: 'available',
+      position: 7,
+    ),
+    SeatDto(
+      id: 'seat-bronze-8',
+      tier: 'bronze',
+      price: 900,
+      currency: 'AED',
+      status: 'available',
+      position: 8,
     ),
   ];
 

@@ -98,7 +98,7 @@ _NoticeContent _contentFor(ProfileActionStatus status) {
     ),
     ProfileActionStatus.editAuthRequired => const _NoticeContent(
       title: 'Coming soon',
-      message: 'Profile editing will open from Profile tools soon.',
+      message: 'Profile editing will be available in the next phase.',
       icon: Icons.edit_rounded,
       color: AppColors.primaryYellow,
     ),

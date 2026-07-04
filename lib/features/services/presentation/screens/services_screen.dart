@@ -145,13 +145,23 @@ class _ServicesContentView extends ConsumerWidget {
                       },
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    const PromooSectionHeader(
-                      title: 'Listings',
-                      subtitle: 'Search services or open a listing to contact',
+                    Text(
+                      'Search other services',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Find a service by title, category, provider, or tag.',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     ServicesSearchField(
                       query: state.searchQuery,
+                      onChanged: (query) {
+                        ref
+                            .read(servicesControllerProvider.notifier)
+                            .search(query);
+                      },
                       onSubmitted: (query) {
                         ref
                             .read(servicesControllerProvider.notifier)
@@ -163,14 +173,16 @@ class _ServicesContentView extends ConsumerWidget {
                                 .read(servicesControllerProvider.notifier)
                                 .clearSearch(),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    if (state.services.isEmpty)
-                      _ServicesEmptyState(
-                        selectedCategoryId: state.selectedCategoryId,
-                        query: state.searchQuery,
-                      )
-                    else
-                      _ServicesList(services: state.services),
+                    if (_shouldShowResults(state)) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      if (state.services.isEmpty)
+                        _ServicesEmptyState(
+                          selectedCategoryId: state.selectedCategoryId,
+                          query: state.searchQuery,
+                        )
+                      else
+                        _ServicesList(services: state.services),
+                    ],
                   ],
                 ),
               ),
@@ -187,6 +199,11 @@ class _ServicesContentView extends ConsumerWidget {
       ],
     );
   }
+}
+
+bool _shouldShowResults(ServicesState state) {
+  return state.searchQuery.trim().isNotEmpty ||
+      state.selectedCategoryId != null;
 }
 
 class _ServicesList extends StatelessWidget {
@@ -220,10 +237,10 @@ class _ServicesEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final filtered = selectedCategoryId != null || query.isNotEmpty;
     return PromooEmptyState(
-      title: filtered ? 'No services found' : 'No services yet',
+      title: filtered ? 'No service found.' : 'No services yet',
       message: filtered
-          ? 'Try another category or search term.'
-          : 'Service listings will appear here when they are available.',
+          ? "We couldn't find this service yet."
+          : 'Search or choose a category to discover services.',
     );
   }
 }

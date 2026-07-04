@@ -120,7 +120,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('@saffron.social'), findsOneWidget);
-    expect(find.text('Packages'), findsOneWidget);
+    expect(find.text('Followers'), findsOneWidget);
   });
 
   testWidgets('service result navigates to service detail route', (

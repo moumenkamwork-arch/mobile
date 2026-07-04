@@ -24,7 +24,7 @@ void main() {
     expect(find.text('Loading profile'), findsOneWidget);
   });
 
-  testWidgets('renders profile and safe actions', (tester) async {
+  testWidgets('own profile hides public actions and tools', (tester) async {
     await tester.pumpWidget(
       _buildProfileScreen(
         const _ProfileRepository(
@@ -45,17 +45,23 @@ void main() {
 
     expect(find.text('Saffron Social Studio'), findsOneWidget);
     expect(find.text('@saffron.social'), findsOneWidget);
+    expect(find.text('Followers'), findsOneWidget);
+    expect(find.text('Likes'), findsOneWidget);
+    expect(find.text('Posts'), findsOneWidget);
+    expect(find.text('Views'), findsOneWidget);
 
-    await tester.tap(find.text('Follow'));
-    await tester.pumpAndSettle();
-    expect(find.text('Login required'), findsOneWidget);
+    expect(find.text('Follow'), findsNothing);
+    expect(find.text('Message'), findsNothing);
+    expect(find.text('Profile tools'), findsNothing);
+    expect(find.text('Edit profile'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Dismiss'));
+    await tester.tap(find.text('Edit profile'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Message'));
-    await tester.pumpAndSettle();
-    expect(find.text('Chats are ready'), findsOneWidget);
-    expect(find.text('Open chats'), findsOneWidget);
+    expect(find.text('Coming soon'), findsOneWidget);
+    expect(
+      find.text('Profile editing will be available in the next phase.'),
+      findsOneWidget,
+    );
 
     await tester.scrollUntilVisible(
       find.text('Packages'),
@@ -95,19 +101,26 @@ void main() {
     await tester.tap(find.byTooltip('Close media'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Profile tools'),
-      260,
-      scrollable: find.byType(Scrollable).first,
+    expect(find.text('Profile tools'), findsNothing);
+  });
+
+  testWidgets('message action shows safe chats notice', (tester) async {
+    await tester.pumpWidget(
+      _buildProfileScreen(
+        const _ProfileRepository(
+          profileResult: Result.success(_profile),
+          packagesResult: Result.success([_package]),
+        ),
+        idOrUsername: 'lina.atelier',
+      ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Profile tools'), findsOneWidget);
-
-    await tester.tap(find.text('Manage profile'));
+    await tester.tap(find.text('Message'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Manage profile coming soon'), findsOneWidget);
+    expect(find.text('Chats are ready'), findsOneWidget);
+    expect(find.text('Open chats'), findsOneWidget);
   });
 
   testWidgets('renders empty media state', (tester) async {
@@ -146,6 +159,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Saffron Social Studio'), findsOneWidget);
+    expect(find.text('Follow'), findsOneWidget);
+    expect(find.text('Message'), findsOneWidget);
+    expect(find.text('Edit profile'), findsNothing);
+
     await tester.scrollUntilVisible(
       find.text('Boutique launch campaign'),
       260,
@@ -195,7 +212,14 @@ const _profile = PromooProfile(
   username: 'saffron.social',
   bio: 'Boutique campaign studio for premium launches.',
   accountType: ProfileAccountType.company,
-  stats: ProfileStats(followers: 185400, following: 124, services: 1),
+  stats: ProfileStats(
+    followers: 185400,
+    following: 124,
+    services: 1,
+    likes: 48600,
+    posts: 28,
+    views: 312000,
+  ),
   mediaUrls: [
     'promoo-media://saffron-social/post-1',
     'promoo-media://saffron-social/post-2',

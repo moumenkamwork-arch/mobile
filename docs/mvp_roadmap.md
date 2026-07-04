@@ -1,6 +1,6 @@
 # Promoo MVP roadmap
 
-Last updated: 2026-06-27
+Last updated: 2026-07-02
 
 ## Workflow rule
 
@@ -566,7 +566,7 @@ Completed work:
 - Added a Profile media/posts grid that reads from the existing profile model.
 - Added mock demo profile media in `ProfileFakeDataSource`; widgets do not contain fake media data.
 - Made Profile DTO media parsing more defensive for direct URL fields, `media`, `posts`, `media_urls`, and object rows with common URL keys.
-- Added a Profile-tab-only `Profile tools` preview for Manage profile, Create offers, Saved items, Support, and Language.
+- Added owner-side profile tools as a preview surface; the final client-review patch keeps those tools in the Profile menu rather than on the profile page.
 - Kept public profile detail routes focused on stable public profile display; public profiles do not show the owner tools preview.
 - Added safe coming-soon feedback for tools and kept Edit profile as a preview action.
 - Kept existing Profile packages display/contact behavior unchanged.
@@ -692,7 +692,7 @@ Scope:
 Completed work:
 
 - Replaced the static launch screen behavior with a cinematic black/yellow animated PROMOO intro using native Flutter animations.
-- `Enter Promoo` now opens the Login flow; Login/Register screen layouts and Auth Lite production behavior remain unchanged.
+- The animated intro now opens the Login flow; Login/Register screen layouts and Auth Lite production behavior remain unchanged.
 - Added a reusable resilient image widget for network/asset images with polished fallback rendering.
 - Upgraded Home Stories with realistic fictional story/profile imagery and a fullscreen story viewer with progress bars, profile header, close action, and tap navigation.
 - Upgraded Top Offers and For You into PageView swiper-style sections with image-first cards and active indicators.
@@ -761,6 +761,96 @@ Validation:
 - `flutter test` passed with 182 tests; known non-fatal SVG `<style/>` warnings remain.
 - `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed.
 - `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed.
+
+### 26. Client Feedback Frontend Patch Before Backend Integration
+
+Status: completed and validated.
+
+Scope:
+
+- Frontend/client-review adjustments only.
+- No backend integration, production auth, real payment, real booking, uploads, realtime, push notifications, store release, packages, or broad architecture refactor.
+
+Completed work:
+
+- Added guest access from Login/Register into the public Home demo flow.
+- Corrected logo usage on auth and Home to use clean PROMOO logo presentation without extra visible logo subtitle copy.
+- Added Home story swipe-down close behavior while keeping the X close action.
+- Updated Home header chat/notification icons to prototype-aligned outline actions with yellow badges and existing safe routes.
+- Added safe `See All` actions across Home sections and increased Top Offers demo slide count.
+- Made Home Services preview denser and image-led.
+- Reworked Services to use image-based category/service cards from fake/DTO data, hide the default unfiltered listing section, and keep search/category results with a clear no-match state.
+- Replaced the visible Cup footer tab with a stylized `P` and `Promoo` label while preserving the `/cup` route.
+- Added shell footer glass behavior on scroll and a pinned, scroll-aware glass Home header.
+- Tightened Influencer Seats stats and upgraded the visibility grid to a denser prototype-like slot layout with more fictional seats.
+- Added a profile menu from the Profile footer icon, including safe preview actions and session-only Black/Light mode selection through Riverpod.
+- Improved public Profile social stats to Followers, Likes, Posts, and Views and surfaced profile bio in the header.
+- Updated focused tests for guest access, Home story/See All behavior, Services search/no-match behavior, shell/profile menu/theme behavior, Services DTO images, and Profile stats.
+
+Validation:
+
+- `flutter pub get` passed.
+- `dart format .` passed.
+- `flutter analyze` passed.
+- `flutter test` passed with 188 tests; known non-fatal SVG `<style/>` warnings remain.
+
+### 27. Final Client APK QA After Client Feedback Patch
+
+Status: completed and validated.
+
+Scope:
+
+- Final APK readiness, validation, and tiny visual QA only.
+- No backend integration, production auth, real payment, real booking, uploads, realtime chat, push notifications, store release, packages, or broad architecture refactor.
+
+Completed work:
+
+- Re-verified Login, Home, Services, Footer, Header/Footer glass behavior, Influencer Seats, and Profile patch requirements.
+- Added the only tiny code fix found during QA: the Home header is now pinned and scroll-aware with a glass treatment matching the shell footer behavior.
+- Confirmed the client-review APK must be built with `PROMOO_USE_MOCKS=true`.
+- Built the universal client-review APK: `build/app/outputs/flutter-apk/app-release.apk`.
+- Built split client-review APKs: `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`, and `app-x86_64-release.apk`.
+- Documented that `app-arm64-v8a-release.apk` is the recommended file for most modern Android phones and `app-release.apk` is the universal fallback.
+- Installed the ARM64 APK on connected Android 13 device `M2012K11AG` and verified fresh launch, intro to Login, and `Continue as Guest` into Home.
+
+Validation:
+
+- `flutter pub get` passed.
+- `dart format .` passed.
+- `flutter analyze` passed.
+- `flutter test` passed with 188 tests; known non-fatal SVG `<style/>` warnings remain.
+- `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed.
+- `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed.
+
+### 28. Final Client Review Fix Patch Before Sending APK
+
+Status: completed and validated.
+
+Scope:
+
+- Client-review visual and logic fixes only.
+- No backend integration, production auth, real payment, real booking, uploads, realtime chat, push notifications, store release, packages, or broad architecture refactor.
+
+Completed work:
+
+- Replaced the launch intro with a logo-only animated `promoo3.svg` screen that automatically opens Login.
+- Enlarged the Login/Register logo and Home header logo while keeping existing auth and header behavior.
+- Regenerated Android launcher icon PNGs with extra safe padding from the compact PROMOO mark.
+- Updated Home story data and viewer logic so story navigation advances through each owner's grouped items before changing owners.
+- Made Services search live/local across title, category, provider, tags, and description.
+- Changed Profile menu Black/Light mode controls to visual-only next-phase feedback.
+- Corrected Profile logic so own profile hides Follow/Message and public profiles show them.
+- Removed Profile Tools from the profile page; tools remain available from the Profile menu.
+
+Validation:
+
+- `flutter pub get` passed.
+- `dart format .` passed.
+- `flutter analyze` passed.
+- `flutter test` passed with 192 tests; known non-fatal SVG `<style/>` warnings remain.
+- `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed.
+- `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed.
+- Final local install on connected Android device `M2012K11AG` was blocked by Android with `INSTALL_FAILED_USER_RESTRICTED`.
 
 ## Deferred MVP items
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
@@ -20,7 +21,11 @@ class ServicesCategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      const ServiceCategory(id: '', name: 'All services'),
+      ServiceCategory(
+        id: '',
+        name: 'All services',
+        imageUrl: categories.isEmpty ? null : categories.first.imageUrl,
+      ),
       ...categories,
     ];
 
@@ -42,9 +47,8 @@ class ServicesCategoryList extends StatelessWidget {
             : selectedCategoryId == category.id;
 
         return _CategoryCard(
-          label: category.name,
+          category: category,
           selected: selected,
-          icon: _iconForCategory(category.name),
           onTap: () => onSelected(isAll ? null : category.id),
         );
       },
@@ -54,19 +58,19 @@ class ServicesCategoryList extends StatelessWidget {
 
 class _CategoryCard extends StatelessWidget {
   const _CategoryCard({
-    required this.label,
+    required this.category,
     required this.selected,
-    required this.icon,
     required this.onTap,
   });
 
-  final String label;
+  final ServiceCategory category;
   final bool selected;
-  final IconData icon;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final label = category.name;
+
     return Semantics(
       button: true,
       selected: selected,
@@ -78,7 +82,6 @@ class _CategoryCard extends StatelessWidget {
           borderRadius: AppRadius.card,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: selected ? AppColors.elevatedSurface : AppColors.surface,
               borderRadius: AppRadius.card,
@@ -86,66 +89,61 @@ class _CategoryCard extends StatelessWidget {
                 color: selected ? AppColors.primaryYellow : AppColors.border,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primaryYellow
-                        : AppColors.elevatedSurface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: selected
-                          ? AppColors.primaryYellow
-                          : AppColors.borderStrong,
+            child: ClipRRect(
+              borderRadius: AppRadius.card,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PromooImage(
+                    imageUrl: category.imageUrl,
+                    semanticLabel: label,
+                    fallbackIcon: Icons.storefront_rounded,
+                  ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: AlignmentDirectional.topCenter,
+                        end: AlignmentDirectional.bottomCenter,
+                        colors: [
+                          AppColors.background.withValues(alpha: 0.06),
+                          AppColors.background.withValues(alpha: 0.28),
+                          AppColors.background.withValues(alpha: 0.82),
+                        ],
+                      ),
                     ),
                   ),
-                  child: Icon(
-                    icon,
-                    color: selected
-                        ? AppColors.brandBlack
-                        : AppColors.primaryYellow,
-                    size: 20,
+                  PositionedDirectional(
+                    start: AppSpacing.sm,
+                    end: AppSpacing.sm,
+                    bottom: AppSpacing.sm,
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: selected
+                            ? FontWeight.w900
+                            : FontWeight.w800,
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-                  ),
-                ),
-              ],
+                  if (selected)
+                    const PositionedDirectional(
+                      top: AppSpacing.sm,
+                      end: AppSpacing.sm,
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.primaryYellow,
+                        size: 22,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
-}
-
-IconData _iconForCategory(String label) {
-  final normalized = label.toLowerCase();
-  if (normalized.contains('influencer') ||
-      normalized.contains('creator') ||
-      normalized.contains('content')) {
-    return Icons.auto_awesome_rounded;
-  }
-  if (normalized.contains('ad') || normalized.contains('marketing')) {
-    return Icons.campaign_rounded;
-  }
-  if (normalized.contains('design') || normalized.contains('brand')) {
-    return Icons.brush_rounded;
-  }
-  if (normalized.contains('business') || normalized.contains('growth')) {
-    return Icons.trending_up_rounded;
-  }
-  return Icons.storefront_rounded;
 }

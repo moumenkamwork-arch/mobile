@@ -1,6 +1,6 @@
 # Promoo project memory
 
-Last updated: 2026-06-27
+Last updated: 2026-07-02
 
 ## Current state
 
@@ -106,7 +106,7 @@ The MVP must stay close to the prototype: black UI, strong yellow accents, moder
 
 ## MVP phase state
 
-Current phase: `Final Pre-Client Patch Step 5`.
+Current phase: `Final Client APK QA after client feedback frontend patch`.
 
 Completed to date:
 
@@ -280,8 +280,8 @@ Typography note:
 - Public profile display remains the stable public profile experience.
 - Profile media preview reads `mediaUrls` from the profile model and supports defensive parsing for `media`, `posts`, `media_urls`, direct media URL fields, and object rows with common URL keys.
 - Mock demo profile media lives in `ProfileFakeDataSource`; no fake media data is embedded in widgets.
-- Profile tab shows a lightweight owner-side `Profile tools` preview with Manage profile, Create offers, Saved items, Support, and Language entries. Public profile routes do not show the tools preview.
-- Profile tools use client-friendly "coming soon" SnackBar feedback only and do not open new routes.
+- Profile menu shows lightweight owner-side tools with Manage profile, Create offers, Saved items, Support, and Language entries. Public profile routes do not show owner tools on the profile page.
+- Profile menu tools use client-friendly "coming soon" SnackBar feedback only and do not open new routes.
 - Profile packages are services connected to the profile, not subscription plans.
 - No package purchase, checkout, subscriptions, payments, image upload, real edit submission, settings persistence, add-ad wizard, saved/following implementation, production logout, follow mutation, or chat mutation were added.
 - Backend `GET /services` currently supports category and text search, but no confirmed `profileId` or `profile_id` query filter. Remote package loading therefore fetches public services and filters by nested profile id client-side, which may be incomplete beyond the first page.
@@ -402,7 +402,7 @@ Typography note:
 
 ## Final pre-client patch Step 1 + Step 2 notes
 
-- Step 1 replaced the static launch welcome with a native Flutter animated PROMOO intro using black background, yellow glow, staged logo/welcome/CTA reveal, and a CTA to `/login`.
+- Step 1 replaced the static launch welcome with a native Flutter animated PROMOO intro using black background, yellow glow, staged logo reveal, and automatic navigation to `/login`.
 - Login/Register visuals were intentionally preserved. Auth Lite remains unchanged; after a successful login/register session, the existing `Continue` action enters Home.
 - Auth screen fallback back navigation now returns to the launch intro instead of bypassing auth into Home.
 - Step 2 upgraded Home while preserving the section contract: Stories, Top Offers, For You, Promoo of the Day, and Services.
@@ -434,6 +434,51 @@ Typography note:
 - Created `docs/client_apk_review_checklist.md` with split/universal APK commands, output paths, app name/icon checks, mock-mode checks, main flow checklist, and client-safe limitations.
 - `docs/client_demo_handoff.md` now includes APK build commands and the requirement to build the client APK with `--dart-define=PROMOO_USE_MOCKS=true`.
 - Added `test/android/android_client_apk_config_test.dart` to verify Android label, icon references, release Internet permission, and launcher icon files.
+
+## Client feedback frontend patch notes
+
+- Added `Continue as Guest` to Login and Register. It routes to Home in mock/demo review mode without backend calls or auth requirements.
+- Cleaned Login/Register and Home logo usage to show the approved PROMOO logo without extra subtitle text under or beside the logo.
+- Home header now uses prototype-aligned outline chat/notification actions with small yellow badges and routes to existing Chat/Notifications screens.
+- Home stories still close with the X button and now also close with a downward swipe gesture.
+- Home Top Offers now has more than three demo slides; Stories, Top Offers, For You, Promoo of the Day, and Services expose safe `See All` actions.
+- Home Services preview is more compact so more image-based service cards are visible at common mobile widths.
+- Services categories now use image-based cards sourced from Services DTO/fake data. Service listings also use fake-source image URLs instead of icon-only presentation.
+- Services default unfiltered listings are hidden from the visible demo surface; search/category results remain available, local/mock-safe, and show a clear no-match state.
+- The bottom navigation Cup route is visually represented as a stylized `P` with label `Promoo`; route behavior remains `/cup`.
+- The shell bottom navigation uses a native Flutter translucent/glass treatment that reacts to scroll. The Home header now uses a pinned scroll-aware glass surface.
+- Influencer Seats uses a smaller stats header, a denser four-column seat grid, and more fictional Gold/Silver/Bronze demo slots while preserving `/seats` and safe preview-only booking behavior.
+- Profile icon taps now open a settings-style profile menu with View Profile, Edit Profile, Saved, Language, Theme Mode, Support, and Logout preview actions.
+- Theme Mode in the Profile menu is visual-only. Black Mode remains selected and Light Mode shows client-safe next-phase feedback without changing app theme.
+- Public Profile stats now show Followers, Likes, Posts, and Views with realistic fictional values from profile fake data; bio is surfaced in the header.
+- No backend integration, production auth, real booking, real payment, uploads, realtime, push notifications, packages, or broad architecture refactor was started.
+
+## Final client APK QA notes
+
+- Verified the client feedback frontend patch against the APK QA checklist.
+- Added the tiny missing header polish: Home now uses a pinned, scroll-aware glass header while the shell footer keeps its scroll-aware glass treatment.
+- Re-ran validation after the header change: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` all passed.
+- Built the universal client-review APK with `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true`.
+- Built split APKs with `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true`.
+- Latest verified output to send for most modern Android phones: `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`.
+- Universal fallback when device architecture is unknown: `build/app/outputs/flutter-apk/app-release.apk`.
+- Installed `app-arm64-v8a-release.apk` on connected Android 13 device `M2012K11AG` and verified fresh launch, logo-only intro to Login, and `Continue as Guest` into Home.
+- This remains a client-review UI/UX build. Backend integration, production auth, real payments, real booking, uploads, realtime chat, push notifications, and store release remain later phases.
+
+## Final client review fix patch notes
+
+- Welcome/intro is now logo-only with `assets/brand/promoo3.svg`, premium glow/scale motion, and automatic navigation to Login after the animation.
+- Login/Register and Home header use the larger `promoo3.svg` presentation; the launcher icon remains based on the compact `assets/brand/promoo.svg` mark.
+- Android launcher mipmap PNGs were regenerated with extra safe padding for legacy and adaptive icons so the compact PROMOO mark is not oversized or clipped.
+- Home stories now support grouped owner story items. Tapping next or timer completion advances within the same owner before moving to the next owner; previous navigation mirrors that behavior.
+- Services search is live and local for the current service list, matching title, category, provider, tags, and description without adding backend calls.
+- Profile menu Theme Mode controls are visual-only and do not change the app theme.
+- Own Profile no longer shows Follow, Message, or Profile Tools on the profile page. Public profile routes still show Follow and Message.
+- Profile Tools are no longer rendered inside the Profile page; profile-owner tools stay in the Profile menu.
+- Final validation passed: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, universal mock-mode APK build, and split mock-mode APK build.
+- Full test suite passed with 192 tests. Known non-fatal SVG `<style/>` warnings remain.
+- Final APK outputs: `app-release.apk` 52.5 MB, `app-arm64-v8a-release.apk` 18.1 MB, `app-armeabi-v7a-release.apk` 15.9 MB, and `app-x86_64-release.apk` 19.5 MB.
+- Final local install on connected Android device `M2012K11AG` was blocked by Android with `INSTALL_FAILED_USER_RESTRICTED`; APK builds still completed successfully.
 
 ## Validation history
 
@@ -467,3 +512,5 @@ Typography note:
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 1 + Step 2. Full test suite passed with 177 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 3 + Step 4. Full test suite passed with 181 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed after Final Pre-Client Patch Step 5. Full test suite passed with 182 tests; known non-fatal SVG `<style/>` warnings remain.
+- 2026-07-02: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed after Final Client APK QA. Full test suite passed with 188 tests; universal and split mock-mode APKs were generated successfully. Known non-fatal SVG `<style/>` warnings remain.
+- 2026-07-02: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed after Final Client Review Fix Patch. Full test suite passed with 192 tests; universal and split mock-mode APKs were generated successfully. Local final install on `M2012K11AG` was blocked by Android with `INSTALL_FAILED_USER_RESTRICTED`.

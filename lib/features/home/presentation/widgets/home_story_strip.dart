@@ -8,18 +8,21 @@ import '../../domain/entities/home_content.dart';
 import 'home_story_viewer.dart';
 
 class HomeStoryStrip extends StatelessWidget {
-  const HomeStoryStrip({super.key, required this.stories});
+  const HomeStoryStrip({super.key, required this.stories, this.onSeeAll});
 
   final List<HomeStory> stories;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(
+        PromooSectionHeader(
           title: 'Stories',
           subtitle: 'Fresh updates from Promoo partners',
+          actionLabel: onSeeAll == null ? null : 'See All',
+          onActionPressed: onSeeAll,
         ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(
@@ -98,7 +101,11 @@ class _HomeStoryItem extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelSmall,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.1,
+                ),
               ),
             ],
           ),

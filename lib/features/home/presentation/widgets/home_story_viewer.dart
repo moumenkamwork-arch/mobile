@@ -23,16 +23,20 @@ class HomeStoryViewer extends StatefulWidget {
 class _HomeStoryViewerState extends State<HomeStoryViewer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _progressController;
-  late int _currentIndex;
+  late int _currentGroupIndex;
+  late int _currentItemIndex;
 
-  HomeStory get _story => widget.stories[_currentIndex];
+  HomeStory get _story => widget.stories[_currentGroupIndex];
+  List<HomeStoryItem> get _items => _story.effectiveItems;
+  HomeStoryItem get _item => _items[_currentItemIndex];
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex
+    _currentGroupIndex = widget.initialIndex
         .clamp(0, widget.stories.length - 1)
         .toInt();
+    _currentItemIndex = 0;
     _progressController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
@@ -57,15 +61,21 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: (details) => _handleStoryTap(context, details),
+        onVerticalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0;
+          if (velocity > 420) {
+            Navigator.of(context).pop();
+          }
+        },
         child: Stack(
           children: [
             Positioned.fill(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 220),
                 child: PromooImage(
-                  key: ValueKey(_story.id),
-                  imageUrl: _story.imageUrl,
-                  semanticLabel: _story.title,
+                  key: ValueKey('${_story.id}-${_item.id}'),
+                  imageUrl: _item.imageUrl ?? _story.imageUrl,
+                  semanticLabel: _item.title,
                   fallbackIcon: Icons.photo_camera_rounded,
                 ),
               ),
@@ -85,8 +95,8 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
                     Semantics(
                       label: 'Story progress',
                       child: _StoryProgressBars(
-                        count: widget.stories.length,
-                        currentIndex: _currentIndex,
+                        count: _items.length,
+                        currentIndex: _currentItemIndex,
                         animation: _progressController,
                       ),
                     ),
@@ -116,8 +126,13 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
                             displayName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.15,
+                                ),
                           ),
                         ),
                         IconButton(
@@ -141,9 +156,14 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
                       child: Padding(
                         padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                         child: Text(
-                          _story.title,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                          _item.title,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                              ),
                         ),
                       ),
                     ),
@@ -161,30 +181,60 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
     if (status != AnimationStatus.completed || !mounted) {
       return;
     }
-    if (_currentIndex < widget.stories.length - 1) {
-      _showStory(_currentIndex + 1);
-    }
+    _showNextStoryItem();
   }
 
   void _handleStoryTap(BuildContext context, TapUpDetails details) {
     final width = MediaQuery.sizeOf(context).width;
     if (details.localPosition.dx < width * 0.35) {
-      _showStory(_currentIndex - 1);
+      _showPreviousStoryItem();
       return;
     }
-    _showStory(_currentIndex + 1);
+    _showNextStoryItem();
   }
 
-  void _showStory(int nextIndex) {
-    if (nextIndex < 0) {
+  void _showNextStoryItem() {
+    if (_currentItemIndex < _items.length - 1) {
+      _showStory(_currentGroupIndex, _currentItemIndex + 1);
       return;
     }
-    if (nextIndex >= widget.stories.length) {
+
+    if (_currentGroupIndex < widget.stories.length - 1) {
+      _showStory(_currentGroupIndex + 1, 0);
+      return;
+    }
+
+    _progressController.stop();
+  }
+
+  void _showPreviousStoryItem() {
+    if (_currentItemIndex > 0) {
+      _showStory(_currentGroupIndex, _currentItemIndex - 1);
+      return;
+    }
+
+    if (_currentGroupIndex <= 0) {
+      return;
+    }
+
+    final previousGroupIndex = _currentGroupIndex - 1;
+    final previousItems = widget.stories[previousGroupIndex].effectiveItems;
+    _showStory(previousGroupIndex, previousItems.length - 1);
+  }
+
+  void _showStory(int nextGroupIndex, int nextItemIndex) {
+    if (nextGroupIndex < 0 || nextGroupIndex >= widget.stories.length) {
       _progressController.stop();
       return;
     }
 
-    setState(() => _currentIndex = nextIndex);
+    final nextItems = widget.stories[nextGroupIndex].effectiveItems;
+    final safeItemIndex = nextItemIndex.clamp(0, nextItems.length - 1).toInt();
+
+    setState(() {
+      _currentGroupIndex = nextGroupIndex;
+      _currentItemIndex = safeItemIndex;
+    });
     _progressController.forward(from: 0);
   }
 }

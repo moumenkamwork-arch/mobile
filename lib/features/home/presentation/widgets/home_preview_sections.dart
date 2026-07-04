@@ -13,9 +13,14 @@ import '../../domain/entities/home_content.dart';
 enum HomeOfferPreviewLayout { hero, compact }
 
 class HomeServicesPreviewSection extends StatelessWidget {
-  const HomeServicesPreviewSection({super.key, required this.services});
+  const HomeServicesPreviewSection({
+    super.key,
+    required this.services,
+    this.onSeeAll,
+  });
 
   final List<HomeServicePreview> services;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +31,11 @@ class HomeServicesPreviewSection extends StatelessWidget {
     return _CarouselSection(
       title: 'Services',
       subtitle: 'Premium campaign services ready for contact',
-      height: 214,
+      height: 176,
       itemCount: services.length,
-      viewportFraction: 0.62,
+      viewportFraction: 0.42,
+      actionLabel: onSeeAll == null ? null : 'See All',
+      onActionPressed: onSeeAll,
       itemBuilder: (context, index) {
         final service = services[index];
         return _ServiceImageCard(
@@ -47,12 +54,14 @@ class HomeOffersPreviewSection extends StatelessWidget {
     this.title = 'For You',
     this.subtitle = 'Selected offers for today',
     this.layout = HomeOfferPreviewLayout.compact,
+    this.onSeeAll,
   });
 
   final List<HomeOfferPreview> offers;
   final String title;
   final String subtitle;
   final HomeOfferPreviewLayout layout;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +77,8 @@ class HomeOffersPreviewSection extends StatelessWidget {
       height: isHero ? 252 : 216,
       itemCount: offers.length,
       viewportFraction: isHero ? 1 : 0.6,
+      actionLabel: onSeeAll == null ? null : 'See All',
+      onActionPressed: onSeeAll,
       itemBuilder: (context, index) {
         final offer = offers[index];
 
@@ -120,6 +131,8 @@ class _CarouselSection extends StatefulWidget {
     required this.itemCount,
     required this.viewportFraction,
     required this.itemBuilder,
+    this.actionLabel,
+    this.onActionPressed,
   });
 
   final String title;
@@ -128,6 +141,8 @@ class _CarouselSection extends StatefulWidget {
   final int itemCount;
   final double viewportFraction;
   final IndexedWidgetBuilder itemBuilder;
+  final String? actionLabel;
+  final VoidCallback? onActionPressed;
 
   @override
   State<_CarouselSection> createState() => _CarouselSectionState();
@@ -154,7 +169,12 @@ class _CarouselSectionState extends State<_CarouselSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PromooSectionHeader(title: widget.title, subtitle: widget.subtitle),
+        PromooSectionHeader(
+          title: widget.title,
+          subtitle: widget.subtitle,
+          actionLabel: widget.actionLabel,
+          onActionPressed: widget.onActionPressed,
+        ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(
           height: widget.height,

@@ -15,8 +15,8 @@ void main() {
   );
 
   final routeCases = <_RouteSmokeCase>[
-    const _RouteSmokeCase(AppRoutes.splash, 'Welcome to Promoo'),
-    const _RouteSmokeCase(AppRoutes.home, 'Promoo'),
+    const _RouteSmokeCase(AppRoutes.splash, 'Continue as Guest'),
+    const _RouteSmokeCase(AppRoutes.home, 'Top Offers'),
     _RouteSmokeCase(
       AppRoutes.homeItemDetail('offer', 'offer-1'),
       'Cafe opening spotlight',
@@ -43,14 +43,8 @@ void main() {
       'Saffron Social Studio',
     ),
     const _RouteSmokeCase(AppRoutes.search, 'Search Promoo'),
-    const _RouteSmokeCase(
-      AppRoutes.login,
-      'Sign in to access your Promoo actions.',
-    ),
-    const _RouteSmokeCase(
-      AppRoutes.register,
-      'Create your Promoo account with email.',
-    ),
+    const _RouteSmokeCase(AppRoutes.login, 'Continue as Guest'),
+    const _RouteSmokeCase(AppRoutes.register, 'Continue as Guest'),
     const _RouteSmokeCase(AppRoutes.chats, 'Chats'),
     _RouteSmokeCase(AppRoutes.chatRoom('chat-room-1'), 'Conversation'),
     const _RouteSmokeCase(AppRoutes.notifications, 'Notifications'),

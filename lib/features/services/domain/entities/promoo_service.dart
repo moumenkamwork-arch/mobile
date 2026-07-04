@@ -5,6 +5,7 @@ class ServiceCategory {
     this.slug,
     this.nameAr,
     this.nameEn,
+    this.imageUrl,
   });
 
   final String id;
@@ -12,6 +13,7 @@ class ServiceCategory {
   final String? slug;
   final String? nameAr;
   final String? nameEn;
+  final String? imageUrl;
 }
 
 class PromooService {

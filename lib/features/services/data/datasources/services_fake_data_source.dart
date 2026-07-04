@@ -7,6 +7,25 @@ final servicesFakeDataSourceProvider = Provider<ServicesFakeDataSource>((ref) {
   return const ServicesFakeDataSource();
 });
 
+const _beautyImage =
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80';
+const _cafeImage =
+    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80';
+const _eventImage =
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80';
+const _fashionImage =
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80';
+const _wellnessImage =
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80';
+const _homeImage =
+    'https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?auto=format&fit=crop&w=900&q=80';
+const _digitalImage =
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80';
+const _creatorImage =
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80';
+const _photoImage =
+    'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=900&q=80';
+
 class ServicesFakeDataSource implements ServicesDataSource {
   const ServicesFakeDataSource();
 
@@ -15,41 +34,49 @@ class ServicesFakeDataSource implements ServicesDataSource {
       id: 'cat-beauty-wellness',
       name: 'Beauty & Wellness',
       slug: 'beauty-wellness',
+      imageUrl: _beautyImage,
     ),
     ServiceCategoryDto(
       id: 'cat-restaurants-cafes',
       name: 'Restaurants & Cafes',
       slug: 'restaurants-cafes',
+      imageUrl: _cafeImage,
     ),
     ServiceCategoryDto(
       id: 'cat-events-photography',
       name: 'Events & Photography',
       slug: 'events-photography',
+      imageUrl: _eventImage,
     ),
     ServiceCategoryDto(
       id: 'cat-fashion-styling',
       name: 'Fashion & Styling',
       slug: 'fashion-styling',
+      imageUrl: _fashionImage,
     ),
     ServiceCategoryDto(
       id: 'cat-health-fitness',
       name: 'Health & Fitness',
       slug: 'health-fitness',
+      imageUrl: _wellnessImage,
     ),
     ServiceCategoryDto(
       id: 'cat-home-lifestyle',
       name: 'Home & Lifestyle',
       slug: 'home-lifestyle',
+      imageUrl: _homeImage,
     ),
     ServiceCategoryDto(
       id: 'cat-digital-marketing',
       name: 'Digital Marketing',
       slug: 'digital-marketing',
+      imageUrl: _digitalImage,
     ),
     ServiceCategoryDto(
       id: 'cat-influencer-campaigns',
       name: 'Influencer Campaigns',
       slug: 'influencer-campaigns',
+      imageUrl: _creatorImage,
     ),
   ];
 
@@ -72,6 +99,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 2200,
       currency: 'AED',
+      imageUrls: [_creatorImage],
       location: 'Dubai',
       deliveryDays: 5,
       tags: ['Campaign', 'Reels', 'Stories'],
@@ -94,6 +122,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 1450,
       currency: 'AED',
+      imageUrls: [_photoImage],
       location: 'Dubai',
       deliveryDays: 3,
       tags: ['Photography', 'Product'],
@@ -116,6 +145,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 1800,
       currency: 'AED',
+      imageUrls: [_beautyImage],
       location: 'Abu Dhabi',
       deliveryDays: 4,
       tags: ['Beauty', 'Launch'],
@@ -138,6 +168,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 2500,
       currency: 'AED',
+      imageUrls: [_cafeImage],
       location: 'Sharjah',
       deliveryDays: 6,
       tags: ['Cafe', 'Opening'],
@@ -159,6 +190,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 1600,
       currency: 'AED',
+      imageUrls: [_wellnessImage],
       location: 'Abu Dhabi',
       deliveryDays: 5,
       tags: ['Wellness', 'Awareness'],
@@ -180,6 +212,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 1950,
       currency: 'AED',
+      imageUrls: [_fashionImage],
       location: 'Dubai',
       deliveryDays: 4,
       tags: ['Styling', 'Content'],
@@ -201,6 +234,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 1750,
       currency: 'AED',
+      imageUrls: [_homeImage],
       location: 'Ajman',
       deliveryDays: 4,
       tags: ['Lifestyle', 'Interiors'],
@@ -223,6 +257,7 @@ class ServicesFakeDataSource implements ServicesDataSource {
       ),
       price: 2800,
       currency: 'AED',
+      imageUrls: [_digitalImage],
       location: 'Dubai',
       deliveryDays: 7,
       tags: ['Strategy', 'Campaign'],

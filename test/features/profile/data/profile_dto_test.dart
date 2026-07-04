@@ -19,6 +19,9 @@ void main() {
         'followers_count': 185400,
         'following_count': 124,
         'services_count': 3,
+        'likes_count': 48600,
+        'posts_count': 28,
+        'views_count': 312000,
         'media': [
           {'media_url': 'https://example.com/post-1.jpg'},
           {'url': 'https://example.com/post-2.mp4'},
@@ -36,6 +39,9 @@ void main() {
     expect(profile.categoryName, 'Digital Marketing');
     expect(profile.stats.followers, 185400);
     expect(profile.stats.services, 3);
+    expect(profile.stats.likes, 48600);
+    expect(profile.stats.posts, 28);
+    expect(profile.stats.views, 312000);
     expect(profile.mediaUrls, [
       'https://example.com/post-1.jpg',
       'https://example.com/post-2.mp4',

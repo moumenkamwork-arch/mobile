@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -13,6 +15,7 @@ import 'package:promoo_app/features/profile/domain/entities/promoo_profile.dart'
 import 'package:promoo_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
+import 'package:promoo_app/shared/widgets/promoo_logo.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
@@ -23,6 +26,14 @@ void main() {
 
     expect(find.text('Login'), findsWidgets);
     expect(find.text('Create account'), findsOneWidget);
+    expect(find.text('Continue as Guest'), findsOneWidget);
+    expect(find.bySemanticsLabel('Promoo auth logo'), findsOneWidget);
+    final authLogo = tester.widget<PromooLogo>(
+      _promooLogoWithLabel('Promoo auth logo'),
+    );
+    expect(authLogo.cropToArtwork, isTrue);
+    expect(authLogo.width, 250);
+    expect(authLogo.artworkScale, 1.35);
 
     await tester.scrollUntilVisible(
       find.byTooltip('Google'),
@@ -48,6 +59,29 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Email is required.'), findsOneWidget);
+  });
+
+  testWidgets('guest access navigates from login to Home in mock mode', (
+    tester,
+  ) async {
+    final router = createAppRouter(initialLocation: AppRoutes.login);
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appConfigProvider.overrideWithValue(_mockConfig),
+          authRepositoryProvider.overrideWithValue(const _AuthRepository()),
+        ],
+        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Continue as Guest'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Top Offers'), findsOneWidget);
   });
 
   testWidgets('login screen shows authenticated panel after submit', (
@@ -78,6 +112,8 @@ void main() {
     );
 
     expect(find.text('Create account'), findsWidgets);
+    expect(find.text('Continue as Guest'), findsOneWidget);
+    expect(find.bySemanticsLabel('Promoo auth logo'), findsOneWidget);
     expect(find.text('Account type'), findsOneWidget);
     expect(find.text('Company'), findsOneWidget);
     expect(find.text('Influencer'), findsOneWidget);
@@ -94,7 +130,9 @@ void main() {
   });
 
   testWidgets('profile login-required CTA navigates to login', (tester) async {
-    final router = createAppRouter(initialLocation: AppRoutes.profile);
+    final router = createAppRouter(
+      initialLocation: AppRoutes.profileById('lina.atelier'),
+    );
     addTearDown(router.dispose);
 
     await tester.pumpWidget(
@@ -124,7 +162,7 @@ void main() {
     await tester.tap(find.text('Go to login'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Sign in to access your Promoo actions.'), findsOneWidget);
+    expect(find.text('Continue as Guest'), findsOneWidget);
   });
 }
 
@@ -135,6 +173,12 @@ Widget _buildAuthScreen(Widget screen, AuthRepository repository) {
   );
 }
 
+Finder _promooLogoWithLabel(String label) {
+  return find.byWidgetPredicate(
+    (widget) => widget is PromooLogo && widget.semanticLabel == label,
+  );
+}
+
 const _session = AuthSession(
   user: AuthUser(
     id: 'user-1',
@@ -142,6 +186,12 @@ const _session = AuthSession(
     fullName: 'Alya Hassan',
   ),
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
+);
+
+const _mockConfig = AppConfig(
+  environment: AppEnvironment.development,
+  baseUrl: 'https://api.promoo.example/api/v1',
+  useMocks: true,
 );
 
 const _profile = PromooProfile(

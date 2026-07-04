@@ -115,12 +115,18 @@ class ProfileStatsDto {
     this.following,
     this.offers,
     this.services,
+    this.likes,
+    this.posts,
+    this.views,
   });
 
   final int? followers;
   final int? following;
   final int? offers;
   final int? services;
+  final int? likes;
+  final int? posts;
+  final int? views;
 
   factory ProfileStatsDto.fromJson(Map<String, Object?> map) {
     final nested = _mapFrom(map['stats']) ?? const {};
@@ -137,6 +143,15 @@ class ProfileStatsDto {
       services:
           _readInt(map, const ['services_count', 'servicesCount']) ??
           _readInt(nested, const ['services', 'services_count']),
+      likes:
+          _readInt(map, const ['likes_count', 'likesCount']) ??
+          _readInt(nested, const ['likes', 'likes_count']),
+      posts:
+          _readInt(map, const ['posts_count', 'postsCount']) ??
+          _readInt(nested, const ['posts', 'posts_count']),
+      views:
+          _readInt(map, const ['views_count', 'viewsCount']) ??
+          _readInt(nested, const ['views', 'views_count']),
     );
   }
 
@@ -146,6 +161,9 @@ class ProfileStatsDto {
       following: following ?? 0,
       offers: offers ?? 0,
       services: services ?? 0,
+      likes: likes ?? 0,
+      posts: posts ?? offers ?? services ?? 0,
+      views: views ?? 0,
     );
   }
 }

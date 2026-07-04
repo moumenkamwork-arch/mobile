@@ -14,7 +14,9 @@ class PromooApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Promoo',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.dark,
       routerConfig: router,
     );
   }

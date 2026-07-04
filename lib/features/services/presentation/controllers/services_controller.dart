@@ -89,6 +89,7 @@ class ServicesState {
 
 class ServicesController extends Notifier<ServicesState> {
   var _disposed = false;
+  var _allServices = const <PromooService>[];
 
   @override
   ServicesState build() {
@@ -110,27 +111,24 @@ class ServicesController extends Notifier<ServicesState> {
   }
 
   Future<void> selectCategory(String? categoryId) {
-    return _load(
+    return _applyFilters(
       selectedCategoryId: categoryId,
       updateSelectedCategory: true,
       searchQuery: state.searchQuery,
-      refreshing: true,
     );
   }
 
   Future<void> search(String query) {
-    return _load(
+    return _applyFilters(
       selectedCategoryId: state.selectedCategoryId,
       searchQuery: query.trim(),
-      refreshing: true,
     );
   }
 
   Future<void> clearSearch() {
-    return _load(
+    return _applyFilters(
       selectedCategoryId: state.selectedCategoryId,
       searchQuery: '',
-      refreshing: true,
     );
   }
 
@@ -187,32 +185,22 @@ class ServicesController extends Notifier<ServicesState> {
       return;
     }
 
-    final servicesResult = await repository.getServices(
-      categoryId: nextSelectedCategoryId,
-      query: nextSearchQuery,
-    );
+    final servicesResult = await repository.getServices();
     if (_disposed) {
       return;
     }
 
-    state = servicesResult.when(
+    servicesResult.when(
       success: (services) {
-        if (services.isEmpty) {
-          return ServicesState.empty(
-            categories: categories,
-            selectedCategoryId: nextSelectedCategoryId,
-            searchQuery: nextSearchQuery,
-          );
-        }
-        return ServicesState.success(
+        _allServices = services;
+        _emitFilteredState(
           categories: categories,
-          services: services,
           selectedCategoryId: nextSelectedCategoryId,
           searchQuery: nextSearchQuery,
         );
       },
       failure: (failure) {
-        return ServicesState.error(
+        state = ServicesState.error(
           failure: failure,
           categories: categories,
           services: refreshing ? previousServices : const [],
@@ -220,6 +208,97 @@ class ServicesController extends Notifier<ServicesState> {
           searchQuery: nextSearchQuery,
         );
       },
+    );
+  }
+
+  Future<void> _applyFilters({
+    String? selectedCategoryId,
+    bool updateSelectedCategory = false,
+    String? searchQuery,
+  }) async {
+    final nextSelectedCategoryId = updateSelectedCategory
+        ? selectedCategoryId
+        : state.selectedCategoryId;
+    final nextSearchQuery = searchQuery ?? state.searchQuery;
+
+    if (_allServices.isEmpty && state.status == ServicesStatus.loading) {
+      return;
+    }
+
+    _emitFilteredState(
+      categories: state.categories,
+      selectedCategoryId: nextSelectedCategoryId,
+      searchQuery: nextSearchQuery,
+    );
+  }
+
+  void _emitFilteredState({
+    required List<ServiceCategory> categories,
+    required String? selectedCategoryId,
+    required String searchQuery,
+  }) {
+    final filtered = _filteredServices(
+      selectedCategoryId: selectedCategoryId,
+      searchQuery: searchQuery,
+    );
+
+    if (filtered.isEmpty) {
+      state = ServicesState.empty(
+        categories: categories,
+        selectedCategoryId: selectedCategoryId,
+        searchQuery: searchQuery,
+      );
+      return;
+    }
+
+    state = ServicesState.success(
+      categories: categories,
+      services: filtered,
+      selectedCategoryId: selectedCategoryId,
+      searchQuery: searchQuery,
+    );
+  }
+
+  List<PromooService> _filteredServices({
+    required String? selectedCategoryId,
+    required String searchQuery,
+  }) {
+    final query = searchQuery.trim().toLowerCase();
+    return [
+      for (final service in _allServices)
+        if (_matchesCategory(service, selectedCategoryId) &&
+            _matchesSearch(service, query))
+          service,
+    ];
+  }
+
+  bool _matchesCategory(PromooService service, String? selectedCategoryId) {
+    if (selectedCategoryId == null || selectedCategoryId.trim().isEmpty) {
+      return true;
+    }
+    return service.category?.id == selectedCategoryId;
+  }
+
+  bool _matchesSearch(PromooService service, String query) {
+    if (query.isEmpty) {
+      return true;
+    }
+
+    final values = [
+      service.title,
+      service.description,
+      service.category?.name,
+      service.category?.nameEn,
+      service.category?.nameAr,
+      service.category?.slug,
+      service.provider?.name,
+      service.provider?.username,
+      service.location,
+      ...service.tags,
+    ];
+
+    return values.whereType<String>().any(
+      (value) => value.toLowerCase().contains(query),
     );
   }
 }

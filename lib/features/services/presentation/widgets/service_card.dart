@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
@@ -100,13 +101,13 @@ class _ServiceImage extends StatelessWidget {
         color: AppColors.elevatedSurface,
         borderRadius: AppRadius.card,
         border: Border.all(color: AppColors.border),
-        image: imageUrl == null
-            ? null
-            : DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
       ),
-      child: imageUrl == null
-          ? const Icon(Icons.storefront_rounded, color: AppColors.primaryYellow)
-          : null,
+      clipBehavior: Clip.antiAlias,
+      child: PromooImage(
+        imageUrl: imageUrl,
+        semanticLabel: service.title,
+        fallbackIcon: Icons.storefront_rounded,
+      ),
     );
   }
 }

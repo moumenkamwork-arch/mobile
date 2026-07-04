@@ -166,6 +166,7 @@ class HomeStory {
     this.imageUrl,
     this.profileName,
     this.profileAvatarUrl,
+    this.items = const [],
   });
 
   final String id;
@@ -173,6 +174,22 @@ class HomeStory {
   final String? imageUrl;
   final String? profileName;
   final String? profileAvatarUrl;
+  final List<HomeStoryItem> items;
+
+  List<HomeStoryItem> get effectiveItems {
+    if (items.isNotEmpty) {
+      return items;
+    }
+    return [HomeStoryItem(id: id, title: title, imageUrl: imageUrl)];
+  }
+}
+
+class HomeStoryItem {
+  const HomeStoryItem({required this.id, required this.title, this.imageUrl});
+
+  final String id;
+  final String title;
+  final String? imageUrl;
 }
 
 class HomeContentDetail {

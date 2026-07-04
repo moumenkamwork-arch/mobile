@@ -187,7 +187,7 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Real booking and payment will be enabled in the next payment phase.',
+                      'Booking and payment open in the next phase.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

@@ -16,7 +16,6 @@ import '../widgets/profile_header.dart';
 import '../widgets/profile_media_section.dart';
 import '../widgets/profile_packages_section.dart';
 import '../widgets/profile_stats_row.dart';
-import '../widgets/profile_tools_preview.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key, this.idOrUsername});
@@ -121,7 +120,7 @@ class _ProfileContentView extends ConsumerWidget {
       );
     }
     final target = ref.watch(profileTargetProvider);
-    final showOwnerPreview = target == null || target.trim().isEmpty;
+    final isOwnerProfile = target == null || target.trim().isEmpty;
 
     return Stack(
       children: [
@@ -145,6 +144,7 @@ class _ProfileContentView extends ConsumerWidget {
                     ProfileStatsRow(stats: profile.stats),
                     const SizedBox(height: AppSpacing.md),
                     ProfileActionBar(
+                      isOwner: isOwnerProfile,
                       onFollowPressed: () => ref
                           .read(profileControllerProvider.notifier)
                           .requestFollow(),
@@ -174,13 +174,6 @@ class _ProfileContentView extends ConsumerWidget {
                       profileName: profile.displayName,
                       avatarUrl: profile.avatarUrl,
                     ),
-                    if (showOwnerPreview) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      ProfileToolsPreview(
-                        onToolPressed: (label) =>
-                            _showComingSoon(context, label),
-                      ),
-                    ],
                     const SizedBox(height: AppSpacing.lg),
                     ProfileAboutSection(profile: profile),
                   ],
@@ -199,10 +192,4 @@ class _ProfileContentView extends ConsumerWidget {
       ],
     );
   }
-}
-
-void _showComingSoon(BuildContext context, String label) {
-  final messenger = ScaffoldMessenger.of(context);
-  messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(SnackBar(content: Text('$label coming soon')));
 }

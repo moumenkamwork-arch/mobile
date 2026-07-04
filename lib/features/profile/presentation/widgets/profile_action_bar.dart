@@ -6,17 +6,28 @@ import '../../../../theme/app_spacing.dart';
 class ProfileActionBar extends StatelessWidget {
   const ProfileActionBar({
     super.key,
+    required this.isOwner,
     required this.onFollowPressed,
     required this.onMessagePressed,
     required this.onEditPressed,
   });
 
+  final bool isOwner;
   final VoidCallback onFollowPressed;
   final VoidCallback onMessagePressed;
   final VoidCallback onEditPressed;
 
   @override
   Widget build(BuildContext context) {
+    if (isOwner) {
+      return PromooButton.secondary(
+        label: 'Edit profile',
+        icon: Icons.edit_rounded,
+        onPressed: onEditPressed,
+        fullWidth: true,
+      );
+    }
+
     return Column(
       children: [
         Row(
@@ -39,13 +50,6 @@ class ProfileActionBar extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        PromooButton.tertiary(
-          label: 'Edit profile',
-          icon: Icons.edit_rounded,
-          onPressed: onEditPressed,
-          fullWidth: true,
         ),
       ],
     );

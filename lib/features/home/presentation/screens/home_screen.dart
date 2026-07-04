@@ -108,8 +108,8 @@ class _HomeContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topOffers = content.offers.take(3).toList(growable: false);
-    final forYouOffers = content.offers.skip(3).toList(growable: false);
+    final topOffers = content.offers.take(5).toList(growable: false);
+    final forYouOffers = content.offers.skip(5).toList(growable: false);
 
     return Stack(
       children: [
@@ -119,20 +119,27 @@ class _HomeContentView extends StatelessWidget {
           onRefresh: onRefresh,
           child: CustomScrollView(
             slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _HomeHeaderDelegate(),
+              ),
               SliverPadding(
                 padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.screenHorizontal,
-                  AppSpacing.screenVertical,
+                  AppSpacing.sm,
                   AppSpacing.screenHorizontal,
                   AppSpacing.shellScrollBottom,
                 ),
                 sliver: SliverList.list(
                   children: [
-                    const HomeHeader(),
-                    if (content.stories.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      HomeStoryStrip(stories: content.stories),
-                    ],
+                    if (content.stories.isNotEmpty)
+                      HomeStoryStrip(
+                        stories: content.stories,
+                        onSeeAll: () => _showPreviewNotice(
+                          context,
+                          'More stories are coming soon',
+                        ),
+                      ),
                     if (topOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
                       HomeOffersPreviewSection(
@@ -140,17 +147,32 @@ class _HomeContentView extends StatelessWidget {
                         subtitle: 'Featured offers from Promoo partners',
                         offers: topOffers,
                         layout: HomeOfferPreviewLayout.hero,
+                        onSeeAll: () => _showPreviewNotice(
+                          context,
+                          'More offers are coming soon',
+                        ),
                       ),
                     ],
                     if (forYouOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      HomeOffersPreviewSection(offers: forYouOffers),
+                      HomeOffersPreviewSection(
+                        offers: forYouOffers,
+                        onSeeAll: () => _showPreviewNotice(
+                          context,
+                          'More picks are coming soon',
+                        ),
+                      ),
                     ],
                     if (content.highlight != null) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      const PromooSectionHeader(
+                      PromooSectionHeader(
                         title: 'Promoo of the Day',
                         subtitle: "Today's featured Promoo pick",
+                        actionLabel: 'See All',
+                        onActionPressed: () => _showPreviewNotice(
+                          context,
+                          'More daily picks are coming soon',
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       HomeHighlightCard(
@@ -167,7 +189,10 @@ class _HomeContentView extends StatelessWidget {
                     ],
                     if (content.services.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      HomeServicesPreviewSection(services: content.services),
+                      HomeServicesPreviewSection(
+                        services: content.services,
+                        onSeeAll: () => context.go(AppRoutes.services),
+                      ),
                     ],
                   ],
                 ),
@@ -185,4 +210,38 @@ class _HomeContentView extends StatelessWidget {
       ],
     );
   }
+}
+
+class _HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
+  @override
+  double get minExtent => 98;
+
+  @override
+  double get maxExtent => 98;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.screenHorizontal,
+        AppSpacing.xs,
+        AppSpacing.screenHorizontal,
+        AppSpacing.xs,
+      ),
+      child: HomeHeader(isScrolled: overlapsContent || shrinkOffset > 0),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _HomeHeaderDelegate oldDelegate) => false;
+}
+
+void _showPreviewNotice(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

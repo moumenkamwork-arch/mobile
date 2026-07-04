@@ -67,12 +67,18 @@ class ProfileStats {
     this.following = 0,
     this.offers = 0,
     this.services = 0,
+    this.likes = 0,
+    this.posts = 0,
+    this.views = 0,
   });
 
   final int followers;
   final int following;
   final int offers;
   final int services;
+  final int likes;
+  final int posts;
+  final int views;
 }
 
 class ProfilePackage {

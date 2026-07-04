@@ -1,6 +1,6 @@
 # Promoo demo data notes
 
-Last updated: 2026-06-27
+Last updated: 2026-07-02
 
 ## Purpose
 
@@ -27,6 +27,7 @@ The client-review APK must be built with:
 - Avoid real brands, celebrities, people, phone numbers, emails, and private information.
 - Avoid visible placeholder wording in app content.
 - Use professional-looking image URLs for Home stories, offers, Promoo of the Day, service previews, Cup profiles, Profile media, and Influencer seat holders, with in-app fallback rendering if a network image fails.
+- Use professional-looking image URLs for Services category cards and service listing/detail cards; icons are fallback only.
 - Do not bundle old prototype screenshots or visual reference screenshots as app assets.
 - Android client-review launcher icons are generated from the supplied PROMOO brand logo and can be replaced later by final production brand exports.
 
@@ -39,11 +40,12 @@ The client-review APK must be built with:
 | Top offer | Cafe opening spotlight, `offer-1`, 1500 AED |
 | For You offers | Creator campaign pick, Flash offer 24H, and Featured campaign spotlight |
 | Promoo of the Day | Boutique launch visibility pack, `offer-featured`, 2200 AED |
-| Home stories | Maya Studio, Omar Visuals, Lina Atelier, Pearl District, and CalmFit story previews |
+| Home stories | Maya Studio, Omar Visuals, Lina Atelier, Pearl District, and CalmFit grouped story previews with three owner-level items each |
 | Home service swiper | Boutique influencer launch, product photography, cafe promotion, wellness awareness, and styling content services |
+| Services categories | Image-led Beauty & Wellness, Restaurants & Cafes, Events & Photography, Fashion & Styling, Health & Fitness, Home & Lifestyle, Digital Marketing, and Influencer Campaigns categories |
 | Leaderboard | Saffron Social Studio, Lina Atelier, Framehouse Events, Pearl District Cafe, Velvet Beauty Lounge, with profile-route-aligned IDs |
-| Profile media | Image-led Saffron Social Studio campaign/media preview URLs behind `ProfileFakeDataSource` |
-| Influencer seats | Gold/Silver/Bronze visibility placements priced in AED, including occupied, pending, and available states |
+| Profile media/stats | Image-led Saffron Social Studio media plus fictional Followers, Likes, Posts, and Views behind `ProfileFakeDataSource` |
+| Influencer seats | Dense Gold/Silver/Bronze visibility placements priced in AED, including occupied, pending, and available states |
 | Chat/notifications | Campaign, package, profile-view, and offer-interest copy tied to the same fictional providers |
 
 ## Replacement plan

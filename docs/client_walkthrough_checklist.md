@@ -59,12 +59,12 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 
 ## Suggested client demo flow
 
-1. Splash: start at `/`, show the Promoo logo and enter the app.
+1. Splash: start at `/`, show the logo-only Promoo intro and let it continue to Login automatically.
 2. Home: show the premium dark/yellow style, categories, services, promotions, featured profiles, and search entry.
 3. Services: open the Services tab, show category chips, service cards, and search.
 4. Cup: open the Cup tab, show the top 3 podium and ranking list.
 5. Seats: open Seats, present the page as Influencer Seats, show the visibility grid, Gold/Silver/Bronze tiers, and safe login-required booking behavior.
-6. Profile: open Profile, show profile header, stats, media grid, Profile tools preview, packages, and safe Follow/Message/Edit behavior.
+6. Profile: open Profile, show own-profile header, stats, packages, media grid, and the safe Edit Profile preview without Follow/Message self-actions.
 7. Search: open Search, try `studio`, `launch`, `cafe`, or `spotlight`, switch filters, and tap a result.
 8. Login: open Login. For mock mode use a valid email such as `alya@promoo.app` and `password123`.
 9. Register: show account type selection. For mock mode use any valid email and password of at least 8 characters.
@@ -75,12 +75,12 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 
 | Screen | Route | Walkthrough check | QA result |
 | --- | --- | --- | --- |
-| Splash | `/` | Logo renders, copy is client-safe, Enter Promoo opens Home. | Automated route smoke passed. |
+| Splash | `/` | Logo-only intro renders and automatically opens Login/Register, not Home. | Automated route smoke passed. |
 | Home | `/home` | Dark/yellow style, no dead CTA, demo sections render. | Automated route smoke passed; disabled highlight CTA removed. |
 | Services | `/services` | Categories, search field, cards, price/currency, empty/error coverage in tests. | Automated route smoke passed. |
 | Cup / Leaderboard | `/cup` | Podium and ranked list render with realistic demo profiles. | Automated route smoke passed. |
 | Seats | `/seats` | Influencer Seats header, visibility grid, tier explanation, statuses, AED pricing, login-required booking notice. | Automated route smoke passed. |
-| Profile | `/profile` | Demo profile, media grid, Profile tools preview, packages, safe action notices, chat CTA. | Automated route smoke passed. |
+| Profile | `/profile` | Own profile renders packages, media grid, stats, and Edit Profile without Follow, Message, or Profile Tools on the page. | Automated route smoke passed. |
 | Public profile | `/profiles/saffron.social` | Public profile detail route renders profile content without owner tools. | Automated route smoke passed. |
 | Search | `/search` | Idle state is clear; use `studio`, `launch`, `cafe`, or `spotlight` for demo results. | Automated route smoke passed. |
 | Login | `/login` | Email/password form, validation, mock sign-in. | Automated route smoke passed. |
@@ -106,8 +106,8 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 - Chat room input adds extra spacing above the keyboard.
 - Leaderboard profile cards give profile names more horizontal space.
 - Splash content is slightly above center for better visual balance.
-- Seats now presents the client-facing Influencer Seats concept with a compact visibility grid and Gold/Silver/Bronze tier explanation while keeping the bottom tab as Seats.
-- Profile now includes a media/posts preview grid and Profile tools preview for Manage profile, Create offers, Saved items, Support, and Language.
+- Seats now presents the client-facing Influencer Seats concept with a compact visibility grid and Gold/Silver/Bronze tier explanation while the visible bottom tab is Influencer.
+- Profile now includes a media/posts preview grid, and profile-owner tools live in the Profile menu instead of the profile page.
 
 ## Known limitations
 
@@ -117,7 +117,7 @@ flutter run -d windows --dart-define=PROMOO_USE_MOCKS=true
 - Seat booking does not open checkout in the app.
 - The bottom navigation label is Influencer for the client walkthrough; the route/backend naming remains `/seats`.
 - Profile follow/edit actions do not mutate backend state yet.
-- Profile media/tools are a client demo preview. Real edit submission, avatar/cover/media uploads, add-ad wizard, settings, saved/following, support, language persistence, and production logout remain pending.
+- Profile media and Profile menu tools are client demo previews. Real edit submission, avatar/cover/media uploads, add-ad wizard, settings, saved/following, support, language persistence, and production logout remain pending.
 - Profile-specific chat start is not implemented; the Profile Message action opens the chat inbox.
 - Chat is REST/fake-mode ready for demo, but production realtime is not implemented.
 - Push notification setup, device token collection, and background handlers are not implemented.

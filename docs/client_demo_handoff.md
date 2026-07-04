@@ -1,6 +1,6 @@
 # Promoo client demo handoff
 
-Last updated: 2026-06-27
+Last updated: 2026-07-02
 
 ## Demo positioning
 
@@ -50,24 +50,32 @@ Use the universal APK when the client device architecture is unknown. For most m
 
 The client APK installs as `Promoo` and uses a temporary black/yellow PROMOO launcher icon prepared from the supplied brand logo. The icon can be replaced later by final production brand exports.
 
+Latest verified client-review build on 2026-07-02:
+
+- `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` - recommended for most modern Android phones.
+- `build/app/outputs/flutter-apk/app-release.apk` - universal fallback when the device architecture is unknown.
+- Both builds were generated with `--dart-define=PROMOO_USE_MOCKS=true`.
+- Previous ARM64 APK device sanity checks covered launch and guest access on Android 13 device `M2012K11AG`.
+- The final patch APKs were generated successfully; local final install on `M2012K11AG` was blocked by Android with `INSTALL_FAILED_USER_RESTRICTED`.
+
 See `docs/client_apk_review_checklist.md` before sending the APK.
 
 ## Recommended client demo flow
 
 | Step | Screen | What to show |
 | --- | --- | --- |
-| 1 | Launch intro | Show the animated PROMOO logo reveal, warm yellow glow, welcome copy, and `Enter Promoo` CTA. |
-| 2 | Login/Register | Show that the intro enters the existing email auth flow; Login/Register visuals are intentionally preserved. |
-| 3 | Home | Show Stories, Top Offers swiper, For You swiper, Promoo of the Day hero, Services swiper, and the header Chat/Notifications entry points. |
-| 4 | Story viewer | Tap a story and show the fullscreen story viewer with progress bars, profile header, image content, and close action. |
+| 1 | Launch intro | Show the animated logo-only PROMOO reveal and warm yellow glow, then let it continue to Login automatically. |
+| 2 | Login/Register | Show the clean PROMOO logo, email auth, safe social visuals, and `Continue as Guest` for walkthrough browsing. |
+| 3 | Home | Show Stories, Top Offers swiper with See All, For You, Promoo of the Day, compact Services swiper, and the header Chat/Notifications entry points. |
+| 4 | Story viewer | Tap a story and show multiple story items for the same owner before the viewer advances to the next owner. |
 | 5 | Home offer/ad detail | Open a top offer or promotion and show the lightweight detail/contact flow. |
-| 6 | Services | Show the service category grid first, then listings, search, prices, and provider context. |
+| 6 | Services | Show image-led service categories first, then search by service/category/provider and the clear no-match message. |
 | 7 | Service detail/contact | Open a service detail and show Contact provider, Open chats, and View provider profile. |
 | 8 | Search | Optionally search for `studio`, `launch`, `cafe`, or `spotlight`, switch filters, and open a result. |
-| 9 | Profile | Show profile identity, stats, safe actions, and Packages as the first major content section. |
-| 10 | Profile media/tools preview | Show media posts, tap one post to open the fullscreen story-style viewer, then show Profile tools: Manage profile, Create offers, Saved items, Support, and Language. |
+| 9 | Profile | Show own-profile identity, Followers/Likes/Posts/Views, Edit Profile, Packages, and media without Follow/Message self-actions. |
+| 10 | Profile menu/media | Show the Profile menu for View Profile, Saved, Language, Theme Mode preview, Support, and Logout preview, then open a media post if useful. |
 | 11 | Influencer Seats | Open the Influencer tab, tap an occupied creator seat for the influencer preview, then tap an open seat to show the booking preview and checkout preview. |
-| 12 | Cup / Leaderboard | Show top 3 profiles, tap a ranked profile, and show that it opens the public profile page. |
+| 12 | Promoo / Leaderboard | Tap the footer `P` / `Promoo` tab, show top 3 profiles, tap a ranked profile, and show that it opens the public profile page. |
 | 13 | Chat | Open Chats, enter a conversation, and send a short inquiry message. |
 | 14 | Notifications | Show unread notifications, mark-all-read, delete, and message notification navigation. |
 
@@ -77,6 +85,8 @@ See `docs/client_apk_review_checklist.md` before sending the APK.
 - Influencer seat checkout is a preview only; real seat booking requires the Auth/payment phase.
 - Uploads and edit profile are preview-only in this handoff.
 - Profile media engagement actions are visual preview affordances only.
+- Profile menu actions and Light Mode are session-only client-review previews.
+- Black/Light mode controls are visual-only in this handoff and keep the approved dark PROMOO theme.
 - Mock-mode content is fictional and intended for walkthrough review only.
 - Realtime chat is pending.
 - Push notifications are pending.
@@ -91,15 +101,19 @@ See `docs/client_apk_review_checklist.md` before sending the APK.
 - [ ] App installs as `Promoo`.
 - [ ] Launcher icon appears as a black/yellow PROMOO icon.
 - [ ] Animated launch intro appears before Login/Register.
-- [ ] `Enter Promoo` opens Login/Register, not Home directly.
+- [ ] Logo-only launch intro automatically opens Login/Register, not Home directly.
 - [ ] Mock mode is enabled with `PROMOO_USE_MOCKS=true`.
-- [ ] All main tabs open: Home, Services, Cup, Influencer, and Profile.
-- [ ] Home story viewer opens and closes cleanly.
+- [ ] All main tabs open: Home, Services, Promoo, Influencer, and Profile.
+- [ ] Profile footer icon opens the Profile menu and View Profile remains available.
+- [ ] Home story viewer opens and closes cleanly with X and swipe-down.
 - [ ] Top Offers, For You, Promoo of the Day, and Services use image-first presentation.
+- [ ] Home See All actions do not crash and use client-safe copy.
 - [ ] Home detail opens from an offer or promotion.
+- [ ] Services categories use images and search shows results/no-match copy.
 - [ ] Service detail opens and contact actions are client-friendly.
 - [ ] Search works with demo queries such as `studio`, `launch`, `cafe`, or `spotlight`.
-- [ ] Profile displays media and Profile tools preview.
+- [ ] Own Profile displays media/packages without Follow, Message, or Profile Tools on the page.
+- [ ] Profile menu displays the client-review tools and Theme Mode preview.
 - [ ] Profile media viewer opens and closes cleanly.
 - [ ] Influencer shows the Influencer Seats presentation.
 - [ ] Occupied Influencer seat opens an influencer preview bottom sheet.

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import 'promoo_logo.dart';
 
@@ -35,7 +34,7 @@ class PromooScaffold extends StatelessWidget {
     final hasHeader = title != null || showLogo || actions.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: bottomNavigationBar,
       body: SafeArea(

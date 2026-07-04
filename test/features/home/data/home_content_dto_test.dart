@@ -3,6 +3,22 @@ import 'package:promoo_app/features/home/data/dto/home_content_dto.dart';
 import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 
 void main() {
+  test('fixture provides more than three top offer slides', () {
+    expect(HomeContentDto.fixture().offers.length, greaterThan(3));
+  });
+
+  test('fixture provides grouped story items per visible story owner', () {
+    final stories = HomeContentDto.fixture().toDomain().stories;
+
+    expect(stories, isNotEmpty);
+    expect(stories.first.profileName, 'Maya Studio');
+    expect(stories.first.effectiveItems.length, greaterThanOrEqualTo(3));
+    expect(
+      stories.first.effectiveItems.first.title,
+      'Launch day edits are ready for review.',
+    );
+  });
+
   test('parses minimal backend success fixture', () {
     final dto = HomeContentDto.fromJsonFlexible({
       'success': true,

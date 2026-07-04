@@ -18,4 +18,11 @@ void main() {
     expect(find.byType(PromooLogo), findsOneWidget);
     expect(find.byType(SvgPicture), findsOneWidget);
   });
+
+  test('full and compact logos use the approved brand assets', () {
+    expect(PromooLogo.full().assetName, 'assets/brand/promoo3.svg');
+    expect(PromooLogo.fullCropped().assetName, 'assets/brand/promoo3.svg');
+    expect(PromooLogo.fullCropped().cropToArtwork, isTrue);
+    expect(PromooLogo.compact().assetName, 'assets/brand/promoo.svg');
+  });
 }

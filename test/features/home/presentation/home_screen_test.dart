@@ -18,6 +18,7 @@ import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_empty_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
+import 'package:promoo_app/shared/widgets/promoo_logo.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
@@ -48,9 +49,17 @@ void main() {
 
     expect(find.text('Stories'), findsOneWidget);
     expect(find.text('Maya Studio'), findsOneWidget);
+    expect(find.bySemanticsLabel('Promoo header logo'), findsOneWidget);
+    final headerLogo = tester.widget<PromooLogo>(
+      _promooLogoWithLabel('Promoo header logo'),
+    );
+    expect(headerLogo.height, 64);
+    expect(headerLogo.artworkScale, 2.75);
     expect(find.text('Top Offers'), findsOneWidget);
+    expect(find.text('See All'), findsAtLeastNWidgets(2));
     expect(find.byTooltip('Chats'), findsOneWidget);
     expect(find.byTooltip('Notifications'), findsOneWidget);
+    expect(find.text('Discover what is trending today'), findsNothing);
 
     await tester.scrollUntilVisible(
       find.text('For You'),
@@ -101,6 +110,79 @@ void main() {
 
     await tester.tap(find.byTooltip('Close story'));
     await tester.pumpAndSettle();
+    expect(find.byType(HomeStoryViewer), findsNothing);
+  });
+
+  testWidgets('story viewer advances through same owner before next owner', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _buildHomeScreen(
+        _HomeRepository(Result.success(HomeContentDto.fixture().toDomain())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Maya Studio'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 260));
+
+    expect(find.byType(HomeStoryViewer), findsOneWidget);
+    expect(find.text('Maya Studio'), findsOneWidget);
+    expect(find.text('Launch day edits are ready for review.'), findsOneWidget);
+
+    final viewerSize = tester.getSize(find.byType(HomeStoryViewer));
+    await tester.tapAt(
+      Offset(viewerSize.width * 0.86, viewerSize.height * 0.5),
+    );
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(find.text('Maya Studio'), findsOneWidget);
+    expect(
+      find.text('Final campaign frames are being selected.'),
+      findsOneWidget,
+    );
+    expect(find.text('Omar Visuals'), findsNothing);
+
+    await tester.tapAt(
+      Offset(viewerSize.width * 0.86, viewerSize.height * 0.5),
+    );
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(find.text('Premium brand visuals go live tonight.'), findsOneWidget);
+    expect(find.text('Maya Studio'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Omar Visuals'), findsOneWidget);
+    expect(
+      find.text('Event coverage slots opened for the weekend.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('story viewer closes with a downward swipe', (tester) async {
+    await tester.pumpWidget(
+      _buildHomeScreen(
+        _HomeRepository(Result.success(HomeContentDto.fixture().toDomain())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Maya Studio'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 260));
+
+    expect(find.byType(HomeStoryViewer), findsOneWidget);
+
+    await tester.fling(
+      find.byType(HomeStoryViewer),
+      const Offset(0, 520),
+      1200,
+    );
+    await tester.pumpAndSettle();
+
     expect(find.byType(HomeStoryViewer), findsNothing);
   });
 
@@ -214,6 +296,12 @@ Widget _buildHomeScreen(HomeRepository repository) {
       theme: AppTheme.dark,
       home: const Scaffold(body: HomeScreen()),
     ),
+  );
+}
+
+Finder _promooLogoWithLabel(String label) {
+  return find.byWidgetPredicate(
+    (widget) => widget is PromooLogo && widget.semanticLabel == label,
   );
 }
 

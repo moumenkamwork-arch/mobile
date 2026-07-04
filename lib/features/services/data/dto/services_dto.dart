@@ -7,6 +7,7 @@ class ServiceCategoryDto {
     this.nameAr,
     this.nameEn,
     this.slug,
+    this.imageUrl,
   });
 
   final String? id;
@@ -14,6 +15,7 @@ class ServiceCategoryDto {
   final String? nameAr;
   final String? nameEn;
   final String? slug;
+  final String? imageUrl;
 
   factory ServiceCategoryDto.fromJson(Map<String, Object?> json) {
     final nameAr = _readString(json, const ['name_ar', 'nameAr']);
@@ -28,6 +30,16 @@ class ServiceCategoryDto {
       nameAr: nameAr,
       nameEn: nameEn,
       slug: _readString(json, const ['slug']),
+      imageUrl: _readString(json, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'coverUrl',
+        'thumbnail_url',
+        'thumbnailUrl',
+        'icon_url',
+        'iconUrl',
+      ]),
     );
   }
 
@@ -38,6 +50,7 @@ class ServiceCategoryDto {
       nameAr: nameAr,
       nameEn: nameEn,
       slug: slug,
+      imageUrl: imageUrl,
     );
   }
 }
@@ -112,13 +125,40 @@ class PromooServiceDto {
       provider: profile == null ? null : ServiceProviderDto.fromJson(profile),
       price: _readNum(json, const ['price', 'amount']),
       currency: _readString(json, const ['currency']),
-      imageUrls: _readStringList(json, const [
-        'media_urls',
-        'mediaUrls',
-        'image_urls',
-        'imageUrls',
-        'images',
-      ]),
+      imageUrls:
+          _readStringList(json, const [
+            'media_urls',
+            'mediaUrls',
+            'image_urls',
+            'imageUrls',
+            'images',
+          ]).isEmpty
+          ? [
+              if (_readString(json, const [
+                    'image_url',
+                    'imageUrl',
+                    'cover_url',
+                    'coverUrl',
+                    'thumbnail_url',
+                    'thumbnailUrl',
+                  ]) !=
+                  null)
+                _readString(json, const [
+                  'image_url',
+                  'imageUrl',
+                  'cover_url',
+                  'coverUrl',
+                  'thumbnail_url',
+                  'thumbnailUrl',
+                ])!,
+            ]
+          : _readStringList(json, const [
+              'media_urls',
+              'mediaUrls',
+              'image_urls',
+              'imageUrls',
+              'images',
+            ]),
       location:
           _readString(json, const ['location', 'city', 'address']) ??
           (profile == null

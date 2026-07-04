@@ -7,11 +7,13 @@ class ServicesSearchField extends StatefulWidget {
   const ServicesSearchField({
     super.key,
     required this.query,
+    required this.onChanged,
     required this.onSubmitted,
     this.onClear,
   });
 
   final String query;
+  final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
   final VoidCallback? onClear;
 
@@ -59,6 +61,7 @@ class _ServicesSearchFieldState extends State<ServicesSearchField> {
               onPressed: widget.onClear,
               icon: const Icon(Icons.close_rounded),
             ),
+      onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
     );
   }

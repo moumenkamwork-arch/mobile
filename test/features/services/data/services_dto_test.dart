@@ -11,6 +11,7 @@ void main() {
           'name_ar': 'تسويق',
           'name_en': 'Marketing',
           'slug': 'marketing',
+          'image_url': 'https://example.com/category.jpg',
         },
       ],
     });
@@ -21,6 +22,7 @@ void main() {
     expect(categories.single.name, 'Marketing');
     expect(categories.single.nameAr, 'تسويق');
     expect(categories.single.slug, 'marketing');
+    expect(categories.single.imageUrl, 'https://example.com/category.jpg');
   });
 
   test('parses services list and falls back to configured currency', () {

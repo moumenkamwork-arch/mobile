@@ -45,7 +45,11 @@ void main() {
         ServiceCategory(id: 'cat-1', name: 'Marketing'),
       ]),
       servicesResult: const Result.success([
-        PromooService(id: 'service-1', title: 'Content package'),
+        PromooService(
+          id: 'service-1',
+          title: 'Content package',
+          category: ServiceCategory(id: 'cat-1', name: 'Marketing'),
+        ),
       ]),
     );
     final container = ProviderContainer(
@@ -54,8 +58,13 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(servicesControllerProvider);
-    await Future<void>.delayed(Duration.zero);
-    await Future<void>.delayed(Duration.zero);
+    for (var i = 0; i < 5; i++) {
+      await Future<void>.delayed(Duration.zero);
+      if (container.read(servicesControllerProvider).status !=
+          ServicesStatus.loading) {
+        break;
+      }
+    }
 
     await container
         .read(servicesControllerProvider.notifier)
@@ -65,8 +74,8 @@ void main() {
     final state = container.read(servicesControllerProvider);
     expect(state.selectedCategoryId, 'cat-1');
     expect(state.searchQuery, 'video');
-    expect(repository.lastCategoryId, 'cat-1');
-    expect(repository.lastQuery, 'video');
+    expect(repository.lastCategoryId, isNull);
+    expect(repository.lastQuery, isNull);
   });
 
   test('emits error when repository fails', () async {

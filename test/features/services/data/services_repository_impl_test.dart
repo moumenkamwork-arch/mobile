@@ -17,6 +17,10 @@ void main() {
       services.map((service) => service.price?.currency),
       everyElement('AED'),
     );
+    expect(
+      services.map((service) => service.imageUrls),
+      everyElement(isNotEmpty),
+    );
   });
 
   test('fake service detail returns requested service', () async {

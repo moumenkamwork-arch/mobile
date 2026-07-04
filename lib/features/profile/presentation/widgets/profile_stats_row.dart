@@ -17,11 +17,11 @@ class ProfileStatsRow extends StatelessWidget {
         children: [
           _StatItem(label: 'Followers', value: stats.followers),
           _Divider(),
-          _StatItem(label: 'Following', value: stats.following),
+          _StatItem(label: 'Likes', value: stats.likes),
           _Divider(),
-          _StatItem(label: 'Offers', value: stats.offers),
+          _StatItem(label: 'Posts', value: stats.posts),
           _Divider(),
-          _StatItem(label: 'Packages', value: stats.services),
+          _StatItem(label: 'Views', value: stats.views),
         ],
       ),
     );

@@ -8,6 +8,121 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
+  static ThemeData get light {
+    const textPrimary = Color(0xFF141414);
+    const textSecondary = Color(0xFF4A4A4A);
+    const surface = Color(0xFFFFFFFF);
+    const scaffold = Color(0xFFF7F7F2);
+    const outline = Color(0xFFD8D8CF);
+    const colorScheme = ColorScheme.light(
+      primary: AppColors.primaryYellow,
+      onPrimary: AppColors.brandBlack,
+      secondary: AppColors.darkYellow,
+      onSecondary: AppColors.brandBlack,
+      error: AppColors.error,
+      onError: AppColors.textPrimary,
+      surface: surface,
+      onSurface: textPrimary,
+      outline: outline,
+    );
+
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: scaffold,
+      colorScheme: colorScheme,
+    );
+
+    final textTheme = base.textTheme.apply(
+      bodyColor: textSecondary,
+      displayColor: textPrimary,
+    );
+
+    return base.copyWith(
+      textTheme: textTheme,
+      iconTheme: const IconThemeData(color: textPrimary),
+      dividerTheme: const DividerThemeData(
+        color: outline,
+        space: 1,
+        thickness: 1,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: scaffold,
+        foregroundColor: textPrimary,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: surface,
+        contentPadding: EdgeInsetsDirectional.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.md,
+        ),
+        hintStyle: TextStyle(color: Color(0xFF777777)),
+        labelStyle: TextStyle(color: textSecondary),
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide: BorderSide(color: outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide: BorderSide(color: outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide: BorderSide(color: AppColors.darkYellow),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide: BorderSide(color: AppColors.error),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryYellow,
+          foregroundColor: AppColors.brandBlack,
+          elevation: 0,
+          minimumSize: const Size(64, AppSpacing.buttonHeight),
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.lg,
+          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: textPrimary,
+          minimumSize: const Size(64, AppSpacing.buttonHeight),
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.lg,
+          ),
+          side: const BorderSide(color: outline),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.darkYellow,
+          minimumSize: const Size(
+            AppSpacing.touchTarget,
+            AppSpacing.touchTarget,
+          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.darkYellow,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: textPrimary,
+        contentTextStyle: TextStyle(color: Colors.white),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+      ),
+    );
+  }
+
   static ThemeData get dark {
     const colorScheme = ColorScheme.dark(
       primary: AppColors.primaryYellow,
