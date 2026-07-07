@@ -9,6 +9,7 @@ import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/auth_form_field.dart';
 import '../widgets/auth_message_banner.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
@@ -45,8 +46,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final session = state.session;
 
     return AuthScreenFrame(
-      title: 'Login',
-      subtitle: 'Sign in to access your Promoo actions.',
+      showBackButton: false,
       child: session != null
           ? AuthSignedInPanel(
               session: session,
@@ -107,59 +107,67 @@ class _LoginForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
           ],
+          const AuthFieldLabel('Email'),
+          const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: emailController,
-            label: 'Email',
-            hint: 'name@example.com',
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
+            hint: 'Email',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
-          PromooTextField(
+          const AuthFieldLabel('Password'),
+          const SizedBox(height: AppSpacing.xs),
+          AuthPasswordField(
             controller: passwordController,
-            label: 'Password',
-            hint: 'Enter your password',
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
-            obscureText: true,
-            textInputAction: TextInputAction.done,
             onSubmitted: (_) => state.isBusy ? null : onSubmit(),
           ),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
             label: state.isBusy ? 'Signing in...' : 'Login',
-            icon: Icons.login_rounded,
             fullWidth: true,
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.sm),
-          PromooButton.secondary(
-            label: 'Create account',
-            icon: Icons.person_add_alt_1_rounded,
+          Align(
+            alignment: AlignmentDirectional.center,
+            child: TextButton(
+              onPressed: state.isBusy
+                  ? null
+                  : () => _showComingSoon(context, 'Password reset'),
+              child: Text(
+                'forget password?',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          const AuthSocialLoginPreview(),
+          const SizedBox(height: AppSpacing.lg),
+          PromooButton.primary(
+            label: 'Sign Up',
             fullWidth: true,
             onPressed: state.isBusy
                 ? null
                 : () => context.go(AppRoutes.register),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(
             label: 'Continue as Guest',
-            icon: Icons.explore_rounded,
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.home),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const AuthSocialLoginPreview(),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'Forgot password is coming soon.',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
           ),
         ],
       ),
     );
   }
+}
+
+void _showComingSoon(BuildContext context, String label) {
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.hideCurrentSnackBar();
+  messenger.showSnackBar(SnackBar(content: Text('$label coming soon')));
 }

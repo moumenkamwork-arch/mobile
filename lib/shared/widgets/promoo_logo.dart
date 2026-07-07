@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 enum PromooLogoVariant { compact, full }
 
+/// Brand logo used across the app (header, cards, previews).
+///
+/// Renders the NEW Promoo logo artwork (owner decision, 2026-07-06):
+/// transparent PNGs processed from `new logo/` — `promoo_mark.png` (the "P")
+/// and `promoo_wordmark.png` ("Promoo"). The launch intro and Login keep
+/// their own dedicated treatments and do not use this widget.
+///
+/// [cropToArtwork] and [artworkScale] are kept for API compatibility with
+/// the old padded-SVG assets; the new assets are tightly cropped so no
+/// zoom/crop is applied anymore.
 class PromooLogo extends StatelessWidget {
   const PromooLogo({
     super.key,
@@ -40,8 +49,8 @@ class PromooLogo extends StatelessWidget {
   }) : variant = PromooLogoVariant.full,
        cropToArtwork = true;
 
-  static const compactAsset = 'assets/brand/promoo.svg';
-  static const fullAsset = 'assets/brand/promoo3.svg';
+  static const compactAsset = 'assets/brand/new_logo/promoo_mark.png';
+  static const fullAsset = 'assets/brand/new_logo/promoo_wordmark.png';
 
   final PromooLogoVariant variant;
   final double? width;
@@ -59,30 +68,18 @@ class PromooLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logo = SvgPicture.asset(
-      assetName,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-      excludeFromSemantics: true,
-    );
-
     return Semantics(
       image: true,
       label: semanticLabel,
-      child: cropToArtwork
-          ? SizedBox(
-              width: width,
-              height: height,
-              child: ClipRect(
-                child: Transform.scale(
-                  scale: artworkScale,
-                  alignment: const Alignment(0.04, 0.14),
-                  child: logo,
-                ),
-              ),
-            )
-          : logo,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Image.asset(
+          assetName,
+          fit: BoxFit.contain,
+          excludeFromSemantics: true,
+        ),
+      ),
     );
   }
 }

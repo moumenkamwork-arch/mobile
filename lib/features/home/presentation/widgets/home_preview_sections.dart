@@ -31,16 +31,16 @@ class HomeServicesPreviewSection extends StatelessWidget {
     return _CarouselSection(
       title: 'Services',
       subtitle: 'Premium campaign services ready for contact',
-      height: 176,
+      height: 148,
       itemCount: services.length,
-      viewportFraction: 0.42,
+      viewportFraction: 0.33,
       actionLabel: onSeeAll == null ? null : 'See All',
       onActionPressed: onSeeAll,
       itemBuilder: (context, index) {
         final service = services[index];
         return _ServiceImageCard(
           service: service,
-          onTap: () => context.go(AppRoutes.serviceById(service.id)),
+          onTap: () => context.push(AppRoutes.serviceById(service.id)),
         );
       },
     );
@@ -83,7 +83,7 @@ class HomeOffersPreviewSection extends StatelessWidget {
         final offer = offers[index];
 
         void openOffer() {
-          context.go(
+          context.push(
             AppRoutes.homeItemDetail(offer.detailType.routeValue, offer.id),
           );
         }

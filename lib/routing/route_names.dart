@@ -12,6 +12,13 @@ class RouteNames {
   static const seatCheckoutPreview = 'seatCheckoutPreview';
   static const profile = 'profile';
   static const profileDetail = 'profileDetail';
+  static const profileEdit = 'profileEdit';
+  static const profileAddAd = 'profileAddAd';
+  static const profileSaved = 'profileSaved';
+  static const profilePackages = 'profilePackages';
+  static const profileFollowing = 'profileFollowing';
+  static const profileSupport = 'profileSupport';
+  static const profileInfo = 'profileInfo';
   static const search = 'search';
   static const login = 'login';
   static const register = 'register';
@@ -33,7 +40,16 @@ class AppRoutes {
   static const seats = '/seats';
   static const seatCheckoutPreview = '/seats/checkout';
   static const profile = '/profile';
+  static const profileEdit = '/profile/edit';
+  static const profileAddAd = '/profile/add-ad';
+  static const profileSaved = '/profile/saved';
+  static const profilePackages = '/profile/packages';
+  static const profileFollowing = '/profile/following';
+  static const profileSupport = '/profile/support';
+  static const profileInfoPath = '/profile/info/:topic';
   static const profileDetail = '/profiles/:id';
+
+  static String profileInfo(String topic) => '/profile/info/$topic';
   static const search = '/search';
   static const login = '/login';
   static const register = '/register';

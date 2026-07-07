@@ -6,6 +6,7 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../controllers/leaderboard_controller.dart';
@@ -90,6 +91,19 @@ class _LeaderboardContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const PromooPageHeader(),
+          Expanded(child: _buildBody(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     return Stack(
       children: [
         RefreshIndicator(
@@ -101,7 +115,7 @@ class _LeaderboardContentView extends StatelessWidget {
               SliverPadding(
                 padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.screenHorizontal,
-                  AppSpacing.screenVertical,
+                  AppSpacing.md,
                   AppSpacing.screenHorizontal,
                   AppSpacing.shellScrollBottom,
                 ),
@@ -128,13 +142,13 @@ class _LeaderboardContentView extends StatelessWidget {
                       LeaderboardPodium(
                         profiles: state.profiles.take(3).toList(),
                         onProfileSelected: (profile) =>
-                            context.go(AppRoutes.profileById(profile.id)),
+                            context.push(AppRoutes.profileById(profile.id)),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       LeaderboardRankedList(
                         profiles: state.profiles,
                         onProfileSelected: (profile) =>
-                            context.go(AppRoutes.profileById(profile.id)),
+                            context.push(AppRoutes.profileById(profile.id)),
                       ),
                     ],
                   ],

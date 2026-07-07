@@ -49,12 +49,11 @@ void main() {
 
     expect(find.text('Stories'), findsOneWidget);
     expect(find.text('Maya Studio'), findsOneWidget);
-    expect(find.bySemanticsLabel('Promoo header logo'), findsOneWidget);
+    expect(find.bySemanticsLabel('Promoo page logo'), findsOneWidget);
     final headerLogo = tester.widget<PromooLogo>(
-      _promooLogoWithLabel('Promoo header logo'),
+      _promooLogoWithLabel('Promoo page logo'),
     );
-    expect(headerLogo.height, 64);
-    expect(headerLogo.artworkScale, 2.75);
+    expect(headerLogo.height, 40);
     expect(find.text('Top Offers'), findsOneWidget);
     expect(find.text('See All'), findsAtLeastNWidgets(2));
     expect(find.byTooltip('Chats'), findsOneWidget);

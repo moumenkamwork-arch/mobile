@@ -11,7 +11,6 @@ import 'package:promoo_app/features/seats/data/repositories/seats_repository_imp
 import 'package:promoo_app/features/seats/domain/entities/seat.dart';
 import 'package:promoo_app/features/seats/domain/repositories/seats_repository.dart';
 import 'package:promoo_app/features/seats/presentation/screens/seats_screen.dart';
-import 'package:promoo_app/features/seats/presentation/widgets/seat_tier_cards.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
@@ -28,75 +27,20 @@ void main() {
     expect(find.text('Loading seats'), findsOneWidget);
   });
 
-  testWidgets('renders seats content and login-required booking behavior', (
-    tester,
-  ) async {
+  testWidgets('renders search, tier legend, and the seat grid', (tester) async {
     await tester.pumpWidget(
       _buildSeatsScreen(
-        const _SeatsRepository(
-          seatsResult: Result.success([
-            Seat(
-              id: 'seat-1',
-              tier: SeatTier.gold,
-              status: SeatStatus.available,
-              position: 1,
-              price: SeatPrice(amount: 2500, currency: 'AED'),
-            ),
-            Seat(
-              id: 'seat-2',
-              tier: SeatTier.silver,
-              status: SeatStatus.booked,
-              position: 2,
-              price: SeatPrice(amount: 1500, currency: 'AED'),
-            ),
-          ]),
-        ),
+        const _SeatsRepository(seatsResult: Result.success(_interactiveSeats)),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Influencer Seats'), findsOneWidget);
-    expect(find.text('Gold visibility'), findsOneWidget);
-    expect(find.text('Silver placement'), findsOneWidget);
-    expect(find.text('Bronze visibility'), findsOneWidget);
-    expect(find.text('Influencer visibility grid'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.byType(SeatTierCards),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byType(SeatTierCards), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.text('Gold Seat 1'),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gold Seat 1'), findsOneWidget);
-    expect(find.text('2500 AED'), findsOneWidget);
-    expect(find.text('Login required'), findsOneWidget);
-
-    await tester.tap(find.text('Login required'));
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(
-      find.text('Go to login'),
-      -260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Login required'), findsAtLeastNWidgets(1));
-    expect(
-      find.text('Sign in to continue when booking opens.'),
-      findsOneWidget,
-    );
-    expect(find.text('Go to login'), findsOneWidget);
+    expect(find.text('Search'), findsOneWidget);
+    expect(find.text('Gold Seats'), findsOneWidget);
+    expect(find.text('Silver Seats'), findsOneWidget);
+    expect(find.text('Bronze Seats'), findsOneWidget);
+    expect(find.text('Place Your Seat'), findsWidgets);
+    expect(find.text('Lina Atelier'), findsOneWidget);
   });
 
   testWidgets('renders error state', (tester) async {
@@ -112,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(PromooErrorState), findsOneWidget);
-    expect(find.text('Could not load seats'), findsOneWidget);
+    expect(find.text('Seats unavailable'), findsOneWidget);
     expect(find.text('No connection'), findsOneWidget);
   });
 
@@ -126,25 +70,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('seat-grid-slot-seat-occupied')),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.tap(find.text('Lina Atelier'));
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.byKey(const ValueKey('seat-grid-slot-seat-occupied')),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('seat-preview-sheet')), findsOneWidget);
     expect(find.text('Lina Atelier'), findsWidgets);
+    expect(find.text('Silver Seat'), findsOneWidget);
     expect(find.text('View profile'), findsOneWidget);
     expect(find.text('Follow'), findsOneWidget);
   });
 
-  testWidgets('available influencer seat opens checkout preview', (
+  testWidgets('available seat opens tier sheet and checkout preview', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -154,24 +89,17 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('seat-grid-slot-seat-open')),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.tap(find.text('Place Your Seat').first);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const ValueKey('seat-grid-slot-seat-open')));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('seat-preview-sheet')), findsOneWidget);
+    expect(find.text('Gold Seat'), findsOneWidget);
     expect(find.text('Book Now'), findsOneWidget);
+    expect(find.textContaining('Gold seats provide'), findsOneWidget);
 
     await tester.tap(find.text('Book Now'));
     await tester.pumpAndSettle();
 
     expect(find.text('Checkout preview'), findsOneWidget);
-    expect(find.text('Preview payment'), findsOneWidget);
     expect(find.text('2500 AED'), findsOneWidget);
   });
 }
@@ -205,6 +133,13 @@ const _mockConfig = AppConfig(
 
 const _interactiveSeats = [
   Seat(
+    id: 'seat-open',
+    tier: SeatTier.gold,
+    status: SeatStatus.available,
+    position: 1,
+    price: SeatPrice(amount: 2500, currency: 'AED'),
+  ),
+  Seat(
     id: 'seat-occupied',
     tier: SeatTier.silver,
     status: SeatStatus.booked,
@@ -215,13 +150,6 @@ const _interactiveSeats = [
       name: 'Lina Atelier',
       username: 'lina.atelier',
     ),
-  ),
-  Seat(
-    id: 'seat-open',
-    tier: SeatTier.gold,
-    status: SeatStatus.available,
-    position: 2,
-    price: SeatPrice(amount: 2500, currency: 'AED'),
   ),
 ];
 

@@ -17,6 +17,7 @@ class PromooScaffold extends StatelessWidget {
     this.safeAreaTop = true,
     this.safeAreaBottom = true,
     this.resizeToAvoidBottomInset,
+    this.extendBody = false,
   });
 
   final Widget body;
@@ -28,6 +29,7 @@ class PromooScaffold extends StatelessWidget {
   final bool safeAreaTop;
   final bool safeAreaBottom;
   final bool? resizeToAvoidBottomInset;
+  final bool extendBody;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class PromooScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      extendBody: extendBody,
       bottomNavigationBar: bottomNavigationBar,
       body: SafeArea(
         top: safeAreaTop,

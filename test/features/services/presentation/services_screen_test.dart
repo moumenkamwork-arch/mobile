@@ -49,11 +49,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Services'), findsOneWidget);
-    expect(find.text('Service categories'), findsOneWidget);
     expect(find.text('All services'), findsOneWidget);
     expect(find.text('Influencer Campaigns'), findsWidgets);
-    expect(find.text('Search other services'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Listings'), findsNothing);
 
     await tester.tap(find.text('Influencer Campaigns').first);

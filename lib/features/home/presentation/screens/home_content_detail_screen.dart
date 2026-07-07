@@ -89,7 +89,7 @@ class _HomeContentDetailBodyState
         onViewProfilePressed: state.detail!.provider == null
             ? null
             : () =>
-                  context.go(AppRoutes.profileById(state.detail!.provider!.id)),
+                  context.push(AppRoutes.profileById(state.detail!.provider!.id)),
         onDismissNotice: () {
           setState(() => _noticeMessage = null);
         },

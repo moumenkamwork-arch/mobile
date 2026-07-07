@@ -58,9 +58,15 @@ void main() {
     expect(find.text('Cup'), findsOneWidget);
     expect(find.byType(LeaderboardPodium), findsOneWidget);
     expect(find.text('Top of the Cup'), findsOneWidget);
-    expect(find.text('Ranking'), findsOneWidget);
     expect(find.text('Saffron Social Studio'), findsWidgets);
-    expect(find.textContaining('185.4K followers'), findsWidgets);
+
+    await tester.scrollUntilVisible(
+      find.text('Ranking'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Ranking'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

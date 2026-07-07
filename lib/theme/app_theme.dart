@@ -29,6 +29,7 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: AppTypography.recommendedUiFontFamily,
       scaffoldBackgroundColor: scaffold,
       colorScheme: colorScheme,
     );
@@ -139,6 +140,7 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: AppTypography.recommendedUiFontFamily,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: colorScheme,
     );

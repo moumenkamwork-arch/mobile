@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "promoo-web",
+      "runtimeExecutable": "C:\\flutter_sdk\\flutter\\bin\\flutter.bat",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "web-server",
+        "--web-port",
+        "8765",
+        "--dart-define=PROMOO_USE_MOCKS=true"
+      ],
+      "port": 8765
+    }
+  ]
+}

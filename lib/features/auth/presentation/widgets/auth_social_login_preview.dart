@@ -1,65 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../theme/app_colors.dart';
-import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 
+/// Social sign-in row shown on Login/Register.
+///
+/// v1 scope: these are safe visual placeholders only, deferred to v2 (see
+/// docs/v2_deferred_scope.md §1). Facebook is not shown: the backend never
+/// supported it (Supabase OAuth is Google/Apple only).
 class AuthSocialLoginPreview extends StatelessWidget {
-  const AuthSocialLoginPreview({super.key});
+  const AuthSocialLoginPreview({
+    super.key,
+    this.caption = 'Log in with account',
+  });
+
+  final String caption;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _SocialCircle(
+              label: 'Apple',
+              icon: Icons.apple,
+              iconColor: AppColors.textPrimary,
+              background: const Color(0xFF3A3A3A),
+              onTap: () => _showComingSoon(context, 'Apple sign-in'),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            _SocialCircle(
+              label: 'Google',
+              iconWidget: SvgPicture.asset(
+                'assets/brand/social/google_g.svg',
+                width: 26,
+                height: 26,
+              ),
+              background: const Color(0xFF3A3A3A),
+              onTap: () => _showComingSoon(context, 'Google sign-in'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
         Text(
-          'Continue with account',
+          caption,
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: [
-            Expanded(
-              child: _SocialButton(
-                label: 'Apple',
-                icon: Icons.apple,
-                onTap: () => _showComingSoon(context, 'Apple sign-in'),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: _SocialButton(
-                label: 'Google',
-                icon: Icons.g_mobiledata_rounded,
-                onTap: () => _showComingSoon(context, 'Google sign-in'),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: _SocialButton(
-                label: 'Facebook',
-                icon: Icons.facebook,
-                onTap: () => _showComingSoon(context, 'Facebook sign-in'),
-              ),
-            ),
-          ],
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({
+class _SocialCircle extends StatelessWidget {
+  const _SocialCircle({
     required this.label,
-    required this.icon,
+    required this.background,
     required this.onTap,
-  });
+    this.icon,
+    this.iconColor,
+    this.iconWidget,
+  }) : assert(
+         icon != null || iconWidget != null,
+         'Provide either icon or iconWidget',
+       );
 
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final Color? iconColor;
+  final Widget? iconWidget;
+  final Color background;
   final VoidCallback onTap;
 
   @override
@@ -71,17 +86,22 @@ class _SocialButton extends StatelessWidget {
         message: label,
         child: Material(
           color: Colors.transparent,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            borderRadius: AppRadius.card,
+            customBorder: const CircleBorder(),
             child: Ink(
-              height: AppSpacing.touchTarget,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppRadius.card,
+                color: background,
+                shape: BoxShape.circle,
                 border: Border.all(color: AppColors.border),
               ),
-              child: Icon(icon, color: AppColors.textPrimary, size: 24),
+              child: Center(
+                child: iconWidget ?? Icon(icon, color: iconColor, size: 28),
+              ),
             ),
           ),
         ),

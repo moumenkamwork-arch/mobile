@@ -6,7 +6,7 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
-import '../../../../shared/widgets/promoo_section_header.dart';
+import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/promoo_service.dart';
@@ -93,110 +93,85 @@ class _ServicesContentView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
-      children: [
-        RefreshIndicator(
-          color: AppColors.primaryYellow,
-          backgroundColor: AppColors.elevatedSurface,
-          onRefresh: onRefresh,
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                  AppSpacing.screenHorizontal,
-                  AppSpacing.screenVertical,
-                  AppSpacing.screenHorizontal,
-                  AppSpacing.shellScrollBottom,
-                ),
-                sliver: SliverList.list(
-                  children: [
-                    Text(
-                      'Services',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Choose a category, then explore provider listings.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PromooSectionHeader(
-                      title: 'Service categories',
-                      subtitle: state.selectedCategoryId == null
-                          ? 'Browse the main Promoo service groups'
-                          : 'Category selected',
-                      actionLabel: state.selectedCategoryId == null
-                          ? null
-                          : 'Clear',
-                      onActionPressed: state.selectedCategoryId == null
-                          ? null
-                          : () => ref
-                                .read(servicesControllerProvider.notifier)
-                                .selectCategory(null),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    ServicesCategoryList(
-                      categories: state.categories,
-                      selectedCategoryId: state.selectedCategoryId,
-                      onSelected: (categoryId) {
-                        ref
-                            .read(servicesControllerProvider.notifier)
-                            .selectCategory(categoryId);
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      'Search other services',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Find a service by title, category, provider, or tag.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    ServicesSearchField(
-                      query: state.searchQuery,
-                      onChanged: (query) {
-                        ref
-                            .read(servicesControllerProvider.notifier)
-                            .search(query);
-                      },
-                      onSubmitted: (query) {
-                        ref
-                            .read(servicesControllerProvider.notifier)
-                            .search(query);
-                      },
-                      onClear: state.searchQuery.isEmpty
-                          ? null
-                          : () => ref
-                                .read(servicesControllerProvider.notifier)
-                                .clearSearch(),
-                    ),
-                    if (_shouldShowResults(state)) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      if (state.services.isEmpty)
-                        _ServicesEmptyState(
-                          selectedCategoryId: state.selectedCategoryId,
-                          query: state.searchQuery,
-                        )
-                      else
-                        _ServicesList(services: state.services),
+    final showResults = _shouldShowResults(state);
+
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const PromooPageHeader(),
+          Expanded(
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  color: AppColors.primaryYellow,
+                  backgroundColor: AppColors.elevatedSurface,
+                  onRefresh: onRefresh,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          AppSpacing.screenHorizontal,
+                          AppSpacing.md,
+                          AppSpacing.screenHorizontal,
+                          AppSpacing.shellScrollBottom,
+                        ),
+                        sliver: SliverList.list(
+                          children: [
+                            ServicesSearchField(
+                              query: state.searchQuery,
+                              onChanged: (query) => ref
+                                  .read(servicesControllerProvider.notifier)
+                                  .search(query),
+                              onSubmitted: (query) => ref
+                                  .read(servicesControllerProvider.notifier)
+                                  .search(query),
+                              onClear: state.searchQuery.isEmpty
+                                  ? null
+                                  : () => ref
+                                        .read(
+                                          servicesControllerProvider.notifier,
+                                        )
+                                        .clearSearch(),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            if (showResults) ...[
+                              if (state.services.isEmpty)
+                                _ServicesEmptyState(
+                                  selectedCategoryId: state.selectedCategoryId,
+                                  query: state.searchQuery,
+                                )
+                              else
+                                _ServicesList(services: state.services),
+                            ] else
+                              ServicesCategoryList(
+                                categories: state.categories,
+                                selectedCategoryId: state.selectedCategoryId,
+                                onSelected: (categoryId) {
+                                  ref
+                                      .read(servicesControllerProvider.notifier)
+                                      .selectCategory(categoryId);
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                if (state.isRefreshing)
+                  const PositionedDirectional(
+                    top: 0,
+                    start: 0,
+                    end: 0,
+                    child: LinearProgressIndicator(minHeight: 2),
+                  ),
+              ],
+            ),
           ),
-        ),
-        if (state.isRefreshing)
-          const PositionedDirectional(
-            top: 0,
-            start: 0,
-            end: 0,
-            child: LinearProgressIndicator(minHeight: 2),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -218,7 +193,7 @@ class _ServicesList extends StatelessWidget {
         for (var i = 0; i < services.length; i++) ...[
           ServiceCard(
             service: services[i],
-            onTap: () => context.go(AppRoutes.serviceById(services[i].id)),
+            onTap: () => context.push(AppRoutes.serviceById(services[i].id)),
           ),
           if (i != services.length - 1) const SizedBox(height: AppSpacing.md),
         ],

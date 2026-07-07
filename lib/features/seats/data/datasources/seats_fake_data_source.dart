@@ -8,219 +8,86 @@ final seatsFakeDataSourceProvider = Provider<SeatsFakeDataSource>((ref) {
   return const SeatsFakeDataSource();
 });
 
+/// Demo seat map matching the original app's Influencer page: a large grid
+/// of Gold (499 AED), Silver (299 AED), and Bronze (149 AED) placements with
+/// fictional occupied influencer slots scattered between open seats.
+///
+/// Counts follow the grid bands used by the Seats screen (12x12 cells,
+/// band size 4): 16 gold, 48 silver, 80 bronze = 144 seats total. The real
+/// backend currently seeds fewer seats; expanding the seed is an
+/// integration-phase task (see docs/build_plan.md Phase B row 2).
 class SeatsFakeDataSource implements SeatsDataSource {
   const SeatsFakeDataSource();
 
-  static const _seats = [
-    SeatDto(
-      id: 'seat-gold-1',
-      tier: 'gold',
-      price: 2500,
-      currency: 'AED',
-      status: 'booked',
-      position: 1,
-      holder: SeatHolderDto(
-        id: 'profile-saffron-social',
-        name: 'Saffron Social Studio',
-        username: 'saffron.social',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-gold-2',
-      tier: 'gold',
-      price: 2500,
-      currency: 'AED',
-      status: 'available',
-      position: 2,
-    ),
-    SeatDto(
-      id: 'seat-gold-3',
-      tier: 'gold',
-      price: 2500,
-      currency: 'AED',
-      status: 'pending',
-      position: 3,
-      holder: SeatHolderDto(
-        id: 'profile-framehouse',
-        name: 'Framehouse Events',
-        username: 'framehouse.events',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-gold-4',
-      tier: 'gold',
-      price: 2500,
-      currency: 'AED',
-      status: 'available',
-      position: 4,
-    ),
-    SeatDto(
-      id: 'seat-gold-5',
-      tier: 'gold',
-      price: 2500,
-      currency: 'AED',
-      status: 'booked',
-      position: 5,
-      holder: SeatHolderDto(
-        id: 'profile-calmfit',
-        name: 'CalmFit Wellness',
-        username: 'calmfit.wellness',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-silver-1',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'booked',
-      position: 1,
-      holder: SeatHolderDto(
-        id: 'profile-lina-atelier',
-        name: 'Lina Atelier',
-        username: 'lina.atelier',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-silver-2',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'available',
-      position: 2,
-    ),
-    SeatDto(
-      id: 'seat-silver-3',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'booked',
-      position: 3,
-      holder: SeatHolderDto(
-        id: 'profile-pearl-cafe',
-        name: 'Pearl District Cafe',
-        username: 'pearl.district',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-silver-4',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'available',
-      position: 4,
-    ),
-    SeatDto(
-      id: 'seat-silver-5',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'available',
-      position: 5,
-    ),
-    SeatDto(
-      id: 'seat-silver-6',
-      tier: 'silver',
-      price: 1500,
-      currency: 'AED',
-      status: 'booked',
-      position: 6,
-      holder: SeatHolderDto(
-        id: 'profile-orchid-style',
-        name: 'Orchid Styling Co.',
-        username: 'orchid.style',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-bronze-1',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 1,
-    ),
-    SeatDto(
-      id: 'seat-bronze-2',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'booked',
-      position: 2,
-      holder: SeatHolderDto(
-        id: 'profile-velvet-beauty',
-        name: 'Velvet Beauty Lounge',
-        username: 'velvet.beauty',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-bronze-3',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 3,
-    ),
-    SeatDto(
-      id: 'seat-bronze-4',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 4,
-    ),
-    SeatDto(
-      id: 'seat-bronze-5',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'booked',
-      position: 5,
-      holder: SeatHolderDto(
-        id: 'profile-vista-home',
-        name: 'Vista Home Living',
-        username: 'vista.home',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?auto=format&fit=crop&w=320&q=80',
-      ),
-    ),
-    SeatDto(
-      id: 'seat-bronze-6',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 6,
-    ),
-    SeatDto(
-      id: 'seat-bronze-7',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 7,
-    ),
-    SeatDto(
-      id: 'seat-bronze-8',
-      tier: 'bronze',
-      price: 900,
-      currency: 'AED',
-      status: 'available',
-      position: 8,
-    ),
-  ];
+  static const _tierCounts = {'gold': 16, 'silver': 48, 'bronze': 80};
+  static const _tierPrices = {'gold': 499, 'silver': 299, 'bronze': 149};
+
+  /// Occupied demo slots per tier: position -> (name, pravatar image id).
+  static const _holders = {
+    'gold': {
+      1: ('Sara Fashion', 47),
+      5: ('Hadi Coding', 12),
+      7: ('Kareem Fitness', 59),
+      10: ('Nour Lifestyle', 16),
+      14: ('Ahmed Gamer', 68),
+      16: ('Reem Makeup', 45),
+    },
+    'silver': {
+      2: ('Lina Artworks', 44),
+      5: ('Maya Art', 26),
+      12: ('Noha MakeupGuru', 24),
+      16: ('Majed Trips', 53),
+      21: ('Nina Lifestyle', 40),
+      27: ('Rami Tech', 61),
+      28: ('Samah Artist', 21),
+      33: ('Noor Books', 35),
+      38: ('Nadia FoodQueen', 32),
+      44: ('Dana Beauty', 20),
+    },
+    'bronze': {
+      3: ('Rana Books', 41),
+      9: ('Hamza Vlogger', 13),
+      17: ('Maysa Cooking', 25),
+      26: ('Nasser ScienceLab', 60),
+      34: ('Hiba Fitness', 27),
+      47: ('Adel Stories', 51),
+      58: ('Rima BeautyLab', 23),
+      66: ('Omar Pranks', 66),
+    },
+  };
+
+  static final List<SeatDto> _seats = _buildSeats();
+
+  static List<SeatDto> _buildSeats() {
+    final seats = <SeatDto>[];
+    for (final tier in _tierCounts.keys) {
+      final count = _tierCounts[tier]!;
+      final price = _tierPrices[tier]!;
+      final holders = _holders[tier]!;
+      for (var position = 1; position <= count; position++) {
+        final holder = holders[position];
+        seats.add(
+          SeatDto(
+            id: 'seat-$tier-$position',
+            tier: tier,
+            price: price,
+            currency: 'AED',
+            status: holder == null ? 'available' : 'booked',
+            position: position,
+            holder: holder == null
+                ? null
+                : SeatHolderDto(
+                    id: 'profile-${holder.$1.toLowerCase().replaceAll(' ', '-')}',
+                    name: holder.$1,
+                    username: holder.$1.toLowerCase().replaceAll(' ', '.'),
+                    avatarUrl: 'https://i.pravatar.cc/150?img=${holder.$2}',
+                  ),
+          ),
+        );
+      }
+    }
+    return List.unmodifiable(seats);
+  }
 
   @override
   Future<SeatsDto> fetchSeats({SeatTier? tier}) async {

@@ -27,7 +27,7 @@ void main() {
       'Boutique influencer launch package',
     ),
     const _RouteSmokeCase(AppRoutes.cup, 'Cup'),
-    const _RouteSmokeCase(AppRoutes.seats, 'Influencer Seats'),
+    const _RouteSmokeCase(AppRoutes.seats, 'Gold Seats'),
     _RouteSmokeCase(
       AppRoutes.seatCheckout(
         seatId: 'seat-gold-2',
@@ -37,7 +37,7 @@ void main() {
       ),
       'Checkout preview',
     ),
-    const _RouteSmokeCase(AppRoutes.profile, 'Saffron Social Studio'),
+    const _RouteSmokeCase(AppRoutes.profile, 'Profile Management'),
     _RouteSmokeCase(
       AppRoutes.profileById('saffron.social'),
       'Saffron Social Studio',

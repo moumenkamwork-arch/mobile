@@ -159,8 +159,8 @@ class _ProfileContentView extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.md),
                       ProfileActionNotice(
                         status: state.actionStatus,
-                        onLoginPressed: () => context.go(AppRoutes.login),
-                        onChatsPressed: () => context.go(AppRoutes.chats),
+                        onLoginPressed: () => context.push(AppRoutes.login),
+                        onChatsPressed: () => context.push(AppRoutes.chats),
                         onDismiss: () => ref
                             .read(profileControllerProvider.notifier)
                             .clearActionMessage(),

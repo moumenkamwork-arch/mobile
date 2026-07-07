@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/theme/app_theme.dart';
+import 'package:flutter/material.dart';
 
 void main() {
-  testWidgets('shell navigation renders main tabs', (tester) async {
+  testWidgets('shell renders main tabs and the Profile menu page', (
+    tester,
+  ) async {
     final router = createAppRouter(initialLocation: AppRoutes.profile);
     addTearDown(router.dispose);
 
@@ -17,45 +19,51 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (final tab in ['Home', 'Services', 'Promoo', 'Influencer', 'Profile']) {
+    for (final tab in ['Home', 'Services', 'Cup', 'Influencer', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
-    expect(find.text('Saffron Social Studio'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Profile'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Profile menu'), findsOneWidget);
-    expect(find.text('View Profile'), findsOneWidget);
-    expect(find.text('Theme Mode'), findsOneWidget);
-    expect(find.text('Black Mode'), findsOneWidget);
-    expect(find.text('Light Mode'), findsOneWidget);
-
-    await tester.tap(find.text('Light Mode'));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Theme options will be available in the next phase.'),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.byTooltip('Profile'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('View Profile'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Edit profile'), findsOneWidget);
-    expect(find.text('Follow'), findsNothing);
-    expect(find.text('Message'), findsNothing);
+    // Profile tab shows the settings-style menu page (no modal sheet).
+    expect(find.text('Welcome To Promoo'), findsOneWidget);
+    expect(find.text('Following'), findsOneWidget);
+    expect(find.text('Profile Management'), findsOneWidget);
+    expect(find.text('Add New Offer'), findsOneWidget);
+    expect(find.text('Saved'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('Packages'),
+      find.text('Language'),
       260,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
+    expect(find.text('MyPackages'), findsOneWidget);
+    expect(find.text('Support'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('Arabic'), findsOneWidget);
 
-    expect(find.text('Packages'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('PrivacyPolicy'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Logout'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+    expect(find.text('TermsAndCondition'), findsOneWidget);
+    expect(find.text('PrivacyPolicy'), findsOneWidget);
+
+    // Profile Management opens the Edit Profile page.
+    await tester.scrollUntilVisible(
+      find.text('Profile Management'),
+      -260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile Management'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit Profile'), findsOneWidget);
+    expect(find.text('Change profile photo'), findsOneWidget);
   });
 }

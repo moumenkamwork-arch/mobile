@@ -3,403 +3,626 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../routing/route_names.dart';
-import '../../../../shared/widgets/promoo_button.dart';
-import '../../../../shared/widgets/promoo_card.dart';
-import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
-import '../../../../shared/widgets/promoo_section_header.dart';
+import '../../../../shared/widgets/promoo_page_header.dart';
+import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
-import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/seat.dart';
 import '../controllers/seats_controller.dart';
-import '../widgets/seat_booking_notice.dart';
-import '../widgets/seat_card.dart';
-import '../widgets/seat_tier_cards.dart';
-import '../widgets/seat_tier_explainer.dart';
-import '../widgets/seat_visibility_grid.dart';
-import '../widgets/seats_premium_header.dart';
 
-class SeatsScreen extends ConsumerWidget {
+/// Influencer page recreating the original app: search bar, tier legend,
+/// and a large seat grid that overflows the screen in BOTH directions.
+///
+/// Tier zones follow the original layout: Gold seats sit in the top-left
+/// block, Silver surrounds them, Bronze fills the outer band — so scrolling
+/// down OR right always moves Gold → Silver → Bronze.
+class SeatsScreen extends ConsumerStatefulWidget {
   const SeatsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SeatsScreen> createState() => _SeatsScreenState();
+}
+
+class _SeatsScreenState extends ConsumerState<SeatsScreen> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(seatsControllerProvider);
 
-    return switch (state.status) {
-      SeatsStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading seats',
-      ),
-      SeatsStatus.error => _SeatsErrorView(state: state),
-      SeatsStatus.empty ||
-      SeatsStatus.success ||
-      SeatsStatus.refreshing => _SeatsContentView(
-        state: state,
-        onRefresh: () => ref.read(seatsControllerProvider.notifier).refresh(),
-      ),
-    };
-  }
-}
-
-class _SeatsErrorView extends ConsumerWidget {
-  const _SeatsErrorView({required this.state});
-
-  final SeatsState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (state.hasContent) {
-      return Stack(
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SeatsContentView(
-            state: state,
-            onRefresh: () =>
-                ref.read(seatsControllerProvider.notifier).refresh(),
-          ),
-          PositionedDirectional(
-            top: AppSpacing.md,
-            start: AppSpacing.md,
-            end: AppSpacing.md,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: AppColors.elevatedSurface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.error),
+          const PromooPageHeader(),
+          const SizedBox(height: AppSpacing.sm),
+          _StatsStrip(seats: state.seats),
+          const SizedBox(height: AppSpacing.sm),
+          Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.screenHorizontal,
+            ),
+            child: PromooTextField(
+              controller: _searchController,
+              hint: 'Search',
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                color: AppColors.primaryYellow,
+                size: 26,
               ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                child: Text(
-                  state.failure?.message ?? 'Could not refresh seats.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
+              onChanged: (value) => setState(() => _query = value.trim()),
             ),
           ),
+          const Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.md,
+              AppSpacing.screenHorizontal,
+              AppSpacing.sm,
+            ),
+            child: _SeatLegend(),
+          ),
+          Expanded(child: _buildBody(state)),
         ],
-      );
+      ),
+    );
+  }
+
+  Widget _buildBody(SeatsState state) {
+    switch (state.status) {
+      case SeatsStatus.loading:
+        return const Center(
+          child: PromooLoadingIndicator(message: 'Loading seats'),
+        );
+      case SeatsStatus.error when !state.hasContent:
+        return Center(
+          child: PromooErrorState(
+            title: 'Seats unavailable',
+            message:
+                state.failure?.message ?? 'Could not load seats right now.',
+            onRetry: () => ref.read(seatsControllerProvider.notifier).retry(),
+          ),
+        );
+      case SeatsStatus.empty:
+        return Center(
+          child: PromooErrorState(
+            title: 'No seats yet',
+            message: 'No seats available yet.',
+            onRetry: () => ref.read(seatsControllerProvider.notifier).retry(),
+          ),
+        );
+      default:
+        return _SeatGrid(seats: state.seats, query: _query);
     }
-
-    return PromooErrorState(
-      title: 'Could not load seats',
-      message: state.failure?.message ?? 'Something went wrong. Try again.',
-      onRetry: () => ref.read(seatsControllerProvider.notifier).retry(),
-    );
   }
 }
 
-class _SeatsContentView extends ConsumerWidget {
-  const _SeatsContentView({required this.state, required this.onRefresh});
-
-  final SeatsState state;
-  final RefreshCallback onRefresh;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
-      children: [
-        RefreshIndicator(
-          color: AppColors.primaryYellow,
-          backgroundColor: AppColors.elevatedSurface,
-          onRefresh: onRefresh,
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                  AppSpacing.screenHorizontal,
-                  AppSpacing.screenVertical,
-                  AppSpacing.screenHorizontal,
-                  AppSpacing.shellScrollBottom,
-                ),
-                sliver: SliverList.list(
-                  children: [
-                    SeatsPremiumHeader(seats: state.seats),
-                    const SizedBox(height: AppSpacing.lg),
-                    const SeatTierExplainer(),
-                    const SizedBox(height: AppSpacing.lg),
-                    SeatVisibilityGrid(
-                      seats: state.seats,
-                      onSeatSelected: (seat) =>
-                          _showSeatPreviewSheet(context, seat),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PromooSectionHeader(
-                      title: 'Browse placements',
-                      subtitle: state.selectedTier == null
-                          ? 'Filter by Gold, Silver, or Bronze visibility'
-                          : '${state.selectedTier!.label} seats selected',
-                      actionLabel: state.selectedTier == null ? null : 'Clear',
-                      onActionPressed: state.selectedTier == null
-                          ? null
-                          : () => ref
-                                .read(seatsControllerProvider.notifier)
-                                .selectTier(null),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    SeatTierCards(
-                      selectedTier: state.selectedTier,
-                      onSelected: (tier) => ref
-                          .read(seatsControllerProvider.notifier)
-                          .selectTier(tier),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    SeatBookingNotice(
-                      status: state.bookingStatus,
-                      failureMessage: state.bookingFailure?.message,
-                      onLoginPressed: () => context.go(AppRoutes.login),
-                      onDismiss: state.bookingStatus == SeatBookingStatus.idle
-                          ? null
-                          : () => ref
-                                .read(seatsControllerProvider.notifier)
-                                .clearBookingMessage(),
-                    ),
-                    if (state.bookingStatus != SeatBookingStatus.idle)
-                      const SizedBox(height: AppSpacing.lg),
-                    if (state.seats.isEmpty)
-                      _SeatsEmptyState(selectedTier: state.selectedTier)
-                    else
-                      _SeatsList(seats: state.seats),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (state.isRefreshing)
-          const PositionedDirectional(
-            top: 0,
-            start: 0,
-            end: 0,
-            child: LinearProgressIndicator(minHeight: 2),
-          ),
-      ],
-    );
-  }
-}
-
-class _SeatsList extends ConsumerWidget {
-  const _SeatsList({required this.seats});
+class _StatsStrip extends StatelessWidget {
+  const _StatsStrip({required this.seats});
 
   final List<Seat> seats;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        for (var i = 0; i < seats.length; i++) ...[
-          SeatCard(
-            seat: seats[i],
-            onBookingRequested: (seat) {
-              ref.read(seatsControllerProvider.notifier).requestBooking(seat);
-            },
+  Widget build(BuildContext context) {
+    final influencers = seats.where((s) => s.holder != null).length;
+    final available = seats.where((s) => s.isAvailable).length;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppSpacing.screenHorizontal,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _StatChip(
+              icon: Icons.people_alt_rounded,
+              value: '$influencers',
+              label: 'Influencers',
+            ),
           ),
-          if (i != seats.length - 1) const SizedBox(height: AppSpacing.md),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _StatChip(
+              icon: Icons.event_seat_rounded,
+              value: '$available',
+              label: 'Available seats',
+            ),
+          ),
         ],
-      ],
-    );
-  }
-}
-
-class _SeatsEmptyState extends StatelessWidget {
-  const _SeatsEmptyState({required this.selectedTier});
-
-  final SeatTier? selectedTier;
-
-  @override
-  Widget build(BuildContext context) {
-    return PromooEmptyState(
-      title: selectedTier == null
-          ? 'No seats yet'
-          : 'No ${selectedTier!.label} seats',
-      message: selectedTier == null
-          ? 'Premium seats will appear here when they are available.'
-          : 'Try another tier or clear the tier filter.',
-      icon: Icons.event_seat_rounded,
-    );
-  }
-}
-
-void _showSeatPreviewSheet(BuildContext context, Seat seat) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return _SeatPreviewSheet(
-        seat: seat,
-        onViewProfile: seat.holder == null
-            ? null
-            : () {
-                Navigator.of(sheetContext).pop();
-                context.go(AppRoutes.profileById(seat.holder!.id));
-              },
-        onBookNow: !seat.isAvailable
-            ? null
-            : () {
-                Navigator.of(sheetContext).pop();
-                context.go(
-                  AppRoutes.seatCheckout(
-                    seatId: seat.id,
-                    title: seat.title,
-                    tier: '${seat.tier.label} visibility placement',
-                    price: seat.price?.label ?? '',
-                  ),
-                );
-              },
-      );
-    },
-  );
-}
-
-class _SeatPreviewSheet extends StatelessWidget {
-  const _SeatPreviewSheet({
-    required this.seat,
-    this.onViewProfile,
-    this.onBookNow,
-  });
-
-  final Seat seat;
-  final VoidCallback? onViewProfile;
-  final VoidCallback? onBookNow;
-
-  @override
-  Widget build(BuildContext context) {
-    final holder = seat.holder;
-
-    return SafeArea(
-      top: false,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsetsDirectional.only(
-            start: AppSpacing.md,
-            end: AppSpacing.md,
-            bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
-          ),
-          child: PromooCard(
-            key: const ValueKey('seat-preview-sheet'),
-            color: AppColors.elevatedSurface,
-            borderColor: seat.isAvailable
-                ? AppColors.primaryYellow
-                : AppColors.borderStrong,
-            padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
-            child: holder == null
-                ? _AvailableSeatPreview(seat: seat, onBookNow: onBookNow)
-                : _OccupiedSeatPreview(
-                    seat: seat,
-                    holder: holder,
-                    onViewProfile: onViewProfile,
-                  ),
-          ),
-        ),
       ),
     );
   }
 }
 
-class _OccupiedSeatPreview extends StatelessWidget {
-  const _OccupiedSeatPreview({
-    required this.seat,
-    required this.holder,
-    this.onViewProfile,
+class _StatChip extends StatelessWidget {
+  const _StatChip({
+    required this.icon,
+    required this.value,
+    required this.label,
   });
 
-  final Seat seat;
-  final SeatHolder holder;
-  final VoidCallback? onViewProfile;
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.cardSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.primaryYellow, size: 20),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(width: AppSpacing.xxs),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SeatLegend extends StatelessWidget {
+  const _SeatLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _LegendItem(color: AppColors.primaryYellow, label: 'Gold Seats'),
+        _LegendItem(color: _SeatGrid.silverColor, label: 'Silver Seats'),
+        _LegendItem(color: _SeatGrid.bronzeColor, label: 'Bronze Seats'),
+      ],
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+}
+
+class _SeatGrid extends StatelessWidget {
+  const _SeatGrid({required this.seats, required this.query});
+
+  static const silverColor = Color(0xFF9E9E9E);
+  static const bronzeColor = Color(0xFFC77B3B);
+
+  /// 12x12 cells split into 4-cell bands: band 0 = gold, 1 = silver,
+  /// 2 = bronze, using max(rowBand, colBand) so both scroll directions
+  /// move gold → silver → bronze.
+  static const bandSize = 4;
+  static const gridSize = 12;
+
+  static const _cellWidth = 66.0;
+  static const _cellHeight = 80.0;
+  static const _cellGap = 6.0;
+
+  final List<Seat> seats;
+  final String query;
+
+  static SeatTier tierForCell(int row, int col) {
+    final rowBand = row ~/ bandSize;
+    final colBand = col ~/ bandSize;
+    final band = rowBand > colBand ? rowBand : colBand;
+    return switch (band) {
+      0 => SeatTier.gold,
+      1 => SeatTier.silver,
+      _ => SeatTier.bronze,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final byTier = <SeatTier, List<Seat>>{
+      SeatTier.gold: [],
+      SeatTier.silver: [],
+      SeatTier.bronze: [],
+    };
+    for (final seat in seats) {
+      byTier[seat.tier]?.add(seat);
+    }
+    for (final list in byTier.values) {
+      list.sort((a, b) => a.position.compareTo(b.position));
+    }
+
+    final cursors = <SeatTier, int>{
+      SeatTier.gold: 0,
+      SeatTier.silver: 0,
+      SeatTier.bronze: 0,
+    };
+
+    final rows = <Widget>[];
+    for (var row = 0; row < gridSize; row++) {
+      final cells = <Widget>[];
+      for (var col = 0; col < gridSize; col++) {
+        final tier = tierForCell(row, col);
+        final tierSeats = byTier[tier]!;
+        final cursor = cursors[tier]!;
+        final seat = cursor < tierSeats.length ? tierSeats[cursor] : null;
+        cursors[tier] = cursor + 1;
+
+        cells.add(
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              end: _cellGap,
+              bottom: _cellGap,
+            ),
+            child: _SeatCell(tier: tier, seat: seat, dimmed: _isDimmed(seat)),
+          ),
+        );
+      }
+      rows.add(Row(mainAxisSize: MainAxisSize.min, children: cells));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.screenHorizontal,
+        AppSpacing.xs,
+        AppSpacing.screenHorizontal,
+        AppSpacing.shellScrollBottom,
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: rows,
+        ),
+      ),
+    );
+  }
+
+  bool _isDimmed(Seat? seat) {
+    if (query.isEmpty) {
+      return false;
+    }
+    final name = seat?.holder?.name;
+    if (name == null) {
+      return true;
+    }
+    return !name.toLowerCase().contains(query.toLowerCase());
+  }
+}
+
+class _SeatCell extends StatelessWidget {
+  const _SeatCell({
+    required this.tier,
+    required this.seat,
+    this.dimmed = false,
+  });
+
+  final SeatTier tier;
+  final Seat? seat;
+  final bool dimmed;
+
+  Color get _tierColor {
+    return switch (tier) {
+      SeatTier.gold => AppColors.primaryYellow,
+      SeatTier.silver => _SeatGrid.silverColor,
+      _ => _SeatGrid.bronzeColor,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final holder = seat?.holder;
+    final isOccupied = seat != null && !seat!.isAvailable && holder != null;
+
+    final cell = InkWell(
+      onTap: () => _onTap(context),
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: _SeatGrid._cellWidth,
+        height: _SeatGrid._cellHeight,
+        padding: const EdgeInsetsDirectional.all(AppSpacing.xxs),
+        decoration: BoxDecoration(
+          color: AppColors.background.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: _tierColor.withValues(
+              alpha: tier == SeatTier.gold ? 0.8 : 0.55,
+            ),
+            width: 1.2,
+          ),
+        ),
+        child: isOccupied
+            ? _OccupiedContent(holder: holder, tierColor: _tierColor)
+            : _AvailableContent(priceLabel: _priceLabel),
+      ),
+    );
+
+    if (!dimmed) {
+      return cell;
+    }
+    return Opacity(opacity: 0.25, child: cell);
+  }
+
+  String get _priceLabel {
+    final price = seat?.price;
+    if (price != null) {
+      return price.label;
+    }
+    final fallback = switch (tier) {
+      SeatTier.gold => 499,
+      SeatTier.silver => 299,
+      _ => 149,
+    };
+    return '$fallback AED';
+  }
+
+  void _onTap(BuildContext context) {
+    final currentSeat = seat;
+    if (currentSeat == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('More seats are opening soon.')),
+        );
+      return;
+    }
+
+    if (currentSeat.isAvailable) {
+      _showSeatSheet(context, currentSeat);
+    } else {
+      _showInfluencerSheet(context, currentSeat);
+    }
+  }
+
+  void _showSeatSheet(BuildContext context, Seat seat) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) {
+        return _SeatDetailSheet(
+          seat: seat,
+          tierColor: _tierColor,
+          onBookNow: () {
+            Navigator.of(sheetContext).pop();
+            context.push(
+              AppRoutes.seatCheckout(
+                seatId: seat.id,
+                title: seat.title,
+                tier: '${seat.tier.label} visibility placement',
+                price: _priceLabel,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showInfluencerSheet(BuildContext context, Seat seat) {
+    final holder = seat.holder!;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const _SheetHandle(),
+                ClipOval(
+                  child: SizedBox(
+                    width: 84,
+                    height: 84,
+                    child: PromooImage(
+                      imageUrl: holder.avatarUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  holder.name,
+                  style: Theme.of(sheetContext).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _tierColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      '${seat.tier.label} Seat',
+                      style: Theme.of(sheetContext).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(sheetContext).pop();
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              const SnackBar(
+                                content: Text('Follow is coming soon.'),
+                              ),
+                            );
+                        },
+                        child: const Text('Follow'),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(sheetContext).pop();
+                          context.push(AppRoutes.profileById(holder.id));
+                        },
+                        child: const Text('View profile'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AvailableContent extends StatelessWidget {
+  const _AvailableContent({required this.priceLabel});
+
+  final String priceLabel;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _SheetHandle(),
+        const Icon(
+          Icons.chair_outlined,
+          color: AppColors.textPrimary,
+          size: 20,
+        ),
+        const SizedBox(height: AppSpacing.xxxs),
+        Text(
+          'Book Seat',
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.textPrimary,
+                fontSize: 9,
+                height: 1.1,
+              ),
+        ),
+        const SizedBox(height: 1),
+        Text(
+          priceLabel,
+          maxLines: 1,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.softYellow.withValues(alpha: 0.85),
+                fontSize: 8,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OccupiedContent extends StatelessWidget {
+  const _OccupiedContent({required this.holder, required this.tierColor});
+
+  final SeatHolder holder;
+  final Color tierColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ClipOval(
+          child: SizedBox(
+            width: 38,
+            height: 38,
+            child: PromooImage(imageUrl: holder.avatarUrl, fit: BoxFit.cover),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xxxs),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 6,
+              height: 6,
               decoration: BoxDecoration(
-                color: AppColors.brandBlack,
+                color: tierColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: _tierColor(seat.tier), width: 2),
-              ),
-              child: ClipOval(
-                child: PromooImage(
-                  imageUrl: holder.avatarUrl,
-                  fallbackIcon: Icons.person_rounded,
-                  semanticLabel: holder.name,
-                ),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    holder.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: AppSpacing.xxxs),
-                  Text(
-                    holder.username == null
-                        ? seat.title
-                        : '@${holder.username}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      _PreviewChip(label: '${seat.tier.label} placement'),
-                      _PreviewChip(label: seat.status.label),
-                      _PreviewChip(label: _audienceLabel(holder.id)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        Text(
-          _bioFor(holder.id),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        Row(
-          children: [
-            Expanded(
-              child: PromooButton.secondary(
-                label: 'Follow',
-                icon: Icons.person_add_alt_1_rounded,
-                onPressed: () {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      const SnackBar(
-                        content: Text('Follow action coming soon'),
-                      ),
-                    );
-                },
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: PromooButton.primary(
-                label: 'View profile',
-                icon: Icons.arrow_forward_rounded,
-                onPressed: onViewProfile,
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                holder.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 9,
+                    ),
               ),
             ),
           ],
@@ -409,87 +632,100 @@ class _OccupiedSeatPreview extends StatelessWidget {
   }
 }
 
-class _AvailableSeatPreview extends StatelessWidget {
-  const _AvailableSeatPreview({required this.seat, this.onBookNow});
+class _SeatDetailSheet extends StatelessWidget {
+  const _SeatDetailSheet({
+    required this.seat,
+    required this.tierColor,
+    required this.onBookNow,
+  });
 
   final Seat seat;
-  final VoidCallback? onBookNow;
+  final Color tierColor;
+  final VoidCallback onBookNow;
+
+  static const _descriptions = {
+    SeatTier.gold:
+        'Gold seats provide a premium viewing experience with the highest '
+        'level of comfort and visibility. These seats are positioned in the '
+        'most strategic locations to ensure perfect coverage and maximum '
+        'exposure. Influencers seated here enjoy top-tier placement for '
+        'enhanced visibility during events. Designed for VIP guests, they '
+        'offer exclusive benefits such as faster access and priority '
+        'interaction. Gold seating represents luxury, exclusivity, and '
+        'guaranteed premium engagement.',
+    SeatTier.silver:
+        'Silver seats offer excellent value with strong visibility and great '
+        'overall positioning within the layout. These seats are ideal for '
+        'influencers looking for balanced exposure without the premium cost. '
+        'Silver seating provides comfort and a clear line of sight while '
+        'still being close to the core areas. Perfect for mid-range '
+        'promotions and events requiring consistent, reliable engagement. A '
+        'smart choice for those who want quality placement at an affordable '
+        'rate.',
+    SeatTier.bronze:
+        'Bronze seats offer an accessible entry point while still '
+        'maintaining good overall visibility. Influencers in this category '
+        'benefit from cost-effective placement suitable for general '
+        'campaigns. These seats provide steady engagement and broad audience '
+        'reach without premium pricing. Ideal for newcomers or those '
+        'exploring event participation for the first time. A practical and '
+        'budget-friendly choice that still ensures a good presence within '
+        'the venue.',
+  };
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SheetHandle(),
-        Row(
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 62,
-              height: 62,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: _tierColor(seat.tier).withValues(alpha: 0.13),
-                shape: BoxShape.circle,
-                border: Border.all(color: _tierColor(seat.tier)),
-              ),
-              child: Icon(
-                Icons.event_seat_rounded,
-                color: _tierColor(seat.tier),
-                size: 30,
+            const Center(child: _SheetHandle()),
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: tierColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  '${seat.tier.label} Seat',
+                  style: theme.textTheme.titleLarge,
+                ),
+                const Spacer(),
+                OutlinedButton(
+                  onPressed: onBookNow,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryYellow,
+                    side: const BorderSide(color: AppColors.primaryYellow),
+                  ),
+                  child: const Text('Book Now'),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              seat.price?.label ?? '',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    seat.title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: AppSpacing.xxxs),
-                  Text(
-                    seat.price?.label ?? 'Price shown after selection',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.primaryYellow,
-                    ),
-                  ),
-                ],
-              ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              _descriptions[seat.tier] ?? '',
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.lg),
-        Text(
-          '${seat.tier.label} placement gives your profile stronger visibility in the Influencer Seats area.',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
-          children: [
-            _PreviewChip(label: _visibilityLabel(seat.tier)),
-            const _PreviewChip(label: 'Profile spotlight'),
-            const _PreviewChip(label: 'Placement preview'),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        PromooButton.primary(
-          label: 'Book Now',
-          icon: Icons.lock_rounded,
-          fullWidth: true,
-          onPressed: onBookNow,
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          'This opens a checkout preview for the walkthrough. Booking and payment open in the next phase.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
+      ),
     );
   }
 }
@@ -499,89 +735,14 @@ class _SheetHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.center,
-      child: Container(
-        width: 42,
-        height: 4,
-        margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.borderStrong,
-          borderRadius: AppRadius.pill,
-        ),
-      ),
-    );
-  }
-}
-
-class _PreviewChip extends StatelessWidget {
-  const _PreviewChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
+      width: 60,
+      height: 5,
+      margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.labelSmall,
+        color: AppColors.textPrimary.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
-}
-
-String _audienceLabel(String id) {
-  return switch (id) {
-    'profile-saffron-social' => '185K followers',
-    'profile-lina-atelier' => '143K followers',
-    'profile-framehouse' => '98K followers',
-    'profile-pearl-cafe' => '72K followers',
-    'profile-velvet-beauty' => '65K followers',
-    _ => 'Growing audience',
-  };
-}
-
-String _bioFor(String id) {
-  return switch (id) {
-    'profile-saffron-social' =>
-      'Premium launch campaigns and creator visibility for brands across the UAE.',
-    'profile-lina-atelier' =>
-      'Lifestyle creator focused on polished hospitality, style, and wellness moments.',
-    'profile-framehouse' =>
-      'Event visuals and product photography for memorable brand launches.',
-    'profile-pearl-cafe' =>
-      'Cafe discovery, seasonal offers, and community launch content.',
-    'profile-velvet-beauty' =>
-      'Beauty and wellness campaigns with polished self-care storytelling.',
-    _ => 'Promoo creator with active campaign visibility.',
-  };
-}
-
-String _visibilityLabel(SeatTier tier) {
-  return switch (tier) {
-    SeatTier.gold => 'Highest visibility',
-    SeatTier.silver => 'Strong placement',
-    SeatTier.bronze => 'Starter visibility',
-    SeatTier.unknown => 'Visibility placement',
-  };
-}
-
-Color _tierColor(SeatTier tier) {
-  return switch (tier) {
-    SeatTier.gold => AppColors.primaryYellow,
-    SeatTier.silver => AppColors.textSecondary,
-    SeatTier.bronze => AppColors.darkYellow,
-    SeatTier.unknown => AppColors.borderStrong,
-  };
 }

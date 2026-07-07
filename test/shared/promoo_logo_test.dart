@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/shared/widgets/promoo_logo.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
-  testWidgets('PromooLogo renders the configured SVG asset', (tester) async {
+  testWidgets('PromooLogo renders the configured brand image asset', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
@@ -16,13 +17,22 @@ void main() {
     );
 
     expect(find.byType(PromooLogo), findsOneWidget);
-    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
   });
 
-  test('full and compact logos use the approved brand assets', () {
-    expect(PromooLogo.full().assetName, 'assets/brand/promoo3.svg');
-    expect(PromooLogo.fullCropped().assetName, 'assets/brand/promoo3.svg');
+  test('full and compact logos use the new approved brand assets', () {
+    expect(
+      PromooLogo.full().assetName,
+      'assets/brand/new_logo/promoo_wordmark.png',
+    );
+    expect(
+      PromooLogo.fullCropped().assetName,
+      'assets/brand/new_logo/promoo_wordmark.png',
+    );
     expect(PromooLogo.fullCropped().cropToArtwork, isTrue);
-    expect(PromooLogo.compact().assetName, 'assets/brand/promoo.svg');
+    expect(
+      PromooLogo.compact().assetName,
+      'assets/brand/new_logo/promoo_mark.png',
+    );
   });
 }

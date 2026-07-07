@@ -49,9 +49,9 @@ class ChatListScreen extends ConsumerWidget {
                           state: state,
                           onRetry: () =>
                               ref.read(chatControllerProvider.notifier).retry(),
-                          onLogin: () => context.go(AppRoutes.login),
+                          onLogin: () => context.push(AppRoutes.login),
                           onRoomSelected: (roomId) =>
-                              context.go(AppRoutes.chatRoom(roomId)),
+                              context.push(AppRoutes.chatRoom(roomId)),
                         ),
                       ],
                     ),

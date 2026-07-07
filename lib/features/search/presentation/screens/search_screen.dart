@@ -103,7 +103,7 @@ class _SearchContentView extends StatelessWidget {
                       state: state,
                       onRetry: onRetry,
                       onProfileSelected: (profile) {
-                        context.go(AppRoutes.profileById(profile.id));
+                        context.push(AppRoutes.profileById(profile.id));
                       },
                     ),
                   ],
@@ -159,13 +159,13 @@ class _SearchBody extends StatelessWidget {
                     results: state.results,
                     onProfileSelected: onProfileSelected,
                     onServiceSelected: (service) {
-                      context.go(AppRoutes.serviceById(service.id));
+                      context.push(AppRoutes.serviceById(service.id));
                     },
                     onOfferSelected: (offer) {
-                      context.go(AppRoutes.homeItemDetail('offer', offer.id));
+                      context.push(AppRoutes.homeItemDetail('offer', offer.id));
                     },
                     onAdSelected: (ad) {
-                      context.go(AppRoutes.homeItemDetail('ad', ad.id));
+                      context.push(AppRoutes.homeItemDetail('ad', ad.id));
                     },
                   ),
                 ],
@@ -186,13 +186,13 @@ class _SearchBody extends StatelessWidget {
         results: state.results,
         onProfileSelected: onProfileSelected,
         onServiceSelected: (service) {
-          context.go(AppRoutes.serviceById(service.id));
+          context.push(AppRoutes.serviceById(service.id));
         },
         onOfferSelected: (offer) {
-          context.go(AppRoutes.homeItemDetail('offer', offer.id));
+          context.push(AppRoutes.homeItemDetail('offer', offer.id));
         },
         onAdSelected: (ad) {
-          context.go(AppRoutes.homeItemDetail('ad', ad.id));
+          context.push(AppRoutes.homeItemDetail('ad', ad.id));
         },
       ),
     };

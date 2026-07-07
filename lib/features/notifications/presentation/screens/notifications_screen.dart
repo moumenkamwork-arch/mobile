@@ -69,8 +69,8 @@ class NotificationsScreen extends ConsumerWidget {
                                 .read(notificationsControllerProvider.notifier)
                                 .markRead(notification);
                             final roomId = notification.roomId;
-                            if (roomId != null) {
-                              context.go(AppRoutes.chatRoom(roomId));
+                            if (roomId != null && roomId.isNotEmpty) {
+                              context.push(AppRoutes.chatRoom(roomId));
                             }
                           },
                           onDelete: (notification) => ref

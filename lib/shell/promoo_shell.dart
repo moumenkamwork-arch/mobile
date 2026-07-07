@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../routing/route_names.dart';
-import '../shared/widgets/promoo_card.dart';
+import '../shared/widgets/promoo_logo.dart';
 import '../shared/widgets/promoo_scaffold.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_radius.dart';
 import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 
@@ -41,19 +41,19 @@ class PromooShell extends ConsumerStatefulWidget {
       icon: Icons.home_rounded,
     ),
     PromooShellTab(
+      label: 'Influencer',
+      route: AppRoutes.seats,
+      icon: Icons.event_seat_rounded,
+    ),
+    PromooShellTab(
       label: 'Services',
       route: AppRoutes.services,
       icon: Icons.storefront_rounded,
     ),
     PromooShellTab(
-      label: 'Promoo',
+      label: 'Cup',
       route: AppRoutes.cup,
       icon: Icons.emoji_events_rounded,
-    ),
-    PromooShellTab(
-      label: 'Influencer',
-      route: AppRoutes.seats,
-      icon: Icons.event_seat_rounded,
     ),
     PromooShellTab(
       label: 'Profile',
@@ -68,67 +68,81 @@ class PromooShell extends ConsumerStatefulWidget {
 
 class _PromooShellState extends ConsumerState<PromooShell> {
   bool _isScrolled = false;
+  DateTime? _lastBackPressTime;
 
   @override
   Widget build(BuildContext context) {
-    return PromooScaffold(
-      padding: EdgeInsets.zero,
-      safeAreaBottom: false,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          final nextScrolled = notification.metrics.pixels > 10;
-          if (nextScrolled != _isScrolled) {
-            setState(() => _isScrolled = nextScrolled);
-          }
-          return false;
-        },
-        child: widget.child,
-      ),
-      bottomNavigationBar: _PromooBottomNavigation(
-        selectedIndex: widget.selectedIndex,
-        isScrolled: _isScrolled,
-        onDestinationSelected: (index) {
-          if (index == 4) {
-            _showProfileMenu(context);
-            return;
-          }
-          if (index == widget.selectedIndex) {
-            return;
-          }
-          context.go(PromooShell.tabs[index].route);
-        },
-      ),
-    );
-  }
+    final canPop = context.canPop();
 
-  void _showProfileMenu(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return _ProfileMenuSheet(
-          onViewProfile: () {
-            Navigator.of(sheetContext).pop();
-            context.go(AppRoutes.profile);
-          },
-          onPreviewAction: (label) {
-            Navigator.of(sheetContext).pop();
-            _showMenuNotice(context, label);
-          },
-        );
+    return PopScope(
+      canPop: canPop,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        final now = DateTime.now();
+        final maxDuration = const Duration(seconds: 2);
+        final isWarning =
+            _lastBackPressTime == null ||
+            now.difference(_lastBackPressTime!) > maxDuration;
+
+        if (isWarning) {
+          _lastBackPressTime = now;
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Press back again to exit',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: const Color(0xFF1E1E1E),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.sizeOf(context).height / 2 - 25,
+                  left: 60,
+                  right: 60,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          return;
+        }
+
+        Future.microtask(() => SystemNavigator.pop());
       },
-    );
-  }
-
-  void _showMenuNotice(BuildContext context, String label) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(label.endsWith('.') ? label : '$label coming soon'),
+      child: PromooScaffold(
+        padding: EdgeInsets.zero,
+        safeAreaBottom: false,
+        extendBody: true,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            final nextScrolled = notification.metrics.pixels > 10;
+            if (nextScrolled != _isScrolled) {
+              setState(() => _isScrolled = nextScrolled);
+            }
+            return false;
+          },
+          child: widget.child,
         ),
-      );
+        bottomNavigationBar: _PromooBottomNavigation(
+          selectedIndex: widget.selectedIndex,
+          isScrolled: _isScrolled,
+          onDestinationSelected: (index) {
+            if (index == widget.selectedIndex) {
+              return;
+            }
+            context.go(PromooShell.tabs[index].route);
+          },
+        ),
+      ),
+    );
   }
 }
 
@@ -139,6 +153,12 @@ class _PromooBottomNavigation extends StatelessWidget {
     required this.onDestinationSelected,
   });
 
+  /// Height of the visible bar row (labels + icons). The center P mark
+  /// overflows above this height by [_pOverflow].
+  static const double barHeight = 62;
+  static const double _pOverflow = 26;
+  static const double _pSize = 54;
+
   final int selectedIndex;
   final bool isScrolled;
   final ValueChanged<int> onDestinationSelected;
@@ -146,68 +166,161 @@ class _PromooBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = isScrolled
-        ? AppColors.navBackground.withValues(alpha: 0.72)
+        ? AppColors.navBackground.withValues(alpha: 0.78)
         : AppColors.navBackground;
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
-    return SafeArea(
-      top: false,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        margin: const EdgeInsetsDirectional.fromSTEB(
-          AppSpacing.md,
-          AppSpacing.xs,
-          AppSpacing.md,
-          AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: AppRadius.bottomNav,
-          boxShadow: isScrolled
-              ? AppShadows.elevated
-              : [
-                  BoxShadow(
-                    color: AppColors.primaryYellow.withValues(alpha: 0.08),
-                    blurRadius: 22,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-        ),
-        child: ClipRRect(
-          borderRadius: AppRadius.bottomNav,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: isScrolled ? 14 : 6,
-              sigmaY: isScrolled ? 14 : 6,
-            ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: AppRadius.bottomNav,
-                border: Border.all(
-                  color: isScrolled
-                      ? AppColors.primaryYellow.withValues(alpha: 0.28)
-                      : AppColors.border,
+    return SizedBox(
+      // Room for the overflowing P above the full-width bar.
+      height: barHeight + bottomInset + _pOverflow,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Full-width glass bar anchored to the very bottom, top border only.
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            bottom: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: isScrolled ? 16 : 8,
+                  sigmaY: isScrolled ? 16 : 8,
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.xs),
-                child: Row(
-                  children: [
-                    for (
-                      var index = 0;
-                      index < PromooShell.tabs.length;
-                      index++
-                    )
-                      Expanded(
-                        child: _PromooNavItem(
-                          tab: PromooShell.tabs[index],
-                          selected: index == selectedIndex,
-                          onTap: () => onDestinationSelected(index),
-                        ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    border: Border(
+                      top: BorderSide(
+                        color: isScrolled
+                            ? AppColors.primaryYellow.withValues(alpha: 0.30)
+                            : AppColors.border,
                       ),
-                  ],
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SizedBox(
+                      height: barHeight,
+                      child: Row(
+                        children: [
+                          for (
+                            var index = 0;
+                            index < PromooShell.tabs.length;
+                            index++
+                          )
+                            Expanded(
+                              child: index == 2
+                                  ? _CenterServicesLabel(
+                                      tab: PromooShell.tabs[index],
+                                      selected: index == selectedIndex,
+                                      onTap: () => onDestinationSelected(index),
+                                    )
+                                  : _PromooNavItem(
+                                      tab: PromooShell.tabs[index],
+                                      selected: index == selectedIndex,
+                                      onTap: () => onDestinationSelected(index),
+                                    ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
+            ),
+          ),
+          // The Services P mark, half overflowing above the bar, centered.
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            top: 0,
+            child: Center(
+              child: _CenterPMark(
+                size: _pSize,
+                selected: selectedIndex == 2,
+                onTap: () => onDestinationSelected(2),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CenterServicesLabel extends StatelessWidget {
+  const _CenterServicesLabel({
+    required this.tab,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final PromooShellTab tab;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Align(
+        alignment: AlignmentDirectional.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+          child: Text(
+            tab.label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: selected ? AppColors.primaryYellow : AppColors.textMuted,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CenterPMark extends StatelessWidget {
+  const _CenterPMark({
+    required this.size,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final double size;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: 'Services tab',
+      child: Tooltip(
+        message: 'Services',
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: AppColors.brandBlack,
+              shape: BoxShape.circle,
+              boxShadow: AppShadows.elevated,
+              border: Border.all(
+                color: AppColors.primaryYellow,
+                width: selected ? 2.4 : 1.6,
+              ),
+            ),
+            padding: const EdgeInsetsDirectional.all(11),
+            child: Image.asset(
+              PromooLogo.compactAsset,
+              fit: BoxFit.contain,
+              excludeFromSemantics: true,
             ),
           ),
         ),
@@ -237,198 +350,27 @@ class _PromooNavItem extends StatelessWidget {
       label: '${tab.label} tab',
       child: Tooltip(
         message: tab.label,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: AppRadius.lg == 16
-                ? const BorderRadius.all(Radius.circular(AppRadius.lg))
-                : AppRadius.card,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOut,
-              constraints: const BoxConstraints(
-                minHeight: AppSpacing.touchTarget,
-              ),
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppSpacing.xxs,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.elevatedSurface
-                    : Colors.transparent,
-                borderRadius: AppRadius.card,
-                border: Border.all(
-                  color: selected ? AppColors.borderStrong : Colors.transparent,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (tab.route == AppRoutes.cup)
-                    Text(
-                      'P',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    )
-                  else
-                    Icon(tab.icon, color: color, size: 22),
-                  const SizedBox(height: AppSpacing.xxxs),
-                  Text(
-                    tab.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: color,
-                      fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileMenuSheet extends StatelessWidget {
-  const _ProfileMenuSheet({
-    required this.onViewProfile,
-    required this.onPreviewAction,
-  });
-
-  final VoidCallback onViewProfile;
-  final ValueChanged<String> onPreviewAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsetsDirectional.only(
-          start: AppSpacing.md,
-          end: AppSpacing.md,
-          bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
-        ),
-        child: PromooCard(
-          color: AppColors.elevatedSurface,
-          borderColor: AppColors.primaryYellow.withValues(alpha: 0.42),
-          padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+        child: InkWell(
+          onTap: onTap,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: AlignmentDirectional.center,
-                child: Container(
-                  width: 42,
-                  height: 4,
-                  margin: const EdgeInsetsDirectional.only(
-                    bottom: AppSpacing.lg,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.borderStrong,
-                    borderRadius: AppRadius.pill,
-                  ),
+              Icon(tab.icon, color: color, size: 24),
+              const SizedBox(height: AppSpacing.xxxs),
+              Text(
+                tab.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                 ),
-              ),
-              Text(
-                'Profile menu',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                'Manage your Promoo presence.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _MenuAction(
-                icon: Icons.person_rounded,
-                label: 'View Profile',
-                onTap: onViewProfile,
-              ),
-              _MenuAction(
-                icon: Icons.edit_rounded,
-                label: 'Edit Profile',
-                onTap: () => onPreviewAction('Edit Profile'),
-              ),
-              _MenuAction(
-                icon: Icons.bookmark_border_rounded,
-                label: 'Saved',
-                onTap: () => onPreviewAction('Saved'),
-              ),
-              _MenuAction(
-                icon: Icons.language_rounded,
-                label: 'Language',
-                onTap: () => onPreviewAction('Language'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text('Theme Mode', style: Theme.of(context).textTheme.labelLarge),
-              const SizedBox(height: AppSpacing.xs),
-              Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xs,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Black Mode'),
-                    selected: true,
-                    onSelected: (_) => onPreviewAction(
-                      'Theme options will be available in the next phase.',
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Light Mode'),
-                    selected: false,
-                    onSelected: (_) => onPreviewAction(
-                      'Theme options will be available in the next phase.',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _MenuAction(
-                icon: Icons.support_agent_rounded,
-                label: 'Support',
-                onTap: () => onPreviewAction('Support'),
-              ),
-              _MenuAction(
-                icon: Icons.logout_rounded,
-                label: 'Logout',
-                onTap: () => onPreviewAction('Logout'),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _MenuAction extends StatelessWidget {
-  const _MenuAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: AppColors.primaryYellow),
-      title: Text(label),
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: onTap,
     );
   }
 }

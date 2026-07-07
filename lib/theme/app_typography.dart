@@ -7,6 +7,10 @@ class AppTypography {
 
   static const recommendedUiFontFamily = 'Tajawal';
 
+  /// Logo-only font (see AGENTS.md: "Logo font: Varela Round, logo only").
+  /// Never used for general UI text.
+  static const logoFontFamily = 'VarelaRound';
+
   static TextTheme textTheme(TextTheme base) {
     TextStyle style(
       TextStyle? source, {

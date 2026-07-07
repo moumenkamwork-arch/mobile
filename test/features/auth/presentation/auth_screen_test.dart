@@ -25,15 +25,13 @@ void main() {
     );
 
     expect(find.text('Login'), findsWidgets);
-    expect(find.text('Create account'), findsOneWidget);
+    expect(find.text('Sign Up'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
     expect(find.bySemanticsLabel('Promoo auth logo'), findsOneWidget);
     final authLogo = tester.widget<PromooLogo>(
       _promooLogoWithLabel('Promoo auth logo'),
     );
-    expect(authLogo.cropToArtwork, isTrue);
-    expect(authLogo.width, 250);
-    expect(authLogo.artworkScale, 1.35);
+    expect(authLogo.height, 96);
 
     await tester.scrollUntilVisible(
       find.byTooltip('Google'),
@@ -43,7 +41,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Apple'), findsOneWidget);
     expect(find.byTooltip('Google'), findsOneWidget);
-    expect(find.byTooltip('Facebook'), findsOneWidget);
+    expect(find.byTooltip('Facebook'), findsNothing);
 
     await tester.tap(find.byTooltip('Google'));
     await tester.pumpAndSettle();
@@ -78,6 +76,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Continue as Guest'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Continue as Guest'));
     await tester.pumpAndSettle();
 
@@ -126,7 +126,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Apple'), findsOneWidget);
     expect(find.byTooltip('Google'), findsOneWidget);
-    expect(find.byTooltip('Facebook'), findsOneWidget);
+    expect(find.byTooltip('Facebook'), findsNothing);
   });
 
   testWidgets('profile login-required CTA navigates to login', (tester) async {

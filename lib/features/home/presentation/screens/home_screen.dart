@@ -121,7 +121,9 @@ class _HomeContentView extends StatelessWidget {
             slivers: [
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _HomeHeaderDelegate(),
+                delegate: _HomeHeaderDelegate(
+                  topInset: MediaQuery.paddingOf(context).top,
+                ),
               ),
               SliverPadding(
                 padding: const EdgeInsetsDirectional.fromSTEB(
@@ -178,7 +180,7 @@ class _HomeContentView extends StatelessWidget {
                       HomeHighlightCard(
                         highlight: content.highlight!,
                         onTap: () {
-                          context.go(
+                          context.push(
                             AppRoutes.homeItemDetail(
                               content.highlight!.detailType.routeValue,
                               content.highlight!.id,
@@ -213,11 +215,15 @@ class _HomeContentView extends StatelessWidget {
 }
 
 class _HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
-  @override
-  double get minExtent => 98;
+  _HomeHeaderDelegate({required this.topInset});
+
+  final double topInset;
 
   @override
-  double get maxExtent => 98;
+  double get minExtent => topInset + 56;
+
+  @override
+  double get maxExtent => topInset + 56;
 
   @override
   Widget build(
@@ -225,19 +231,13 @@ class _HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        AppSpacing.screenHorizontal,
-        AppSpacing.xs,
-        AppSpacing.screenHorizontal,
-        AppSpacing.xs,
-      ),
-      child: HomeHeader(isScrolled: overlapsContent || shrinkOffset > 0),
-    );
+    return HomeHeader(isScrolled: overlapsContent || shrinkOffset > 0);
   }
 
   @override
-  bool shouldRebuild(covariant _HomeHeaderDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant _HomeHeaderDelegate oldDelegate) {
+    return oldDelegate.topInset != topInset;
+  }
 }
 
 void _showPreviewNotice(BuildContext context, String message) {

@@ -10,6 +10,7 @@ import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/auth_session.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_account_type_selector.dart';
+import '../widgets/auth_form_field.dart';
 import '../widgets/auth_message_banner.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
@@ -50,8 +51,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final session = state.session;
 
     return AuthScreenFrame(
-      title: 'Create account',
-      subtitle: 'Create your Promoo account with email.',
       child: session != null
           ? AuthSignedInPanel(
               session: session,
@@ -125,34 +124,31 @@ class _RegisterForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
           ],
+          const AuthFieldLabel('Full name'),
+          const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: nameController,
-            label: 'Full name',
-            hint: 'Your display name',
-            prefixIcon: const Icon(Icons.badge_outlined),
+            hint: 'Full name',
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
+          const AuthFieldLabel('Email'),
+          const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: emailController,
-            label: 'Email',
-            hint: 'name@example.com',
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
+            hint: 'Email',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
-          PromooTextField(
+          const AuthFieldLabel('Password'),
+          const SizedBox(height: AppSpacing.xs),
+          AuthPasswordField(
             controller: passwordController,
-            label: 'Password',
-            hint: 'At least 8 characters',
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
-            obscureText: true,
-            textInputAction: TextInputAction.done,
             onSubmitted: (_) => state.isBusy ? null : onSubmit(),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text('Account type', style: Theme.of(context).textTheme.labelLarge),
+          const AuthFieldLabel('Account type'),
           const SizedBox(height: AppSpacing.xs),
           AuthAccountTypeSelector(
             selected: accountType,
@@ -161,26 +157,23 @@ class _RegisterForm extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
             label: state.isBusy ? 'Creating account...' : 'Create account',
-            icon: Icons.person_add_alt_1_rounded,
             fullWidth: true,
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.sm),
+          const AuthSocialLoginPreview(caption: 'Sign up with account'),
+          const SizedBox(height: AppSpacing.lg),
           PromooButton.secondary(
             label: 'Already have an account',
-            icon: Icons.login_rounded,
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.login),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(
             label: 'Continue as Guest',
-            icon: Icons.explore_rounded,
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.home),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          const AuthSocialLoginPreview(),
         ],
       ),
     );

@@ -13,7 +13,7 @@ class HomeSearchTeaser extends StatelessWidget {
   Widget build(BuildContext context) {
     return PromooCard(
       color: AppColors.surface,
-      onTap: () => context.go(AppRoutes.search),
+      onTap: () => context.push(AppRoutes.search),
       child: Row(
         children: [
           const Icon(Icons.search_rounded, color: AppColors.primaryYellow),
