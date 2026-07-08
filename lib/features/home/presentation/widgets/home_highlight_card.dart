@@ -17,7 +17,7 @@ class HomeHighlightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PromooCard(
       onTap: onTap,
-      color: AppColors.elevatedSurface,
+      color: context.colors.elevatedSurface,
       elevated: true,
       padding: EdgeInsets.zero,
       child: Column(
@@ -37,14 +37,16 @@ class HomeHighlightCard extends StatelessWidget {
                     semanticLabel: highlight.title,
                     fallbackIcon: Icons.workspace_premium_rounded,
                   ),
+                  // Constant dark scrim so the white title reads over the
+                  // photo in both themes.
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: AlignmentDirectional.topCenter,
                         end: AlignmentDirectional.bottomCenter,
                         colors: [
-                          AppColors.background.withValues(alpha: 0.04),
-                          AppColors.background.withValues(alpha: 0.74),
+                          AppColors.brandBlack.withValues(alpha: 0.04),
+                          AppColors.brandBlack.withValues(alpha: 0.74),
                         ],
                       ),
                     ),
@@ -59,7 +61,7 @@ class HomeHighlightCard extends StatelessWidget {
                           vertical: AppSpacing.xxs,
                         ),
                         decoration: const BoxDecoration(
-                          color: AppColors.primaryYellow,
+                          color: AppColors.brandYellow,
                           borderRadius: AppRadius.pill,
                         ),
                         child: Text(
@@ -81,7 +83,10 @@ class HomeHighlightCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w900),
+                          ?.copyWith(
+                            color: AppColors.dark.textPrimary,
+                            fontWeight: FontWeight.w900,
+                          ),
                     ),
                   ),
                 ],
@@ -108,14 +113,14 @@ class HomeHighlightCard extends StatelessWidget {
                       Text(
                         highlight.actionLabel!,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primaryYellow,
+                          color: context.colors.accent,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.xxs),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_rounded,
-                        color: AppColors.primaryYellow,
+                        color: context.colors.accent,
                         size: 18,
                       ),
                     ],

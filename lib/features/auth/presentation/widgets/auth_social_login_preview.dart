@@ -19,6 +19,7 @@ class AuthSocialLoginPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       children: [
         Row(
@@ -27,7 +28,7 @@ class AuthSocialLoginPreview extends StatelessWidget {
             _SocialCircle(
               label: 'Apple',
               icon: Icons.apple,
-              iconColor: AppColors.textPrimary,
+              iconColor: colors.textPrimary,
               background: const Color(0xFF3A3A3A),
               onTap: () => _showComingSoon(context, 'Apple sign-in'),
             ),
@@ -50,7 +51,7 @@ class AuthSocialLoginPreview extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ).textTheme.bodySmall?.copyWith(color: colors.textSecondary),
         ),
       ],
     );
@@ -97,7 +98,7 @@ class _SocialCircle extends StatelessWidget {
               decoration: BoxDecoration(
                 color: background,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Center(
                 child: iconWidget ?? Icon(icon, color: iconColor, size: 28),

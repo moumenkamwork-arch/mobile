@@ -83,8 +83,9 @@ class _HomeStoryItem extends StatelessWidget {
                 width: 58,
                 height: 58,
                 padding: const EdgeInsetsDirectional.all(2),
+                // Story ring is the brand highlighter in both themes.
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryYellow,
+                  color: AppColors.brandYellow,
                   shape: BoxShape.circle,
                 ),
                 child: ClipOval(

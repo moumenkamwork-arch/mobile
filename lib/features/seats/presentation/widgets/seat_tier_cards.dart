@@ -54,7 +54,8 @@ class _SeatTierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = _accentColorFor(tier);
+    final colors = context.colors;
+    final accentColor = _accentColorFor(tier, colors);
 
     return Semantics(
       button: true,
@@ -70,11 +71,9 @@ class _SeatTierCard extends StatelessWidget {
             height: 96,
             padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: selected ? AppColors.elevatedSurface : AppColors.surface,
+              color: selected ? colors.elevatedSurface : colors.surface,
               borderRadius: AppRadius.card,
-              border: Border.all(
-                color: selected ? accentColor : AppColors.border,
-              ),
+              border: Border.all(color: selected ? accentColor : colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +85,7 @@ class _SeatTierCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: selected
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
+                    color: selected ? colors.textPrimary : colors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxxs),
@@ -107,12 +104,15 @@ class _SeatTierCard extends StatelessWidget {
   }
 }
 
-Color _accentColorFor(SeatTier tier) {
+Color _accentColorFor(SeatTier tier, AppThemeColors colors) {
+  // Ink usage (icons/labels on surfaces): gold resolves to the theme accent
+  // and bronze to the bronze ink so both stay readable on paper.
   return switch (tier) {
-    SeatTier.gold => AppColors.primaryYellow,
-    SeatTier.silver => AppColors.textSecondary,
-    SeatTier.bronze => AppColors.darkYellow,
-    SeatTier.unknown => AppColors.borderStrong,
+    SeatTier.gold => colors.accent,
+    SeatTier.silver => colors.textSecondary,
+    SeatTier.bronze =>
+      colors == AppColors.dark ? colors.darkYellow : colors.warning,
+    SeatTier.unknown => colors.borderStrong,
   };
 }
 

@@ -45,7 +45,7 @@ class _StatItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(
               context,
-            ).textTheme.titleMedium?.copyWith(color: AppColors.primaryYellow),
+            ).textTheme.titleMedium?.copyWith(color: context.colors.accent),
           ),
           const SizedBox(height: AppSpacing.xxxs),
           Text(
@@ -63,7 +63,7 @@ class _StatItem extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(width: 1, height: 34, color: AppColors.border);
+    return Container(width: 1, height: 34, color: context.colors.border);
   }
 }
 

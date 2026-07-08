@@ -27,9 +27,9 @@ class AuthSignedInPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.verified_user_rounded,
-            color: AppColors.primaryYellow,
+            color: context.colors.primaryYellow,
             size: 32,
           ),
           const SizedBox(height: AppSpacing.md),

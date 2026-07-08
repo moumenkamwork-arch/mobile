@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../routing/route_names.dart';
 import '../shared/widgets/promoo_glow_background.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 
 /// Animated launch intro matching the client's real app entry: "Promoo"
@@ -78,44 +79,53 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          Positioned.fill(
+    // The launch intro is a fixed brand moment: always the black treatment,
+    // regardless of the selected theme mode.
+    return Theme(
+      data: AppTheme.dark,
+      child: Scaffold(
+        backgroundColor: AppColors.brandBlack,
+        body: _buildIntroBody(),
+      ),
+    );
+  }
+
+  Widget _buildIntroBody() {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return PromooGlowBackground(
+                intensity: Curves.easeOut.transform(_controller.value),
+              );
+            },
+          ),
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: SafeArea(
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                return PromooGlowBackground(
-                  intensity: Curves.easeOut.transform(_controller.value),
+                return Opacity(
+                  opacity: _wordOpacity.value,
+                  child: Semantics(
+                    label: 'Promoo intro',
+                    child: ExcludeSemantics(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: _buildLetters(),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
           ),
-          Align(
-            alignment: Alignment.center,
-            child: SafeArea(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _wordOpacity.value,
-                    child: Semantics(
-                      label: 'Promoo intro',
-                      child: ExcludeSemantics(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: _buildLetters(),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -157,9 +167,10 @@ class _RevealLetter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final eased = Curves.easeOut.transform(progress);
+    // Brand-fixed letter colors (the intro is always the dark treatment).
     final color = Color.lerp(
-      AppColors.darkYellow.withValues(alpha: 0.32),
-      AppColors.primaryYellow,
+      AppColors.dark.darkYellow.withValues(alpha: 0.32),
+      AppColors.brandYellow,
       eased,
     );
 

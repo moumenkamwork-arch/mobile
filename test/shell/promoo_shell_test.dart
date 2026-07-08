@@ -24,7 +24,6 @@ void main() {
     }
 
     // Profile tab shows the settings-style menu page (no modal sheet).
-    expect(find.text('Welcome To Promoo'), findsOneWidget);
     expect(find.text('Following'), findsOneWidget);
     expect(find.text('Profile Management'), findsOneWidget);
     expect(find.text('Add New Offer'), findsOneWidget);

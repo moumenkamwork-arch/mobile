@@ -26,10 +26,11 @@ class SeatBookingNotice extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final content = _contentFor(status, failureMessage);
+    final colors = context.colors;
+    final content = _contentFor(status, failureMessage, colors);
 
     return PromooCard(
-      color: AppColors.elevatedSurface,
+      color: colors.elevatedSurface,
       borderColor: content.color,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +45,7 @@ class SeatBookingNotice extends StatelessWidget {
                   content.title,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
-                const SizedBox(height: AppSpacing.xxs),
+                const SizedBox(height: AppSpacing.xxxs),
                 Text(
                   content.message,
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -74,44 +75,48 @@ class SeatBookingNotice extends StatelessWidget {
   }
 }
 
-_NoticeContent _contentFor(SeatBookingStatus status, String? failureMessage) {
+_NoticeContent _contentFor(
+  SeatBookingStatus status,
+  String? failureMessage,
+  AppThemeColors colors,
+) {
   return switch (status) {
-    SeatBookingStatus.authRequired => const _NoticeContent(
+    SeatBookingStatus.authRequired => _NoticeContent(
       title: 'Login required',
       message: 'Sign in to continue when booking opens.',
       icon: Icons.lock_outline_rounded,
-      color: AppColors.primaryYellow,
+      color: colors.accent,
       showLoginAction: true,
     ),
-    SeatBookingStatus.unavailable => const _NoticeContent(
+    SeatBookingStatus.unavailable => _NoticeContent(
       title: 'Seat unavailable',
       message: 'This seat cannot be booked right now.',
       icon: Icons.block_rounded,
-      color: AppColors.warning,
+      color: colors.warning,
     ),
-    SeatBookingStatus.pending => const _NoticeContent(
+    SeatBookingStatus.pending => _NoticeContent(
       title: 'Booking pending',
       message: 'Preparing the booking request.',
       icon: Icons.hourglass_empty_rounded,
-      color: AppColors.warning,
+      color: colors.warning,
     ),
-    SeatBookingStatus.success => const _NoticeContent(
+    SeatBookingStatus.success => _NoticeContent(
       title: 'Booking prepared',
       message: 'Your booking is ready. Payment will open in the next release.',
       icon: Icons.check_circle_outline_rounded,
-      color: AppColors.success,
+      color: colors.success,
     ),
     SeatBookingStatus.error => _NoticeContent(
       title: 'Booking failed',
       message: failureMessage ?? 'Could not prepare booking.',
       icon: Icons.error_outline_rounded,
-      color: AppColors.error,
+      color: colors.error,
     ),
-    SeatBookingStatus.idle => const _NoticeContent(
+    SeatBookingStatus.idle => _NoticeContent(
       title: '',
       message: '',
       icon: Icons.info_outline_rounded,
-      color: AppColors.border,
+      color: colors.border,
     ),
   };
 }

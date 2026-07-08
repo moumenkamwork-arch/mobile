@@ -11,7 +11,9 @@ class AppTypography {
   /// Never used for general UI text.
   static const logoFontFamily = 'VarelaRound';
 
-  static TextTheme textTheme(TextTheme base) {
+  /// Builds the shared Promoo type scale with the given palette's ink colors,
+  /// so both themes use the exact same sizes/weights and only swap color.
+  static TextTheme textTheme(TextTheme base, AppThemeColors colors) {
     TextStyle style(
       TextStyle? source, {
       required Color color,
@@ -31,77 +33,77 @@ class AppTypography {
     return base.copyWith(
       displayLarge: style(
         base.displayLarge,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 40,
         weight: FontWeight.w800,
         height: 1.05,
       ),
       displayMedium: style(
         base.displayMedium,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 32,
         weight: FontWeight.w800,
         height: 1.1,
       ),
       headlineSmall: style(
         base.headlineSmall,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 24,
         weight: FontWeight.w700,
         height: 1.2,
       ),
       titleLarge: style(
         base.titleLarge,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 20,
         weight: FontWeight.w700,
         height: 1.25,
       ),
       titleMedium: style(
         base.titleMedium,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 16,
         weight: FontWeight.w700,
         height: 1.3,
       ),
       bodyLarge: style(
         base.bodyLarge,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 16,
         weight: FontWeight.w500,
         height: 1.45,
       ),
       bodyMedium: style(
         base.bodyMedium,
-        color: AppColors.textSecondary,
+        color: colors.textSecondary,
         size: 14,
         weight: FontWeight.w500,
         height: 1.45,
       ),
       bodySmall: style(
         base.bodySmall,
-        color: AppColors.textMuted,
+        color: colors.textMuted,
         size: 12,
         weight: FontWeight.w500,
         height: 1.35,
       ),
       labelLarge: style(
         base.labelLarge,
-        color: AppColors.textPrimary,
+        color: colors.textPrimary,
         size: 14,
         weight: FontWeight.w700,
         height: 1.2,
       ),
       labelMedium: style(
         base.labelMedium,
-        color: AppColors.textSecondary,
+        color: colors.textSecondary,
         size: 12,
         weight: FontWeight.w700,
         height: 1.2,
       ),
       labelSmall: style(
         base.labelSmall,
-        color: AppColors.textMuted,
+        color: colors.textMuted,
         size: 11,
         weight: FontWeight.w700,
         height: 1.2,

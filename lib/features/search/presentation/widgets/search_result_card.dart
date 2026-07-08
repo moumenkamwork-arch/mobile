@@ -47,7 +47,7 @@ class SearchResultCard extends StatelessWidget {
                       Text(
                         priceLabel,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primaryYellow,
+                          color: context.colors.accent,
                         ),
                       ),
                     ],
@@ -71,7 +71,7 @@ class SearchResultCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -103,11 +103,11 @@ class _ResultVisual extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: result.type == SearchResultType.profile
             ? AppRadius.pill
             : AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
         image: result.imageUrl == null
             ? null
             : DecorationImage(
@@ -116,7 +116,7 @@ class _ResultVisual extends StatelessWidget {
               ),
       ),
       child: result.imageUrl == null
-          ? Icon(icon, color: AppColors.primaryYellow)
+          ? Icon(icon, color: context.colors.accent)
           : null,
     );
   }
@@ -157,9 +157,9 @@ class _ResultMeta extends StatelessWidget {
               vertical: AppSpacing.xxs,
             ),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: AppRadius.pill,
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Text(label, style: Theme.of(context).textTheme.labelSmall),
           ),

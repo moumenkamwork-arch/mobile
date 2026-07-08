@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
 class PromooSectionHeader extends StatelessWidget {
@@ -36,13 +35,7 @@ class PromooSectionHeader extends StatelessWidget {
         ),
         if (actionLabel != null && onActionPressed != null) ...[
           const SizedBox(width: AppSpacing.md),
-          TextButton(
-            onPressed: onActionPressed,
-            child: Text(
-              actionLabel!,
-              style: const TextStyle(color: AppColors.primaryYellow),
-            ),
-          ),
+          TextButton(onPressed: onActionPressed, child: Text(actionLabel!)),
         ],
       ],
     );

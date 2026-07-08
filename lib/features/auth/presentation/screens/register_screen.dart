@@ -166,7 +166,16 @@ class _RegisterForm extends StatelessWidget {
           PromooButton.secondary(
             label: 'Already have an account',
             fullWidth: true,
-            onPressed: state.isBusy ? null : () => context.go(AppRoutes.login),
+            onPressed: state.isBusy
+                ? null
+                : () {
+                    // Register is normally pushed from Login — pop back to it.
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(AppRoutes.login);
+                    }
+                  },
           ),
           const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(

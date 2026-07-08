@@ -30,8 +30,8 @@ class LeaderboardPodium extends StatelessWidget {
 
     return PromooCard(
       elevated: true,
-      borderColor: AppColors.primaryYellow,
-      color: AppColors.elevatedSurface,
+      borderColor: context.colors.accent,
+      color: context.colors.elevatedSurface,
       padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,8 +42,9 @@ class LeaderboardPodium extends StatelessWidget {
                 width: 40,
                 height: 40,
                 alignment: Alignment.center,
+                // Brand highlighter chip: yellow fill + black ink, both modes.
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryYellow,
+                  color: AppColors.brandYellow,
                   borderRadius: AppRadius.pill,
                 ),
                 child: const Icon(
@@ -118,10 +119,12 @@ class _ChampionTile extends StatelessWidget {
         child: Ink(
           width: double.infinity,
           padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+          // Highlighter wash marks the champion in both themes; the border
+          // resolves to gold ink on paper for definition.
           decoration: BoxDecoration(
             color: const Color(0x24FFE604),
             borderRadius: AppRadius.card,
-            border: Border.all(color: AppColors.primaryYellow),
+            border: Border.all(color: context.colors.accent),
           ),
           child: Column(
             children: [
@@ -134,7 +137,7 @@ class _ChampionTile extends StatelessWidget {
                     height: 28,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryYellow,
+                      color: AppColors.brandYellow,
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.brandBlack),
                     ),
@@ -159,9 +162,9 @@ class _ChampionTile extends StatelessWidget {
                 'Champion / ${profile.followersLabel}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppColors.primaryYellow,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: context.colors.accent),
               ),
             ],
           ),
@@ -189,9 +192,9 @@ class _RunnerUpTile extends StatelessWidget {
           child: Ink(
             padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: AppColors.cardSurface,
+              color: context.colors.cardSurface,
               borderRadius: AppRadius.card,
-              border: Border.all(color: AppColors.borderStrong),
+              border: Border.all(color: context.colors.borderStrong),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -199,7 +202,7 @@ class _RunnerUpTile extends StatelessWidget {
                 Text(
                   profile.rank.label,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.primaryYellow,
+                    color: context.colors.accent,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -243,11 +246,13 @@ class _LeaderboardAvatar extends StatelessWidget {
     return Container(
       width: diameter,
       height: diameter,
+      // Avatar well stays brand-black in both themes, so the yellow ring and
+      // initials keep their contrast.
       decoration: BoxDecoration(
         color: AppColors.brandBlack,
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColors.primaryYellow.withValues(alpha: 0.72),
+          color: AppColors.brandYellow.withValues(alpha: 0.72),
           width: 2,
         ),
       ),
@@ -257,7 +262,7 @@ class _LeaderboardAvatar extends StatelessWidget {
                 child: Text(
                   _initialsFor(profile.displayName),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.primaryYellow,
+                    color: AppColors.brandYellow,
                     fontWeight: FontWeight.w800,
                   ),
                 ),

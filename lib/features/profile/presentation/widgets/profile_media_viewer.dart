@@ -4,6 +4,7 @@ import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../../../../theme/app_theme.dart';
 
 class ProfileMediaPreviewItem {
   const ProfileMediaPreviewItem({
@@ -39,68 +40,77 @@ class ProfileMediaViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: const ValueKey('profile-media-viewer'),
-      backgroundColor: AppColors.brandBlack,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: PromooImage(
-                imageUrl: item.imageUrl,
-                fallbackIcon: item.isVideo
-                    ? Icons.play_circle_outline_rounded
-                    : Icons.image_rounded,
-                semanticLabel: item.caption,
-              ),
+    // Full-screen media is an immersive surface: always the dark treatment,
+    // regardless of the selected theme mode.
+    return Theme(
+      data: AppTheme.dark,
+      child: Scaffold(
+        key: const ValueKey('profile-media-viewer'),
+        backgroundColor: AppColors.brandBlack,
+        body: _buildViewerBody(context),
+      ),
+    );
+  }
+
+  Widget _buildViewerBody(BuildContext context) {
+    return SafeArea(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: PromooImage(
+              imageUrl: item.imageUrl,
+              fallbackIcon: item.isVideo
+                  ? Icons.play_circle_outline_rounded
+                  : Icons.image_rounded,
+              semanticLabel: item.caption,
             ),
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: AlignmentDirectional.topCenter,
-                    end: AlignmentDirectional.bottomCenter,
-                    colors: [
-                      AppColors.brandBlack.withValues(alpha: 0.62),
-                      Colors.transparent,
-                      AppColors.brandBlack.withValues(alpha: 0.82),
-                    ],
-                    stops: const [0, 0.44, 1],
-                  ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: AlignmentDirectional.topCenter,
+                  end: AlignmentDirectional.bottomCenter,
+                  colors: [
+                    AppColors.brandBlack.withValues(alpha: 0.62),
+                    Colors.transparent,
+                    AppColors.brandBlack.withValues(alpha: 0.82),
+                  ],
+                  stops: const [0, 0.44, 1],
                 ),
               ),
             ),
-            PositionedDirectional(
-              top: AppSpacing.sm,
-              start: AppSpacing.sm,
-              child: IconButton.filled(
-                tooltip: 'Close media',
-                onPressed: () => Navigator.of(context).pop(),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.overlay,
-                  foregroundColor: AppColors.textPrimary,
-                ),
-                icon: const Icon(Icons.close_rounded),
+          ),
+          PositionedDirectional(
+            top: AppSpacing.sm,
+            start: AppSpacing.sm,
+            child: IconButton.filled(
+              tooltip: 'Close media',
+              onPressed: () => Navigator.of(context).pop(),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.overlay,
+                foregroundColor: AppColors.textPrimary,
               ),
+              icon: const Icon(Icons.close_rounded),
             ),
-            PositionedDirectional(
-              top: AppSpacing.lg,
-              end: AppSpacing.md,
-              bottom: 118,
-              child: _MediaEngagementRail(item: item),
+          ),
+          PositionedDirectional(
+            top: AppSpacing.lg,
+            end: AppSpacing.md,
+            bottom: 118,
+            child: _MediaEngagementRail(item: item),
+          ),
+          PositionedDirectional(
+            start: AppSpacing.md,
+            end: AppSpacing.md,
+            bottom: AppSpacing.lg,
+            child: _MediaCaption(
+              item: item,
+              profileName: profileName,
+              avatarUrl: avatarUrl,
             ),
-            PositionedDirectional(
-              start: AppSpacing.md,
-              end: AppSpacing.md,
-              bottom: AppSpacing.lg,
-              child: _MediaCaption(
-                item: item,
-                profileName: profileName,
-                avatarUrl: avatarUrl,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

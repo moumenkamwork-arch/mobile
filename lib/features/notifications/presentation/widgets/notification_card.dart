@@ -19,14 +19,13 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return PromooCard(
       onTap: onTap,
-      borderColor: notification.isUnread
-          ? AppColors.primaryYellow
-          : AppColors.border,
+      borderColor: notification.isUnread ? colors.accent : colors.border,
       color: notification.isUnread
-          ? AppColors.elevatedSurface
-          : AppColors.cardSurface,
+          ? colors.elevatedSurface
+          : colors.cardSurface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -61,7 +60,7 @@ class NotificationCard extends StatelessWidget {
                   notification.type.label,
                   style: Theme.of(
                     context,
-                  ).textTheme.labelSmall?.copyWith(color: AppColors.textMuted),
+                  ).textTheme.labelSmall?.copyWith(color: colors.textMuted),
                 ),
               ],
             ),
@@ -88,12 +87,12 @@ class _TypeIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    // Unread gets the highlighter chip: yellow fill + black ink.
     return CircleAvatar(
       radius: 22,
-      backgroundColor: unread
-          ? AppColors.primaryYellow
-          : AppColors.elevatedSurface,
-      foregroundColor: unread ? AppColors.brandBlack : AppColors.primaryYellow,
+      backgroundColor: unread ? colors.primaryYellow : colors.elevatedSurface,
+      foregroundColor: unread ? AppColors.brandBlack : colors.accent,
       child: Icon(_iconFor(type), size: 20),
     );
   }
@@ -107,8 +106,8 @@ class _UnreadDot extends StatelessWidget {
     return Container(
       width: 10,
       height: 10,
-      decoration: const BoxDecoration(
-        color: AppColors.primaryYellow,
+      decoration: BoxDecoration(
+        color: context.colors.accent,
         shape: BoxShape.circle,
       ),
     );

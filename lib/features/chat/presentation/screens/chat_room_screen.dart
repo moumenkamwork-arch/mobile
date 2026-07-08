@@ -38,7 +38,7 @@ class _ChatRoomBody extends ConsumerWidget {
         : AppSpacing.md;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
@@ -48,8 +48,8 @@ class _ChatRoomBody extends ConsumerWidget {
               child: Stack(
                 children: [
                   RefreshIndicator(
-                    color: AppColors.primaryYellow,
-                    backgroundColor: AppColors.elevatedSurface,
+                    color: context.colors.accent,
+                    backgroundColor: context.colors.elevatedSurface,
                     onRefresh: () =>
                         ref.read(chatRoomControllerProvider.notifier).refresh(),
                     child: _ConversationBody(
@@ -217,9 +217,9 @@ class _SendFailureBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.error),
+        border: Border.all(color: context.colors.error),
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.all(AppSpacing.sm),

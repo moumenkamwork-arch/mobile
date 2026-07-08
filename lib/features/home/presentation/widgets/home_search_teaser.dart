@@ -11,12 +11,13 @@ class HomeSearchTeaser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return PromooCard(
-      color: AppColors.surface,
+      color: colors.surface,
       onTap: () => context.push(AppRoutes.search),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, color: AppColors.primaryYellow),
+          Icon(Icons.search_rounded, color: colors.accent),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
@@ -27,9 +28,9 @@ class HomeSearchTeaser extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          const Icon(
+          Icon(
             Icons.arrow_forward_ios_rounded,
-            color: AppColors.textMuted,
+            color: colors.textMuted,
             size: 16,
           ),
         ],

@@ -42,7 +42,7 @@ class ServiceCard extends StatelessWidget {
                       Text(
                         service.price!.label,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primaryYellow,
+                          color: context.colors.accent,
                         ),
                       ),
                     ],
@@ -98,9 +98,9 @@ class _ServiceImage extends StatelessWidget {
       width: 72,
       height: 72,
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: PromooImage(
@@ -125,9 +125,9 @@ class _ServiceMetaChip extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: AppRadius.pill,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Text(
         label,

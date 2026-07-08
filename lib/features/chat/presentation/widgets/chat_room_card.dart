@@ -13,9 +13,10 @@ class ChatRoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return PromooCard(
       onTap: onTap,
-      borderColor: room.hasUnread ? AppColors.primaryYellow : AppColors.border,
+      borderColor: room.hasUnread ? colors.primaryYellow : colors.border,
       elevated: room.hasUnread,
       child: Row(
         children: [
@@ -45,15 +46,15 @@ class ChatRoomCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: room.hasUnread
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
+                        ? colors.textPrimary
+                        : colors.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          Icon(Icons.chevron_right_rounded, color: colors.textMuted),
         ],
       ),
     );
@@ -67,10 +68,11 @@ class _ParticipantAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return CircleAvatar(
       radius: 24,
-      backgroundColor: AppColors.elevatedSurface,
-      foregroundColor: AppColors.primaryYellow,
+      backgroundColor: colors.elevatedSurface,
+      foregroundColor: colors.primaryYellow,
       child: Text(
         participant.initials,
         style: Theme.of(context).textTheme.labelLarge,
@@ -86,14 +88,15 @@ class _UnreadBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
       constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: AppSpacing.xs,
         vertical: AppSpacing.xxxs,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryYellow,
+      decoration: BoxDecoration(
+        color: colors.primaryYellow,
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,

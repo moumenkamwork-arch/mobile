@@ -21,17 +21,24 @@ class SearchScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(searchControllerProvider);
 
-    return _SearchContentView(
-      state: state,
-      onRefresh: () => ref.read(searchControllerProvider.notifier).refresh(),
-      onQueryChanged: (query) =>
-          ref.read(searchControllerProvider.notifier).updateQuery(query),
-      onSubmitted: (query) =>
-          ref.read(searchControllerProvider.notifier).submitSearch(query),
-      onClear: () => ref.read(searchControllerProvider.notifier).clear(),
-      onFilterSelected: (filter) =>
-          ref.read(searchControllerProvider.notifier).selectFilter(filter),
-      onRetry: () => ref.read(searchControllerProvider.notifier).retry(),
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: SafeArea(
+        bottom: false,
+        child: _SearchContentView(
+          state: state,
+          onRefresh: () =>
+              ref.read(searchControllerProvider.notifier).refresh(),
+          onQueryChanged: (query) =>
+              ref.read(searchControllerProvider.notifier).updateQuery(query),
+          onSubmitted: (query) =>
+              ref.read(searchControllerProvider.notifier).submitSearch(query),
+          onClear: () => ref.read(searchControllerProvider.notifier).clear(),
+          onFilterSelected: (filter) =>
+              ref.read(searchControllerProvider.notifier).selectFilter(filter),
+          onRetry: () => ref.read(searchControllerProvider.notifier).retry(),
+        ),
+      ),
     );
   }
 }
@@ -60,8 +67,8 @@ class _SearchContentView extends StatelessWidget {
     return Stack(
       children: [
         RefreshIndicator(
-          color: AppColors.primaryYellow,
-          backgroundColor: AppColors.elevatedSurface,
+          color: context.colors.accent,
+          backgroundColor: context.colors.elevatedSurface,
           onRefresh:
               state.query.trim().length >= SearchController.minQueryLength
               ? onRefresh
@@ -208,9 +215,9 @@ class _InlineError extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.error),
+        border: Border.all(color: context.colors.error),
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.all(AppSpacing.md),

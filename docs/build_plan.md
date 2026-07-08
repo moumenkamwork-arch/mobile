@@ -1,6 +1,18 @@
 # Promoo Mobile — Master Build Plan
 
-Last updated: 2026-07-06 · Owner: Promoo Flutter app
+Last updated: 2026-07-08 · Owner: Promoo Flutter app
+
+> **2026-07-08 — Light theme + navigation/UX overhaul (done, tested).**
+> Light mode rebuilt on a token system (`AppThemeColors` ThemeExtension,
+> `context.colors`, new `accent` yellow-as-ink token, AA contrast on paper);
+> shell chrome stays brand-black in both modes; splash/auth/media viewers
+> dark-locked. Back navigation is step-wise everywhere (push-based details,
+> Services results layer intercepts back via
+> `lib/routing/back_interceptors.dart`, non-Home tab → Home → double-press
+> exit, register pops to login). Theme choice persisted
+> (`flutter_secure_storage`). Details in MEMORY_BANK timeline + design/nav
+> rules in project_rules §3/§3b. 192/192 tests, analyze clean, both themes
+> verified live.
 
 > **Strategy (agreed).**
 > 1. **Phase A — Frontend first.** Finish the ENTIRE frontend to match the old MVP design (`promo_backend/Projects-Pictures/`) pixel-faithfully — all screens + flows, on **mock/local data**, with **no backend wiring**.

@@ -121,9 +121,9 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
                               _items.removeWhere((it) => it.id == item.id);
                             });
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.bookmark_rounded,
-                            color: AppColors.primaryYellow,
+                            color: context.colors.accent,
                           ),
                         ),
                       ],

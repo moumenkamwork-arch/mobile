@@ -70,6 +70,7 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = category.name;
+    final colors = context.colors;
 
     return Semantics(
       button: true,
@@ -83,10 +84,11 @@ class _CategoryCard extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(
-              color: selected ? AppColors.elevatedSurface : AppColors.surface,
+              color: selected ? colors.elevatedSurface : colors.surface,
               borderRadius: AppRadius.card,
               border: Border.all(
-                color: selected ? AppColors.primaryYellow : AppColors.border,
+                color: selected ? colors.primaryYellow : colors.border,
+                width: selected ? 1.6 : 1,
               ),
             ),
             child: ClipRRect(
@@ -99,15 +101,17 @@ class _CategoryCard extends StatelessWidget {
                     semanticLabel: label,
                     fallbackIcon: Icons.storefront_rounded,
                   ),
+                  // Constant dark scrim so the white label reads over the
+                  // category photo in both themes.
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: AlignmentDirectional.topCenter,
                         end: AlignmentDirectional.bottomCenter,
                         colors: [
-                          AppColors.background.withValues(alpha: 0.06),
-                          AppColors.background.withValues(alpha: 0.28),
-                          AppColors.background.withValues(alpha: 0.82),
+                          AppColors.brandBlack.withValues(alpha: 0.06),
+                          AppColors.brandBlack.withValues(alpha: 0.28),
+                          AppColors.brandBlack.withValues(alpha: 0.82),
                         ],
                       ),
                     ),
@@ -121,7 +125,7 @@ class _CategoryCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: AppColors.dark.textPrimary,
                         fontWeight: selected
                             ? FontWeight.w900
                             : FontWeight.w800,
@@ -134,7 +138,8 @@ class _CategoryCard extends StatelessWidget {
                       end: AppSpacing.sm,
                       child: Icon(
                         Icons.check_circle_rounded,
-                        color: AppColors.primaryYellow,
+                        // Over the dark scrim, brand yellow in both themes.
+                        color: AppColors.brandYellow,
                         size: 22,
                       ),
                     ),

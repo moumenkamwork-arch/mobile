@@ -39,7 +39,7 @@ class ProfilePackageCard extends StatelessWidget {
                       Text(
                         package.price!.label,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primaryYellow,
+                          color: context.colors.accent,
                         ),
                       ),
                     ],
@@ -88,18 +88,15 @@ class _PackageIcon extends StatelessWidget {
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
         image: imageUrl == null
             ? null
             : DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
       ),
       child: imageUrl == null
-          ? const Icon(
-              Icons.local_offer_rounded,
-              color: AppColors.primaryYellow,
-            )
+          ? Icon(Icons.local_offer_rounded, color: context.colors.accent)
           : null,
     );
   }
@@ -118,9 +115,9 @@ class _Chip extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: AppRadius.pill,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Text(label, style: Theme.of(context).textTheme.labelSmall),
     );

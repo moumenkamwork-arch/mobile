@@ -19,6 +19,7 @@ class SeatVisibilityGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final sortedSeats = List<Seat>.of(seats)
       ..sort((a, b) {
         final tierCompare = _tierOrder(a.tier).compareTo(_tierOrder(b.tier));
@@ -29,7 +30,7 @@ class SeatVisibilityGrid extends StatelessWidget {
       });
 
     return PromooCard(
-      color: AppColors.elevatedSurface,
+      color: colors.elevatedSurface,
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,7 +42,7 @@ class SeatVisibilityGrid extends StatelessWidget {
                 height: 34,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryYellow,
+                  color: colors.primaryYellow,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -97,24 +98,24 @@ class SeatVisibilityGrid extends StatelessWidget {
               },
             ),
           const SizedBox(height: AppSpacing.md),
-          const Wrap(
+          Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.xs,
             children: [
               _GridLegendItem(
                 label: 'Open seat',
                 icon: Icons.event_available_rounded,
-                color: AppColors.success,
+                color: colors.success,
               ),
               _GridLegendItem(
                 label: 'Creator',
                 icon: Icons.person_rounded,
-                color: AppColors.primaryYellow,
+                color: colors.accent,
               ),
               _GridLegendItem(
                 label: 'Pending',
                 icon: Icons.hourglass_empty_rounded,
-                color: AppColors.warning,
+                color: colors.warning,
               ),
             ],
           ),
@@ -132,7 +133,7 @@ class _SeatGridSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tierColor = _tierColor(seat.tier);
+    final tierColor = _tierColor(seat.tier, context.colors);
     final holder = seat.holder;
     final isOccupied = holder != null && !seat.isAvailable;
 
@@ -151,11 +152,13 @@ class _SeatGridSlot extends StatelessWidget {
             padding: const EdgeInsetsDirectional.all(AppSpacing.xs),
             decoration: BoxDecoration(
               color: seat.isAvailable
-                  ? AppColors.surface
-                  : AppColors.cardSurface,
+                  ? context.colors.surface
+                  : context.colors.cardSurface,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: seat.isAvailable ? tierColor : AppColors.borderStrong,
+                color: seat.isAvailable
+                    ? tierColor
+                    : context.colors.borderStrong,
               ),
             ),
             child: Column(
@@ -177,7 +180,7 @@ class _SeatGridSlot extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -191,8 +194,8 @@ class _SeatGridSlot extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: seat.isAvailable
-                            ? AppColors.primaryYellow
-                            : AppColors.textSecondary,
+                            ? context.colors.accent
+                            : context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -317,11 +320,15 @@ int _tierOrder(SeatTier tier) {
   };
 }
 
-Color _tierColor(SeatTier tier) {
+Color _tierColor(SeatTier tier, AppThemeColors colors) {
+  // Tier colors act as ink (badge text, borders, icons): gold resolves to
+  // the theme accent so it stays readable on paper, and bronze uses the
+  // warning bronze ink in light mode.
   return switch (tier) {
-    SeatTier.gold => AppColors.primaryYellow,
-    SeatTier.silver => AppColors.textSecondary,
-    SeatTier.bronze => AppColors.darkYellow,
-    SeatTier.unknown => AppColors.borderStrong,
+    SeatTier.gold => colors.accent,
+    SeatTier.silver => colors.textSecondary,
+    SeatTier.bronze =>
+      colors == AppColors.dark ? colors.darkYellow : colors.warning,
+    SeatTier.unknown => colors.borderStrong,
   };
 }

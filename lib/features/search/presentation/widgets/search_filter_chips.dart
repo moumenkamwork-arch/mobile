@@ -67,22 +67,23 @@ class _SearchFilterChipsState extends State<SearchFilterChips> {
       child: Row(
         children: [
           for (final filter in SearchFilterType.values) ...[
+            // Selected filter gets the highlighter: yellow fill, black ink.
             ChoiceChip(
               key: _chipKeys[filter],
               label: Text(filter.label),
               selected: widget.selectedFilter == filter,
               onSelected: (_) => widget.onSelected(filter),
-              selectedColor: AppColors.primaryYellow,
-              backgroundColor: AppColors.surface,
+              selectedColor: context.colors.primaryYellow,
+              backgroundColor: context.colors.surface,
               labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: widget.selectedFilter == filter
                     ? AppColors.brandBlack
-                    : AppColors.textPrimary,
+                    : context.colors.textPrimary,
               ),
               side: BorderSide(
                 color: widget.selectedFilter == filter
-                    ? AppColors.primaryYellow
-                    : AppColors.border,
+                    ? context.colors.primaryYellow
+                    : context.colors.border,
               ),
             ),
             if (filter != SearchFilterType.values.last)

@@ -69,9 +69,9 @@ class _HomeErrorView extends ConsumerWidget {
             end: AppSpacing.md,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.elevatedSurface,
+                color: context.colors.elevatedSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.error),
+                border: Border.all(color: context.colors.error),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -114,8 +114,8 @@ class _HomeContentView extends StatelessWidget {
     return Stack(
       children: [
         RefreshIndicator(
-          color: AppColors.primaryYellow,
-          backgroundColor: AppColors.elevatedSurface,
+          color: context.colors.accent,
+          backgroundColor: context.colors.elevatedSurface,
           onRefresh: onRefresh,
           child: CustomScrollView(
             slivers: [

@@ -48,7 +48,8 @@ class PromooWordmark extends StatelessWidget {
                 fontFamily: AppTypography.logoFontFamily,
                 fontWeight: FontWeight.w700,
                 fontSize: height * 0.72,
-                color: AppColors.primaryYellow,
+                // Logo lockup is brand-fixed (used on dark brand surfaces).
+                color: AppColors.brandYellow,
                 letterSpacing: -0.5,
                 height: 1.0,
               ),

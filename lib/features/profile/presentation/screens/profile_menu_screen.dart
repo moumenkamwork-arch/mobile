@@ -20,143 +20,141 @@ class ProfileMenuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
 
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        children: [
-          const PromooPageHeader(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                AppSpacing.screenHorizontal,
-                AppSpacing.md,
-                AppSpacing.screenHorizontal,
-                AppSpacing.shellScrollBottom,
-              ),
-              children: [
-                PromooCard(
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    vertical: AppSpacing.xs,
-                  ),
-                  child: Column(
-                    children: [
-                      _MenuRow(
-                        icon: Icons.star_rounded,
-                        label: 'Following',
-                        onTap: () => context.push(AppRoutes.profileFollowing),
-                      ),
-                      const _MenuDivider(),
-                      _MenuRow(
-                        icon: Icons.group_outlined,
-                        label: 'Profile Management',
-                        onTap: () => context.push(AppRoutes.profileEdit),
-                      ),
-                      const _MenuDivider(),
-                      _MenuRow(
-                        icon: Icons.add_circle_outline_rounded,
-                        label: 'Add New Offer',
-                        onTap: () => context.push(AppRoutes.profileAddAd),
-                      ),
-                      const _MenuDivider(),
-                      _MenuRow(
-                        icon: Icons.bookmark_rounded,
-                        label: 'Saved',
-                        onTap: () => context.push(AppRoutes.profileSaved),
-                      ),
-                      const _MenuDivider(),
-                      _MenuRow(
-                        icon: Icons.inventory_2_outlined,
-                        label: 'MyPackages',
-                        onTap: () => context.push(AppRoutes.profilePackages),
-                      ),
-                      const _MenuDivider(),
-                      _MenuRow(
-                        icon: Icons.support_agent_rounded,
-                        label: 'Support',
-                        onTap: () => context.push(AppRoutes.profileSupport),
-                      ),
-                    ],
-                  ),
+    // The header paints its own status-bar inset so the black chrome band
+    // reaches the top edge in both themes (no paper seam in light mode).
+    return Column(
+      children: [
+        const PromooPageHeader(applyTopSafeArea: true),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.md,
+              AppSpacing.screenHorizontal,
+              AppSpacing.shellScrollBottom,
+            ),
+            children: [
+              PromooCard(
+                padding: const EdgeInsetsDirectional.symmetric(
+                  vertical: AppSpacing.xs,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                PromooCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Language',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      _RadioOption(
-                        label: 'English',
-                        selected: true,
-                        onTap: () {},
-                      ),
-                      _RadioOption(
-                        label: 'Arabic',
-                        selected: false,
-                        onTap: () => _showNotice(
-                          context,
-                          'Arabic will be available with the localization phase.',
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        'Theme Mode',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      _RadioOption(
-                        label: 'Black Mode',
-                        selected: themeMode == ThemeMode.dark,
-                        onTap: () =>
-                            ref.read(themeModeProvider.notifier).setDark(),
-                      ),
-                      _RadioOption(
-                        label: 'Light Mode',
-                        selected: themeMode == ThemeMode.light,
-                        onTap: () =>
-                            ref.read(themeModeProvider.notifier).setLight(),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                PromooCard(
-                  padding: EdgeInsets.zero,
-                  child: _MenuRow(
-                    icon: Icons.logout_rounded,
-                    label: 'Logout',
-                    onTap: () => _confirmLogout(context, ref),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
                   children: [
-                    _FooterLink(
-                      label: 'About',
-                      onTap: () => context.push(AppRoutes.profileInfo('about')),
+                    _MenuRow(
+                      icon: Icons.star_rounded,
+                      label: 'Following',
+                      onTap: () => context.push(AppRoutes.profileFollowing),
                     ),
-                    const _FooterDot(),
-                    _FooterLink(
-                      label: 'TermsAndCondition',
-                      onTap: () => context.push(AppRoutes.profileInfo('terms')),
+                    const _MenuDivider(),
+                    _MenuRow(
+                      icon: Icons.group_outlined,
+                      label: 'Profile Management',
+                      onTap: () => context.push(AppRoutes.profileEdit),
                     ),
-                    const _FooterDot(),
-                    _FooterLink(
-                      label: 'PrivacyPolicy',
-                      onTap: () =>
-                          context.push(AppRoutes.profileInfo('privacy')),
+                    const _MenuDivider(),
+                    _MenuRow(
+                      icon: Icons.add_circle_outline_rounded,
+                      label: 'Add New Offer',
+                      onTap: () => context.push(AppRoutes.profileAddAd),
+                    ),
+                    const _MenuDivider(),
+                    _MenuRow(
+                      icon: Icons.bookmark_rounded,
+                      label: 'Saved',
+                      onTap: () => context.push(AppRoutes.profileSaved),
+                    ),
+                    const _MenuDivider(),
+                    _MenuRow(
+                      icon: Icons.inventory_2_outlined,
+                      label: 'MyPackages',
+                      onTap: () => context.push(AppRoutes.profilePackages),
+                    ),
+                    const _MenuDivider(),
+                    _MenuRow(
+                      icon: Icons.support_agent_rounded,
+                      label: 'Support',
+                      onTap: () => context.push(AppRoutes.profileSupport),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              PromooCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Language',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    _RadioOption(
+                      label: 'English',
+                      selected: true,
+                      onTap: () {},
+                    ),
+                    _RadioOption(
+                      label: 'Arabic',
+                      selected: false,
+                      onTap: () => _showNotice(
+                        context,
+                        'Arabic will be available with the localization phase.',
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Theme Mode',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    _RadioOption(
+                      label: 'Black Mode',
+                      selected: themeMode == ThemeMode.dark,
+                      onTap: () =>
+                          ref.read(themeModeProvider.notifier).setDark(),
+                    ),
+                    _RadioOption(
+                      label: 'Light Mode',
+                      selected: themeMode == ThemeMode.light,
+                      onTap: () =>
+                          ref.read(themeModeProvider.notifier).setLight(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              PromooCard(
+                padding: EdgeInsets.zero,
+                child: _MenuRow(
+                  icon: Icons.logout_rounded,
+                  label: 'Logout',
+                  onTap: () => _confirmLogout(context, ref),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _FooterLink(
+                    label: 'About',
+                    onTap: () => context.push(AppRoutes.profileInfo('about')),
+                  ),
+                  const _FooterDot(),
+                  _FooterLink(
+                    label: 'TermsAndCondition',
+                    onTap: () => context.push(AppRoutes.profileInfo('terms')),
+                  ),
+                  const _FooterDot(),
+                  _FooterLink(
+                    label: 'PrivacyPolicy',
+                    onTap: () => context.push(AppRoutes.profileInfo('privacy')),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -165,7 +163,7 @@ class ProfileMenuScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: AppColors.elevatedSurface,
+          backgroundColor: context.colors.cardSurface,
           title: const Text('Logout'),
           content: const Text('Are you sure you want to log out of Promoo?'),
           actions: [
@@ -212,11 +210,11 @@ class _MenuRow extends StatelessWidget {
         horizontal: AppSpacing.md,
         vertical: AppSpacing.xxs,
       ),
-      leading: Icon(icon, color: AppColors.primaryYellow, size: 26),
+      leading: Icon(icon, color: context.colors.accent, size: 26),
       title: Text(label, style: Theme.of(context).textTheme.titleMedium),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right_rounded,
-        color: AppColors.textMuted,
+        color: context.colors.textMuted,
       ),
       onTap: onTap,
     );
@@ -258,7 +256,7 @@ class _RadioOption extends StatelessWidget {
               selected
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
-              color: AppColors.primaryYellow,
+              color: context.colors.accent,
               size: 24,
             ),
             const SizedBox(width: AppSpacing.sm),

@@ -105,7 +105,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
                               Text(
                                 profile.type,
                                 style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: AppColors.primaryYellow),
+                                    ?.copyWith(color: context.colors.accent),
                               ),
                             ],
                           ),

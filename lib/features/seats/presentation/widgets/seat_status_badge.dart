@@ -12,7 +12,8 @@ class SeatStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = _statusColor(status);
+    final colors = context.colors;
+    final accentColor = _statusColor(status, colors);
 
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
@@ -20,7 +21,7 @@ class SeatStatusBadge extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: AppRadius.pill,
         border: Border.all(color: accentColor),
       ),
@@ -37,12 +38,12 @@ class SeatStatusBadge extends StatelessWidget {
   }
 }
 
-Color _statusColor(SeatStatus status) {
+Color _statusColor(SeatStatus status, AppThemeColors colors) {
   return switch (status) {
-    SeatStatus.available => AppColors.success,
-    SeatStatus.pending => AppColors.warning,
-    SeatStatus.booked => AppColors.textMuted,
-    SeatStatus.expired => AppColors.error,
-    SeatStatus.unknown => AppColors.textMuted,
+    SeatStatus.available => colors.success,
+    SeatStatus.pending => colors.warning,
+    SeatStatus.booked => colors.textMuted,
+    SeatStatus.expired => colors.error,
+    SeatStatus.unknown => colors.textMuted,
   };
 }

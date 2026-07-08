@@ -24,6 +24,7 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final displayTitle = title.trim().isEmpty ? 'Influencer Seat' : title;
     final displayTier = tierLabel.trim().isEmpty
         ? 'Visibility seat'
@@ -78,8 +79,8 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               PromooCard(
                 elevated: true,
-                borderColor: AppColors.primaryYellow,
-                color: AppColors.elevatedSurface,
+                borderColor: colors.primaryYellow,
+                color: colors.elevatedSurface,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -90,7 +91,7 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                           height: 46,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryYellow,
+                            color: colors.primaryYellow,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
@@ -223,9 +224,9 @@ class _SummaryRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: context.colors.textPrimary,
+              ),
             ),
           ),
         ],

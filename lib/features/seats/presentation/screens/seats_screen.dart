@@ -40,42 +40,41 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(seatsControllerProvider);
 
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const PromooPageHeader(),
-          const SizedBox(height: AppSpacing.sm),
-          _StatsStrip(seats: state.seats),
-          const SizedBox(height: AppSpacing.sm),
-          Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: AppSpacing.screenHorizontal,
-            ),
-            child: PromooTextField(
-              controller: _searchController,
-              hint: 'Search',
-              prefixIcon: const Icon(
-                Icons.search_rounded,
-                color: AppColors.primaryYellow,
-                size: 26,
-              ),
-              onChanged: (value) => setState(() => _query = value.trim()),
-            ),
+    // The header paints its own status-bar inset so the black chrome band
+    // reaches the top edge in both themes (no paper seam in light mode).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const PromooPageHeader(applyTopSafeArea: true),
+        const SizedBox(height: AppSpacing.sm),
+        _StatsStrip(seats: state.seats),
+        const SizedBox(height: AppSpacing.sm),
+        Padding(
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.screenHorizontal,
           ),
-          const Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.screenHorizontal,
-              AppSpacing.md,
-              AppSpacing.screenHorizontal,
-              AppSpacing.sm,
+          child: PromooTextField(
+            controller: _searchController,
+            hint: 'Search',
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              color: context.colors.accent,
+              size: 26,
             ),
-            child: _SeatLegend(),
+            onChanged: (value) => setState(() => _query = value.trim()),
           ),
-          Expanded(child: _buildBody(state)),
-        ],
-      ),
+        ),
+        const Padding(
+          padding: EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.screenHorizontal,
+            AppSpacing.md,
+            AppSpacing.screenHorizontal,
+            AppSpacing.sm,
+          ),
+          child: _SeatLegend(),
+        ),
+        Expanded(child: _buildBody(state)),
+      ],
     );
   }
 
@@ -164,13 +163,13 @@ class _StatChip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: context.colors.cardSurface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primaryYellow, size: 20),
+          Icon(icon, color: context.colors.accent, size: 20),
           const SizedBox(width: AppSpacing.xs),
           Text(
             value,
@@ -198,10 +197,10 @@ class _SeatLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _LegendItem(color: AppColors.primaryYellow, label: 'Gold Seats'),
+        _LegendItem(color: context.colors.primaryYellow, label: 'Gold Seats'),
         _LegendItem(color: _SeatGrid.silverColor, label: 'Silver Seats'),
         _LegendItem(color: _SeatGrid.bronzeColor, label: 'Bronze Seats'),
       ],
@@ -350,9 +349,9 @@ class _SeatCell extends StatelessWidget {
   final Seat? seat;
   final bool dimmed;
 
-  Color get _tierColor {
+  Color _getTierColor(BuildContext context) {
     return switch (tier) {
-      SeatTier.gold => AppColors.primaryYellow,
+      SeatTier.gold => context.colors.primaryYellow,
       SeatTier.silver => _SeatGrid.silverColor,
       _ => _SeatGrid.bronzeColor,
     };
@@ -360,6 +359,8 @@ class _SeatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final tierColor = _getTierColor(context);
     final holder = seat?.holder;
     final isOccupied = seat != null && !seat!.isAvailable && holder != null;
 
@@ -371,17 +372,17 @@ class _SeatCell extends StatelessWidget {
         height: _SeatGrid._cellHeight,
         padding: const EdgeInsetsDirectional.all(AppSpacing.xxs),
         decoration: BoxDecoration(
-          color: AppColors.background.withValues(alpha: 0.35),
+          color: colors.background.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: _tierColor.withValues(
+            color: tierColor.withValues(
               alpha: tier == SeatTier.gold ? 0.8 : 0.55,
             ),
             width: 1.2,
           ),
         ),
         child: isOccupied
-            ? _OccupiedContent(holder: holder, tierColor: _tierColor)
+            ? _OccupiedContent(holder: holder, tierColor: tierColor)
             : _AvailableContent(priceLabel: _priceLabel),
       ),
     );
@@ -426,14 +427,14 @@ class _SeatCell extends StatelessWidget {
   void _showSeatSheet(BuildContext context, Seat seat) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: context.colors.cardSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (sheetContext) {
         return _SeatDetailSheet(
           seat: seat,
-          tierColor: _tierColor,
+          tierColor: _getTierColor(context),
           onBookNow: () {
             Navigator.of(sheetContext).pop();
             context.push(
@@ -452,9 +453,10 @@ class _SeatCell extends StatelessWidget {
 
   void _showInfluencerSheet(BuildContext context, Seat seat) {
     final holder = seat.holder!;
+    final tierColor = _getTierColor(context);
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: context.colors.cardSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -490,7 +492,7 @@ class _SeatCell extends StatelessWidget {
                       width: 10,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: _tierColor,
+                        color: tierColor,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -550,31 +552,27 @@ class _AvailableContent extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.chair_outlined,
-          color: AppColors.textPrimary,
-          size: 20,
-        ),
+        Icon(Icons.chair_outlined, color: context.colors.textPrimary, size: 20),
         const SizedBox(height: AppSpacing.xxxs),
         Text(
           'Book Seat',
           textAlign: TextAlign.center,
           maxLines: 1,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textPrimary,
-                fontSize: 9,
-                height: 1.1,
-              ),
+            color: context.colors.textPrimary,
+            fontSize: 9,
+            height: 1.1,
+          ),
         ),
         const SizedBox(height: 1),
         Text(
           priceLabel,
           maxLines: 1,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.softYellow.withValues(alpha: 0.85),
-                fontSize: 8,
-                fontWeight: FontWeight.w700,
-              ),
+            color: context.colors.accent.withValues(alpha: 0.9),
+            fontSize: 8,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -619,10 +617,10 @@ class _OccupiedContent extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 9,
-                    ),
+                  color: context.colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 9,
+                ),
               ),
             ),
           ],
@@ -704,8 +702,8 @@ class _SeatDetailSheet extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onBookNow,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryYellow,
-                    side: const BorderSide(color: AppColors.primaryYellow),
+                    foregroundColor: context.colors.accent,
+                    side: BorderSide(color: context.colors.accent),
                   ),
                   child: const Text('Book Now'),
                 ),
@@ -715,7 +713,7 @@ class _SeatDetailSheet extends StatelessWidget {
             Text(
               seat.price?.label ?? '',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -740,7 +738,7 @@ class _SheetHandle extends StatelessWidget {
       height: 5,
       margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary.withValues(alpha: 0.7),
+        color: context.colors.textPrimary.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(4),
       ),
     );

@@ -26,11 +26,11 @@ class ProfileActionNotice extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final content = _contentFor(status);
+    final content = _contentFor(status, context.colors);
 
     return PromooCard(
       borderColor: content.color,
-      color: AppColors.elevatedSurface,
+      color: context.colors.elevatedSurface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -80,33 +80,33 @@ class ProfileActionNotice extends StatelessWidget {
   }
 }
 
-_NoticeContent _contentFor(ProfileActionStatus status) {
+_NoticeContent _contentFor(ProfileActionStatus status, AppThemeColors colors) {
   return switch (status) {
-    ProfileActionStatus.followAuthRequired => const _NoticeContent(
+    ProfileActionStatus.followAuthRequired => _NoticeContent(
       title: 'Login required',
       message: 'Sign in to follow profiles when this action opens.',
       icon: Icons.lock_outline_rounded,
-      color: AppColors.primaryYellow,
+      color: colors.accent,
       showLoginAction: true,
     ),
-    ProfileActionStatus.messageComingSoon => const _NoticeContent(
+    ProfileActionStatus.messageComingSoon => _NoticeContent(
       title: 'Chats are ready',
       message: 'Open your Promoo inbox. Direct profile chats are coming soon.',
       icon: Icons.chat_bubble_outline_rounded,
-      color: AppColors.warning,
+      color: colors.warning,
       showChatsAction: true,
     ),
-    ProfileActionStatus.editAuthRequired => const _NoticeContent(
+    ProfileActionStatus.editAuthRequired => _NoticeContent(
       title: 'Coming soon',
       message: 'Profile editing will be available in the next phase.',
       icon: Icons.edit_rounded,
-      color: AppColors.primaryYellow,
+      color: colors.accent,
     ),
-    ProfileActionStatus.idle => const _NoticeContent(
+    ProfileActionStatus.idle => _NoticeContent(
       title: '',
       message: '',
       icon: Icons.info_outline_rounded,
-      color: AppColors.border,
+      color: colors.border,
     ),
   };
 }

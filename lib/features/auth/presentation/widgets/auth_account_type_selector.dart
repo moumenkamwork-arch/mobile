@@ -16,6 +16,7 @@ class AuthAccountTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Wrap(
       spacing: AppSpacing.xs,
       runSpacing: AppSpacing.xs,
@@ -24,17 +25,15 @@ class AuthAccountTypeSelector extends StatelessWidget {
           ChoiceChip(
             label: Text(type.label),
             selected: selected == type,
-            selectedColor: AppColors.primaryYellow,
-            backgroundColor: AppColors.surface,
+            selectedColor: colors.primaryYellow,
+            backgroundColor: colors.surface,
             labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: selected == type
                   ? AppColors.brandBlack
-                  : AppColors.textPrimary,
+                  : colors.textPrimary,
             ),
             side: BorderSide(
-              color: selected == type
-                  ? AppColors.primaryYellow
-                  : AppColors.border,
+              color: selected == type ? colors.primaryYellow : colors.border,
             ),
             onSelected: (_) => onSelected(type),
           ),

@@ -96,10 +96,12 @@ class _ProfileMediaTile extends StatelessWidget {
           borderRadius: AppRadius.card,
           child: Ink(
             decoration: BoxDecoration(
-              color: AppColors.cardSurface,
+              color: context.colors.cardSurface,
               borderRadius: AppRadius.card,
               border: Border.all(
-                color: index == 0 ? AppColors.primaryYellow : AppColors.border,
+                color: index == 0
+                    ? context.colors.accent
+                    : context.colors.border,
               ),
             ),
             child: ClipRRect(
@@ -128,9 +130,10 @@ class _ProfileMediaTile extends StatelessWidget {
                   ),
                   if (item.isVideo)
                     const Center(
+                      // Over the photo scrim: brand yellow in both themes.
                       child: Icon(
                         Icons.play_circle_fill_rounded,
-                        color: AppColors.primaryYellow,
+                        color: AppColors.brandYellow,
                         size: 38,
                       ),
                     ),
@@ -142,12 +145,13 @@ class _ProfileMediaTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Over the dark photo scrim in both themes.
                         Text(
                           item.caption,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(color: AppColors.textPrimary),
+                              ?.copyWith(color: AppColors.dark.textPrimary),
                         ),
                         const SizedBox(height: AppSpacing.xxs),
                         Row(
@@ -155,7 +159,7 @@ class _ProfileMediaTile extends StatelessWidget {
                             const Icon(
                               Icons.favorite_rounded,
                               size: 14,
-                              color: AppColors.primaryYellow,
+                              color: AppColors.brandYellow,
                             ),
                             const SizedBox(width: AppSpacing.xxs),
                             Flexible(
@@ -163,7 +167,10 @@ class _ProfileMediaTile extends StatelessWidget {
                                 item.likesLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.labelSmall,
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      color: AppColors.dark.textSecondary,
+                                    ),
                               ),
                             ),
                           ],

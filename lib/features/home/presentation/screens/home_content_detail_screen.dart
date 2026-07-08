@@ -27,10 +27,16 @@ class HomeContentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _HomeContentDetailBody(
-      request: HomeContentDetailRequest(
-        type: HomeContentDetailTypeValue.fromRouteValue(type),
-        id: itemId,
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: SafeArea(
+        bottom: false,
+        child: _HomeContentDetailBody(
+          request: HomeContentDetailRequest(
+            type: HomeContentDetailTypeValue.fromRouteValue(type),
+            id: itemId,
+          ),
+        ),
       ),
     );
   }
@@ -77,7 +83,8 @@ class _HomeContentDetailBodyState
                 'Contact flow coming soon. You can open chats or view the provider profile.';
           });
         },
-        onOpenChatsPressed: () => context.go(AppRoutes.chats),
+        // Push keeps the stack intact so back returns to these details.
+        onOpenChatsPressed: () => context.push(AppRoutes.chats),
         onLocationPressed: state.detail!.location == null
             ? null
             : () {
@@ -88,8 +95,9 @@ class _HomeContentDetailBodyState
               },
         onViewProfilePressed: state.detail!.provider == null
             ? null
-            : () =>
-                  context.push(AppRoutes.profileById(state.detail!.provider!.id)),
+            : () => context.push(
+                AppRoutes.profileById(state.detail!.provider!.id),
+              ),
         onDismissNotice: () {
           setState(() => _noticeMessage = null);
         },
@@ -208,7 +216,7 @@ class _HeroCard extends StatelessWidget {
     return PromooCard(
       elevated: true,
       padding: EdgeInsets.zero,
-      borderColor: AppColors.borderStrong,
+      borderColor: context.colors.borderStrong,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -323,7 +331,7 @@ class _SummaryMetric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.primaryYellow, size: 20),
+        Icon(icon, color: context.colors.accent, size: 20),
         const SizedBox(height: AppSpacing.xs),
         Text(label, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: AppSpacing.xxxs),
@@ -379,8 +387,8 @@ class _ProviderSection extends StatelessWidget {
               Container(
                 width: 56,
                 height: 56,
-                decoration: const BoxDecoration(
-                  color: AppColors.elevatedSurface,
+                decoration: BoxDecoration(
+                  color: context.colors.elevatedSurface,
                   shape: BoxShape.circle,
                 ),
                 child: ClipOval(
@@ -408,9 +416,9 @@ class _ProviderSection extends StatelessWidget {
                         ),
                         if (provider.isVerified) ...[
                           const SizedBox(width: AppSpacing.xs),
-                          const Icon(
+                          Icon(
                             Icons.verified_rounded,
-                            color: AppColors.primaryYellow,
+                            color: context.colors.accent,
                             size: 18,
                           ),
                         ],
@@ -526,15 +534,12 @@ class _ActionSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (noticeMessage != null) ...[
           PromooCard(
-            borderColor: AppColors.primaryYellow,
-            color: AppColors.elevatedSurface,
+            borderColor: context.colors.accent,
+            color: context.colors.elevatedSurface,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.info_outline_rounded,
-                  color: AppColors.primaryYellow,
-                ),
+                Icon(Icons.info_outline_rounded, color: context.colors.accent),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -597,9 +602,8 @@ class _DetailChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = highlighted
-        ? AppColors.brandBlack
-        : AppColors.textPrimary;
+    final colors = context.colors;
+    final foreground = highlighted ? AppColors.brandBlack : colors.textPrimary;
 
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
@@ -607,10 +611,10 @@ class _DetailChip extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: highlighted ? AppColors.primaryYellow : AppColors.surface,
+        color: highlighted ? colors.primaryYellow : colors.surface,
         borderRadius: AppRadius.pill,
         border: Border.all(
-          color: highlighted ? AppColors.primaryYellow : AppColors.border,
+          color: highlighted ? colors.primaryYellow : colors.border,
         ),
       ),
       child: Row(
@@ -619,9 +623,7 @@ class _DetailChip extends StatelessWidget {
           if (icon != null) ...[
             Icon(
               icon,
-              color: highlighted
-                  ? AppColors.brandBlack
-                  : AppColors.primaryYellow,
+              color: highlighted ? AppColors.brandBlack : colors.accent,
               size: 14,
             ),
             const SizedBox(width: AppSpacing.xxs),

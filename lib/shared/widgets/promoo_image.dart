@@ -87,34 +87,41 @@ class _ImageFallback extends StatelessWidget {
     return Semantics(
       image: semanticLabel != null,
       label: semanticLabel,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: [
-              AppColors.elevatedSurface,
-              AppColors.cardSurface,
-              AppColors.darkYellow.withValues(alpha: 0.24),
-            ],
-          ),
+      child: _decoratedFallback(context),
+    );
+  }
+
+  Widget _decoratedFallback(BuildContext context) {
+    final colors = context.colors;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+          colors: [
+            colors.elevatedSurface,
+            colors.cardSurface,
+            colors.darkYellow.withValues(alpha: 0.24),
+          ],
         ),
-        child: Center(
-          child: Container(
-            width: AppSpacing.touchTarget,
-            height: AppSpacing.touchTarget,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: showPulse
-                  ? AppColors.primaryYellow.withValues(alpha: 0.16)
-                  : AppColors.overlay,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primaryYellow.withValues(alpha: 0.4),
-              ),
+      ),
+      child: Center(
+        child: Container(
+          width: AppSpacing.touchTarget,
+          height: AppSpacing.touchTarget,
+          alignment: Alignment.center,
+          // Dark scrim in both modes so the brand-yellow icon stays legible
+          // over any fallback gradient.
+          decoration: BoxDecoration(
+            color: showPulse
+                ? colors.overlay.withValues(alpha: 0.35)
+                : colors.overlay,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.brandYellow.withValues(alpha: 0.4),
             ),
-            child: Icon(icon, color: AppColors.primaryYellow, size: 22),
           ),
+          child: Icon(icon, color: AppColors.brandYellow, size: 22),
         ),
       ),
     );

@@ -93,6 +93,7 @@ class _LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = state.displayMessage;
+    final colors = context.colors;
 
     return PromooCard(
       elevated: true,
@@ -138,7 +139,7 @@ class _LoginForm extends StatelessWidget {
               child: Text(
                 'forget password?',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -150,9 +151,10 @@ class _LoginForm extends StatelessWidget {
           PromooButton.primary(
             label: 'Sign Up',
             fullWidth: true,
+            // Push keeps Login beneath, so back returns here step-wise.
             onPressed: state.isBusy
                 ? null
-                : () => context.go(AppRoutes.register),
+                : () => context.push(AppRoutes.register),
           ),
           const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(

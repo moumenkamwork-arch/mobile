@@ -13,8 +13,9 @@ class ChatMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMine = message.isMine;
-    final background = isMine ? AppColors.primaryYellow : AppColors.cardSurface;
-    final foreground = isMine ? AppColors.brandBlack : AppColors.textPrimary;
+    final colors = context.colors;
+    final background = isMine ? colors.primaryYellow : colors.cardSurface;
+    final foreground = isMine ? AppColors.brandBlack : colors.textPrimary;
 
     return Align(
       alignment: isMine
@@ -27,7 +28,7 @@ class ChatMessageBubble extends StatelessWidget {
             color: background,
             borderRadius: AppRadius.card,
             border: Border.all(
-              color: isMine ? AppColors.darkYellow : AppColors.border,
+              color: isMine ? colors.darkYellow : colors.border,
             ),
           ),
           child: Padding(
@@ -47,7 +48,7 @@ class ChatMessageBubble extends StatelessWidget {
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isMine
                         ? AppColors.brandBlack.withValues(alpha: 0.72)
-                        : AppColors.textMuted,
+                        : colors.textMuted,
                   ),
                 ),
               ],

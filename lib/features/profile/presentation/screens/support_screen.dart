@@ -38,9 +38,9 @@ class _SupportScreenState extends State<SupportScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.support_agent_rounded,
-                      color: AppColors.primaryYellow,
+                      color: context.colors.accent,
                       size: 30,
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -142,11 +142,11 @@ class _ContactRow extends StatelessWidget {
         horizontal: AppSpacing.md,
         vertical: AppSpacing.xxs,
       ),
-      leading: Icon(icon, color: AppColors.primaryYellow),
+      leading: Icon(icon, color: context.colors.accent),
       title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right_rounded,
-        color: AppColors.textMuted,
+        color: context.colors.textMuted,
       ),
       onTap: onTap,
     );

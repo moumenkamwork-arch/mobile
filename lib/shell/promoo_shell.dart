@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
 import '../shared/widgets/promoo_logo.dart';
 import '../shared/widgets/promoo_scaffold.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 
 class PromooShellTab {
@@ -79,6 +79,19 @@ class _PromooShellState extends ConsumerState<PromooShell> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
 
+        // Screens may expose internal back layers (e.g. Services results
+        // over the category grid) — unwind those first.
+        if (ref.read(backInterceptorsProvider).handle()) {
+          return;
+        }
+
+        // Step-wise back at the tab level: any non-Home tab first returns
+        // to Home, and only Home itself exits (with double-press confirm).
+        if (widget.selectedIndex != 0) {
+          context.go(AppRoutes.home);
+          return;
+        }
+
         final now = DateTime.now();
         final maxDuration = const Duration(seconds: 2);
         final isWarning =
@@ -87,24 +100,22 @@ class _PromooShellState extends ConsumerState<PromooShell> {
 
         if (isWarning) {
           _lastBackPressTime = now;
-          ScaffoldMessenger.of(context)
+          final messenger = ScaffoldMessenger.of(context);
+          final bottomOffset = (MediaQuery.sizeOf(context).height / 2 - 25)
+              .clamp(0.0, 480.0);
+          messenger
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
                 content: const Text(
                   'Press back again to exit',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
                 ),
-                backgroundColor: const Color(0xFF1E1E1E),
                 behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.only(
-                  bottom: MediaQuery.sizeOf(context).height / 2 - 25,
-                  left: 60,
-                  right: 60,
+                margin: EdgeInsetsDirectional.only(
+                  bottom: bottomOffset,
+                  start: 60,
+                  end: 60,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
@@ -117,35 +128,45 @@ class _PromooShellState extends ConsumerState<PromooShell> {
 
         Future.microtask(() => SystemNavigator.pop());
       },
-      child: PromooScaffold(
-        padding: EdgeInsets.zero,
-        safeAreaBottom: false,
-        extendBody: true,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            final nextScrolled = notification.metrics.pixels > 10;
-            if (nextScrolled != _isScrolled) {
-              setState(() => _isScrolled = nextScrolled);
-            }
-            return false;
-          },
-          child: widget.child,
-        ),
-        bottomNavigationBar: _PromooBottomNavigation(
-          selectedIndex: widget.selectedIndex,
-          isScrolled: _isScrolled,
-          onDestinationSelected: (index) {
-            if (index == widget.selectedIndex) {
-              return;
-            }
-            context.go(PromooShell.tabs[index].route);
-          },
+      // Status bar sits on the black chrome band in both themes, so its
+      // icons stay light. Each tab pads for the status bar via its header
+      // (applyTopSafeArea) so the chrome reaches the top edge.
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: PromooScaffold(
+          padding: EdgeInsets.zero,
+          safeAreaTop: false,
+          safeAreaBottom: false,
+          extendBody: true,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              final nextScrolled = notification.metrics.pixels > 10;
+              if (nextScrolled != _isScrolled) {
+                setState(() => _isScrolled = nextScrolled);
+              }
+              return false;
+            },
+            child: widget.child,
+          ),
+          bottomNavigationBar: _PromooBottomNavigation(
+            selectedIndex: widget.selectedIndex,
+            isScrolled: _isScrolled,
+            onDestinationSelected: (index) {
+              if (index == widget.selectedIndex) {
+                return;
+              }
+              context.go(PromooShell.tabs[index].route);
+            },
+          ),
         ),
       ),
     );
   }
 }
 
+/// Bottom bar chrome. Brand-black in BOTH themes: the center P artwork is
+/// yellow and needs a dark field, and the black band is part of the Promoo
+/// identity (see AppColors.navBackground).
 class _PromooBottomNavigation extends StatelessWidget {
   const _PromooBottomNavigation({
     required this.selectedIndex,
@@ -166,8 +187,8 @@ class _PromooBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = isScrolled
-        ? AppColors.navBackground.withValues(alpha: 0.78)
-        : AppColors.navBackground;
+        ? AppColors.dark.navBackground.withValues(alpha: 0.78)
+        : AppColors.dark.navBackground;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return SizedBox(
@@ -193,8 +214,8 @@ class _PromooBottomNavigation extends StatelessWidget {
                     border: Border(
                       top: BorderSide(
                         color: isScrolled
-                            ? AppColors.primaryYellow.withValues(alpha: 0.30)
-                            : AppColors.border,
+                            ? AppColors.brandYellow.withValues(alpha: 0.30)
+                            : AppColors.dark.border,
                       ),
                     ),
                   ),
@@ -272,7 +293,9 @@ class _CenterServicesLabel extends StatelessWidget {
           child: Text(
             tab.label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: selected ? AppColors.primaryYellow : AppColors.textMuted,
+              color: selected
+                  ? AppColors.brandYellow
+                  : AppColors.dark.textMuted,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
             ),
           ),
@@ -310,9 +333,9 @@ class _CenterPMark extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.brandBlack,
               shape: BoxShape.circle,
-              boxShadow: AppShadows.elevated,
+              boxShadow: AppColors.dark.shadowElevated,
               border: Border.all(
-                color: AppColors.primaryYellow,
+                color: AppColors.brandYellow,
                 width: selected ? 2.4 : 1.6,
               ),
             ),
@@ -342,7 +365,7 @@ class _PromooNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.primaryYellow : AppColors.textMuted;
+    final color = selected ? AppColors.brandYellow : AppColors.dark.textMuted;
 
     return Semantics(
       button: true,

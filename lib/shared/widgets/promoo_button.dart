@@ -55,6 +55,7 @@ class PromooButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final content = _ButtonContent(label: label, icon: icon);
     final button = switch (variant) {
       PromooButtonVariant.primary => ElevatedButton(
@@ -72,8 +73,8 @@ class PromooButton extends StatelessWidget {
       PromooButtonVariant.destructive => ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.error,
-          foregroundColor: AppColors.textPrimary,
+          backgroundColor: colors.error,
+          foregroundColor: colors.textPrimary,
         ),
         child: content,
       ),

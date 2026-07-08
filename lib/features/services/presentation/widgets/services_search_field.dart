@@ -50,10 +50,7 @@ class _ServicesSearchFieldState extends State<ServicesSearchField> {
       controller: _controller,
       hint: 'Search services',
       textInputAction: TextInputAction.search,
-      prefixIcon: const Icon(
-        Icons.search_rounded,
-        color: AppColors.primaryYellow,
-      ),
+      prefixIcon: Icon(Icons.search_rounded, color: context.colors.accent),
       suffixIcon: widget.onClear == null
           ? null
           : IconButton(

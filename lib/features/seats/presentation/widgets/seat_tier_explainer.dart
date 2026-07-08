@@ -61,7 +61,8 @@ class _TierRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _tierColor(tier);
+    final colors = context.colors;
+    final color = _tierColor(tier, colors);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +72,7 @@ class _TierRow extends StatelessWidget {
           height: 34,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: color),
           ),
@@ -86,7 +87,7 @@ class _TierRow extends StatelessWidget {
                 title,
                 style: Theme.of(
                   context,
-                ).textTheme.labelLarge?.copyWith(color: AppColors.textPrimary),
+                ).textTheme.labelLarge?.copyWith(color: colors.textPrimary),
               ),
               const SizedBox(height: AppSpacing.xxxs),
               Text(message, style: Theme.of(context).textTheme.bodySmall),
@@ -98,12 +99,15 @@ class _TierRow extends StatelessWidget {
   }
 }
 
-Color _tierColor(SeatTier tier) {
+Color _tierColor(SeatTier tier, AppThemeColors colors) {
+  // Ink usage (icons/labels on surfaces): gold resolves to the theme accent
+  // and bronze to the bronze ink so both stay readable on paper.
   return switch (tier) {
-    SeatTier.gold => AppColors.primaryYellow,
-    SeatTier.silver => AppColors.textSecondary,
-    SeatTier.bronze => AppColors.darkYellow,
-    SeatTier.unknown => AppColors.borderStrong,
+    SeatTier.gold => colors.accent,
+    SeatTier.silver => colors.textSecondary,
+    SeatTier.bronze =>
+      colors == AppColors.dark ? colors.darkYellow : colors.warning,
+    SeatTier.unknown => colors.borderStrong,
   };
 }
 

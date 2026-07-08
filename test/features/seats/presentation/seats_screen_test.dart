@@ -39,7 +39,7 @@ void main() {
     expect(find.text('Gold Seats'), findsOneWidget);
     expect(find.text('Silver Seats'), findsOneWidget);
     expect(find.text('Bronze Seats'), findsOneWidget);
-    expect(find.text('Place Your Seat'), findsWidgets);
+    expect(find.text('Book Seat'), findsWidgets);
     expect(find.text('Lina Atelier'), findsOneWidget);
   });
 
@@ -89,7 +89,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Place Your Seat').first);
+    await tester.tap(find.text('Book Seat').first);
     await tester.pumpAndSettle();
 
     expect(find.text('Gold Seat'), findsOneWidget);

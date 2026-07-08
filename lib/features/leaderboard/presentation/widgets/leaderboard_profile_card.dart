@@ -22,11 +22,12 @@ class LeaderboardProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rankIsPodium = profile.rank.isPodium;
+    final colors = context.colors;
 
     return PromooCard(
       elevated: highlight,
-      borderColor: highlight ? AppColors.primaryYellow : AppColors.border,
-      color: highlight ? AppColors.elevatedSurface : AppColors.cardSurface,
+      borderColor: highlight ? colors.accent : colors.border,
+      color: highlight ? colors.elevatedSurface : colors.cardSurface,
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,10 +52,10 @@ class LeaderboardProfileCard extends StatelessWidget {
                     ),
                     if (profile.isVerified) ...[
                       const SizedBox(width: AppSpacing.xs),
-                      const Icon(
+                      Icon(
                         Icons.verified_rounded,
                         size: 18,
-                        color: AppColors.primaryYellow,
+                        color: colors.accent,
                       ),
                     ],
                   ],
@@ -72,7 +73,7 @@ class LeaderboardProfileCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Icon(
             Icons.chevron_right_rounded,
-            color: highlight ? AppColors.primaryYellow : AppColors.textMuted,
+            color: highlight ? colors.accent : colors.textMuted,
           ),
         ],
       ),
@@ -97,21 +98,23 @@ class _RankBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    // Podium ranks get the highlighter treatment: yellow fill + black ink.
     return Container(
       width: 42,
       height: 42,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: highlight ? AppColors.primaryYellow : AppColors.surface,
+        color: highlight ? colors.primaryYellow : colors.surface,
         borderRadius: AppRadius.pill,
         border: Border.all(
-          color: highlight ? AppColors.primaryYellow : AppColors.border,
+          color: highlight ? colors.primaryYellow : colors.border,
         ),
       ),
       child: Text(
         rank.label,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: highlight ? AppColors.brandBlack : AppColors.textPrimary,
+          color: highlight ? AppColors.brandBlack : colors.textPrimary,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -128,6 +131,7 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final avatarUrl = profile.avatarUrl;
+    final colors = context.colors;
 
     final diameter = radius * 2;
 
@@ -135,12 +139,10 @@ class _ProfileAvatar extends StatelessWidget {
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         shape: BoxShape.circle,
         border: Border.all(
-          color: profile.rank.isPodium
-              ? AppColors.primaryYellow
-              : AppColors.borderStrong,
+          color: profile.rank.isPodium ? colors.accent : colors.borderStrong,
         ),
       ),
       child: ClipOval(
@@ -149,7 +151,7 @@ class _ProfileAvatar extends StatelessWidget {
                 child: Text(
                   _initialsFor(profile.displayName),
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.primaryYellow,
+                    color: colors.accent,
                     fontWeight: FontWeight.w800,
                   ),
                 ),

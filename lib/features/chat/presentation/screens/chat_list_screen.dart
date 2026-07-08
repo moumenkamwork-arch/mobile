@@ -17,15 +17,16 @@ class ChatListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(chatControllerProvider);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: Stack(
           children: [
             RefreshIndicator(
-              color: AppColors.primaryYellow,
-              backgroundColor: AppColors.elevatedSurface,
+              color: colors.accent,
+              backgroundColor: colors.elevatedSurface,
               onRefresh: () =>
                   ref.read(chatControllerProvider.notifier).refresh(),
               child: CustomScrollView(
@@ -41,8 +42,9 @@ class ChatListScreen extends ConsumerWidget {
                       children: [
                         _ChatHeader(
                           onBack: () => _goBack(context),
+                          // Push keeps the stack so back returns to chats.
                           onNotifications: () =>
-                              context.go(AppRoutes.notifications),
+                              context.push(AppRoutes.notifications),
                         ),
                         const SizedBox(height: AppSpacing.lg),
                         _ChatBody(

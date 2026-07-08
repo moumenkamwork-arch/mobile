@@ -38,21 +38,29 @@ class _ProfileScreenBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(profileControllerProvider);
 
-    return switch (state.status) {
-      ProfileStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading profile',
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: SafeArea(
+        bottom: false,
+        child: switch (state.status) {
+          ProfileStatus.loading => const PromooLoadingIndicator(
+            message: 'Loading profile',
+          ),
+          ProfileStatus.error => _ProfileErrorView(state: state),
+          ProfileStatus.empty => const PromooEmptyState(
+            title: 'Profile not found',
+            message: 'This profile is unavailable or no longer exists.',
+            icon: Icons.person_off_rounded,
+          ),
+          ProfileStatus.success ||
+          ProfileStatus.refreshing => _ProfileContentView(
+            state: state,
+            onRefresh: () =>
+                ref.read(profileControllerProvider.notifier).refresh(),
+          ),
+        },
       ),
-      ProfileStatus.error => _ProfileErrorView(state: state),
-      ProfileStatus.empty => const PromooEmptyState(
-        title: 'Profile not found',
-        message: 'This profile is unavailable or no longer exists.',
-        icon: Icons.person_off_rounded,
-      ),
-      ProfileStatus.success || ProfileStatus.refreshing => _ProfileContentView(
-        state: state,
-        onRefresh: () => ref.read(profileControllerProvider.notifier).refresh(),
-      ),
-    };
+    );
   }
 }
 
@@ -77,9 +85,9 @@ class _ProfileErrorView extends ConsumerWidget {
             end: AppSpacing.md,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.elevatedSurface,
+                color: context.colors.elevatedSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.error),
+                border: Border.all(color: context.colors.error),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -125,8 +133,8 @@ class _ProfileContentView extends ConsumerWidget {
     return Stack(
       children: [
         RefreshIndicator(
-          color: AppColors.primaryYellow,
-          backgroundColor: AppColors.elevatedSurface,
+          color: context.colors.accent,
+          backgroundColor: context.colors.elevatedSurface,
           onRefresh: onRefresh,
           child: CustomScrollView(
             slivers: [

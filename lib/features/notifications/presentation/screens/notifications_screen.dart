@@ -20,13 +20,13 @@ class NotificationsScreen extends ConsumerWidget {
     final state = ref.watch(notificationsControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Stack(
           children: [
             RefreshIndicator(
-              color: AppColors.primaryYellow,
-              backgroundColor: AppColors.elevatedSurface,
+              color: context.colors.accent,
+              backgroundColor: context.colors.elevatedSurface,
               onRefresh: () =>
                   ref.read(notificationsControllerProvider.notifier).refresh(),
               child: CustomScrollView(
@@ -223,9 +223,9 @@ class _ActionFailureBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: context.colors.elevatedSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.error),
+        border: Border.all(color: context.colors.error),
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.all(AppSpacing.sm),

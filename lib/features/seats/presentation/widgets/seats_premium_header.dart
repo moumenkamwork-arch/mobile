@@ -12,13 +12,14 @@ class SeatsPremiumHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final availableCount = seats.where((seat) => seat.isAvailable).length;
     final occupiedCount = seats.length - availableCount;
 
     return PromooCard(
       elevated: true,
-      borderColor: AppColors.primaryYellow,
-      color: AppColors.elevatedSurface,
+      borderColor: colors.primaryYellow,
+      color: colors.elevatedSurface,
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,8 +30,8 @@ class SeatsPremiumHeader extends StatelessWidget {
                 width: 42,
                 height: 42,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryYellow,
+                decoration: BoxDecoration(
+                  color: colors.primaryYellow,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -83,12 +84,13 @@ class _HeaderMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Expanded(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.cardSurface,
+          color: colors.cardSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: colors.border),
         ),
         child: Padding(
           padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
@@ -97,9 +99,9 @@ class _HeaderMetric extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.primaryYellow,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: colors.accent),
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(label, style: Theme.of(context).textTheme.labelSmall),

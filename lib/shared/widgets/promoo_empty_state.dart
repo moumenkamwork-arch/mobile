@@ -28,7 +28,7 @@ class PromooEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColors.primaryYellow, size: 36),
+            Icon(icon, color: context.colors.accent, size: 36),
             const SizedBox(height: AppSpacing.md),
             Text(
               title,

@@ -54,8 +54,10 @@ class _PackageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.colors;
+    // Gold ink in light mode, brand yellow on black — same premium accent.
     final yellowTitle = theme.textTheme.titleLarge?.copyWith(
-      color: AppColors.primaryYellow,
+      color: colors.accent,
       fontWeight: FontWeight.w800,
       fontSize: 24,
     );
@@ -66,11 +68,9 @@ class _PackageCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsetsDirectional.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.background.withValues(alpha: 0.55),
+          color: colors.background.withValues(alpha: 0.55),
           borderRadius: AppRadius.card,
-          border: Border.all(
-            color: AppColors.primaryYellow.withValues(alpha: 0.85),
-          ),
+          border: Border.all(color: colors.accent.withValues(alpha: 0.85)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +83,7 @@ class _PackageCard extends StatelessWidget {
                 Text(
                   price,
                   style: theme.textTheme.titleLarge?.copyWith(
-                    color: AppColors.primaryYellow,
+                    color: colors.accent,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -105,7 +105,7 @@ class _PackageCard extends StatelessWidget {
             Text(
               'Guarantee:',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.primaryYellow,
+                color: colors.accent,
               ),
             ),
             const SizedBox(height: AppSpacing.xxs),
@@ -124,7 +124,7 @@ class _PackageCard extends StatelessWidget {
                 'Tap to view details and proceed to secure checkout.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.primaryYellow.withValues(alpha: 0.75),
+                  color: colors.accent.withValues(alpha: 0.75),
                 ),
               ),
             ),

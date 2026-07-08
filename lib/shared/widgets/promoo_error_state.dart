@@ -26,9 +26,9 @@ class PromooErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
-              color: AppColors.error,
+              color: context.colors.error,
               size: 36,
             ),
             const SizedBox(height: AppSpacing.md),

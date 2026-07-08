@@ -229,9 +229,11 @@ class _TopOfferCard extends StatelessWidget {
               offer.title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+              // Over the dark image scrim in both themes.
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.dark.textPrimary,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             if (offer.subtitle != null) ...[
               const SizedBox(height: AppSpacing.xs),
@@ -239,9 +241,10 @@ class _TopOfferCard extends StatelessWidget {
                 offer.subtitle!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+                // Over the dark image scrim in both themes.
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.dark.textPrimary,
+                ),
               ),
             ],
           ],
@@ -264,7 +267,7 @@ class _ForYouOfferCard extends StatelessWidget {
       semanticLabel: offer.title,
       fallbackIcon: Icons.auto_awesome_rounded,
       onTap: onTap,
-      borderColor: AppColors.primaryYellow.withValues(alpha: 0.64),
+      borderColor: AppColors.brandYellow.withValues(alpha: 0.64),
       child: Padding(
         padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
         child: Column(
@@ -276,7 +279,7 @@ class _ForYouOfferCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.dark.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -286,9 +289,9 @@ class _ForYouOfferCard extends StatelessWidget {
                 offer.subtitle!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.dark.textSecondary,
+                ),
               ),
             ],
           ],
@@ -323,7 +326,7 @@ class _ServiceImageCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.dark.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -333,9 +336,9 @@ class _ServiceImageCard extends StatelessWidget {
                   'Provider service',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.dark.textSecondary,
+              ),
             ),
           ],
         ),
@@ -351,7 +354,7 @@ class _ImageCardShell extends StatelessWidget {
     required this.fallbackIcon,
     required this.onTap,
     required this.child,
-    this.borderColor = AppColors.borderStrong,
+    this.borderColor,
   });
 
   final String? imageUrl;
@@ -359,7 +362,9 @@ class _ImageCardShell extends StatelessWidget {
   final IconData fallbackIcon;
   final VoidCallback onTap;
   final Widget child;
-  final Color borderColor;
+
+  /// Defaults to the theme's strong border when null.
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -368,10 +373,10 @@ class _ImageCardShell extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: AppRadius.card,
-          border: Border.all(color: borderColor),
+          border: Border.all(color: borderColor ?? context.colors.borderStrong),
         ),
         child: Material(
-          color: AppColors.cardSurface,
+          color: context.colors.cardSurface,
           child: InkWell(
             onTap: onTap,
             child: Stack(
@@ -398,15 +403,17 @@ class _CardImageOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Constant dark scrim so white card text stays readable over photos in
+    // both themes.
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: AlignmentDirectional.topCenter,
           end: AlignmentDirectional.bottomCenter,
           colors: [
-            AppColors.background.withValues(alpha: 0.12),
-            AppColors.background.withValues(alpha: 0.18),
-            AppColors.background.withValues(alpha: 0.78),
+            AppColors.brandBlack.withValues(alpha: 0.12),
+            AppColors.brandBlack.withValues(alpha: 0.18),
+            AppColors.brandBlack.withValues(alpha: 0.78),
           ],
         ),
       ),
@@ -425,7 +432,7 @@ class _PillLabel extends StatelessWidget {
       alignment: AlignmentDirectional.centerStart,
       child: DecoratedBox(
         decoration: const BoxDecoration(
-          color: AppColors.primaryYellow,
+          color: AppColors.brandYellow,
           borderRadius: AppRadius.pill,
         ),
         child: Padding(
@@ -468,8 +475,8 @@ class _CarouselIndicator extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: index == activeIndex
-                  ? AppColors.primaryYellow
-                  : AppColors.borderStrong,
+                  ? context.colors.accent
+                  : context.colors.borderStrong,
               borderRadius: AppRadius.pill,
             ),
           ),
@@ -529,10 +536,10 @@ class _PreviewTile extends StatelessWidget {
             height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.elevatedSurface,
+              color: context.colors.elevatedSurface,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(fallbackIcon, color: AppColors.primaryYellow, size: 22),
+            child: Icon(fallbackIcon, color: context.colors.accent, size: 22),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(

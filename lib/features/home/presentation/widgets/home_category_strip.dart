@@ -37,9 +37,9 @@ class HomeCategoryStrip extends StatelessWidget {
                   horizontal: AppSpacing.md,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: AppRadius.pill,
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Text(
                   category.name,

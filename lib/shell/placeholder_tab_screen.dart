@@ -40,11 +40,11 @@ class PlaceholderTabScreen extends StatelessWidget {
                   width: 48,
                   height: 48,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: AppColors.elevatedSurface,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  decoration: BoxDecoration(
+                    color: context.colors.elevatedSurface,
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
                   ),
-                  child: Icon(icon, color: AppColors.primaryYellow),
+                  child: Icon(icon, color: context.colors.accent),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(description, style: Theme.of(context).textTheme.bodyLarge),

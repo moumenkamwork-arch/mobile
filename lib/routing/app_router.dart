@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,6 +26,7 @@ import '../features/services/presentation/screens/service_detail_screen.dart';
 import '../features/services/presentation/screens/services_screen.dart';
 import '../shell/promoo_shell.dart';
 import '../shell/splash_placeholder_screen.dart';
+import '../theme/app_theme.dart';
 import 'route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -51,7 +52,9 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         name: RouteNames.login,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const LoginScreen(),
+          // Auth is a fixed brand moment: always the dark treatment,
+          // regardless of the selected theme mode.
+          child: Theme(data: AppTheme.dark, child: const LoginScreen()),
           transitionDuration: const Duration(milliseconds: 420),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
@@ -61,7 +64,8 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
       GoRoute(
         path: AppRoutes.register,
         name: RouteNames.register,
-        builder: (context, state) => const RegisterScreen(),
+        builder: (context, state) =>
+            Theme(data: AppTheme.dark, child: const RegisterScreen()),
       ),
       GoRoute(
         path: AppRoutes.chats,

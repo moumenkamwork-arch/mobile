@@ -14,12 +14,11 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return PromooCard(
       elevated: true,
-      borderColor: profile.isVerified
-          ? AppColors.primaryYellow
-          : AppColors.border,
-      color: AppColors.elevatedSurface,
+      borderColor: profile.isVerified ? colors.accent : colors.border,
+      color: colors.elevatedSurface,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,9 +50,9 @@ class ProfileHeader extends StatelessWidget {
                               ),
                               if (profile.isVerified) ...[
                                 const SizedBox(width: AppSpacing.xs),
-                                const Icon(
+                                Icon(
                                   Icons.verified_rounded,
-                                  color: AppColors.primaryYellow,
+                                  color: colors.accent,
                                   size: 20,
                                 ),
                               ],
@@ -90,9 +89,9 @@ class ProfileHeader extends StatelessWidget {
                     profile.bio!,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: colors.textPrimary),
                   ),
                 ],
               ],
@@ -120,7 +119,7 @@ class _Cover extends StatelessWidget {
       child: Container(
         height: 108,
         width: double.infinity,
-        decoration: const BoxDecoration(color: AppColors.surface),
+        decoration: BoxDecoration(color: context.colors.surface),
         child: Stack(
           children: [
             Positioned.fill(
@@ -160,13 +159,15 @@ class _Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final avatarUrl = profile.avatarUrl;
 
+    // Avatar well stays brand-black in both themes so the yellow ring and
+    // initials keep their contrast.
     return Container(
       width: 64,
       height: 64,
       decoration: BoxDecoration(
         color: AppColors.brandBlack,
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primaryYellow, width: 2),
+        border: Border.all(color: AppColors.brandYellow, width: 2),
       ),
       child: ClipOval(
         child: avatarUrl == null
@@ -174,7 +175,7 @@ class _Avatar extends StatelessWidget {
                 child: Text(
                   _initialsFor(profile.displayName),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.primaryYellow,
+                    color: AppColors.brandYellow,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -202,9 +203,9 @@ class _MetaChip extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: AppRadius.pill,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Text(
         label,

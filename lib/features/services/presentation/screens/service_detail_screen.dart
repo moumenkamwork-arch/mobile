@@ -22,7 +22,13 @@ class ServiceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ServiceDetailBody(serviceId: serviceId);
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: SafeArea(
+        bottom: false,
+        child: _ServiceDetailBody(serviceId: serviceId),
+      ),
+    );
   }
 }
 
@@ -60,10 +66,11 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
         onContactPressed: () {
           setState(() => _showContactNotice = true);
         },
-        onOpenChatsPressed: () => context.go(AppRoutes.chats),
+        // Push keeps the stack intact so back returns to these details.
+        onOpenChatsPressed: () => context.push(AppRoutes.chats),
         onViewProfilePressed: state.service!.provider == null
             ? null
-            : () => context.go(
+            : () => context.push(
                 AppRoutes.profileById(state.service!.provider!.id),
               ),
         onDismissContactNotice: () {
@@ -179,7 +186,7 @@ class _HeroCard extends StatelessWidget {
     return PromooCard(
       elevated: true,
       padding: EdgeInsets.zero,
-      borderColor: AppColors.borderStrong,
+      borderColor: context.colors.borderStrong,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,7 +295,7 @@ class _SummaryMetric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.primaryYellow, size: 20),
+        Icon(icon, color: context.colors.accent, size: 20),
         const SizedBox(height: AppSpacing.xs),
         Text(label, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: AppSpacing.xxxs),
@@ -409,9 +416,9 @@ class _ProviderSummary extends StatelessWidget {
                               ),
                               if (current.isVerified) ...[
                                 const SizedBox(width: AppSpacing.xs),
-                                const Icon(
+                                Icon(
                                   Icons.verified_rounded,
-                                  color: AppColors.primaryYellow,
+                                  color: context.colors.accent,
                                   size: 18,
                                 ),
                               ],
@@ -452,8 +459,8 @@ class _ProviderAvatar extends StatelessWidget {
     return Container(
       width: 56,
       height: 56,
-      decoration: const BoxDecoration(
-        color: AppColors.elevatedSurface,
+      decoration: BoxDecoration(
+        color: context.colors.elevatedSurface,
         shape: BoxShape.circle,
       ),
       child: ClipOval(
@@ -498,15 +505,12 @@ class _ContactSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (showNotice) ...[
           PromooCard(
-            borderColor: AppColors.primaryYellow,
-            color: AppColors.elevatedSurface,
+            borderColor: context.colors.primaryYellow,
+            color: context.colors.elevatedSurface,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.info_outline_rounded,
-                  color: AppColors.primaryYellow,
-                ),
+                Icon(Icons.info_outline_rounded, color: context.colors.accent),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -559,21 +563,22 @@ class _DetailChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: AppRadius.pill,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: AppColors.primaryYellow, size: 14),
+            Icon(icon, color: colors.accent, size: 14),
             const SizedBox(width: AppSpacing.xxs),
           ],
           ConstrainedBox(

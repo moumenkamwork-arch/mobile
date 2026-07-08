@@ -12,6 +12,10 @@ import 'promoo_logo.dart';
 /// pinned to the very top (no side margins, only a bottom border), showing the
 /// Promoo logo on the left and plain chat/notification icons with yellow
 /// badges on the right. Becomes a translucent glass bar while scrolling.
+///
+/// The header is brand-black chrome in BOTH themes: the logo artwork is
+/// yellow and needs a dark field, and the black band is part of the Promoo
+/// identity (see AppColors.navBackground).
 class PromooPageHeader extends StatelessWidget {
   const PromooPageHeader({
     super.key,
@@ -27,7 +31,7 @@ class PromooPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = AppColors.background.withValues(
+    final backgroundColor = AppColors.brandBlack.withValues(
       alpha: isScrolled ? 0.72 : 0.9,
     );
 
@@ -37,8 +41,8 @@ class PromooPageHeader extends StatelessWidget {
         border: Border(
           bottom: BorderSide(
             color: isScrolled
-                ? AppColors.primaryYellow.withValues(alpha: 0.28)
-                : AppColors.border,
+                ? AppColors.brandYellow.withValues(alpha: 0.28)
+                : AppColors.dark.border,
           ),
         ),
       ),
@@ -122,7 +126,8 @@ class _HeaderAction extends StatelessWidget {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                Icon(icon, color: AppColors.textPrimary, size: 27),
+                // White on the black chrome band in both themes.
+                Icon(icon, color: AppColors.dark.textPrimary, size: 27),
                 if (badgeLabel != null)
                   PositionedDirectional(
                     top: 5,
@@ -135,7 +140,7 @@ class _HeaderAction extends StatelessWidget {
                         horizontal: 4,
                       ),
                       decoration: const BoxDecoration(
-                        color: AppColors.primaryYellow,
+                        color: AppColors.brandYellow,
                         shape: BoxShape.circle,
                       ),
                       child: Text(

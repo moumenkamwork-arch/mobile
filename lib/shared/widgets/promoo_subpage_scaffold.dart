@@ -59,9 +59,9 @@ class PromooSubpageScaffold extends StatelessWidget {
                             context.go(AppRoutes.profile);
                           }
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.primaryYellow,
+                          color: context.colors.accent,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.xxs),

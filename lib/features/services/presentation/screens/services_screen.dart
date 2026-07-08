@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../routing/back_interceptors.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -15,11 +16,43 @@ import '../widgets/service_card.dart';
 import '../widgets/services_category_list.dart';
 import '../widgets/services_search_field.dart';
 
-class ServicesScreen extends ConsumerWidget {
+class ServicesScreen extends ConsumerStatefulWidget {
   const ServicesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ServicesScreen> createState() => _ServicesScreenState();
+}
+
+class _ServicesScreenState extends ConsumerState<ServicesScreen> {
+  VoidCallback? _unregisterBackInterceptor;
+
+  @override
+  void initState() {
+    super.initState();
+    // The results layer (category selected / search active) is a back step:
+    // system back returns to the category grid before leaving the tab.
+    _unregisterBackInterceptor = ref
+        .read(backInterceptorsProvider)
+        .register(_handleBack);
+  }
+
+  @override
+  void dispose() {
+    _unregisterBackInterceptor?.call();
+    super.dispose();
+  }
+
+  bool _handleBack() {
+    final state = ref.read(servicesControllerProvider);
+    if (!_shouldShowResults(state)) {
+      return false;
+    }
+    ref.read(servicesControllerProvider.notifier).clearFilters();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(servicesControllerProvider);
 
     return switch (state.status) {
@@ -59,9 +92,9 @@ class _ServicesErrorView extends ConsumerWidget {
             end: AppSpacing.md,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.elevatedSurface,
+                color: context.colors.elevatedSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.error),
+                border: Border.all(color: context.colors.error),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -95,83 +128,87 @@ class _ServicesContentView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showResults = _shouldShowResults(state);
 
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const PromooPageHeader(),
-          Expanded(
-            child: Stack(
-              children: [
-                RefreshIndicator(
-                  color: AppColors.primaryYellow,
-                  backgroundColor: AppColors.elevatedSurface,
-                  onRefresh: onRefresh,
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                          AppSpacing.screenHorizontal,
-                          AppSpacing.md,
-                          AppSpacing.screenHorizontal,
-                          AppSpacing.shellScrollBottom,
-                        ),
-                        sliver: SliverList.list(
-                          children: [
-                            ServicesSearchField(
-                              query: state.searchQuery,
-                              onChanged: (query) => ref
-                                  .read(servicesControllerProvider.notifier)
-                                  .search(query),
-                              onSubmitted: (query) => ref
-                                  .read(servicesControllerProvider.notifier)
-                                  .search(query),
-                              onClear: state.searchQuery.isEmpty
-                                  ? null
-                                  : () => ref
-                                        .read(
-                                          servicesControllerProvider.notifier,
-                                        )
-                                        .clearSearch(),
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            if (showResults) ...[
-                              if (state.services.isEmpty)
-                                _ServicesEmptyState(
-                                  selectedCategoryId: state.selectedCategoryId,
-                                  query: state.searchQuery,
-                                )
-                              else
-                                _ServicesList(services: state.services),
-                            ] else
-                              ServicesCategoryList(
-                                categories: state.categories,
-                                selectedCategoryId: state.selectedCategoryId,
-                                onSelected: (categoryId) {
-                                  ref
-                                      .read(servicesControllerProvider.notifier)
-                                      .selectCategory(categoryId);
-                                },
-                              ),
-                          ],
-                        ),
+    // The header paints its own status-bar inset so the black chrome band
+    // reaches the top edge in both themes (no paper seam in light mode).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const PromooPageHeader(applyTopSafeArea: true),
+        Expanded(
+          child: Stack(
+            children: [
+              RefreshIndicator(
+                color: context.colors.accent,
+                backgroundColor: context.colors.elevatedSurface,
+                onRefresh: onRefresh,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        AppSpacing.screenHorizontal,
+                        AppSpacing.md,
+                        AppSpacing.screenHorizontal,
+                        AppSpacing.shellScrollBottom,
                       ),
-                    ],
-                  ),
+                      sliver: SliverList.list(
+                        children: [
+                          ServicesSearchField(
+                            query: state.searchQuery,
+                            onChanged: (query) => ref
+                                .read(servicesControllerProvider.notifier)
+                                .search(query),
+                            onSubmitted: (query) => ref
+                                .read(servicesControllerProvider.notifier)
+                                .search(query),
+                            onClear: state.searchQuery.isEmpty
+                                ? null
+                                : () => ref
+                                      .read(servicesControllerProvider.notifier)
+                                      .clearSearch(),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          if (showResults) ...[
+                            _ResultsContextBar(
+                              state: state,
+                              onBackToCategories: () => ref
+                                  .read(servicesControllerProvider.notifier)
+                                  .clearFilters(),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            if (state.services.isEmpty)
+                              _ServicesEmptyState(
+                                selectedCategoryId: state.selectedCategoryId,
+                                query: state.searchQuery,
+                              )
+                            else
+                              _ServicesList(services: state.services),
+                          ] else
+                            ServicesCategoryList(
+                              categories: state.categories,
+                              selectedCategoryId: state.selectedCategoryId,
+                              onSelected: (categoryId) {
+                                ref
+                                    .read(servicesControllerProvider.notifier)
+                                    .selectCategory(categoryId);
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                if (state.isRefreshing)
-                  const PositionedDirectional(
-                    top: 0,
-                    start: 0,
-                    end: 0,
-                    child: LinearProgressIndicator(minHeight: 2),
-                  ),
-              ],
-            ),
+              ),
+              if (state.isRefreshing)
+                const PositionedDirectional(
+                  top: 0,
+                  start: 0,
+                  end: 0,
+                  child: LinearProgressIndicator(minHeight: 2),
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -179,6 +216,69 @@ class _ServicesContentView extends ConsumerWidget {
 bool _shouldShowResults(ServicesState state) {
   return state.searchQuery.trim().isNotEmpty ||
       state.selectedCategoryId != null;
+}
+
+/// Step header shown above results: names the active category (or search)
+/// and offers an explicit back step to the category grid — mirroring what
+/// the system back button does at this layer.
+class _ResultsContextBar extends StatelessWidget {
+  const _ResultsContextBar({
+    required this.state,
+    required this.onBackToCategories,
+  });
+
+  final ServicesState state;
+  final VoidCallback onBackToCategories;
+
+  @override
+  Widget build(BuildContext context) {
+    final categoryName = _selectedCategoryName(state);
+    final title = categoryName ?? 'Search results';
+    final count = state.services.length;
+    final countLabel = switch (count) {
+      0 => 'No services',
+      1 => '1 service',
+      _ => '$count services',
+    };
+
+    return Row(
+      children: [
+        IconButton(
+          tooltip: 'Back to categories',
+          onPressed: onBackToCategories,
+          icon: Icon(Icons.arrow_back_rounded, color: context.colors.accent),
+        ),
+        const SizedBox(width: AppSpacing.xxs),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Text(countLabel, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String? _selectedCategoryName(ServicesState state) {
+    final id = state.selectedCategoryId;
+    if (id == null) {
+      return null;
+    }
+    for (final category in state.categories) {
+      if (category.id == id) {
+        return category.name;
+      }
+    }
+    return null;
+  }
 }
 
 class _ServicesList extends StatelessWidget {

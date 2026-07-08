@@ -100,12 +100,10 @@ class _EditProfileFormState extends State<_EditProfileForm> {
                 Container(
                   width: 96,
                   height: 96,
+                  // Brand ring around the photo — yellow in both themes.
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primaryYellow,
-                      width: 3,
-                    ),
+                    border: Border.all(color: AppColors.brandYellow, width: 3),
                   ),
                   child: ClipOval(
                     child: PromooImage(
@@ -121,7 +119,7 @@ class _EditProfileFormState extends State<_EditProfileForm> {
                     width: 30,
                     height: 30,
                     decoration: const BoxDecoration(
-                      color: AppColors.primaryYellow,
+                      color: AppColors.brandYellow,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -155,7 +153,7 @@ class _EditProfileFormState extends State<_EditProfileForm> {
                     child: Text(
                       'Change profile photo',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.primaryYellow,
+                        color: context.colors.accent,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -267,16 +265,16 @@ class _FieldCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: context.colors.cardSurface,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: AppColors.textSecondary),
+              Icon(icon, size: 18, color: context.colors.textSecondary),
               const SizedBox(width: AppSpacing.xs),
               Text(label, style: Theme.of(context).textTheme.bodySmall),
             ],

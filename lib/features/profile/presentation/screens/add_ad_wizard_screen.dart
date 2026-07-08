@@ -359,19 +359,16 @@ class _StepDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDone = state == _StepState.done;
     final isActive = state == _StepState.active;
+    final colors = context.colors;
 
     return Container(
       width: 34,
       height: 34,
       decoration: BoxDecoration(
-        color: isDone
-            ? AppColors.primaryYellow
-            : (isActive ? AppColors.textPrimary : AppColors.textPrimary),
+        color: isDone ? colors.primaryYellow : colors.textPrimary,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isDone || isActive
-              ? AppColors.primaryYellow
-              : AppColors.borderStrong,
+          color: isDone || isActive ? colors.accent : colors.borderStrong,
           width: isActive ? 3 : 1,
         ),
       ),
@@ -408,8 +405,8 @@ class _DashedConnector extends StatelessWidget {
                   width: dashWidth,
                   height: 2,
                   color: done
-                      ? AppColors.primaryYellow
-                      : AppColors.borderStrong,
+                      ? context.colors.accent
+                      : context.colors.borderStrong,
                 ),
             ],
           );
@@ -430,9 +427,9 @@ class _WizardCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: context.colors.cardSurface,
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -465,8 +462,8 @@ class _WizardActions extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onBack,
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.error,
-              side: const BorderSide(color: AppColors.error),
+              foregroundColor: context.colors.error,
+              side: BorderSide(color: context.colors.error),
             ),
             child: Text(step == 0 ? 'Cancel' : 'Back'),
           ),
@@ -528,13 +525,13 @@ class _UploadBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.lg),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.textSecondary, size: 30),
+            Icon(icon, color: context.colors.textSecondary, size: 30),
             const SizedBox(height: AppSpacing.xs),
             Text(label, style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: AppSpacing.xxs),
@@ -569,12 +566,12 @@ class _PickerField extends StatelessWidget {
             Expanded(
               child: Text(
                 hint,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: context.colors.textSecondary,
+                ),
               ),
             ),
-            Icon(trailing, color: AppColors.textSecondary, size: 22),
+            Icon(trailing, color: context.colors.textSecondary, size: 22),
           ],
         ),
       ),
@@ -604,13 +601,13 @@ class _DropdownField extends StatelessWidget {
         hint,
         style: Theme.of(
           context,
-        ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+        ).textTheme.bodyLarge?.copyWith(color: context.colors.textSecondary),
       ),
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: AppColors.textSecondary,
+        color: context.colors.textSecondary,
       ),
-      dropdownColor: AppColors.elevatedSurface,
+      dropdownColor: context.colors.elevatedSurface,
       items: [
         for (final item in items)
           DropdownMenuItem(value: item, child: Text(item)),

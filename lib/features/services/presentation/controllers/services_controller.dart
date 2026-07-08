@@ -132,6 +132,17 @@ class ServicesController extends Notifier<ServicesState> {
     );
   }
 
+  /// Leaves the results layer entirely: clears the selected category and any
+  /// search query, returning the screen to the category grid. Used by the
+  /// in-app results back affordance and the system back button.
+  Future<void> clearFilters() {
+    return _applyFilters(
+      selectedCategoryId: null,
+      updateSelectedCategory: true,
+      searchQuery: '',
+    );
+  }
+
   Future<void> _load({
     bool showLoading = false,
     bool refreshing = false,

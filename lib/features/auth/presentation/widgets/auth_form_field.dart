@@ -17,7 +17,7 @@ class AuthFieldLabel extends StatelessWidget {
       child: Text(
         text,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
           fontWeight: FontWeight.w600,
         ),
       ),

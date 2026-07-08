@@ -18,9 +18,10 @@ class AuthMessageBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isError ? AppColors.error : AppColors.success;
+    final colors = context.colors;
+    final color = isError ? colors.error : colors.success;
     return PromooCard(
-      color: AppColors.elevatedSurface,
+      color: colors.elevatedSurface,
       borderColor: color,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
