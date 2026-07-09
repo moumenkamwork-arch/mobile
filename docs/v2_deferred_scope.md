@@ -92,6 +92,13 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 | Location/map on offers (sticky map action, "open in maps") | No maps flow in v1 | **Hidden** — show plain text location if present; no map launch. |
 | Reviews/ratings/likes/comments/share | See §4 | **Hidden**. |
 
+## 7. Dynamic Seats Expansion & Management (Dashboard)
+
+| Item | Backend support | v1 behaviour |
+| --- | --- | --- |
+| Dynamic Expandable Seat Grid | Needs API adjustment to return grid dimensions (`columns`, `rows`) or implement Infinite Scrolling sections / Interactive Canvas. | **Display-only** — v1 uses a fixed `12x12` math grid mapped to concentric visual bands for exactly 144 seats. |
+| Dashboard Seat Management | Needs new CRUD endpoints / UI in `promo_dashboard`. | **Hidden** — currently the dashboard only handles seat reports. In v2, admins should be able to expand seat capacity, modify tier prices, and release/cancel bookings without hardcoded DB limits. |
+
 ---
 
 ## Cross-reference

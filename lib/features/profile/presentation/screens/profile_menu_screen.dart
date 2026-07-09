@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../../../theme/theme_mode_controller.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../controllers/account_capabilities.dart';
 
 /// Profile tab page recreating the original app's profile/settings screen:
 /// welcome card, Following, management menu, language selector, logout, and
@@ -19,6 +21,8 @@ class ProfileMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final user = ref.watch(authControllerProvider).session?.user;
+    final caps = ref.watch(accountCapabilitiesProvider);
 
     // The header paints its own status-bar inset so the black chrome band
     // reaches the top edge in both themes (no paper seam in light mode).
@@ -34,49 +38,16 @@ class ProfileMenuScreen extends ConsumerWidget {
               AppSpacing.shellScrollBottom,
             ),
             children: [
+              _WelcomeCard(
+                displayName: user?.displayName ?? 'Guest',
+                avatarUrl: user?.avatarUrl,
+              ),
+              const SizedBox(height: AppSpacing.md),
               PromooCard(
                 padding: const EdgeInsetsDirectional.symmetric(
                   vertical: AppSpacing.xs,
                 ),
-                child: Column(
-                  children: [
-                    _MenuRow(
-                      icon: Icons.star_rounded,
-                      label: 'Following',
-                      onTap: () => context.push(AppRoutes.profileFollowing),
-                    ),
-                    const _MenuDivider(),
-                    _MenuRow(
-                      icon: Icons.group_outlined,
-                      label: 'Profile Management',
-                      onTap: () => context.push(AppRoutes.profileEdit),
-                    ),
-                    const _MenuDivider(),
-                    _MenuRow(
-                      icon: Icons.add_circle_outline_rounded,
-                      label: 'Add New Offer',
-                      onTap: () => context.push(AppRoutes.profileAddAd),
-                    ),
-                    const _MenuDivider(),
-                    _MenuRow(
-                      icon: Icons.bookmark_rounded,
-                      label: 'Saved',
-                      onTap: () => context.push(AppRoutes.profileSaved),
-                    ),
-                    const _MenuDivider(),
-                    _MenuRow(
-                      icon: Icons.inventory_2_outlined,
-                      label: 'MyPackages',
-                      onTap: () => context.push(AppRoutes.profilePackages),
-                    ),
-                    const _MenuDivider(),
-                    _MenuRow(
-                      icon: Icons.support_agent_rounded,
-                      label: 'Support',
-                      onTap: () => context.push(AppRoutes.profileSupport),
-                    ),
-                  ],
-                ),
+                child: Column(children: _menuRows(context, caps)),
               ),
               const SizedBox(height: AppSpacing.md),
               PromooCard(
@@ -189,6 +160,62 @@ class ProfileMenuScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+/// Greeting card at the top of the settings screen: the signed-in user's
+/// own avatar (not the brand logo) with a "Hi {name} / Welcome to Promoo"
+/// greeting, matching the original app's welcome card layout.
+class _WelcomeCard extends StatelessWidget {
+  const _WelcomeCard({required this.displayName, required this.avatarUrl});
+
+  final String displayName;
+  final String? avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return PromooCard(
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: colors.elevatedSurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: colors.accent, width: 1.5),
+            ),
+            child: ClipOval(
+              child: PromooImage(
+                imageUrl: avatarUrl,
+                semanticLabel: displayName,
+                fallbackIcon: Icons.person_rounded,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hi $displayName',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.xxxs),
+                Text(
+                  'Welcome to Promoo',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

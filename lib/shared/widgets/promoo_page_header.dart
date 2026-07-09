@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../theme/theme_mode_controller.dart';
+import 'promoo_chat_icon.dart';
 import 'promoo_logo.dart';
 
 /// Standard in-shell page header matching the original app: a full-width bar
@@ -13,10 +16,10 @@ import 'promoo_logo.dart';
 /// Promoo logo on the left and plain chat/notification icons with yellow
 /// badges on the right. Becomes a translucent glass bar while scrolling.
 ///
-/// The header is brand-black chrome in BOTH themes: the logo artwork is
-/// yellow and needs a dark field, and the black band is part of the Promoo
-/// identity (see AppColors.navBackground).
-class PromooPageHeader extends StatelessWidget {
+/// Theme-aware: brand-black glass on dark, paper glass on light; the logo
+/// itself switches to a colorway suited to each ([PromooLogo] picks the
+/// right asset — no background plate needed).
+class PromooPageHeader extends ConsumerWidget {
   const PromooPageHeader({
     super.key,
     this.isScrolled = false,
@@ -30,8 +33,10 @@ class PromooPageHeader extends StatelessWidget {
   final bool applyTopSafeArea;
 
   @override
-  Widget build(BuildContext context) {
-    final backgroundColor = AppColors.brandBlack.withValues(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final backgroundColor = colors.background.withValues(
       alpha: isScrolled ? 0.72 : 0.9,
     );
 
@@ -41,8 +46,8 @@ class PromooPageHeader extends StatelessWidget {
         border: Border(
           bottom: BorderSide(
             color: isScrolled
-                ? AppColors.brandYellow.withValues(alpha: 0.28)
-                : AppColors.dark.border,
+                ? colors.accent.withValues(alpha: 0.28)
+                : colors.border,
           ),
         ),
       ),
@@ -66,16 +71,39 @@ class PromooPageHeader extends StatelessWidget {
               ),
               const Spacer(),
               _HeaderAction(
+                tooltip: isDark
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode',
+                icon: Icon(
+                  isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                  color: colors.textPrimary,
+                  size: 24,
+                ),
+                onTap: () {
+                  final notifier = ref.read(themeModeProvider.notifier);
+                  if (isDark) {
+                    notifier.setLight();
+                  } else {
+                    notifier.setDark();
+                  }
+                },
+              ),
+              const SizedBox(width: AppSpacing.xxs),
+              _HeaderAction(
                 tooltip: 'Chats',
                 badgeLabel: '2',
-                icon: Icons.chat_bubble_outline_rounded,
+                icon: PromooChatIcon(size: 26, color: colors.textPrimary),
                 onTap: () => context.push(AppRoutes.chats),
               ),
               const SizedBox(width: AppSpacing.xxs),
               _HeaderAction(
                 tooltip: 'Notifications',
                 badgeLabel: '6',
-                icon: Icons.notifications_none_rounded,
+                icon: Icon(
+                  Icons.notifications_none_rounded,
+                  color: colors.textPrimary,
+                  size: 27,
+                ),
                 onTap: () => context.push(AppRoutes.notifications),
               ),
             ],
@@ -105,7 +133,7 @@ class _HeaderAction extends StatelessWidget {
   });
 
   final String tooltip;
-  final IconData icon;
+  final Widget icon;
   final VoidCallback onTap;
   final String? badgeLabel;
 
@@ -126,8 +154,7 @@ class _HeaderAction extends StatelessWidget {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                // White on the black chrome band in both themes.
-                Icon(icon, color: AppColors.dark.textPrimary, size: 27),
+                icon,
                 if (badgeLabel != null)
                   PositionedDirectional(
                     top: 5,

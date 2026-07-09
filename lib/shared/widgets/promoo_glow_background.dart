@@ -8,9 +8,10 @@ import '../../theme/app_colors.dart';
 ///
 /// Theme-aware: on the dark theme it is the original black screen with a
 /// strong glow; on the light theme it becomes paper with a soft sunlight
-/// wash so sub-pages (Edit Profile, Add New Ad...) stay readable. Screens
-/// that must ALWAYS be the dark brand moment (splash, login, register) wrap
-/// themselves in `Theme(data: AppTheme.dark, ...)`.
+/// wash so sub-pages (Edit Profile, Add New Ad, Login, Register...) stay
+/// readable. Screens that must ALWAYS be the dark brand moment (the launch
+/// splash, full-screen media viewers) wrap themselves in
+/// `Theme(data: AppTheme.dark, ...)`.
 ///
 /// [intensity] scales the glow alpha from 0 (invisible) to 1 (full), so the
 /// splash can grow the glow over time while static screens pass a constant.

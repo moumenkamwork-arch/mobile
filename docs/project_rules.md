@@ -47,12 +47,34 @@
   - Photo scrims + text over photos: constant dark scrim
     (`AppColors.brandBlack` alphas) + `AppColors.dark.textPrimary` text.
   - Avatar wells: `AppColors.brandBlack` + brand-yellow ring in both modes.
-- **Brand-fixed surfaces:** shell chrome (header/footer/P), splash,
-  login/register, story viewer, profile media viewer are ALWAYS the dark
-  treatment (wrap in `Theme(data: AppTheme.dark)` where needed).
+- **The header, bottom nav, and Login/Register are theme-aware** (paper in
+  light, black in dark) — this is deliberate as of 2026-07-08. The only
+  brand-fixed-dark surfaces left are the launch splash and the two
+  full-screen media viewers (story viewer, profile media viewer), wrapped
+  in `Theme(data: AppTheme.dark)` because they're immersive photo/video
+  moments, not settings-driven pages.
+  - **Logo colorways, not boxes.** `PromooLogo.full` picks its asset by
+    `Theme.of(context).brightness`: `promoo_wordmark.png` (brand yellow) on
+    dark, `promoo_wordmark_light.png` (ink black + olive dots) on light.
+    Never wrap the logo in a background plate/box — a prior "ink stamp"
+    container was tried and reverted per owner feedback. The compact P
+    mark (`promoo_mark.png`, bottom-nav center button only) stays the
+    brand-yellow-on-black chip in both themes — that's a self-contained
+    badge, not chrome needing a colorway swap.
+  - **Icon parity with the old app:** before adding/changing an icon,
+    check `Projects-Pictures/` — crop+zoom with Pillow if a screenshot
+    icon is too small to read (see MEMORY_BANK 2026-07-08 follow-up 2).
+    The header's "Chats" icon is two overlapping speech bubbles
+    (`PromooChatIcon`, `lib/shared/widgets/promoo_chat_icon.dart`), not
+    Material's single `chat_bubble_outline_rounded` — that single-bubble
+    glyph is still correct for singular contexts (an input field's
+    placeholder icon, a notification row's "you got a message" icon).
+  - **Profile welcome card** (`ProfileMenuScreen._WelcomeCard`) shows the
+    signed-in user's own avatar (`AuthUser.avatarUrl`, person-icon
+    fallback for guests) — never the brand logo — next to "Hi {name} /
+    Welcome to Promoo".
 - Currency **AED** everywhere. Use `EdgeInsetsDirectional` (RTL-ready).
-- Logo images come from `assets/brand/new_logo/` via `PromooLogo` (splash keeps
-  its own treatment).
+- Logo images come from `assets/brand/new_logo/` via `PromooLogo`.
 - Shared chrome: `PromooPageHeader` (full-width, bottom border, glass,
   `applyTopSafeArea: true` on tab screens — it paints under the status bar)
   and the shell footer (full-width, top border, overflowing P). Reuse them.

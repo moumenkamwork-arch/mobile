@@ -103,6 +103,53 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-08 (follow-up 2) — Icon parity with the old app + logo/welcome fixes.**
+  Pixel-audited every screenshot in `Projects-Pictures/` (Python/Pillow crops
+  at 6x zoom) against current icon choices. Findings: the header's message
+  icon in the old app is TWO overlapping speech bubbles (a "Chats" glyph),
+  not a single bubble; the bell already matched well. Built
+  `PromooChatIcon` (`lib/shared/widgets/promoo_chat_icon.dart`) — composes
+  two of Flutter's own `chat_bubble_outline_rounded` glyphs (front bubble
+  full, back bubble notched via `Path.combine(difference, ...)` where the
+  front one overlaps) and wired it into `PromooPageHeader`'s Chats icon.
+  **Removed `PromooLogoStamp` entirely** (the black rounded plate around
+  the logo) per owner feedback — it read as a design mistake, not a fix.
+  `PromooLogo.full` now just picks the right transparent-PNG colorway per
+  theme brightness: `promoo_wordmark.png` (brand yellow) on dark,
+  **new `promoo_wordmark_light.png`** (ink black + olive accent dots,
+  cropped from the owner-supplied `Desktop/Promo's Logo/promoo4.v.png`) on
+  light — no background box in either mode. **Added a light/dark toggle
+  icon** (sun/moon) to `PromooPageHeader` (so Home + every in-shell page has
+  it) and to `AuthScreenFrame` (Login/Register), wired to
+  `themeModeProvider`. **Added a welcome card** to `ProfileMenuScreen`
+  (`_WelcomeCard`): the signed-in user's own avatar (`AuthUser.avatarUrl`,
+  falls back to a person icon for guests) in an accent-ringed circle, with
+  "Hi {displayName} / Welcome to Promoo" — replaces the old app's version
+  of this card, which used the brand logo instead of the user's photo (ref:
+  `Projects-Pictures/profile page/photo_2026-06-25_01-59-36.jpg`).
+  195/195 tests (4 new: logo asset-per-theme + fullCropped flag), analyze
+  clean, verified live on web (both themes, Login/Register/Home/Profile).
+- **2026-07-08 (follow-up) — Header/bottom nav/auth now genuinely theme-aware.**
+  Owner feedback: the header, bottom nav, and Login/Register were still
+  hard-locked dark (see (b)/(c) below) — that's now fixed, they follow the
+  selected theme like every other screen. New widget
+  `PromooLogoStamp` (`lib/shared/widgets/promoo_logo_stamp.dart`) solves the
+  yellow-on-transparent logo's contrast problem: it wraps the logo in a
+  black rounded "ink stamp" plate with a hairline yellow edge, but is a
+  no-op on the dark theme (returns the logo directly, zero pixel change).
+  Used in `PromooPageHeader` (small chip) and `AuthScreenFrame` (big plate
+  around the hero logo on Login/Register). Added `AppThemeColors.light`
+  values for `navBackground` (white, was hardcoded black in both themes)
+  and made bottom-nav tab colors use `accent`/`textMuted` instead of raw
+  `AppColors.brandYellow`/`AppColors.dark.textMuted`. Status bar icon
+  brightness (`SystemUiOverlayStyle`) now follows `Theme.of(context).
+  brightness` instead of being forced light everywhere. Removed the
+  `Theme(data: AppTheme.dark)` wraps around the Login/Register routes in
+  `app_router.dart`. Still deliberately dark-locked (immersive
+  photo/video moments, not settings pages): the launch splash, the home
+  story viewer, and the profile media viewer. Verified live on web:
+  header/nav/Login/Register all switch cleanly both directions
+  (Light↔Black) with no layout shift; 192/192 tests, analyze clean.
 - **2026-07-08 — LIGHT THEME rebuilt + back-navigation overhaul + UX pass.**
   (a) **Theme tokens:** `AppColors` split into fixed brand constants
   (`brandBlack`/`brandYellow` + static dark fallbacks) and a
@@ -171,6 +218,7 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 | [REQUIREMENTS_STATUS.md](REQUIREMENTS_STATUS.md) | Screen-by-screen status (points to build_plan) |
 | [build_plan.md](build_plan.md) | Master Phase A checklist + Phase B 15-row integration table |
 | [v2_deferred_scope.md](v2_deferred_scope.md) | Everything deferred/hidden for v1 |
+| [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. |
 | [project_memory.md](project_memory.md) | Older detailed slice-by-slice notes |
 | `mvp_roadmap.md`, `api_contracts.md`, `architecture.md` | Original planning/reference |
 | `promo_backend/Projects-Pictures/` | **The pixel reference** (original MVP screenshots) |

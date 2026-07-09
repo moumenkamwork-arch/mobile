@@ -109,7 +109,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     error: Color(0xFFC62828),
     success: Color(0xFF1D7A46),
     warning: Color(0xFF8A5B00),
-    navBackground: Color(0xFF050505),
+    // The shell chrome (header/bottom bar) becomes a genuine paper surface
+    // in light mode — a raised white plate over the warm paper background,
+    // separated by a hairline border rather than a color jump.
+    navBackground: Color(0xFFFFFFFF),
     overlay: Color(0x99000000),
     shadowCard: [
       BoxShadow(color: Color(0x14000000), blurRadius: 18, offset: Offset(0, 8)),

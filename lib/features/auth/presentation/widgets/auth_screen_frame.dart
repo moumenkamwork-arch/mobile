@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/promoo_glow_background.dart';
 import '../../../../shared/widgets/promoo_logo.dart';
 import '../../../../theme/app_spacing.dart';
+import '../../../../theme/theme_mode_controller.dart';
 
-class AuthScreenFrame extends StatelessWidget {
+class AuthScreenFrame extends ConsumerWidget {
   const AuthScreenFrame({
     super.key,
     required this.child,
@@ -17,11 +19,13 @@ class AuthScreenFrame extends StatelessWidget {
   final bool showBackButton;
 
   @override
-  Widget build(BuildContext context) {
-    // Auth screens are always the dark brand moment; keep status bar icons
-    // light on the black glow background.
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+
+    // Status icons follow the ambient theme: light on the dark glow, dark
+    // on the light theme's paper-and-sunlight glow.
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: Stack(
           children: [
@@ -38,26 +42,50 @@ class AuthScreenFrame extends StatelessWidget {
                     ),
                     sliver: SliverList.list(
                       children: [
-                        if (showBackButton)
-                          Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: IconButton(
-                              tooltip: 'Back',
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (showBackButton)
+                              IconButton(
+                                tooltip: 'Back',
+                                onPressed: () {
+                                  if (context.canPop()) {
+                                    context.pop();
+                                  } else {
+                                    // Login is the app root after the intro:
+                                    // back leaves the app instead of
+                                    // replaying the splash animation.
+                                    SystemNavigator.pop();
+                                  }
+                                },
+                                icon: const Icon(Icons.arrow_back_rounded),
+                              )
+                            else
+                              const SizedBox.shrink(),
+                            IconButton(
+                              tooltip: isDark
+                                  ? 'Switch to light mode'
+                                  : 'Switch to dark mode',
                               onPressed: () {
-                                if (context.canPop()) {
-                                  context.pop();
+                                final notifier = ref.read(
+                                  themeModeProvider.notifier,
+                                );
+                                if (isDark) {
+                                  notifier.setLight();
                                 } else {
-                                  // Login is the app root after the intro:
-                                  // back leaves the app instead of replaying
-                                  // the splash animation.
-                                  SystemNavigator.pop();
+                                  notifier.setDark();
                                 }
                               },
-                              icon: const Icon(Icons.arrow_back_rounded),
+                              icon: Icon(
+                                isDark
+                                    ? Icons.light_mode_rounded
+                                    : Icons.dark_mode_rounded,
+                              ),
                             ),
-                          )
-                        else
-                          const SizedBox(height: AppSpacing.xl),
+                          ],
+                        ),
+                        if (!showBackButton)
+                          const SizedBox(height: AppSpacing.lg),
                         const SizedBox(height: AppSpacing.sm),
                         const Center(
                           child: PromooLogo.full(

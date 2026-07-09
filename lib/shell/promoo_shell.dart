@@ -128,11 +128,14 @@ class _PromooShellState extends ConsumerState<PromooShell> {
 
         Future.microtask(() => SystemNavigator.pop());
       },
-      // Status bar sits on the black chrome band in both themes, so its
-      // icons stay light. Each tab pads for the status bar via its header
-      // (applyTopSafeArea) so the chrome reaches the top edge.
+      // Status icons follow the header's actual tone: light icons on the
+      // dark theme's black band, dark icons on the light theme's paper bar.
+      // Each tab pads for the status bar via its header (applyTopSafeArea)
+      // so the chrome reaches the top edge.
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         child: PromooScaffold(
           padding: EdgeInsets.zero,
           safeAreaTop: false,
@@ -164,9 +167,10 @@ class _PromooShellState extends ConsumerState<PromooShell> {
   }
 }
 
-/// Bottom bar chrome. Brand-black in BOTH themes: the center P artwork is
-/// yellow and needs a dark field, and the black band is part of the Promoo
-/// identity (see AppColors.navBackground).
+/// Bottom bar chrome — theme-aware paper/black glass, matching the header.
+/// The center P mark stays its own self-contained black-and-yellow "ink
+/// stamp" in both themes (see [_CenterPMark]); it doesn't need the chrome
+/// bar underneath it to be dark to stay legible.
 class _PromooBottomNavigation extends StatelessWidget {
   const _PromooBottomNavigation({
     required this.selectedIndex,
@@ -186,9 +190,10 @@ class _PromooBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final backgroundColor = isScrolled
-        ? AppColors.dark.navBackground.withValues(alpha: 0.78)
-        : AppColors.dark.navBackground;
+        ? colors.navBackground.withValues(alpha: 0.78)
+        : colors.navBackground;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return SizedBox(
@@ -214,8 +219,8 @@ class _PromooBottomNavigation extends StatelessWidget {
                     border: Border(
                       top: BorderSide(
                         color: isScrolled
-                            ? AppColors.brandYellow.withValues(alpha: 0.30)
-                            : AppColors.dark.border,
+                            ? colors.accent.withValues(alpha: 0.30)
+                            : colors.border,
                       ),
                     ),
                   ),
@@ -294,8 +299,8 @@ class _CenterServicesLabel extends StatelessWidget {
             tab.label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: selected
-                  ? AppColors.brandYellow
-                  : AppColors.dark.textMuted,
+                  ? context.colors.accent
+                  : context.colors.textMuted,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
             ),
           ),
@@ -333,7 +338,7 @@ class _CenterPMark extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.brandBlack,
               shape: BoxShape.circle,
-              boxShadow: AppColors.dark.shadowElevated,
+              boxShadow: context.colors.shadowElevated,
               border: Border.all(
                 color: AppColors.brandYellow,
                 width: selected ? 2.4 : 1.6,
@@ -365,7 +370,8 @@ class _PromooNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brandYellow : AppColors.dark.textMuted;
+    final colors = context.colors;
+    final color = selected ? colors.accent : colors.textMuted;
 
     return Semantics(
       button: true,

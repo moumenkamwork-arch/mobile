@@ -14,6 +14,9 @@ class RouteNames {
   static const profileDetail = 'profileDetail';
   static const profileEdit = 'profileEdit';
   static const profileAddAd = 'profileAddAd';
+  static const profileAddOffer = 'profileAddOffer';
+  static const profileAddService = 'profileAddService';
+  static const homeSeeAll = 'homeSeeAll';
   static const profileSaved = 'profileSaved';
   static const profilePackages = 'profilePackages';
   static const profileFollowing = 'profileFollowing';
@@ -42,6 +45,9 @@ class AppRoutes {
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';
   static const profileAddAd = '/profile/add-ad';
+  static const profileAddOffer = '/profile/add-offer';
+  static const profileAddService = '/profile/add-service';
+  static const homeSeeAllPath = '/home/see-all/:section';
   static const profileSaved = '/profile/saved';
   static const profilePackages = '/profile/packages';
   static const profileFollowing = '/profile/following';
@@ -58,6 +64,8 @@ class AppRoutes {
   static const notifications = '/notifications';
 
   static String profileById(String id) => '/profiles/$id';
+
+  static String homeSeeAll(String section) => '/home/see-all/$section';
 
   static String homeItemDetail(String type, String id) {
     return '/home/items/${Uri.encodeComponent(type)}/${Uri.encodeComponent(id)}';
