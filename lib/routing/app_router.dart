@@ -8,9 +8,12 @@ import '../features/chat/presentation/screens/chat_list_screen.dart';
 import '../features/chat/presentation/screens/chat_room_screen.dart';
 import '../features/home/presentation/screens/home_content_detail_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
+import '../features/home/presentation/screens/home_see_all_screen.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/add_ad_wizard_screen.dart';
+import '../features/profile/presentation/screens/add_offer_screen.dart';
+import '../features/profile/presentation/screens/add_service_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/following_screen.dart';
 import '../features/profile/presentation/screens/my_packages_screen.dart';
@@ -91,6 +94,16 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         builder: (context, state) => const AddAdWizardScreen(),
       ),
       GoRoute(
+        path: AppRoutes.profileAddOffer,
+        name: RouteNames.profileAddOffer,
+        builder: (context, state) => const AddOfferScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileAddService,
+        name: RouteNames.profileAddService,
+        builder: (context, state) => const AddServiceScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.profileSaved,
         name: RouteNames.profileSaved,
         builder: (context, state) => const SavedItemsScreen(),
@@ -126,6 +139,15 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
           return HomeContentDetailScreen(
             type: state.pathParameters['type'] ?? '',
             itemId: state.pathParameters['id'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.homeSeeAllPath,
+        name: RouteNames.homeSeeAll,
+        builder: (context, state) {
+          return HomeSeeAllScreen(
+            section: state.pathParameters['section'] ?? 'offers',
           );
         },
       ),

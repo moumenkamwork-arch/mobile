@@ -76,6 +76,7 @@ flutter:
 
   assets:
     - assets/brand/
+    - assets/brand/icons/
     - assets/brand/social/
     - assets/brand/new_logo/
 

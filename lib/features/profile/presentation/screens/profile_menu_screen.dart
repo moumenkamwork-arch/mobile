@@ -219,6 +219,69 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
+/// Builds the settings menu rows, inserting dividers between them. The three
+/// creation rows (Offer/Ad/Service) are gated by [AccountCapabilities] so the
+/// user only ever sees the creation actions their `account_type` is allowed —
+/// mirroring the backend's `requireAccountType` guards (see roles_logic.md):
+/// Offer = company/service_provider · Ad = company/influencer ·
+/// Service = company/service_provider. A guest or regular `user` sees none.
+List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
+  final rows = <Widget>[
+    _MenuRow(
+      icon: Icons.star_rounded,
+      label: 'Following',
+      onTap: () => context.push(AppRoutes.profileFollowing),
+    ),
+    _MenuRow(
+      icon: Icons.group_outlined,
+      label: 'Profile Management',
+      onTap: () => context.push(AppRoutes.profileEdit),
+    ),
+    if (caps.canAddOffer)
+      _MenuRow(
+        icon: Icons.local_offer_outlined,
+        label: 'Add New Offer',
+        onTap: () => context.push(AppRoutes.profileAddOffer),
+      ),
+    if (caps.canAddAd)
+      _MenuRow(
+        icon: Icons.campaign_outlined,
+        label: 'Add New Ad',
+        onTap: () => context.push(AppRoutes.profileAddAd),
+      ),
+    if (caps.canAddService)
+      _MenuRow(
+        icon: Icons.design_services_outlined,
+        label: 'Add New Service',
+        onTap: () => context.push(AppRoutes.profileAddService),
+      ),
+    _MenuRow(
+      icon: Icons.bookmark_rounded,
+      label: 'Saved',
+      onTap: () => context.push(AppRoutes.profileSaved),
+    ),
+    _MenuRow(
+      icon: Icons.inventory_2_outlined,
+      label: 'MyPackages',
+      onTap: () => context.push(AppRoutes.profilePackages),
+    ),
+    _MenuRow(
+      icon: Icons.support_agent_rounded,
+      label: 'Support',
+      onTap: () => context.push(AppRoutes.profileSupport),
+    ),
+  ];
+
+  final children = <Widget>[];
+  for (var i = 0; i < rows.length; i++) {
+    children.add(rows[i]);
+    if (i != rows.length - 1) {
+      children.add(const _MenuDivider());
+    }
+  }
+  return children;
+}
+
 class _MenuRow extends StatelessWidget {
   const _MenuRow({
     required this.icon,

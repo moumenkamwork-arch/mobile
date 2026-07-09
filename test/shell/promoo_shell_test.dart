@@ -26,8 +26,12 @@ void main() {
     // Profile tab shows the settings-style menu page (no modal sheet).
     expect(find.text('Following'), findsOneWidget);
     expect(find.text('Profile Management'), findsOneWidget);
-    expect(find.text('Add New Offer'), findsOneWidget);
     expect(find.text('Saved'), findsOneWidget);
+    // Creation rows are role-gated: a guest (no session) can create nothing,
+    // so none of Add New Offer/Ad/Service appear (mirrors backend 403 guards).
+    expect(find.text('Add New Offer'), findsNothing);
+    expect(find.text('Add New Ad'), findsNothing);
+    expect(find.text('Add New Service'), findsNothing);
 
     await tester.scrollUntilVisible(
       find.text('Language'),

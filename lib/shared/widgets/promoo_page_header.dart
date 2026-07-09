@@ -8,8 +8,8 @@ import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/theme_mode_controller.dart';
-import 'promoo_chat_icon.dart';
 import 'promoo_logo.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// Standard in-shell page header matching the original app: a full-width bar
 /// pinned to the very top (no side margins, only a bottom border), showing the
@@ -76,8 +76,8 @@ class PromooPageHeader extends ConsumerWidget {
                     : 'Switch to dark mode',
                 icon: Icon(
                   isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                  color: colors.textPrimary,
-                  size: 24,
+                  color: colors.textSecondary,
+                  size: 22,
                 ),
                 onTap: () {
                   final notifier = ref.read(themeModeProvider.notifier);
@@ -92,17 +92,29 @@ class PromooPageHeader extends ConsumerWidget {
               _HeaderAction(
                 tooltip: 'Chats',
                 badgeLabel: '2',
-                icon: PromooChatIcon(size: 26, color: colors.textPrimary),
+                icon: SvgPicture.asset(
+                  'assets/brand/icons/chat.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(
+                    colors.textSecondary,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onTap: () => context.push(AppRoutes.chats),
               ),
               const SizedBox(width: AppSpacing.xxs),
               _HeaderAction(
                 tooltip: 'Notifications',
                 badgeLabel: '6',
-                icon: Icon(
-                  Icons.notifications_none_rounded,
-                  color: colors.textPrimary,
-                  size: 27,
+                icon: SvgPicture.asset(
+                  'assets/brand/icons/notification.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(
+                    colors.textSecondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 onTap: () => context.push(AppRoutes.notifications),
               ),

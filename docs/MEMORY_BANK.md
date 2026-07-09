@@ -103,6 +103,26 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-09 — Integration map + Add-Offer/Ad conflict fix + optional screens.**
+  (a) Produced [integration_map.md](integration_map.md) — the authoritative
+  Phase-B map (111 endpoints, section→API, ~89% field compatibility, backend
+  gaps, wiring order), verified via sub-agents against the live backend
+  contract + `Apis-Resaults` + the mobile DTO layer. Key finding: the app's
+  RemoteDataSources are already written & wired (`PROMOO_USE_MOCKS` defaults
+  false); real gaps are auth plumbing (no Dio Bearer interceptor, in-memory
+  token store), the profile-owner flow (`updateMyProfile` stub), and a few
+  unwired buttons — NOT "build the data layer". (b) **Fixed the Add Offer/Ad
+  role conflict:** the single "Add New Offer" row that opened the Ad wizard is
+  replaced by three separate, role-gated rows — Add New Offer
+  (`add_offer_screen.dart`), Add New Ad (existing wizard), Add New Service
+  (`add_service_screen.dart`) — driven by `accountCapabilitiesProvider`
+  (mirrors backend `requireAccountType`: Offer=company/service_provider,
+  Ad=company/influencer, Service=company/service_provider; guest/user=none).
+  (c) Built **See-All** screen (`home_see_all_screen.dart`) + wired Home's
+  Stories/Top-Offers/For-You "See All" to it (were "coming soon"). All
+  frontend-only (no API calls — integration is a later, deliberate phase).
+  **200 tests pass** (5 new role-gating tests), analyze clean, 3 new screens
+  verified rendering live. Seats-144 issue deferred to v2 per owner.
 - **2026-07-08 (follow-up 2) — Icon parity with the old app + logo/welcome fixes.**
   Pixel-audited every screenshot in `Projects-Pictures/` (Python/Pillow crops
   at 6x zoom) against current icon choices. Findings: the header's message

@@ -248,6 +248,8 @@
 
 وإصلاح الاسم/الفعل ليتطابقا. (يمكن تأجيل شاشتَي Offer/Service المنفصلتين لـ v2 لكن يجب **على الأقل إخفاء/تعطيل** الزر حسب الدور لتفادي الـ 403.)
 
+**✅ تحديث 2026-07-09 — الجزء الفرونت أُنجز:** فُصلت التدفّقات فعلاً — صار في 3 شاشات منفصلة: `add_offer_screen.dart` (`AddOfferScreen`)، `add_service_screen.dart` (`AddServiceScreen`)، والـ Ad wizard الموجود — وأُضيف `accountCapabilitiesProvider` (`features/profile/presentation/controllers/account_capabilities.dart`) يقرأ `account_type` من جلسة الـ auth ويُظهر بقائمة البروفايل فقط الإنشاءات المسموحة (Offer=company/service_provider · Ad=company/influencer · Service=company/service_provider · guest/user=لا شيء). مغطّى باختبارات (200 اختبار يمرّ). **يتبقّى للربط:** الجزء الفعّال يعتمد على `account_type` الحقيقي بعد ربط الـ auth؛ حتى ذلك يعمل على نوع الحساب المتاح من الجلسة (register يحدّده).
+
 </div>
 
 ---

@@ -137,10 +137,8 @@ class _HomeContentView extends StatelessWidget {
                     if (content.stories.isNotEmpty)
                       HomeStoryStrip(
                         stories: content.stories,
-                        onSeeAll: () => _showPreviewNotice(
-                          context,
-                          'More stories are coming soon',
-                        ),
+                        onSeeAll: () =>
+                            context.push(AppRoutes.homeSeeAll('stories')),
                       ),
                     if (topOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
@@ -149,20 +147,16 @@ class _HomeContentView extends StatelessWidget {
                         subtitle: 'Featured offers from Promoo partners',
                         offers: topOffers,
                         layout: HomeOfferPreviewLayout.hero,
-                        onSeeAll: () => _showPreviewNotice(
-                          context,
-                          'More offers are coming soon',
-                        ),
+                        onSeeAll: () =>
+                            context.push(AppRoutes.homeSeeAll('offers')),
                       ),
                     ],
                     if (forYouOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
                       HomeOffersPreviewSection(
                         offers: forYouOffers,
-                        onSeeAll: () => _showPreviewNotice(
-                          context,
-                          'More picks are coming soon',
-                        ),
+                        onSeeAll: () =>
+                            context.push(AppRoutes.homeSeeAll('for_you')),
                       ),
                     ],
                     if (content.highlight != null) ...[
