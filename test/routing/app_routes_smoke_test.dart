@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
-import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
-  const mockConfig = AppConfig(
-    environment: AppEnvironment.development,
-    baseUrl: 'https://api.promoo.example/api/v1',
-    useMocks: true,
-  );
+  const mockConfig = AppConfig();
 
   final routeCases = <_RouteSmokeCase>[
     const _RouteSmokeCase(AppRoutes.splash, 'Continue as Guest'),

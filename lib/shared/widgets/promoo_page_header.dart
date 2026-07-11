@@ -8,6 +8,7 @@ import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/theme_mode_controller.dart';
+import '../state/shell_scroll_provider.dart';
 import 'promoo_logo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -22,11 +23,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 class PromooPageHeader extends ConsumerWidget {
   const PromooPageHeader({
     super.key,
-    this.isScrolled = false,
+    this.isScrolled,
     this.applyTopSafeArea = false,
   });
 
-  final bool isScrolled;
+  /// Whether to show the translucent "scrolled" glass state. When null (the
+  /// in-shell tab pages), the header follows the shared [shellScrolledProvider]
+  /// so it reacts to scroll in step with the bottom nav. Home passes an explicit
+  /// value from its pinned sliver header.
+  final bool? isScrolled;
 
   /// When the header is used as a fixed overlay (Home), it pads for the status
   /// bar itself. When it sits inside an existing SafeArea, leave this false.
@@ -36,8 +41,9 @@ class PromooPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final bool scrolled = isScrolled ?? ref.watch(shellScrolledProvider);
     final backgroundColor = colors.background.withValues(
-      alpha: isScrolled ? 0.72 : 0.9,
+      alpha: scrolled ? 0.72 : 0.9,
     );
 
     final bar = DecoratedBox(
@@ -45,7 +51,7 @@ class PromooPageHeader extends ConsumerWidget {
         color: backgroundColor,
         border: Border(
           bottom: BorderSide(
-            color: isScrolled
+            color: scrolled
                 ? colors.accent.withValues(alpha: 0.28)
                 : colors.border,
           ),
@@ -127,12 +133,49 @@ class PromooPageHeader extends ConsumerWidget {
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(
-          sigmaX: isScrolled ? 14 : 0,
-          sigmaY: isScrolled ? 14 : 0,
+          sigmaX: scrolled ? 14 : 0,
+          sigmaY: scrolled ? 14 : 0,
         ),
         child: bar,
       ),
     );
+  }
+}
+
+/// Pinned sliver wrapper for [PromooPageHeader] so in-shell tab pages can let
+/// their content scroll *under* the header — producing the same frosted-glass
+/// reveal as Home instead of a flat bar with content stacked below it. It
+/// detects overlap itself and drives the header's scrolled state, and reserves
+/// the status-bar inset plus the bar height at the top of the scroll view.
+class PromooPinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const PromooPinnedHeaderDelegate({required this.topInset});
+
+  final double topInset;
+
+  /// Height of the header bar content below the status bar (logo + padding).
+  static const double barHeight = 56;
+
+  @override
+  double get minExtent => topInset + barHeight;
+
+  @override
+  double get maxExtent => topInset + barHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return PromooPageHeader(
+      isScrolled: overlapsContent || shrinkOffset > 0,
+      applyTopSafeArea: true,
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant PromooPinnedHeaderDelegate oldDelegate) {
+    return oldDelegate.topInset != topInset;
   }
 }
 

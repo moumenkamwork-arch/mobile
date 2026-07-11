@@ -229,10 +229,12 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
 
 int _selectedIndexForPath(String path) {
   return switch (path) {
-    AppRoutes.services => 2,
+    // Center P (index 2) → Cup; Services is now the tab at index 3.
+    AppRoutes.cup => 2,
+    AppRoutes.services => 3,
+    _ when path.startsWith('/services/') => 3,
     _ when path.startsWith('/home/items/') => 0,
-    _ when path.startsWith('/services/') => 2,
-    AppRoutes.cup => 3,
+    _ when path.startsWith('/home/see-all/') => 0,
     _ when path.startsWith('/seats') => 1,
     AppRoutes.profile => 4,
     _ when path.startsWith('/profiles/') => 4,

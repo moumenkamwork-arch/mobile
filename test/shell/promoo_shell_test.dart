@@ -19,7 +19,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (final tab in ['Home', 'Services', 'Cup', 'Influencer', 'Profile']) {
+    // Footer order per owner request: the center P mark now leads to the Cup
+    // page and is labelled "Promoo"; Services is a normal tab.
+    for (final tab in ['Home', 'Influencer', 'Promoo', 'Services', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
 

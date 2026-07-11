@@ -91,18 +91,13 @@ class _LeaderboardContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The header paints its own status-bar inset so the black chrome band
-    // reaches the top edge in both themes (no paper seam in light mode).
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const PromooPageHeader(applyTopSafeArea: true),
-        Expanded(child: _buildBody(context)),
-      ],
-    );
+    // The header is a pinned sliver inside the scroll view (see _buildBody) so
+    // content scrolls under it and it frosts on scroll, matching Home.
+    return _buildBody(context);
   }
 
   Widget _buildBody(BuildContext context) {
+    final topInset = MediaQuery.paddingOf(context).top;
     return Stack(
       children: [
         RefreshIndicator(
@@ -111,6 +106,10 @@ class _LeaderboardContentView extends StatelessWidget {
           onRefresh: onRefresh,
           child: CustomScrollView(
             slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: PromooPinnedHeaderDelegate(topInset: topInset),
+              ),
               SliverPadding(
                 padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.screenHorizontal,
@@ -157,11 +156,11 @@ class _LeaderboardContentView extends StatelessWidget {
           ),
         ),
         if (state.isRefreshing)
-          const PositionedDirectional(
-            top: 0,
+          PositionedDirectional(
+            top: topInset + PromooPinnedHeaderDelegate.barHeight,
             start: 0,
             end: 0,
-            child: LinearProgressIndicator(minHeight: 2),
+            child: const LinearProgressIndicator(minHeight: 2),
           ),
       ],
     );

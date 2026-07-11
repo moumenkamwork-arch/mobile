@@ -127,87 +127,85 @@ class _ServicesContentView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showResults = _shouldShowResults(state);
+    final topInset = MediaQuery.paddingOf(context).top;
 
-    // The header paints its own status-bar inset so the black chrome band
-    // reaches the top edge in both themes (no paper seam in light mode).
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    // The header is a pinned sliver so the content scrolls *under* it and the
+    // bar frosts on scroll (matching Home). It paints its own status-bar inset
+    // so the chrome band reaches the top edge in both themes.
+    return Stack(
       children: [
-        const PromooPageHeader(applyTopSafeArea: true),
-        Expanded(
-          child: Stack(
-            children: [
-              RefreshIndicator(
-                color: context.colors.accent,
-                backgroundColor: context.colors.elevatedSurface,
-                onRefresh: onRefresh,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        AppSpacing.screenHorizontal,
-                        AppSpacing.md,
-                        AppSpacing.screenHorizontal,
-                        AppSpacing.shellScrollBottom,
-                      ),
-                      sliver: SliverList.list(
-                        children: [
-                          ServicesSearchField(
-                            query: state.searchQuery,
-                            onChanged: (query) => ref
+        RefreshIndicator(
+          color: context.colors.accent,
+          backgroundColor: context.colors.elevatedSurface,
+          onRefresh: onRefresh,
+          child: CustomScrollView(
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: PromooPinnedHeaderDelegate(topInset: topInset),
+              ),
+              SliverPadding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.md,
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.shellScrollBottom,
+                ),
+                sliver: SliverList.list(
+                  children: [
+                    ServicesSearchField(
+                      query: state.searchQuery,
+                      onChanged: (query) => ref
+                          .read(servicesControllerProvider.notifier)
+                          .search(query),
+                      onSubmitted: (query) => ref
+                          .read(servicesControllerProvider.notifier)
+                          .search(query),
+                      onClear: state.searchQuery.isEmpty
+                          ? null
+                          : () => ref
                                 .read(servicesControllerProvider.notifier)
-                                .search(query),
-                            onSubmitted: (query) => ref
-                                .read(servicesControllerProvider.notifier)
-                                .search(query),
-                            onClear: state.searchQuery.isEmpty
-                                ? null
-                                : () => ref
-                                      .read(servicesControllerProvider.notifier)
-                                      .clearSearch(),
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          if (showResults) ...[
-                            _ResultsContextBar(
-                              state: state,
-                              onBackToCategories: () => ref
-                                  .read(servicesControllerProvider.notifier)
-                                  .clearFilters(),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            if (state.services.isEmpty)
-                              _ServicesEmptyState(
-                                selectedCategoryId: state.selectedCategoryId,
-                                query: state.searchQuery,
-                              )
-                            else
-                              _ServicesList(services: state.services),
-                          ] else
-                            ServicesCategoryList(
-                              categories: state.categories,
-                              selectedCategoryId: state.selectedCategoryId,
-                              onSelected: (categoryId) {
-                                ref
-                                    .read(servicesControllerProvider.notifier)
-                                    .selectCategory(categoryId);
-                              },
-                            ),
-                        ],
-                      ),
+                                .clearSearch(),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    if (showResults) ...[
+                      _ResultsContextBar(
+                        state: state,
+                        onBackToCategories: () => ref
+                            .read(servicesControllerProvider.notifier)
+                            .clearFilters(),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      if (state.services.isEmpty)
+                        _ServicesEmptyState(
+                          selectedCategoryId: state.selectedCategoryId,
+                          query: state.searchQuery,
+                        )
+                      else
+                        _ServicesList(services: state.services),
+                    ] else
+                      ServicesCategoryList(
+                        categories: state.categories,
+                        selectedCategoryId: state.selectedCategoryId,
+                        onSelected: (categoryId) {
+                          ref
+                              .read(servicesControllerProvider.notifier)
+                              .selectCategory(categoryId);
+                        },
+                      ),
                   ],
                 ),
               ),
-              if (state.isRefreshing)
-                const PositionedDirectional(
-                  top: 0,
-                  start: 0,
-                  end: 0,
-                  child: LinearProgressIndicator(minHeight: 2),
-                ),
             ],
           ),
         ),
+        if (state.isRefreshing)
+          PositionedDirectional(
+            top: topInset + PromooPinnedHeaderDelegate.barHeight,
+            start: 0,
+            end: 0,
+            child: const LinearProgressIndicator(minHeight: 2),
+          ),
       ],
     );
   }

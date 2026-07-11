@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
-import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -188,11 +187,7 @@ const _session = AuthSession(
   tokens: AuthTokens(accessToken: 'access-1', refreshToken: 'refresh-1'),
 );
 
-const _mockConfig = AppConfig(
-  environment: AppEnvironment.development,
-  baseUrl: 'https://api.promoo.example/api/v1',
-  useMocks: true,
-);
+const _mockConfig = AppConfig();
 
 const _profile = PromooProfile(
   id: 'profile-saffron-social',

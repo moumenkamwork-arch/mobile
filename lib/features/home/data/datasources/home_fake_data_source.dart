@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/errors/app_failure.dart';
 import '../../domain/entities/home_content.dart';
 import '../dto/home_content_dto.dart';
 import 'home_data_source.dart';
@@ -42,10 +42,7 @@ class HomeFakeDataSource implements HomeDataSource {
       }
     }
 
-    throw const ApiException(
-      type: ApiExceptionType.notFound,
-      message: 'Home item not found.',
-    );
+    throw const AppFailure.notFound(message: 'Home item not found.');
   }
 }
 

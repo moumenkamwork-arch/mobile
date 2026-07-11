@@ -165,10 +165,8 @@ class _HomeContentView extends StatelessWidget {
                         title: 'Promoo of the Day',
                         subtitle: "Today's featured Promoo pick",
                         actionLabel: 'See All',
-                        onActionPressed: () => _showPreviewNotice(
-                          context,
-                          'More daily picks are coming soon',
-                        ),
+                        onActionPressed: () =>
+                            context.push(AppRoutes.homeSeeAll('offers')),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       HomeHighlightCard(
@@ -232,10 +230,4 @@ class _HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant _HomeHeaderDelegate oldDelegate) {
     return oldDelegate.topInset != topInset;
   }
-}
-
-void _showPreviewNotice(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
 }

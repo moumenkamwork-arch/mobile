@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
+import '../shared/state/shell_scroll_provider.dart';
 import '../shared/widgets/promoo_logo.dart';
 import '../shared/widgets/promoo_scaffold.dart';
 import '../theme/app_colors.dart';
@@ -45,15 +46,17 @@ class PromooShell extends ConsumerStatefulWidget {
       route: AppRoutes.seats,
       icon: Icons.event_seat_rounded,
     ),
+    // Center (index 2) is the elevated P mark. Per owner request it now leads
+    // to the Cup page and is labelled "Promoo"; Services moved to a normal tab.
+    PromooShellTab(
+      label: 'Promoo',
+      route: AppRoutes.cup,
+      icon: Icons.emoji_events_rounded,
+    ),
     PromooShellTab(
       label: 'Services',
       route: AppRoutes.services,
       icon: Icons.storefront_rounded,
-    ),
-    PromooShellTab(
-      label: 'Cup',
-      route: AppRoutes.cup,
-      icon: Icons.emoji_events_rounded,
     ),
     PromooShellTab(
       label: 'Profile',
@@ -67,12 +70,27 @@ class PromooShell extends ConsumerStatefulWidget {
 }
 
 class _PromooShellState extends ConsumerState<PromooShell> {
-  bool _isScrolled = false;
   DateTime? _lastBackPressTime;
+
+  @override
+  void didUpdateWidget(covariant PromooShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Each tab opens at the top, so clear any leftover "scrolled" glass state
+    // carried over from the previous tab (the new body hasn't emitted a scroll
+    // notification yet). Deferred to avoid mutating the provider mid-build.
+    if (oldWidget.selectedIndex != widget.selectedIndex) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(shellScrolledProvider.notifier).set(false);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final canPop = context.canPop();
+    final isScrolled = ref.watch(shellScrolledProvider);
 
     return PopScope(
       canPop: canPop,
@@ -144,16 +162,14 @@ class _PromooShellState extends ConsumerState<PromooShell> {
           body: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               final nextScrolled = notification.metrics.pixels > 10;
-              if (nextScrolled != _isScrolled) {
-                setState(() => _isScrolled = nextScrolled);
-              }
+              ref.read(shellScrolledProvider.notifier).set(nextScrolled);
               return false;
             },
             child: widget.child,
           ),
           bottomNavigationBar: _PromooBottomNavigation(
             selectedIndex: widget.selectedIndex,
-            isScrolled: _isScrolled,
+            isScrolled: isScrolled,
             onDestinationSelected: (index) {
               if (index == widget.selectedIndex) {
                 return;
@@ -326,9 +342,9 @@ class _CenterPMark extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Services tab',
+      label: 'Promoo tab',
       child: Tooltip(
-        message: 'Services',
+        message: 'Promoo',
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.opaque,

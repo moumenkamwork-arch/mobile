@@ -1,43 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/config/app_config.dart';
 import '../../../../core/errors/app_failure.dart';
-import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/result.dart';
 import '../../../auth/data/session/auth_session_store.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notifications_repository.dart';
 import '../datasources/notifications_data_source.dart';
 import '../datasources/notifications_fake_data_source.dart';
-import '../datasources/notifications_remote_data_source.dart';
 
 final notificationsRepositoryProvider = Provider<NotificationsRepository>((
   ref,
 ) {
   return NotificationsRepositoryImpl(
-    config: ref.watch(appConfigProvider),
-    remoteDataSource: ref.watch(notificationsRemoteDataSourceProvider),
-    fakeDataSource: ref.watch(notificationsFakeDataSourceProvider),
+    dataSource: ref.watch(notificationsFakeDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });
 
 class NotificationsRepositoryImpl implements NotificationsRepository {
   const NotificationsRepositoryImpl({
-    required this.config,
-    required this.remoteDataSource,
-    required this.fakeDataSource,
+    required this.dataSource,
     required this.sessionStore,
   });
 
-  final AppConfig config;
-  final NotificationsDataSource remoteDataSource;
-  final NotificationsDataSource fakeDataSource;
+  final NotificationsDataSource dataSource;
   final AuthSessionStore sessionStore;
-
-  NotificationsDataSource get _activeDataSource {
-    return config.useMocks ? fakeDataSource : remoteDataSource;
-  }
 
   @override
   Future<Result<List<AppNotification>>> getNotifications({
@@ -45,19 +32,15 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     int limit = 20,
   }) async {
     try {
-      final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      final dto = await _activeDataSource.fetchNotifications(
-        accessToken: auth.accessToken,
+      final accessToken = await _accessToken();
+      final dto = await dataSource.fetchNotifications(
+        accessToken: accessToken,
         page: page,
         limit: limit,
       );
       return Result.success(dto.toDomain());
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -68,25 +51,22 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   @override
   Future<Result<void>> markRead(String id) {
     return _mutate(
-      (accessToken) =>
-          _activeDataSource.markRead(accessToken: accessToken, id: id),
+      (accessToken) => dataSource.markRead(accessToken: accessToken, id: id),
     );
   }
 
   @override
   Future<Result<void>> markAllRead() {
     return _mutate(
-      (accessToken) => _activeDataSource.markAllRead(accessToken: accessToken),
+      (accessToken) => dataSource.markAllRead(accessToken: accessToken),
     );
   }
 
   @override
   Future<Result<void>> deleteNotification(String id) {
     return _mutate(
-      (accessToken) => _activeDataSource.deleteNotification(
-        accessToken: accessToken,
-        id: id,
-      ),
+      (accessToken) =>
+          dataSource.deleteNotification(accessToken: accessToken, id: id),
     );
   }
 
@@ -96,7 +76,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     String? deviceType,
   }) {
     return _mutate(
-      (accessToken) => _activeDataSource.registerDeviceToken(
+      (accessToken) => dataSource.registerDeviceToken(
         accessToken: accessToken,
         token: token,
         deviceType: deviceType,
@@ -108,38 +88,17 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     Future<void> Function(String? accessToken) request,
   ) async {
     try {
-      final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      await request(auth.accessToken);
+      await request(await _accessToken());
       return const Result.success(null);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } catch (_) {
       return const Result.failure(AppFailure.unknown());
     }
   }
 
-  Future<_AuthContext> _authContext() async {
+  Future<String?> _accessToken() async {
     final session = await sessionStore.read();
-    final accessToken = session?.tokens?.accessToken;
-    if (!config.useMocks && (accessToken == null || accessToken.isEmpty)) {
-      return const _AuthContext(
-        failure: AppFailure.unauthorized(
-          message: 'Sign in to view notifications.',
-        ),
-      );
-    }
-
-    return _AuthContext(accessToken: accessToken);
+    return session?.tokens?.accessToken;
   }
-}
-
-class _AuthContext {
-  const _AuthContext({this.accessToken, this.failure});
-
-  final String? accessToken;
-  final AppFailure? failure;
 }

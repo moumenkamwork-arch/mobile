@@ -54,7 +54,10 @@ categories/services data, auth (email login/register), token persistence
 
 ## Health
 
-192 tests passing · `flutter analyze` clean · Tajawal + new logo applied · AED
-everywhere · RTL-ready · Light + Black themes verified live on web (all tabs,
-services flow, details, edit profile, chat). See
-[MEMORY_BANK.md](MEMORY_BANK.md) for the change timeline and open items.
+**160 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
+AED everywhere · RTL-ready · Light + Black themes done · role-gated Add
+Offer/Ad/Service · **frontend-only (no network layer — reset 2026-07-09)**.
+The re-wiring plan is [integration_map.md](integration_map.md); see
+[MEMORY_BANK.md](MEMORY_BANK.md) for the full change timeline. (Test count
+dropped from 200 → 160 when the backend-wiring tests were removed with the
+wiring itself — expected.)

@@ -50,10 +50,12 @@ reviews/ratings, likes/comments/share, Facebook login. See
 
 - **Flutter**, clean architecture, **feature-first vertical slices**
   (`lib/features/<feature>/{data,domain,presentation}`), ~165+ files.
-- **Riverpod** (state) · **go_router** (routing) · **Dio** (REST, not wired yet)
-  · typed DTOs · typed failures (`Result`/`AppFailure`).
-- Every feature: UI + DTO/model + repository + controller + remote **and** fake
-  data source. Mock vs real is toggled by `--dart-define=PROMOO_USE_MOCKS=true`.
+- **Riverpod** (state) · **go_router** (routing) · typed DTOs · typed failures
+  (`Result`/`AppFailure`). **No network layer** — the app is frontend-only
+  (Dio + `core/network` were removed 2026-07-09; re-added feature-by-feature
+  during integration per [integration_map.md](integration_map.md)).
+- Every feature: UI + DTO/model + repository + controller + **fake data source
+  only**. DTOs are kept (they define the wire shape for future integration).
 - Shared design system in `lib/theme/` (colors, spacing, radius, typography) and
   `lib/shared/widgets/`. App shell + bottom nav in `lib/shell/`.
 - **Fonts:** UI font **Tajawal** (bundled `.ttf`, applied globally via theme);
@@ -103,6 +105,25 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-09 (reset) — Wiped ALL backend wiring → pure frontend-only app.**
+  Owner decision after the integration analysis: to start integration later on
+  a clean base, feature by feature, **all API wiring was removed with no
+  trace.** Deleted: `lib/core/network/*` (ApiClient, Dio, ApiResponse,
+  ApiException, ApiEndpoints), all 9 `*_remote_data_source.dart`,
+  `lib/core/config/app_environment.dart`, `dio` from pubspec, and the
+  `useMocks`/`baseUrl`/`environment` fields from `AppConfig` (only
+  `fallbackCurrency` remains). Every `*_repository_impl.dart` now serves its
+  **fake data source only** (no remote/mock branching); the fakes throw
+  `AppFailure` directly instead of the deleted `ApiException`. Deleted the 9
+  `*_repository_impl_test.dart` + `api_response_test` + `app_config_test`
+  (tested the removed plumbing); fixed 5 screen/routing tests that overrode
+  `AppConfig(useMocks:…)`. **160 tests pass**, analyze + format clean. The
+  app boots and runs entirely on local data — there is no network code left.
+  The re-wiring guide lives in [integration_map.md](integration_map.md) (its
+  endpoint inventory + field analysis stay valid; the "current wiring status"
+  columns are now the *target* state, not the current one). Kept as local
+  device storage (not API): `flutter_secure_storage` (theme persistence),
+  `AuthSessionStore` (in-memory mock session).
 - **2026-07-09 — Integration map + Add-Offer/Ad conflict fix + optional screens.**
   (a) Produced [integration_map.md](integration_map.md) — the authoritative
   Phase-B map (111 endpoints, section→API, ~89% field compatibility, backend
@@ -238,7 +259,8 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 | [REQUIREMENTS_STATUS.md](REQUIREMENTS_STATUS.md) | Screen-by-screen status (points to build_plan) |
 | [build_plan.md](build_plan.md) | Master Phase A checklist + Phase B 15-row integration table |
 | [v2_deferred_scope.md](v2_deferred_scope.md) | Everything deferred/hidden for v1 |
-| [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. |
+| [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. Now the *re-wiring* guide (app was reset to frontend-only). |
+| [work_summary.md](work_summary.md) | Full chronological summary of this session's work (light-mode → theme/chrome → icons/logo → integration analysis → role-gating + screens → frontend-only reset). |
 | [project_memory.md](project_memory.md) | Older detailed slice-by-slice notes |
 | `mvp_roadmap.md`, `api_contracts.md`, `architecture.md` | Original planning/reference |
 | `promo_backend/Projects-Pictures/` | **The pixel reference** (original MVP screenshots) |

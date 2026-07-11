@@ -24,19 +24,24 @@ class ProfileMenuScreen extends ConsumerWidget {
     final user = ref.watch(authControllerProvider).session?.user;
     final caps = ref.watch(accountCapabilitiesProvider);
 
-    // The header paints its own status-bar inset so the black chrome band
-    // reaches the top edge in both themes (no paper seam in light mode).
-    return Column(
-      children: [
-        const PromooPageHeader(applyTopSafeArea: true),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.screenHorizontal,
-              AppSpacing.md,
-              AppSpacing.screenHorizontal,
-              AppSpacing.shellScrollBottom,
-            ),
+    // The header is a pinned sliver so content scrolls under it and it frosts
+    // on scroll, matching Home. It paints its own status-bar inset so the
+    // chrome band reaches the top edge in both themes.
+    final topInset = MediaQuery.paddingOf(context).top;
+    return CustomScrollView(
+      slivers: [
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: PromooPinnedHeaderDelegate(topInset: topInset),
+        ),
+        SliverPadding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.screenHorizontal,
+            AppSpacing.md,
+            AppSpacing.screenHorizontal,
+            AppSpacing.shellScrollBottom,
+          ),
+          sliver: SliverList.list(
             children: [
               _WelcomeCard(
                 displayName: user?.displayName ?? 'Guest',

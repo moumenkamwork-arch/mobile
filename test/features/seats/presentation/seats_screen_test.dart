@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
-import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/seats/data/repositories/seats_repository_impl.dart';
@@ -125,11 +124,7 @@ Widget _buildSeatsApp(SeatsRepository repository) {
   );
 }
 
-const _mockConfig = AppConfig(
-  environment: AppEnvironment.development,
-  baseUrl: 'https://api.promoo.example/api/v1',
-  useMocks: true,
-);
+const _mockConfig = AppConfig();
 
 const _interactiveSeats = [
   Seat(

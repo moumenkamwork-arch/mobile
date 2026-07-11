@@ -1,5 +1,3 @@
-import '../network/api_exception.dart';
-
 enum AppFailureType {
   network,
   timeout,
@@ -157,27 +155,6 @@ class AppFailure {
          statusCode: statusCode,
          details: details,
        );
-
-  factory AppFailure.fromException(ApiException exception) {
-    return AppFailure(
-      type: switch (exception.type) {
-        ApiExceptionType.network => AppFailureType.network,
-        ApiExceptionType.timeout => AppFailureType.timeout,
-        ApiExceptionType.unauthorized => AppFailureType.unauthorized,
-        ApiExceptionType.forbidden => AppFailureType.forbidden,
-        ApiExceptionType.notFound => AppFailureType.notFound,
-        ApiExceptionType.validation => AppFailureType.validation,
-        ApiExceptionType.rateLimit => AppFailureType.rateLimit,
-        ApiExceptionType.server => AppFailureType.server,
-        ApiExceptionType.parsing => AppFailureType.parsing,
-        ApiExceptionType.unknown => AppFailureType.unknown,
-      },
-      message: exception.message,
-      code: exception.code,
-      statusCode: exception.statusCode,
-      details: exception.details,
-    );
-  }
 
   @override
   bool operator ==(Object other) {

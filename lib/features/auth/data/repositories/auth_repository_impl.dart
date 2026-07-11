@@ -1,42 +1,29 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/config/app_config.dart';
 import '../../../../core/errors/app_failure.dart';
-import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_data_source.dart';
 import '../datasources/auth_fake_data_source.dart';
-import '../datasources/auth_remote_data_source.dart';
 import '../dto/auth_dto.dart';
 import '../session/auth_session_store.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    config: ref.watch(appConfigProvider),
-    remoteDataSource: ref.watch(authRemoteDataSourceProvider),
-    fakeDataSource: ref.watch(authFakeDataSourceProvider),
+    dataSource: ref.watch(authFakeDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });
 
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
-    required this.config,
-    required this.remoteDataSource,
-    required this.fakeDataSource,
+    required this.dataSource,
     required this.sessionStore,
   });
 
-  final AppConfig config;
-  final AuthDataSource remoteDataSource;
-  final AuthDataSource fakeDataSource;
+  final AuthDataSource dataSource;
   final AuthSessionStore sessionStore;
-
-  AuthDataSource get _activeDataSource {
-    return config.useMocks ? fakeDataSource : remoteDataSource;
-  }
 
   @override
   Future<Result<AuthSession?>> getStoredSession() async {
@@ -53,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     return _authenticate(
-      () => _activeDataSource.loginWithEmail(email: email, password: password),
+      () => dataSource.loginWithEmail(email: email, password: password),
     );
   }
 
@@ -65,7 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required AuthAccountType accountType,
   }) async {
     return _authenticate(
-      () => _activeDataSource.registerWithEmail(
+      () => dataSource.registerWithEmail(
         fullName: fullName,
         email: email,
         password: password,
@@ -85,14 +72,12 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
-      final dto = await _activeDataSource.refreshSession(
-        refreshToken: refreshToken,
-      );
+      final dto = await dataSource.refreshSession(refreshToken: refreshToken);
       final session = dto.toDomain();
       await _persistIfAuthenticated(session);
       return Result.success(session);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -104,14 +89,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<void>> logout() async {
     try {
       final currentSession = await sessionStore.read();
-      await _activeDataSource.logout(
-        accessToken: currentSession?.tokens?.accessToken,
-      );
+      await dataSource.logout(accessToken: currentSession?.tokens?.accessToken);
       await sessionStore.clear();
       return const Result.success(null);
-    } on ApiException catch (error) {
+    } on AppFailure catch (failure) {
       await sessionStore.clear();
-      return Result.failure(AppFailure.fromException(error));
+      return Result.failure(failure);
     } catch (_) {
       await sessionStore.clear();
       return const Result.failure(AppFailure.unknown());
@@ -126,8 +109,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final session = dto.toDomain();
       await _persistIfAuthenticated(session);
       return Result.success(session);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {

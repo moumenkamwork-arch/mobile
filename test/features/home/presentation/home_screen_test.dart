@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
-import 'package:promoo_app/core/config/app_environment.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/home/data/dto/home_content_dto.dart';
@@ -22,11 +21,7 @@ import 'package:promoo_app/shared/widgets/promoo_logo.dart';
 import 'package:promoo_app/theme/app_theme.dart';
 
 void main() {
-  const mockConfig = AppConfig(
-    environment: AppEnvironment.development,
-    baseUrl: 'https://api.promoo.example/api/v1',
-    useMocks: true,
-  );
+  const mockConfig = AppConfig();
 
   testWidgets('renders loading state', (tester) async {
     await tester.pumpWidget(

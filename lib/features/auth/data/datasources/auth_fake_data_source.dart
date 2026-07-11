@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/errors/app_failure.dart';
 import '../../domain/entities/auth_session.dart';
 import '../dto/auth_dto.dart';
 import 'auth_data_source.dart';
@@ -41,10 +41,7 @@ class AuthFakeDataSource implements AuthDataSource {
   @override
   Future<AuthSessionDto> refreshSession({required String refreshToken}) async {
     if (refreshToken.trim().isEmpty) {
-      throw const ApiException(
-        type: ApiExceptionType.unauthorized,
-        message: 'Refresh token is missing.',
-      );
+      throw const AppFailure.unauthorized(message: 'Refresh token is missing.');
     }
 
     return _sessionFor(email: 'alya@promoo.app', fullName: 'Alya Hassan');
@@ -55,8 +52,7 @@ class AuthFakeDataSource implements AuthDataSource {
 
   void _throwIfInvalid(String password) {
     if (password == 'fail') {
-      throw const ApiException(
-        type: ApiExceptionType.unauthorized,
+      throw const AppFailure.unauthorized(
         message: 'Invalid email or password.',
       );
     }

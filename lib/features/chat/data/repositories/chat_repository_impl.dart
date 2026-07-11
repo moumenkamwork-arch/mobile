@@ -1,41 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/config/app_config.dart';
 import '../../../../core/errors/app_failure.dart';
-import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/result.dart';
 import '../../../auth/data/session/auth_session_store.dart';
 import '../../domain/entities/chat.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_data_source.dart';
 import '../datasources/chat_fake_data_source.dart';
-import '../datasources/chat_remote_data_source.dart';
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return ChatRepositoryImpl(
-    config: ref.watch(appConfigProvider),
-    remoteDataSource: ref.watch(chatRemoteDataSourceProvider),
-    fakeDataSource: ref.watch(chatFakeDataSourceProvider),
+    dataSource: ref.watch(chatFakeDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });
 
 class ChatRepositoryImpl implements ChatRepository {
   const ChatRepositoryImpl({
-    required this.config,
-    required this.remoteDataSource,
-    required this.fakeDataSource,
+    required this.dataSource,
     required this.sessionStore,
   });
 
-  final AppConfig config;
-  final ChatDataSource remoteDataSource;
-  final ChatDataSource fakeDataSource;
+  final ChatDataSource dataSource;
   final AuthSessionStore sessionStore;
-
-  ChatDataSource get _activeDataSource {
-    return config.useMocks ? fakeDataSource : remoteDataSource;
-  }
 
   @override
   Future<Result<List<ChatRoom>>> getRooms({
@@ -44,18 +31,14 @@ class ChatRepositoryImpl implements ChatRepository {
   }) async {
     try {
       final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      final dto = await _activeDataSource.fetchRooms(
+      final dto = await dataSource.fetchRooms(
         accessToken: auth.accessToken,
         page: page,
         limit: limit,
       );
       return Result.success(dto.toDomain(currentUserId: auth.userId));
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -67,11 +50,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Result<ChatRoom>> startChat(String participantId) async {
     try {
       final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      final dto = await _activeDataSource.startChat(
+      final dto = await dataSource.startChat(
         accessToken: auth.accessToken,
         participantId: participantId,
       );
@@ -83,8 +62,8 @@ class ChatRepositoryImpl implements ChatRepository {
         return const Result.failure(AppFailure.parsing());
       }
       return Result.success(room);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -100,19 +79,15 @@ class ChatRepositoryImpl implements ChatRepository {
   }) async {
     try {
       final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      final dto = await _activeDataSource.fetchMessages(
+      final dto = await dataSource.fetchMessages(
         accessToken: auth.accessToken,
         roomId: roomId,
         page: page,
         limit: limit,
       );
       return Result.success(dto.toDomain(currentUserId: auth.userId));
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -127,11 +102,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }) async {
     try {
       final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      final dto = await _activeDataSource.sendMessage(
+      final dto = await dataSource.sendMessage(
         accessToken: auth.accessToken,
         roomId: roomId,
         content: content,
@@ -145,8 +116,8 @@ class ChatRepositoryImpl implements ChatRepository {
         return const Result.failure(AppFailure.parsing());
       }
       return Result.success(message);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } on FormatException catch (error) {
       return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
@@ -158,17 +129,13 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Result<void>> markRoomRead(String roomId) async {
     try {
       final auth = await _authContext();
-      if (auth.failure != null) {
-        return Result.failure(auth.failure!);
-      }
-
-      await _activeDataSource.markRoomRead(
+      await dataSource.markRoomRead(
         accessToken: auth.accessToken,
         roomId: roomId,
       );
       return const Result.success(null);
-    } on ApiException catch (error) {
-      return Result.failure(AppFailure.fromException(error));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
     } catch (_) {
       return const Result.failure(AppFailure.unknown());
     }
@@ -176,23 +143,16 @@ class ChatRepositoryImpl implements ChatRepository {
 
   Future<_AuthContext> _authContext() async {
     final session = await sessionStore.read();
-    final accessToken = session?.tokens?.accessToken;
-    if (!config.useMocks && (accessToken == null || accessToken.isEmpty)) {
-      return const _AuthContext(
-        failure: AppFailure.unauthorized(
-          message: 'Sign in to use Promoo chat.',
-        ),
-      );
-    }
-
-    return _AuthContext(accessToken: accessToken, userId: session?.user.id);
+    return _AuthContext(
+      accessToken: session?.tokens?.accessToken,
+      userId: session?.user.id,
+    );
   }
 }
 
 class _AuthContext {
-  const _AuthContext({this.accessToken, this.userId, this.failure});
+  const _AuthContext({this.accessToken, this.userId});
 
   final String? accessToken;
   final String? userId;
-  final AppFailure? failure;
 }

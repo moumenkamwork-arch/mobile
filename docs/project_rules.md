@@ -13,8 +13,13 @@
    Check `promo_backend` validators/routes before adding any form field.
 2. **Do not modify** `promo_backend` or `promo_dashboard` from here. They may be
    read for contract planning only.
-3. **Frontend-first (Phase A):** build UI on mock data; do NOT wire the backend
-   yet. Mock/real is toggled by `PROMOO_USE_MOCKS`.
+3. **Frontend-only (current state).** As of 2026-07-09 the app has **no network
+   layer at all** — `core/network`, Dio, and every `*_remote_data_source.dart`
+   were removed. Repositories serve their **fake data source only**; there is
+   no `PROMOO_USE_MOCKS` toggle anymore. Integration is re-introduced later,
+   feature by feature, using [integration_map.md](integration_map.md) as the
+   guide. **Do not re-add network code** (Dio/http/remote sources) except as a
+   deliberate, scoped integration step for a specific feature.
 4. **Match the MVP** in `promo_backend/Projects-Pictures/` pixel-faithfully — no
    less, no more. Nothing missing, nothing extra.
 5. **Respect the deferred list** in [v2_deferred_scope.md](v2_deferred_scope.md).
