@@ -233,11 +233,6 @@ class _WelcomeCard extends StatelessWidget {
 List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
   final rows = <Widget>[
     _MenuRow(
-      icon: Icons.star_rounded,
-      label: 'Following',
-      onTap: () => context.push(AppRoutes.profileFollowing),
-    ),
-    _MenuRow(
       icon: Icons.group_outlined,
       label: 'Profile Management',
       onTap: () => context.push(AppRoutes.profileEdit),
@@ -269,6 +264,12 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
       icon: Icons.inventory_2_outlined,
       label: 'MyPackages',
       onTap: () => context.push(AppRoutes.profilePackages),
+    ),
+    // Following sits just above Support per owner request.
+    _MenuRow(
+      icon: Icons.star_rounded,
+      label: 'Following',
+      onTap: () => context.push(AppRoutes.profileFollowing),
     ),
     _MenuRow(
       icon: Icons.support_agent_rounded,

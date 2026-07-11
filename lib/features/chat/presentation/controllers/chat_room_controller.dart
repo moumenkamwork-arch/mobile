@@ -6,10 +6,14 @@ import '../../../../core/errors/app_failure.dart';
 import '../../data/repositories/chat_repository_impl.dart';
 import '../../domain/entities/chat.dart';
 
-final chatRoomIdProvider = Provider<String>((ref) => '');
-
+/// Keyed by roomId so each open conversation gets its own controller and the
+/// id reaches [ChatRoomController] directly (a plain global provider would read
+/// the root default and never see a nested ProviderScope override — see
+/// [serviceDetailControllerProvider] for the same idiom).
 final chatRoomControllerProvider =
-    NotifierProvider<ChatRoomController, ChatRoomState>(ChatRoomController.new);
+    NotifierProvider.family<ChatRoomController, ChatRoomState, String>(
+      ChatRoomController.new,
+    );
 
 enum ChatRoomStatus { loading, success, empty, error, refreshing, sending }
 
@@ -85,14 +89,16 @@ class ChatRoomState {
 }
 
 class ChatRoomController extends Notifier<ChatRoomState> {
+  ChatRoomController(this.roomIdArg);
+
+  final String roomIdArg;
   var _disposed = false;
 
   @override
   ChatRoomState build() {
     ref.onDispose(() => _disposed = true);
-    final roomId = ref.watch(chatRoomIdProvider);
     unawaited(Future<void>.microtask(load));
-    return ChatRoomState.loading(roomId: roomId);
+    return ChatRoomState.loading(roomId: roomIdArg);
   }
 
   Future<void> load() {
@@ -152,7 +158,7 @@ class ChatRoomController extends Notifier<ChatRoomState> {
     bool showLoading = false,
     bool refreshing = false,
   }) async {
-    final roomId = ref.read(chatRoomIdProvider);
+    final roomId = roomIdArg;
     final previousMessages = state.messages;
     if (refreshing) {
       state = ChatRoomState.refreshing(

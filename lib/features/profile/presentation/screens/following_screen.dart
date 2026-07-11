@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -9,8 +11,9 @@ import '../../../../theme/app_spacing.dart';
 
 /// "Following" page: accounts the user follows.
 ///
-/// Phase A shows demo follows (fictional Promoo demo identities) with a
-/// local unfollow toggle; the integration phase swaps this to backend
+/// Phase A shows demo follows (fictional Promoo demo identities). Tapping a
+/// row opens that profile; the "Following" button toggles to "Follow" like
+/// Instagram (kept locally). The integration phase swaps this to backend
 /// `GET /profiles/:id/following` + `/follows` mutations.
 class FollowingScreen extends StatefulWidget {
   const FollowingScreen({super.key});
@@ -34,32 +37,36 @@ class _FollowedProfile {
 }
 
 class _FollowingScreenState extends State<FollowingScreen> {
-  final _following = <_FollowedProfile>[
-    const _FollowedProfile(
+  static const _following = <_FollowedProfile>[
+    _FollowedProfile(
       id: 'profile-saffron-social',
       name: 'Saffron Social Studio',
       type: 'Company',
       avatarUrl: 'https://i.pravatar.cc/150?img=32',
     ),
-    const _FollowedProfile(
+    _FollowedProfile(
       id: 'profile-sara-fashion',
       name: 'Sara Fashion',
       type: 'Influencer',
       avatarUrl: 'https://i.pravatar.cc/150?img=47',
     ),
-    const _FollowedProfile(
+    _FollowedProfile(
       id: 'profile-hadi-coding',
       name: 'Hadi Coding',
       type: 'Influencer',
       avatarUrl: 'https://i.pravatar.cc/150?img=12',
     ),
-    const _FollowedProfile(
+    _FollowedProfile(
       id: 'profile-maysa-cooking',
       name: 'Maysa Cooking',
       type: 'Influencer',
       avatarUrl: 'https://i.pravatar.cc/150?img=25',
     ),
   ];
+
+  /// Ids the user has toggled to "unfollowed". Kept in-memory (like Instagram,
+  /// the row stays visible so it can be re-followed until the page reloads).
+  final _unfollowed = <String>{};
 
   @override
   Widget build(BuildContext context) {
@@ -77,56 +84,101 @@ class _FollowingScreenState extends State<FollowingScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final profile in _following) ...[
-                  PromooCard(
-                    padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-                    child: Row(
-                      children: [
-                        ClipOval(
-                          child: SizedBox(
-                            width: 52,
-                            height: 52,
-                            child: PromooImage(
-                              imageUrl: profile.avatarUrl,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                profile.name,
-                                style: Theme.of(context).textTheme.titleMedium,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                profile.type,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: context.colors.accent),
-                              ),
-                            ],
-                          ),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _following.removeWhere(
-                                (it) => it.id == profile.id,
-                              );
-                            });
-                          },
-                          child: const Text('Following'),
-                        ),
-                      ],
-                    ),
+                  _FollowingRow(
+                    profile: profile,
+                    isFollowing: !_unfollowed.contains(profile.id),
+                    onOpenProfile: () =>
+                        context.push(AppRoutes.profileById(profile.id)),
+                    onToggleFollow: () {
+                      setState(() {
+                        if (_unfollowed.contains(profile.id)) {
+                          _unfollowed.remove(profile.id);
+                        } else {
+                          _unfollowed.add(profile.id);
+                        }
+                      });
+                    },
                   ),
                   const SizedBox(height: AppSpacing.sm),
                 ],
               ],
             ),
+    );
+  }
+}
+
+class _FollowingRow extends StatelessWidget {
+  const _FollowingRow({
+    required this.profile,
+    required this.isFollowing,
+    required this.onOpenProfile,
+    required this.onToggleFollow,
+  });
+
+  final _FollowedProfile profile;
+  final bool isFollowing;
+  final VoidCallback onOpenProfile;
+  final VoidCallback onToggleFollow;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return PromooCard(
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onOpenProfile,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+          child: Row(
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: PromooImage(
+                    imageUrl: profile.avatarUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      profile.type,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: colors.accent),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              // Instagram-style: "Following" (outlined) toggles to "Follow"
+              // (filled) without leaving the list.
+              isFollowing
+                  ? OutlinedButton(
+                      onPressed: onToggleFollow,
+                      child: const Text('Following'),
+                    )
+                  : FilledButton(
+                      onPressed: onToggleFollow,
+                      child: const Text('Follow'),
+                    ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

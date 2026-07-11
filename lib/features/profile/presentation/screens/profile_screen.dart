@@ -42,22 +42,59 @@ class _ProfileScreenBody extends ConsumerWidget {
       backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
-        child: switch (state.status) {
-          ProfileStatus.loading => const PromooLoadingIndicator(
-            message: 'Loading profile',
-          ),
-          ProfileStatus.error => _ProfileErrorView(state: state),
-          ProfileStatus.empty => const PromooEmptyState(
-            title: 'Profile not found',
-            message: 'This profile is unavailable or no longer exists.',
-            icon: Icons.person_off_rounded,
-          ),
-          ProfileStatus.success ||
-          ProfileStatus.refreshing => _ProfileContentView(
-            state: state,
-            onRefresh: () =>
-                ref.read(profileControllerProvider.notifier).refresh(),
-          ),
+        // A floating back button sits over every state (cover image, loading,
+        // error) so a pushed profile always has a step-wise way back.
+        child: Stack(
+          children: [
+            switch (state.status) {
+              ProfileStatus.loading => const PromooLoadingIndicator(
+                message: 'Loading profile',
+              ),
+              ProfileStatus.error => _ProfileErrorView(state: state),
+              ProfileStatus.empty => const PromooEmptyState(
+                title: 'Profile not found',
+                message: 'This profile is unavailable or no longer exists.',
+                icon: Icons.person_off_rounded,
+              ),
+              ProfileStatus.success ||
+              ProfileStatus.refreshing => _ProfileContentView(
+                state: state,
+                onRefresh: () =>
+                    ref.read(profileControllerProvider.notifier).refresh(),
+              ),
+            },
+            const PositionedDirectional(
+              top: AppSpacing.xs,
+              start: AppSpacing.xs,
+              child: _ProfileBackButton(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Circular back button floated over the profile cover. Uses a translucent
+/// scrim so it stays legible over both the cover photo and plain backgrounds.
+class _ProfileBackButton extends StatelessWidget {
+  const _ProfileBackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.colors.background.withValues(alpha: 0.55),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: IconButton(
+        tooltip: 'Back',
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(AppRoutes.home);
+          }
         },
       ),
     );

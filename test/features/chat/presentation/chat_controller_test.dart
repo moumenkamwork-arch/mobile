@@ -54,7 +54,6 @@ void main() {
   test('room controller sends a text message', () async {
     final container = ProviderContainer(
       overrides: [
-        chatRoomIdProvider.overrideWithValue('room-1'),
         chatRepositoryProvider.overrideWithValue(
           _ChatRepository(
             messagesResult: Result.success([_message]),
@@ -65,15 +64,15 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    container.read(chatRoomControllerProvider);
+    container.read(chatRoomControllerProvider('room-1'));
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
     await container
-        .read(chatRoomControllerProvider.notifier)
+        .read(chatRoomControllerProvider('room-1').notifier)
         .sendText('Thanks');
 
-    final state = container.read(chatRoomControllerProvider);
+    final state = container.read(chatRoomControllerProvider('room-1'));
     expect(state.status, ChatRoomStatus.success);
     expect(state.messages.last.content, 'Thanks');
   });

@@ -19,19 +19,18 @@ class ChatRoomScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      overrides: [chatRoomIdProvider.overrideWithValue(roomId)],
-      child: const _ChatRoomBody(),
-    );
+    return _ChatRoomBody(roomId: roomId);
   }
 }
 
 class _ChatRoomBody extends ConsumerWidget {
-  const _ChatRoomBody();
+  const _ChatRoomBody({required this.roomId});
+
+  final String roomId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(chatRoomControllerProvider);
+    final state = ref.watch(chatRoomControllerProvider(roomId));
     final viewInsets = MediaQuery.viewInsetsOf(context);
     final inputBottomPadding = viewInsets.bottom > 0
         ? viewInsets.bottom + AppSpacing.lg
@@ -50,12 +49,14 @@ class _ChatRoomBody extends ConsumerWidget {
                   RefreshIndicator(
                     color: context.colors.accent,
                     backgroundColor: context.colors.elevatedSurface,
-                    onRefresh: () =>
-                        ref.read(chatRoomControllerProvider.notifier).refresh(),
+                    onRefresh: () => ref
+                        .read(chatRoomControllerProvider(roomId).notifier)
+                        .refresh(),
                     child: _ConversationBody(
                       state: state,
-                      onRetry: () =>
-                          ref.read(chatRoomControllerProvider.notifier).retry(),
+                      onRetry: () => ref
+                          .read(chatRoomControllerProvider(roomId).notifier)
+                          .retry(),
                       onLogin: () => context.go(AppRoutes.login),
                     ),
                   ),
@@ -88,7 +89,7 @@ class _ChatRoomBody extends ConsumerWidget {
                     ChatMessageInput(
                       isSending: state.isSending,
                       onSend: (text) => ref
-                          .read(chatRoomControllerProvider.notifier)
+                          .read(chatRoomControllerProvider(roomId).notifier)
                           .sendText(text),
                     ),
                   ],
