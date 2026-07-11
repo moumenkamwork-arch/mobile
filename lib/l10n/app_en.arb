@@ -1,0 +1,41 @@
+{
+  "@@locale": "en",
+
+  "actionRetry": "Retry",
+  "actionCancel": "Cancel",
+  "actionOk": "OK",
+
+  "settingsGreeting": "Hi {name}",
+  "@settingsGreeting": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "settingsWelcomeSubtitle": "Welcome to Promoo",
+  "settingsGuest": "Guest",
+
+  "menuFollowing": "Following",
+  "menuProfileManagement": "Profile Management",
+  "menuAddOffer": "Add New Offer",
+  "menuAddAd": "Add New Ad",
+  "menuAddService": "Add New Service",
+  "menuSaved": "Saved",
+  "menuPackages": "My Packages",
+  "menuSupport": "Support",
+
+  "settingsLanguage": "Language",
+  "settingsEnglish": "English",
+  "settingsArabic": "Arabic",
+
+  "settingsThemeMode": "Theme Mode",
+  "settingsBlackMode": "Black Mode",
+  "settingsLightMode": "Light Mode",
+
+  "settingsLogout": "Logout",
+  "logoutDialogTitle": "Logout",
+  "logoutDialogBody": "Are you sure you want to log out of Promoo?",
+
+  "footerAbout": "About",
+  "footerTerms": "Terms & Conditions",
+  "footerPrivacy": "Privacy Policy"
+}

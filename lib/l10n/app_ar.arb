@@ -1,0 +1,36 @@
+{
+  "@@locale": "ar",
+
+  "actionRetry": "إعادة المحاولة",
+  "actionCancel": "إلغاء",
+  "actionOk": "حسناً",
+
+  "settingsGreeting": "مرحباً {name}",
+  "settingsWelcomeSubtitle": "أهلاً بك في بروموو",
+  "settingsGuest": "ضيف",
+
+  "menuFollowing": "المتابَعون",
+  "menuProfileManagement": "إدارة الحساب",
+  "menuAddOffer": "إضافة عرض جديد",
+  "menuAddAd": "إضافة إعلان جديد",
+  "menuAddService": "إضافة خدمة جديدة",
+  "menuSaved": "المحفوظات",
+  "menuPackages": "باقاتي",
+  "menuSupport": "الدعم",
+
+  "settingsLanguage": "اللغة",
+  "settingsEnglish": "الإنجليزية",
+  "settingsArabic": "العربية",
+
+  "settingsThemeMode": "المظهر",
+  "settingsBlackMode": "الوضع الأسود",
+  "settingsLightMode": "الوضع الفاتح",
+
+  "settingsLogout": "تسجيل الخروج",
+  "logoutDialogTitle": "تسجيل الخروج",
+  "logoutDialogBody": "هل أنت متأكد من تسجيل الخروج من بروموو؟",
+
+  "footerAbout": "من نحن",
+  "footerTerms": "الشروط والأحكام",
+  "footerPrivacy": "سياسة الخصوصية"
+}

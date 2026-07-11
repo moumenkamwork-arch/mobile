@@ -39,6 +39,15 @@ class ChatState {
   bool get hasContent => rooms.isNotEmpty;
 
   bool get isAuthRequired => failure?.type == AppFailureType.unauthorized;
+
+  /// Total unread messages across all rooms — drives the header chat badge.
+  int get totalUnread {
+    var total = 0;
+    for (final room in rooms) {
+      total += room.unreadCount;
+    }
+    return total;
+  }
 }
 
 class ChatController extends Notifier<ChatState> {

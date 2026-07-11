@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-08
+Last updated: 2026-07-11
 
 ---
 
@@ -24,7 +24,7 @@ Last updated: 2026-07-08
 | Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets |
 | Seat checkout preview | ✅ | Display-only, no payment |
 | Cup / Leaderboard | ✅ | Header + podium + ranked list |
-| Profile tab (settings) | ✅ | Following, Profile Management, Add New Offer, Saved, MyPackages, Support, Language, Theme Mode (Black/Light, functional + persisted), Logout, legal links |
+| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated), Saved, My Packages, Following (above Support), Support, Language (functional toggle → ar/en), Theme Mode (Black/Light, persisted), Logout, legal links. **Fully localized (L0).** |
 | Light theme (all screens) | ✅ | 2026-07-08: token system (`context.colors`), AA contrast, black brand chrome, dark-locked auth/splash/media viewers |
 | Back navigation (system + in-app) | ✅ | 2026-07-08: step-wise everywhere — details → list → categories → Home → double-press exit; push-based details; Services results layer intercepts back |
 | Edit Profile | ✅ | Fields = `updateProfileSchema`; local only |
@@ -32,10 +32,11 @@ Last updated: 2026-07-08
 | MyPackages | ✅ | Display-only (no backend package entity — v2) |
 | Saved / Following | ✅ | Mock lists (map to `/saved`, `/follows`) |
 | Support / About / Terms / Privacy | ✅ | Static/safe pages |
-| Public profile | ✅ | Header + Instagram-style stats + actions + packages + media |
+| Public profile | ✅ | Back button; Instagram-style stats; **distinct per-id profiles** (fake synthesizes any id); **Follow toggle** (local), **Message → chat**, Edit → edit screen; packages + media |
 | Search | ✅ | Own Scaffold; grouped/typed results |
-| Chat (list + room) | ✅ | Skeleton on mock; v1 feature |
-| Notifications | ⏸️ | Whole feature deferred (v2); demoable skeleton kept |
+| Chat (list + room) | ✅ | Room keyed by roomId (family); **compose + send works** (in-memory); header chat badge = live unread |
+| Notifications | 🔄 | In-app list works (mark read/all, delete, tap→room); header badge = live unread. Push/FCM feature deferred (v2). |
+| Localization (i18n / RTL) | 🔄 | **L0 done** — bilingual scaffold (ARB gen-l10n, `localeProvider`, `MaterialApp` wired) + Settings screen fully Arabic/English with RTL; toggle persists. Remaining screens per [localization_plan.md](localization_plan.md) (L1+). |
 
 ## Deferred to v2 (not built in v1)
 
@@ -54,10 +55,16 @@ categories/services data, auth (email login/register), token persistence
 
 ## Health
 
-**160 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
-AED everywhere · RTL-ready · Light + Black themes done · role-gated Add
-Offer/Ad/Service · **frontend-only (no network layer — reset 2026-07-09)**.
-The re-wiring plan is [integration_map.md](integration_map.md); see
-[MEMORY_BANK.md](MEMORY_BANK.md) for the full change timeline. (Test count
-dropped from 200 → 160 when the backend-wiring tests were removed with the
-wiring itself — expected.)
+**163 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
+AED everywhere · Light + Black themes done · role-gated Add Offer/Ad/Service ·
+**frontend-only (no network layer — reset 2026-07-09)** · **bilingual scaffold
+live (L0), RTL proven by test**.
+The re-wiring plan is [integration_map.md](integration_map.md); the localization
+plan is [localization_plan.md](localization_plan.md); see
+[MEMORY_BANK.md](MEMORY_BANK.md) for the full change timeline.
+
+**Recent (2026-07-10→11):** client-edit fixes (footer P→Cup, See-All, glass
+header) · UX-audit fixes (live header badges, distinct per-id profiles, profile
+Follow/Message/Edit working, chat send fixed via family provider, profile back
+button, Following reorder + unfollow toggle) · localization L0. Genuinely
+backend-only (not faked): OAuth, password reset, payments, media upload.

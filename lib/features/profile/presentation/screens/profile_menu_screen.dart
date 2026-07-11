@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../i18n/locale_controller.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -20,7 +22,9 @@ class ProfileMenuScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
     final user = ref.watch(authControllerProvider).session?.user;
     final caps = ref.watch(accountCapabilitiesProvider);
 
@@ -44,7 +48,7 @@ class ProfileMenuScreen extends ConsumerWidget {
           sliver: SliverList.list(
             children: [
               _WelcomeCard(
-                displayName: user?.displayName ?? 'Guest',
+                displayName: user?.displayName ?? l10n.settingsGuest,
                 avatarUrl: user?.avatarUrl,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -60,37 +64,36 @@ class ProfileMenuScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Language',
+                      l10n.settingsLanguage,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     _RadioOption(
-                      label: 'English',
-                      selected: true,
-                      onTap: () {},
+                      label: l10n.settingsEnglish,
+                      selected: locale.languageCode == 'en',
+                      onTap: () =>
+                          ref.read(localeProvider.notifier).setEnglish(),
                     ),
                     _RadioOption(
-                      label: 'Arabic',
-                      selected: false,
-                      onTap: () => _showNotice(
-                        context,
-                        'Arabic will be available with the localization phase.',
-                      ),
+                      label: l10n.settingsArabic,
+                      selected: locale.languageCode == 'ar',
+                      onTap: () =>
+                          ref.read(localeProvider.notifier).setArabic(),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      'Theme Mode',
+                      l10n.settingsThemeMode,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     _RadioOption(
-                      label: 'Black Mode',
+                      label: l10n.settingsBlackMode,
                       selected: themeMode == ThemeMode.dark,
                       onTap: () =>
                           ref.read(themeModeProvider.notifier).setDark(),
                     ),
                     _RadioOption(
-                      label: 'Light Mode',
+                      label: l10n.settingsLightMode,
                       selected: themeMode == ThemeMode.light,
                       onTap: () =>
                           ref.read(themeModeProvider.notifier).setLight(),
@@ -103,7 +106,7 @@ class ProfileMenuScreen extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 child: _MenuRow(
                   icon: Icons.logout_rounded,
-                  label: 'Logout',
+                  label: l10n.settingsLogout,
                   onTap: () => _confirmLogout(context, ref),
                 ),
               ),
@@ -112,17 +115,17 @@ class ProfileMenuScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _FooterLink(
-                    label: 'About',
+                    label: l10n.footerAbout,
                     onTap: () => context.push(AppRoutes.profileInfo('about')),
                   ),
                   const _FooterDot(),
                   _FooterLink(
-                    label: 'TermsAndCondition',
+                    label: l10n.footerTerms,
                     onTap: () => context.push(AppRoutes.profileInfo('terms')),
                   ),
                   const _FooterDot(),
                   _FooterLink(
-                    label: 'PrivacyPolicy',
+                    label: l10n.footerPrivacy,
                     onTap: () => context.push(AppRoutes.profileInfo('privacy')),
                   ),
                 ],
@@ -135,17 +138,18 @@ class ProfileMenuScreen extends ConsumerWidget {
   }
 
   void _confirmLogout(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: context.colors.cardSurface,
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to log out of Promoo?'),
+          title: Text(l10n.logoutDialogTitle),
+          content: Text(l10n.logoutDialogBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.actionCancel),
             ),
             TextButton(
               onPressed: () {
@@ -153,7 +157,7 @@ class ProfileMenuScreen extends ConsumerWidget {
                 ref.read(authControllerProvider.notifier).logout();
                 context.go(AppRoutes.login);
               },
-              child: const Text('Logout'),
+              child: Text(l10n.settingsLogout),
             ),
           ],
         );
@@ -161,11 +165,6 @@ class ProfileMenuScreen extends ConsumerWidget {
     );
   }
 
-  void _showNotice(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
-  }
 }
 
 /// Greeting card at the top of the settings screen: the signed-in user's
@@ -205,14 +204,14 @@ class _WelcomeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hi $displayName',
+                  AppLocalizations.of(context).settingsGreeting(displayName),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.xxxs),
                 Text(
-                  'Welcome to Promoo',
+                  AppLocalizations.of(context).settingsWelcomeSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -231,49 +230,50 @@ class _WelcomeCard extends StatelessWidget {
 /// Offer = company/service_provider · Ad = company/influencer ·
 /// Service = company/service_provider. A guest or regular `user` sees none.
 List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
+  final l10n = AppLocalizations.of(context);
   final rows = <Widget>[
     _MenuRow(
       icon: Icons.group_outlined,
-      label: 'Profile Management',
+      label: l10n.menuProfileManagement,
       onTap: () => context.push(AppRoutes.profileEdit),
     ),
     if (caps.canAddOffer)
       _MenuRow(
         icon: Icons.local_offer_outlined,
-        label: 'Add New Offer',
+        label: l10n.menuAddOffer,
         onTap: () => context.push(AppRoutes.profileAddOffer),
       ),
     if (caps.canAddAd)
       _MenuRow(
         icon: Icons.campaign_outlined,
-        label: 'Add New Ad',
+        label: l10n.menuAddAd,
         onTap: () => context.push(AppRoutes.profileAddAd),
       ),
     if (caps.canAddService)
       _MenuRow(
         icon: Icons.design_services_outlined,
-        label: 'Add New Service',
+        label: l10n.menuAddService,
         onTap: () => context.push(AppRoutes.profileAddService),
       ),
     _MenuRow(
       icon: Icons.bookmark_rounded,
-      label: 'Saved',
+      label: l10n.menuSaved,
       onTap: () => context.push(AppRoutes.profileSaved),
     ),
     _MenuRow(
       icon: Icons.inventory_2_outlined,
-      label: 'MyPackages',
+      label: l10n.menuPackages,
       onTap: () => context.push(AppRoutes.profilePackages),
     ),
     // Following sits just above Support per owner request.
     _MenuRow(
       icon: Icons.star_rounded,
-      label: 'Following',
+      label: l10n.menuFollowing,
       onTap: () => context.push(AppRoutes.profileFollowing),
     ),
     _MenuRow(
       icon: Icons.support_agent_rounded,
-      label: 'Support',
+      label: l10n.menuSupport,
       onTap: () => context.push(AppRoutes.profileSupport),
     ),
   ];

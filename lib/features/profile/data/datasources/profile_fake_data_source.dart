@@ -278,7 +278,72 @@ class ProfileFakeDataSource implements ProfileDataSource {
       }
     }
 
-    throw const FormatException('Profile not found.');
+    // Unknown demo id (a follow, seat holder, or leaderboard entry that isn't
+    // in the curated list): synthesize a plausible, deterministic profile so
+    // every profile tap opens a real-looking page instead of "not found".
+    return _syntheticProfile(idOrUsername);
+  }
+
+  static PromooProfileDto _syntheticProfile(String idOrUsername) {
+    final raw = idOrUsername.trim();
+    final slug = raw.toLowerCase().startsWith('profile-')
+        ? raw.substring('profile-'.length)
+        : raw;
+    final words = slug
+        .split(RegExp(r'[-_.@]+'))
+        .where((word) => word.isNotEmpty)
+        .toList();
+    final displayName = words.isEmpty
+        ? 'Promoo Member'
+        : words.map((w) => '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
+    final username = words.isEmpty ? 'promoo.member' : words.join('.');
+    final seed = slug.hashCode.abs();
+
+    const covers = [
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+    ];
+    const categories = [
+      'Influencer Campaigns',
+      'Beauty & Wellness',
+      'Events & Photography',
+      'Restaurants & Cafes',
+      'Fashion & Styling',
+      'Health & Fitness',
+    ];
+    const accountTypes = ['influencer', 'company', 'service_provider'];
+
+    final followers = 8000 + (seed % 240) * 520;
+    final likes = 1500 + (seed % 180) * 260;
+    final posts = 6 + (seed % 40);
+
+    return PromooProfileDto(
+      id: raw,
+      displayName: displayName,
+      username: username,
+      bio:
+          '$displayName is part of the Promoo marketplace, sharing campaigns '
+          'and creator collaborations across the UAE.',
+      location: 'United Arab Emirates',
+      avatarUrl: 'https://i.pravatar.cc/320?u=$slug',
+      coverUrl: covers[seed % covers.length],
+      categoryName: categories[seed % categories.length],
+      accountType: accountTypes[seed % accountTypes.length],
+      stats: ProfileStatsDto(
+        followers: followers,
+        following: 40 + (seed % 300),
+        likes: likes,
+        posts: posts,
+        views: followers * 2 + (seed % 50) * 900,
+      ),
+      mediaUrls: [
+        for (var i = 0; i < 3; i++)
+          'https://picsum.photos/seed/$slug$i/600/600',
+      ],
+      isVerified: seed % 2 == 0,
+    );
   }
 
   @override

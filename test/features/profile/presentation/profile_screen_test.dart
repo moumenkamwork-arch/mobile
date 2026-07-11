@@ -53,15 +53,8 @@ void main() {
     expect(find.text('Follow'), findsNothing);
     expect(find.text('Message'), findsNothing);
     expect(find.text('Profile tools'), findsNothing);
+    // Owner sees the Edit profile action (it routes to the edit screen).
     expect(find.text('Edit profile'), findsOneWidget);
-
-    await tester.tap(find.text('Edit profile'));
-    await tester.pumpAndSettle();
-    expect(find.text('Coming soon'), findsOneWidget);
-    expect(
-      find.text('Profile editing will be available in the next phase.'),
-      findsOneWidget,
-    );
 
     await tester.scrollUntilVisible(
       find.text('Packages'),
@@ -104,7 +97,7 @@ void main() {
     expect(find.text('Profile tools'), findsNothing);
   });
 
-  testWidgets('message action shows safe chats notice', (tester) async {
+  testWidgets('follow button toggles to Following', (tester) async {
     await tester.pumpWidget(
       _buildProfileScreen(
         const _ProfileRepository(
@@ -116,11 +109,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Message'));
+    expect(find.text('Follow'), findsOneWidget);
+    expect(find.text('Following'), findsNothing);
+
+    await tester.tap(find.text('Follow'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Chats are ready'), findsOneWidget);
-    expect(find.text('Open chats'), findsOneWidget);
+    expect(find.text('Following'), findsOneWidget);
+    expect(find.text('Follow'), findsNothing);
+    // Message stays available alongside the follow toggle.
+    expect(find.text('Message'), findsOneWidget);
   });
 
   testWidgets('renders empty media state', (tester) async {

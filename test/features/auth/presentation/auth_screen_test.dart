@@ -128,7 +128,7 @@ void main() {
     expect(find.byTooltip('Facebook'), findsNothing);
   });
 
-  testWidgets('profile login-required CTA navigates to login', (tester) async {
+  testWidgets('profile Message action opens a chat room', (tester) async {
     final router = createAppRouter(
       initialLocation: AppRoutes.profileById('lina.atelier'),
     );
@@ -150,18 +150,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Follow'));
-    await tester.tap(find.text('Follow'));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Go to login'),
-      160,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Go to login'));
+    await tester.ensureVisible(find.text('Message'));
+    await tester.tap(find.text('Message'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Continue as Guest'), findsOneWidget);
+    // The Message action pushes into a conversation with a working composer.
+    expect(find.text('Conversation'), findsOneWidget);
+    expect(find.byType(TextField), findsWidgets);
   });
 }
 

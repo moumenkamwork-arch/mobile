@@ -107,7 +107,7 @@ void main() {
     expect(state.failure?.message, 'No connection');
   });
 
-  test('sets safe action states', () async {
+  test('toggles local follow state', () async {
     final container = ProviderContainer(
       overrides: [
         profileRepositoryProvider.overrideWithValue(
@@ -124,17 +124,13 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
-    container.read(profileControllerProvider.notifier).requestFollow();
-    expect(
-      container.read(profileControllerProvider).actionStatus,
-      ProfileActionStatus.followAuthRequired,
-    );
+    expect(container.read(profileControllerProvider).isFollowing, isFalse);
 
-    container.read(profileControllerProvider.notifier).requestMessage();
-    expect(
-      container.read(profileControllerProvider).actionStatus,
-      ProfileActionStatus.messageComingSoon,
-    );
+    container.read(profileControllerProvider.notifier).toggleFollow();
+    expect(container.read(profileControllerProvider).isFollowing, isTrue);
+
+    container.read(profileControllerProvider.notifier).toggleFollow();
+    expect(container.read(profileControllerProvider).isFollowing, isFalse);
   });
 }
 

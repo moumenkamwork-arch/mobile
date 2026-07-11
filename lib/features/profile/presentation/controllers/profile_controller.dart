@@ -6,6 +6,11 @@ import '../../../../core/errors/app_failure.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/promoo_profile.dart';
 
+// `profileTargetProvider` carries the route's profile id/username. ProfileScreen
+// overrides it in a nested ProviderScope AND re-creates this controller in that
+// same scope (`profileControllerProvider.overrideWith(...)`) so the controller
+// actually reads the scoped target — a root-scoped controller would ignore the
+// nested override and always load the demo profile.
 final profileTargetProvider = Provider<String?>((ref) => null);
 
 final profileControllerProvider =
@@ -13,20 +18,13 @@ final profileControllerProvider =
 
 enum ProfileStatus { loading, success, empty, error, refreshing }
 
-enum ProfileActionStatus {
-  idle,
-  followAuthRequired,
-  messageComingSoon,
-  editAuthRequired,
-}
-
 class ProfileState {
   const ProfileState({
     required this.status,
     this.profile,
     this.packages = const [],
     this.failure,
-    this.actionStatus = ProfileActionStatus.idle,
+    this.isFollowing = false,
   });
 
   const ProfileState.loading() : this(status: ProfileStatus.loading);
@@ -34,12 +32,12 @@ class ProfileState {
   const ProfileState.success({
     required PromooProfile profile,
     List<ProfilePackage> packages = const [],
-    ProfileActionStatus actionStatus = ProfileActionStatus.idle,
+    bool isFollowing = false,
   }) : this(
          status: ProfileStatus.success,
          profile: profile,
          packages: packages,
-         actionStatus: actionStatus,
+         isFollowing: isFollowing,
        );
 
   const ProfileState.empty({AppFailure? failure})
@@ -59,17 +57,22 @@ class ProfileState {
   const ProfileState.refreshing({
     PromooProfile? profile,
     List<ProfilePackage> packages = const [],
+    bool isFollowing = false,
   }) : this(
          status: ProfileStatus.refreshing,
          profile: profile,
          packages: packages,
+         isFollowing: isFollowing,
        );
 
   final ProfileStatus status;
   final PromooProfile? profile;
   final List<ProfilePackage> packages;
   final AppFailure? failure;
-  final ProfileActionStatus actionStatus;
+
+  /// Local follow state (Phase A). Backend wiring will replace this with the
+  /// real `is_following` flag and POST/DELETE `/follows`.
+  final bool isFollowing;
 
   bool get isRefreshing => status == ProfileStatus.refreshing;
 
@@ -98,20 +101,17 @@ class ProfileController extends Notifier<ProfileState> {
     return _load(refreshing: true);
   }
 
-  void requestFollow() {
-    state = _copyWithAction(ProfileActionStatus.followAuthRequired);
-  }
-
-  void requestMessage() {
-    state = _copyWithAction(ProfileActionStatus.messageComingSoon);
-  }
-
-  void requestEdit() {
-    state = _copyWithAction(ProfileActionStatus.editAuthRequired);
-  }
-
-  void clearActionMessage() {
-    state = _copyWithAction(ProfileActionStatus.idle);
+  /// Toggles the local follow state (Phase A). No-op until the profile loads.
+  void toggleFollow() {
+    final profile = state.profile;
+    if (state.status != ProfileStatus.success || profile == null) {
+      return;
+    }
+    state = ProfileState.success(
+      profile: profile,
+      packages: state.packages,
+      isFollowing: !state.isFollowing,
+    );
   }
 
   Future<void> _load({
@@ -151,7 +151,11 @@ class ProfileController extends Notifier<ProfileState> {
           failure: (_) => const <ProfilePackage>[],
         );
 
-        state = ProfileState.success(profile: profile, packages: packages);
+        state = ProfileState.success(
+          profile: profile,
+          packages: packages,
+          isFollowing: state.isFollowing,
+        );
       },
       failure: (failure) async {
         if (failure.type == AppFailureType.notFound) {
@@ -165,16 +169,6 @@ class ProfileController extends Notifier<ProfileState> {
           packages: refreshing ? previousPackages : const [],
         );
       },
-    );
-  }
-
-  ProfileState _copyWithAction(ProfileActionStatus actionStatus) {
-    return ProfileState(
-      status: state.status,
-      profile: state.profile,
-      packages: state.packages,
-      failure: state.failure,
-      actionStatus: actionStatus,
     );
   }
 }

@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-08
+> Last updated: 2026-07-11
 
 ---
 
@@ -105,6 +105,46 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-11 — Localization phase STARTED (L0 done).** Roadmap:
+  [localization_plan.md](localization_plan.md). **Backend is bilingual** via
+  separate columns (`name_ar`/`name_en` on categories + subscription plans),
+  resolved server-side by the `Accept-Language` header
+  (`promo_backend/src/utils/helpers.ts`: `getLanguage` + `pickLocalized` →
+  returns a single `name`/`description`); user content (offers/services/
+  profiles/chat) is single-language as authored. So localization splits:
+  **static UI + RTL = frontend, do now before wiring** (~90%); **content
+  language = one `Accept-Language` header during wiring** (~10%). App was
+  already RTL-ready (`intl`+`flutter_localizations` present, **zero**
+  non-directional insets, Tajawal bundled). **L0 shipped:** `l10n.yaml`
+  (gen-l10n → `lib/l10n/app_localizations.dart`), `pubspec flutter:
+  generate: true`, `app_en.arb`+`app_ar.arb`, `lib/i18n/locale_controller.dart`
+  (`localeProvider`, mirrors `themeModeProvider`, default = device locale,
+  persists `promoo_locale`), wired `app.dart`, and **fully localized the
+  Settings screen** + its language toggle. `test/i18n/localization_test.dart`
+  proves ar→RTL. Test harnesses rendering localized screens now need
+  `AppLocalizations.localizationsDelegates` + `supportedLocales`. Decisions:
+  default = device locale (fallback en) · Western numerals · Arabic drafted by
+  the assistant. **163 tests pass.** Next: L1 (shared widgets + header/footer —
+  the shell `tabs` are `static const`, so labels must be resolved at build-time).
+- **2026-07-10→11 — Client-edit + UX-audit fixes (frontend-only).** Client edits:
+  footer center-P → Cup (labelled "Promoo"), Services became a normal tab;
+  Promoo-of-the-Day "See All" navigates; header + tab-page headers frost on
+  scroll via a shared `shellScrolledProvider` + `PromooPinnedHeaderDelegate`
+  (content scrolls under a pinned header like Home; Seats keeps its fixed
+  toolbar). UX audit then fixed: **header badges** now show live unread
+  (chat `totalUnread` + notifications `unreadCount`, hidden at zero) instead of
+  hard-coded "2"/"6"; **profile-shows-same-demo-everywhere** fixed
+  (ProfileScreen overrides the controller in its ProviderScope so the scoped
+  `profileTargetProvider` is read, + the profile fake **synthesizes** a
+  deterministic profile for any unknown id); **profile actions** no longer
+  dead-end (removed `ProfileActionStatus`/`ProfileActionNotice`; Follow = local
+  toggle, Message → chat room, Edit → edit screen); **chat send was broken** and
+  is fixed by making `chatRoomControllerProvider` a **family** keyed by roomId
+  (a nested-ProviderScope override never reached the root controller → roomId
+  was empty → messages never loaded & send silently bailed); public-profile
+  **back button** added; Following reorder (above Support) + Instagram-style
+  unfollow toggle + row→profile nav. Genuinely backend-only, NOT faked: OAuth,
+  password reset, payments, media upload. See `docs/client_requirements_checklist.md`.
 - **2026-07-09 (reset) — Wiped ALL backend wiring → pure frontend-only app.**
   Owner decision after the integration analysis: to start integration later on
   a clean base, feature by feature, **all API wiring was removed with no
@@ -260,6 +300,8 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 | [build_plan.md](build_plan.md) | Master Phase A checklist + Phase B 15-row integration table |
 | [v2_deferred_scope.md](v2_deferred_scope.md) | Everything deferred/hidden for v1 |
 | [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. Now the *re-wiring* guide (app was reset to frontend-only). |
+| [localization_plan.md](localization_plan.md) | **Localization roadmap** (Arabic/English + RTL, before wiring): phased checklist, backend bilingual model, RTL readiness. L0 done. |
+| [client_requirements_checklist.md](client_requirements_checklist.md) | Client-requested frontend edits, item-by-item with ✔ + locations. |
 | [work_summary.md](work_summary.md) | Full chronological summary of this session's work (light-mode → theme/chrome → icons/logo → integration analysis → role-gating + screens → frontend-only reset). |
 | [project_memory.md](project_memory.md) | Older detailed slice-by-slice notes |
 | `mvp_roadmap.md`, `api_contracts.md`, `architecture.md` | Original planning/reference |
@@ -270,9 +312,10 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 7. Known follow-ups / open items
 
-- **Feedback #4 (open):** owner asked for the Cup tab to become a "P/Promoo"
-  icon → /cup, but that conflicts with the MVP (center P = Services). Left as MVP
-  center-P-Services; awaiting owner confirmation.
+- **Feedback #4 (RESOLVED 2026-07-10):** owner confirmed the center P mark
+  should lead to Cup and be labelled "Promoo"; Services was moved to a normal
+  tab. Footer order is now Home · Influencer · [P] Promoo→Cup · Services ·
+  Profile (`promoo_shell.dart` + `_selectedIndexForPath`).
 - **Light mode is DONE** (2026-07-08): full token system (`context.colors`),
   AA contrast, chrome stays brand-black, auth/splash/media viewers stay dark.
   New color rule: yellow is a FILL (black content on it); yellow-as-ink uses

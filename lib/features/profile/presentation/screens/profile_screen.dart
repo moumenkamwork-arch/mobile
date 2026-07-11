@@ -11,7 +11,6 @@ import '../../../../theme/app_spacing.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/profile_about_section.dart';
 import '../widgets/profile_action_bar.dart';
-import '../widgets/profile_action_notice.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_media_section.dart';
 import '../widgets/profile_packages_section.dart';
@@ -25,7 +24,13 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [profileTargetProvider.overrideWithValue(idOrUsername)],
+      overrides: [
+        profileTargetProvider.overrideWithValue(idOrUsername),
+        // Re-create the controller inside THIS scope so it reads the scoped
+        // target above. A root-scoped provider would ignore a nested override
+        // and always load the demo profile.
+        profileControllerProvider.overrideWith(ProfileController.new),
+      ],
       child: const _ProfileScreenBody(),
     );
   }
@@ -190,27 +195,14 @@ class _ProfileContentView extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.md),
                     ProfileActionBar(
                       isOwner: isOwnerProfile,
+                      isFollowing: state.isFollowing,
                       onFollowPressed: () => ref
                           .read(profileControllerProvider.notifier)
-                          .requestFollow(),
-                      onMessagePressed: () => ref
-                          .read(profileControllerProvider.notifier)
-                          .requestMessage(),
-                      onEditPressed: () => ref
-                          .read(profileControllerProvider.notifier)
-                          .requestEdit(),
+                          .toggleFollow(),
+                      onMessagePressed: () =>
+                          context.push(AppRoutes.chatRoom('chat-${profile.id}')),
+                      onEditPressed: () => context.push(AppRoutes.profileEdit),
                     ),
-                    if (state.actionStatus != ProfileActionStatus.idle) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      ProfileActionNotice(
-                        status: state.actionStatus,
-                        onLoginPressed: () => context.push(AppRoutes.login),
-                        onChatsPressed: () => context.push(AppRoutes.chats),
-                        onDismiss: () => ref
-                            .read(profileControllerProvider.notifier)
-                            .clearActionMessage(),
-                      ),
-                    ],
                     const SizedBox(height: AppSpacing.lg),
                     ProfilePackagesSection(packages: state.packages),
                     const SizedBox(height: AppSpacing.lg),

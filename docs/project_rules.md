@@ -96,6 +96,29 @@
   first, AND show an in-app back affordance.
 - Shell back order: interceptors → non-Home tab → Home → double-press exit.
 
+## 3c. Localization (i18n / RTL) — phase started 2026-07-11
+
+- **All user-facing strings come from ARB**, never hardcoded in widgets. Add a
+  key to `lib/l10n/app_en.arb` + `app_ar.arb`, run `flutter gen-l10n` (output is
+  `lib/l10n/app_localizations.dart`), then use
+  `AppLocalizations.of(context).<key>`. Roadmap + phase status:
+  [localization_plan.md](localization_plan.md).
+- **Locale is a single source of truth:** `localeProvider`
+  (`lib/i18n/locale_controller.dart`, mirrors `themeModeProvider`) — default =
+  device locale, persists `promoo_locale`. The Settings language toggle drives
+  it; the Phase-B network client will read it to set `Accept-Language`.
+- **RTL is automatic** because the codebase is 100% directional — keep it that
+  way: never use `EdgeInsets.only(left/right)` or `Alignment.centerLeft/right`
+  (use the `*Directional` variants). Direction-implying icons (e.g. list-row
+  chevrons) must flip with the locale.
+- **Backend owns content language, not the app:** reference content (categories,
+  subscription plans) is resolved server-side by `Accept-Language` (returns a
+  single `name`/`description`); user content (offers/services/bios/chat) stays
+  in the language it was authored in — do NOT translate it client-side.
+- **Test harnesses that render a localized screen** must pass
+  `localizationsDelegates: AppLocalizations.localizationsDelegates` +
+  `supportedLocales: AppLocalizations.supportedLocales` to their `MaterialApp`.
+
 ## 4. Security
 
 - No secrets in the app. `flutter_secure_storage` for tokens when auth is wired.
