@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_spacing.dart';
@@ -13,18 +14,19 @@ class ProfileAboutSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final website = profile.website;
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PromooSectionHeader(title: 'About'),
+        PromooSectionHeader(title: l10n.profileAboutTitle),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                profile.bio ?? 'Profile details will appear here soon.',
+                profile.bio ?? l10n.profileAboutFallback,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               if (website != null) ...[

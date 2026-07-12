@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/app_notification.dart';
+import 'notification_type_label.dart';
 
 class NotificationCard extends StatelessWidget {
   const NotificationCard({
@@ -57,7 +59,7 @@ class NotificationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  notification.type.label,
+                  notificationTypeLabel(context, notification.type),
                   style: Theme.of(
                     context,
                   ).textTheme.labelSmall?.copyWith(color: colors.textMuted),
@@ -68,7 +70,7 @@ class NotificationCard extends StatelessWidget {
           if (onDelete != null) ...[
             const SizedBox(width: AppSpacing.xs),
             IconButton(
-              tooltip: 'Delete notification',
+              tooltip: AppLocalizations.of(context).notificationDeleteTooltip,
               onPressed: onDelete,
               icon: const Icon(Icons.delete_outline_rounded),
             ),

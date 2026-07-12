@@ -238,8 +238,7 @@ Future<List<String>> _collectVisibleDemoStrings() async {
     for (final profile in leaderboard) ...[
       profile.displayName,
       ?profile.username,
-      profile.accountTypeLabel,
-      profile.followersLabel,
+      ?profile.accountType,
       ?profile.badgeLabel,
     ],
     for (final result in search) ...[

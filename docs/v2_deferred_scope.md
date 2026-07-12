@@ -1,6 +1,6 @@
 # Promoo Mobile — v2 Deferred Scope
 
-Last updated: 2026-07-06
+Last updated: 2026-07-12
 
 > **Purpose.** This is the single, authoritative list of everything we are **deferring to v2** and everything we are **hiding in v1**. Rule of the project: **the backend is the single source of truth; the app must match it 100%.** For each item below we record: (a) the backend endpoint / entity it will map to when we build it later, and (b) the exact **v1 behaviour** in the app right now.
 >
@@ -98,6 +98,27 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 | --- | --- | --- |
 | Dynamic Expandable Seat Grid | Needs API adjustment to return grid dimensions (`columns`, `rows`) or implement Infinite Scrolling sections / Interactive Canvas. | **Display-only** — v1 uses a fixed `12x12` math grid mapped to concentric visual bands for exactly 144 seats. |
 | Dashboard Seat Management | Needs new CRUD endpoints / UI in `promo_dashboard`. | **Hidden** — currently the dashboard only handles seat reports. In v2, admins should be able to expand seat capacity, modify tier prices, and release/cancel bookings without hardcoded DB limits. |
+
+---
+
+## 8. Database hardening & tuning (deferred to Phase B / owner)
+
+> Added 2026-07-12 after a live DB advisor audit + a **security** hardening pass that
+> was already applied (migration `034` in the backend repo). The items below are the
+> ones intentionally **left for later**. Full analysis + what got fixed:
+> `promo_backend/docs/DB_AUDIT_AND_HARDENING_2026-07-12.md`.
+
+| Item | Type | Why deferred | When to do it |
+| --- | --- | --- | --- |
+| Enable **Leaked Password Protection** | Security (Auth) | Supabase Dashboard toggle (Authentication → Passwords); **cannot** be done via SQL/MCP. | Owner — before real users sign up. |
+| **RLS performance pass** — 47 `auth_rls_initplan` (`auth.uid()` → `(select auth.uid())`) + 165 `multiple_permissive_policies` + 4 unindexed FKs + 8 unused indexes | Performance | All WARN-level; a non-issue at current row counts, matters at scale. Best as its own reviewed migration (`035`). | Phase B, before real traffic. |
+| `is_admin()` / `is_room_participant()` stay anon/authenticated-executable | Security (**accepted, permanent**) | They are RLS **helper** functions evaluated inside policies; revoking EXECUTE breaks legitimate RLS reads, and they leak nothing (return `false` for non-admins/non-participants). Not a TODO — a documented exception. | — |
+
+> **Scope note:** these are DB/infra items, not app features. In v1 the app is
+> frontend-only and never touches Supabase directly, so none of this is live surface
+> yet — it becomes security-relevant only once **Phase B** wires the app to Supabase
+> (Realtime / OAuth). Backend-side tracking: `promo_backend/docs/REQUIREMENTS_STATUS.md`
+> (Phase 21) + `MEMORY_BANK.md` (decisions #34–#36).
 
 ---
 

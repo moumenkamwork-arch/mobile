@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -110,10 +111,11 @@ class _NotificationsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back',
+          tooltip: l10n.commonBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
@@ -123,14 +125,12 @@ class _NotificationsHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Notifications',
+                l10n.headerNotifications,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
-                unreadCount == 0
-                    ? 'No unread notifications.'
-                    : '$unreadCount unread notifications',
+                l10n.notificationsUnreadSubtitle(unreadCount),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -138,7 +138,7 @@ class _NotificationsHeader extends StatelessWidget {
         ),
         TextButton(
           onPressed: onMarkAllRead,
-          child: const Text('Mark all read'),
+          child: Text(l10n.notificationsMarkAllRead),
         ),
       ],
     );
@@ -162,16 +162,19 @@ class _NotificationsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return switch (state.status) {
-      NotificationsStatus.loading => const SizedBox(
+      NotificationsStatus.loading => SizedBox(
         height: 420,
-        child: PromooLoadingIndicator(message: 'Loading notifications'),
+        child: PromooLoadingIndicator(
+          message: l10n.notificationsLoadingMessage,
+        ),
       ),
-      NotificationsStatus.empty => const SizedBox(
+      NotificationsStatus.empty => SizedBox(
         height: 420,
         child: PromooEmptyState(
-          title: 'No notifications',
-          message: 'Promoo updates and messages will appear here.',
+          title: l10n.notificationsEmptyTitle,
+          message: l10n.notificationsEmptyMessage,
           icon: Icons.notifications_none_rounded,
         ),
       ),
@@ -180,20 +183,22 @@ class _NotificationsBody extends StatelessWidget {
             ? SizedBox(
                 height: 420,
                 child: PromooEmptyState(
-                  title: 'Login required',
+                  title: l10n.commonLoginRequiredTitle,
                   message:
                       state.failure?.message ??
-                      'Sign in to view notifications.',
+                      l10n.notificationsAuthRequiredMessage,
                   icon: Icons.lock_outline_rounded,
-                  actionLabel: 'Go to login',
+                  actionLabel: l10n.commonGoToLogin,
                   onActionPressed: onLogin,
                 ),
               )
             : SizedBox(
                 height: 420,
                 child: PromooErrorState(
-                  title: 'Could not load notifications',
-                  message: state.failure?.message ?? 'Something went wrong.',
+                  title: l10n.notificationsErrorTitle,
+                  message:
+                      state.failure?.message ??
+                      l10n.commonSomethingWentWrongShort,
                   onRetry: onRetry,
                 ),
               ),

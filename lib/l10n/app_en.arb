@@ -260,5 +260,272 @@
   "seatsCheckoutCvv": "CVV",
   "seatsCheckoutPreviewPayment": "Preview payment",
   "seatsCheckoutPreviewOnlyNotice": "Checkout preview only. No payment was processed.",
-  "seatsCheckoutNextPhaseNotice": "Booking and payment open in the next phase."
+  "seatsCheckoutNextPhaseNotice": "Booking and payment open in the next phase.",
+
+  "leaderboardLoadingMessage": "Loading leaderboard",
+  "leaderboardRefreshErrorFallback": "Could not refresh leaderboard.",
+  "leaderboardErrorTitle": "Could not load leaderboard",
+  "leaderboardScreenTitle": "Cup",
+  "leaderboardScreenSubtitle": "The Promoo leaderboard ranked by follower reach.",
+  "leaderboardEmptyTitle": "No leaderboard yet",
+  "leaderboardEmptyMessage": "Ranked profiles will appear here when they are available.",
+  "leaderboardPodiumTitle": "Top of the Cup",
+  "leaderboardPodiumSubtitle": "Followers-based Promoo standings",
+  "leaderboardChampionLine": "Champion / {followers}",
+  "@leaderboardChampionLine": {
+    "placeholders": {
+      "followers": { "type": "String" }
+    }
+  },
+  "leaderboardRankingTitle": "Ranking",
+  "leaderboardRankingSubtitle": "Active companies, influencers, and service providers",
+
+  "leaderboardFollowersCount": "{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}",
+  "@leaderboardFollowersCount": {
+    "placeholders": {
+      "count": { "type": "num" }
+    }
+  },
+  "leaderboardFollowersCompact": "{compact} followers",
+  "@leaderboardFollowersCompact": {
+    "placeholders": {
+      "compact": { "type": "String" }
+    }
+  },
+  "leaderboardAccountTypeFallback": "Promoo profile",
+
+  "commonSelectCategory": "Select category",
+
+  "profileLoadingMessage": "Loading profile",
+  "profileEmptyTitle": "Profile not found",
+  "profileEmptyMessage": "This profile is unavailable or no longer exists.",
+  "profileRefreshErrorFallback": "Could not refresh profile.",
+  "profileErrorTitle": "Could not load profile",
+
+  "profileActionFollow": "Follow",
+  "profileActionFollowing": "Following",
+  "profileActionMessage": "Message",
+  "profileActionEditProfile": "Edit profile",
+
+  "profileFeaturedBadge": "Featured",
+  "profileAccountTypeUser": "User",
+
+  "profileStatsFollowers": "Followers",
+  "profileStatsLikes": "Likes",
+  "profileStatsPosts": "Posts",
+  "profileStatsViews": "Views",
+
+  "profilePackagesTitle": "Packages",
+  "profilePackagesSubtitle": "Profile services ready for client discovery",
+  "profilePackagesEmptyTitle": "No packages yet",
+  "profilePackagesEmptyMessage": "Profile packages will appear here when available.",
+  "profilePackageContactOnly": "Contact only",
+
+  "profileMediaTitle": "Media",
+  "profileMediaSubtitle": "Recent profile posts and campaign visuals",
+  "profileMediaEmptyTitle": "No media yet",
+  "profileMediaEmptyMessage": "Profile media will appear here when it is available.",
+  "profileMediaItemSemantic": "Profile media item {index}",
+  "@profileMediaItemSemantic": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "profileMediaCloseTooltip": "Close media",
+  "profileMediaCommentsLabel": "Comments",
+  "profileMediaShareLabel": "Share",
+
+  "profileAboutTitle": "About",
+  "profileAboutFallback": "Profile details will appear here soon.",
+
+  "profileEditScreenTitle": "Edit Profile",
+  "profileEditUnavailableTitle": "Profile unavailable",
+  "profileEditUnavailableMessage": "Could not load your profile right now.",
+  "profileEditChangePhoto": "Change profile photo",
+  "profileEditChangePhotoComingSoon": "Changing the profile photo arrives with uploads in the next phase.",
+  "profileEditFieldName": "Name",
+  "profileEditFieldBio": "Subtitle / Bio",
+  "profileEditFieldLocation": "Location",
+  "profileEditFieldCategory": "Category",
+  "profileEditCategoryComingSoon": "Category selection will be enabled in the next phase.",
+  "profileEditPostLabel": "Post {index}",
+  "@profileEditPostLabel": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "profileEditSaveButton": "Save",
+  "profileEditSaveComingSoon": "Profile changes will sync with your account in the next phase.",
+
+  "profileFollowingEmptyTitle": "No follows yet",
+  "profileFollowingEmptyMessage": "Profiles you follow will appear here.",
+
+  "profileMyPackagesBasicTitle": "Basic Package",
+  "profileMyPackagesStandardTitle": "Standard Package",
+  "profileMyPackagesPremiumTitle": "Premium Package",
+  "profileMyPackagesBasicPosts": "Includes 3 posts",
+  "profileMyPackagesStandardPosts": "Includes 6 posts",
+  "profileMyPackagesPremiumPosts": "Includes 12 posts",
+  "profileMyPackagesBullet1": "Professionally designed social media posts",
+  "profileMyPackagesBullet2": "High-quality content tailored to your brand",
+  "profileMyPackagesBullet3": "Guaranteed fast delivery within 24 hours",
+  "profileMyPackagesGuaranteeLabel": "Guarantee:",
+  "profileMyPackagesGuaranteeBullet1": "Trust that your content will reach more than 1,000 people.",
+  "profileMyPackagesGuaranteeBullet2": "Your engagement and visibility are our top priority.",
+  "profileMyPackagesTapToView": "Tap to view details and proceed to secure checkout.",
+  "profileMyPackagesCheckoutComingSoon": "Package checkout will be available in the next phase.",
+
+  "profileSavedEmptyTitle": "Nothing saved yet",
+  "profileSavedEmptyMessage": "Bookmark offers and services to find them here.",
+  "profileSavedRemoveTooltip": "Remove from saved",
+
+  "profileSupportHeroTitle": "We are here 24/7",
+  "profileSupportHeroBody": "Questions about offers, seats, or your account? Reach the Promoo team any time.",
+  "profileSupportChatLabel": "Chat with support",
+  "profileSupportMessageTitle": "Send us a message",
+  "profileSupportMessageHint": "Describe your issue or question",
+  "profileSupportSendButton": "Send",
+  "profileSupportComingSoon": "Support messaging will be connected in the next phase.",
+
+  "staticInfoAboutBody": "Promoo is a premium marketplace connecting companies, influencers, and service providers across the UAE.\n\nDiscover offers, book influencer seats, promote your brand, and grow your reach — all in one place, in AED.",
+  "staticInfoTermsTitle": "Terms And Condition",
+  "staticInfoTermsBody": "By using Promoo you agree to use the platform fairly and lawfully.\n\n• Content you publish must be accurate and owned by you.\n• Paid placements (seats, featured offers) follow the posted pricing at the time of purchase.\n• Accounts that violate our community standards may be suspended.\n\nThe full legal terms will be published here before the public store release.",
+  "staticInfoPrivacyBody": "Your privacy matters to Promoo.\n\n• We only collect the data needed to run your account and show relevant content.\n• Your data is never sold to third parties.\n• You can request account deletion at any time.\n\nThe full privacy policy will be published here before the public store release.",
+
+  "addCommonTitleLabel": "Title",
+  "addCommonDescriptionLabel": "Description",
+  "addCommonCategoryLabel": "Category",
+  "addCommonTagsLabel": "Tags",
+  "addCommonTagsHint": "Comma separated tags",
+  "addCommonCancelButton": "Cancel",
+  "addCommonUploadCaption": "JPG, PNG up to 2MB",
+  "addCommonMediaUploadComingSoon": "Media upload will be enabled in the next phase.",
+  "addCommonCategoryBeautyWellness": "Beauty & Wellness",
+  "addCommonCategoryRestaurantsCafes": "Restaurants & Cafes",
+  "addCommonCategoryEventsPhotography": "Events & Photography",
+  "addCommonCategoryDigitalMarketing": "Digital Marketing",
+
+  "addOfferCreateButton": "Create Offer",
+  "addOfferDetailsTitle": "Offer Details",
+  "addOfferTitleHint": "Offer title",
+  "addOfferDescriptionHint": "Describe your offer (at least 10 characters)",
+  "addOfferPricingTitle": "Pricing",
+  "addOfferOriginalPriceLabel": "Original Price",
+  "addOfferOfferPriceLabel": "Offer Price",
+  "addOfferDiscountLabel": "Discount %",
+  "addOfferDiscountOptionalHint": "Optional",
+  "addOfferDiscountNote": "Leave empty to auto-calculate from the prices above.",
+  "addOfferScheduleTitle": "Schedule",
+  "addOfferStartDateLabel": "Start Date",
+  "addOfferEndDateLabel": "End Date",
+  "addOfferSelectDate": "Select date",
+  "addOfferMainImageLabel": "Main Image",
+  "addOfferAdditionalImageLabel": "Additional Image",
+  "addOfferUploadMainImage": "Upload main image",
+  "addOfferUploadAdditionalImages": "Upload additional images",
+  "addOfferReadySnackbar": "Your offer is ready! Publishing will be enabled in the next phase.",
+
+  "addServiceCreateButton": "Create Service",
+  "addServiceDetailsTitle": "Service Details",
+  "addServiceTitleHint": "Service title",
+  "addServiceDescriptionHint": "Describe your service (at least 10 characters)",
+  "addServicePricingTitle": "Pricing & Delivery",
+  "addServiceDeliveryLabel": "Delivery",
+  "addServiceDeliveryHint": "e.g. 3",
+  "addServiceDaysSuffix": "days",
+  "addServiceImagesLabel": "Images",
+  "addServiceUploadImages": "Upload service images",
+  "addServiceReadySnackbar": "Your service is ready! Publishing will be enabled in the next phase.",
+
+  "addAdScreenTitle": "Add New AD",
+  "addAdStepBasic": "Basic Ad Details",
+  "addAdStepLocation": "Location Information",
+  "addAdStepContact": "Contact Information",
+  "addAdStepPricing": "Pricing Information",
+  "addAdTitleLabel": "Ad Title",
+  "addAdUploadImagesLabel": "Upload additional images",
+  "addAdPostDateLabel": "Post Date",
+  "addAdSelectDateCap": "Select Date",
+  "addAdTagsHint": "Add Tags",
+  "addAdCityLabel": "City",
+  "addAdSelectCity": "Select City",
+  "addAdAreaLabel": "Area",
+  "addAdSelectArea": "Select Area",
+  "addAdFullAddressLabel": "full Address",
+  "addAdFullAddressHint": "Full Address",
+  "addAdLocationMapLabel": "Location Map",
+  "addAdUploadLocationMap": "Upload Location Map",
+  "addAdLocationMapCaption": "Please upload location map",
+  "addAdPhoneLabel": "Phone Number",
+  "addAdWhatsappLabel": "Whatsapp Number",
+  "addAdInstagramLabel": "Instagram Link",
+  "addAdCurrencyLabel": "Currency",
+  "addAdSelectCurrency": "Select Currency",
+  "addAdServiceProductLabel": "Service / Product",
+  "addAdSelectType": "Select Type",
+  "addAdPaymentMethodLabel": "Payment Method",
+  "addAdSelectPaymentMethod": "Select Payment Method",
+  "addAdNextButton": "Next",
+  "addAdCreateButton": "Create AD",
+  "addAdReadySnackbar": "Your ad is ready! Publishing will be enabled in the next phase.",
+
+  "addAdCityDubai": "Dubai",
+  "addAdCityAbuDhabi": "Abu Dhabi",
+  "addAdCitySharjah": "Sharjah",
+  "addAdCityAjman": "Ajman",
+  "addAdCityRasAlKhaimah": "Ras Al Khaimah",
+  "addAdCityFujairah": "Fujairah",
+  "addAdCityUmmAlQuwain": "Umm Al Quwain",
+  "addAdCityAlAin": "Al Ain",
+
+  "commonSomethingWentWrongShort": "Something went wrong.",
+  "commonLoginRequiredTitle": "Login required",
+  "commonGoToLogin": "Go to login",
+
+  "chatWriteMessageHint": "Write a message",
+  "chatSendButton": "Send",
+  "chatSendingButton": "Sending",
+  "chatNoMessagesYet": "No messages yet",
+
+  "chatListSubtitle": "Keep campaign conversations in one place.",
+  "chatLoadingMessage": "Loading chats",
+  "chatEmptyTitle": "No chats yet",
+  "chatEmptyMessage": "Your conversations will appear here.",
+  "chatErrorTitle": "Could not load chats",
+  "chatAuthRequiredMessage": "Sign in to use Promoo chat.",
+
+  "chatConversationTitle": "Conversation",
+  "chatRoomLoadingMessage": "Loading messages",
+  "chatRoomEmptyMessage": "Start the conversation with a short message.",
+  "chatRoomAuthRequiredMessage": "Sign in to open this conversation.",
+  "chatRoomErrorTitle": "Could not load messages",
+
+  "chatMessageStatusSending": "Sending",
+  "chatMessageStatusSent": "Sent",
+  "chatMessageStatusDelivered": "Delivered",
+  "chatMessageStatusRead": "Read",
+  "chatMessageStatusFailed": "Failed",
+  "chatMessageStatusUnknown": "Unknown",
+
+  "notificationDeleteTooltip": "Delete notification",
+
+  "notificationsUnreadSubtitle": "{count, plural, =0{No unread notifications.} =1{1 unread notification} other{{count} unread notifications}}",
+  "@notificationsUnreadSubtitle": {
+    "placeholders": {
+      "count": { "type": "num" }
+    }
+  },
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsLoadingMessage": "Loading notifications",
+  "notificationsEmptyTitle": "No notifications",
+  "notificationsEmptyMessage": "Promoo updates and messages will appear here.",
+  "notificationsAuthRequiredMessage": "Sign in to view notifications.",
+  "notificationsErrorTitle": "Could not load notifications",
+
+  "notificationTypeFollow": "Follow",
+  "notificationTypeMessage": "Message",
+  "notificationTypeOffer": "Offer",
+  "notificationTypeSystem": "System",
+  "notificationTypePayment": "Payment",
+  "notificationTypeUnknown": "Notification"
 }

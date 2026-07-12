@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_spacing.dart';
@@ -13,18 +14,19 @@ class ProfilePackagesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PromooSectionHeader(
-          title: 'Packages',
-          subtitle: 'Profile services ready for client discovery',
+        PromooSectionHeader(
+          title: l10n.profilePackagesTitle,
+          subtitle: l10n.profilePackagesSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         if (packages.isEmpty)
-          const PromooEmptyState(
-            title: 'No packages yet',
-            message: 'Profile packages will appear here when available.',
+          PromooEmptyState(
+            title: l10n.profilePackagesEmptyTitle,
+            message: l10n.profilePackagesEmptyMessage,
             icon: Icons.local_offer_rounded,
           )
         else

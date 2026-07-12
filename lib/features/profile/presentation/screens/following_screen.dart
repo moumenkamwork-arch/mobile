@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
@@ -70,14 +71,15 @@ class _FollowingScreenState extends State<FollowingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooSubpageScaffold(
-      title: 'Following',
+      title: l10n.menuFollowing,
       child: _following.isEmpty
-          ? const Padding(
-              padding: EdgeInsetsDirectional.only(top: AppSpacing.xxl),
+          ? Padding(
+              padding: const EdgeInsetsDirectional.only(top: AppSpacing.xxl),
               child: PromooEmptyState(
-                title: 'No follows yet',
-                message: 'Profiles you follow will appear here.',
+                title: l10n.profileFollowingEmptyTitle,
+                message: l10n.profileFollowingEmptyMessage,
               ),
             )
           : Column(
@@ -169,11 +171,15 @@ class _FollowingRow extends StatelessWidget {
               isFollowing
                   ? OutlinedButton(
                       onPressed: onToggleFollow,
-                      child: const Text('Following'),
+                      child: Text(
+                        AppLocalizations.of(context).profileActionFollowing,
+                      ),
                     )
                   : FilledButton(
                       onPressed: onToggleFollow,
-                      child: const Text('Follow'),
+                      child: Text(
+                        AppLocalizations.of(context).profileActionFollow,
+                      ),
                     ),
             ],
           ),

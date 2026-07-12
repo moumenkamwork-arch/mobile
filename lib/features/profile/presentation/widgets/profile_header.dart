@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/promoo_profile.dart';
+import 'profile_account_type_label.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key, required this.profile});
@@ -75,12 +77,22 @@ class ProfileHeader extends StatelessWidget {
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
                   children: [
-                    _MetaChip(label: profile.accountType.label),
+                    _MetaChip(
+                      label: profileAccountTypeLabel(
+                        context,
+                        profile.accountType,
+                      ),
+                    ),
                     if (profile.categoryName != null)
                       _MetaChip(label: profile.categoryName!),
                     if (profile.location != null)
                       _MetaChip(label: profile.location!),
-                    if (profile.isFeatured) const _MetaChip(label: 'Featured'),
+                    if (profile.isFeatured)
+                      _MetaChip(
+                        label: AppLocalizations.of(
+                          context,
+                        ).profileFeaturedBadge,
+                      ),
                   ],
                 ),
                 if (profile.bio != null && profile.bio!.trim().isNotEmpty) ...[

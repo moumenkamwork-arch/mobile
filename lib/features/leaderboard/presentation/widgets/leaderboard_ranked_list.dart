@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/leaderboard_profile.dart';
@@ -20,12 +21,13 @@ class LeaderboardRankedList extends StatelessWidget {
     final sortedProfiles = [...profiles]
       ..sort((a, b) => a.rank.value.compareTo(b.rank.value));
 
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PromooSectionHeader(
-          title: 'Ranking',
-          subtitle: 'Active companies, influencers, and service providers',
+        PromooSectionHeader(
+          title: l10n.leaderboardRankingTitle,
+          subtitle: l10n.leaderboardRankingSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         for (var i = 0; i < sortedProfiles.length; i++) ...[

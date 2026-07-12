@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/leaderboard_profile.dart';
+import 'leaderboard_labels.dart';
 
 class LeaderboardPodium extends StatelessWidget {
   const LeaderboardPodium({
@@ -58,12 +60,12 @@ class LeaderboardPodium extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Top of the Cup',
+                      AppLocalizations.of(context).leaderboardPodiumTitle,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      'Followers-based Promoo standings',
+                      AppLocalizations.of(context).leaderboardPodiumSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -159,7 +161,9 @@ class _ChampionTile extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
-                'Champion / ${profile.followersLabel}',
+                AppLocalizations.of(context).leaderboardChampionLine(
+                  leaderboardFollowersLabel(context, profile),
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
@@ -218,7 +222,7 @@ class _RunnerUpTile extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  profile.followersLabel,
+                  leaderboardFollowersLabel(context, profile),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

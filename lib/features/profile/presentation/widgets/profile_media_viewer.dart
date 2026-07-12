@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -85,7 +86,7 @@ class ProfileMediaViewer extends StatelessWidget {
             top: AppSpacing.sm,
             start: AppSpacing.sm,
             child: IconButton.filled(
-              tooltip: 'Close media',
+              tooltip: AppLocalizations.of(context).profileMediaCloseTooltip,
               onPressed: () => Navigator.of(context).pop(),
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.overlay,
@@ -123,30 +124,31 @@ class _MediaEngagementRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _EngagementAction(
           icon: Icons.favorite_rounded,
-          label: 'Likes',
+          label: l10n.profileStatsLikes,
           value: item.likesLabel,
         ),
         const SizedBox(height: AppSpacing.md),
         _EngagementAction(
           icon: Icons.chat_bubble_rounded,
-          label: 'Comments',
+          label: l10n.profileMediaCommentsLabel,
           value: item.commentsLabel,
         ),
         const SizedBox(height: AppSpacing.md),
         _EngagementAction(
           icon: Icons.ios_share_rounded,
-          label: 'Share',
+          label: l10n.profileMediaShareLabel,
           value: item.sharesLabel,
         ),
         const SizedBox(height: AppSpacing.md),
         _EngagementAction(
           icon: Icons.visibility_rounded,
-          label: 'Views',
+          label: l10n.profileStatsViews,
           value: item.viewsLabel,
         ),
       ],

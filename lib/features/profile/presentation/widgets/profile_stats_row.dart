@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -12,16 +13,17 @@ class ProfileStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       child: Row(
         children: [
-          _StatItem(label: 'Followers', value: stats.followers),
+          _StatItem(label: l10n.profileStatsFollowers, value: stats.followers),
           _Divider(),
-          _StatItem(label: 'Likes', value: stats.likes),
+          _StatItem(label: l10n.profileStatsLikes, value: stats.likes),
           _Divider(),
-          _StatItem(label: 'Posts', value: stats.posts),
+          _StatItem(label: l10n.profileStatsPosts, value: stats.posts),
           _Divider(),
-          _StatItem(label: 'Views', value: stats.views),
+          _StatItem(label: l10n.profileStatsViews, value: stats.views),
         ],
       ),
     );

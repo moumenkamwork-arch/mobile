@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../theme/app_spacing.dart';
 
@@ -21,9 +22,10 @@ class ProfileActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (isOwner) {
       return PromooButton.secondary(
-        label: 'Edit profile',
+        label: l10n.profileActionEditProfile,
         icon: Icons.edit_rounded,
         onPressed: onEditPressed,
         fullWidth: true,
@@ -36,13 +38,13 @@ class ProfileActionBar extends StatelessWidget {
           // Instagram-style toggle: filled "Follow" ↔ outlined "Following".
           child: isFollowing
               ? PromooButton.secondary(
-                  label: 'Following',
+                  label: l10n.profileActionFollowing,
                   icon: Icons.check_rounded,
                   onPressed: onFollowPressed,
                   fullWidth: true,
                 )
               : PromooButton.primary(
-                  label: 'Follow',
+                  label: l10n.profileActionFollow,
                   icon: Icons.person_add_alt_1_rounded,
                   onPressed: onFollowPressed,
                   fullWidth: true,
@@ -51,7 +53,7 @@ class ProfileActionBar extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: PromooButton.secondary(
-            label: 'Message',
+            label: l10n.profileActionMessage,
             icon: Icons.chat_bubble_outline_rounded,
             onPressed: onMessagePressed,
             fullWidth: true,

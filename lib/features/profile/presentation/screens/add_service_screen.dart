@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../widgets/add_category_label.dart';
 
 /// "Add New Service" single-page creation form.
 ///
@@ -21,13 +23,6 @@ class AddServiceScreen extends StatefulWidget {
 }
 
 class _AddServiceScreenState extends State<AddServiceScreen> {
-  static const _categories = [
-    'Beauty & Wellness',
-    'Restaurants & Cafes',
-    'Events & Photography',
-    'Digital Marketing',
-  ];
-
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
@@ -48,10 +43,11 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooSubpageScaffold(
-      title: 'Add New Service',
+      title: l10n.menuAddService,
       bottomBar: _FormActions(
-        submitLabel: 'Create Service',
+        submitLabel: l10n.addServiceCreateButton,
         onSubmit: _createService,
         onCancel: () => Navigator.of(context).maybePop(),
       ),
@@ -59,44 +55,46 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SectionCard(
-            title: 'Service Details',
+            title: l10n.addServiceDetailsTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _FieldLabel('Title'),
+                _FieldLabel(l10n.addCommonTitleLabel),
                 PromooTextField(
                   controller: _titleController,
-                  hint: 'Service title',
+                  hint: l10n.addServiceTitleHint,
                   textInputAction: TextInputAction.next,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Description'),
+                _FieldLabel(l10n.addCommonDescriptionLabel),
                 PromooTextField(
                   controller: _descriptionController,
-                  hint: 'Describe your service (at least 10 characters)',
+                  hint: l10n.addServiceDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Category'),
+                _FieldLabel(l10n.addCommonCategoryLabel),
                 _PickerField(
-                  hint: _category ?? 'Select category',
+                  hint: _category == null
+                      ? l10n.commonSelectCategory
+                      : addCategoryLabel(context, _category!),
                   isPlaceholder: _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Tags'),
+                _FieldLabel(l10n.addCommonTagsLabel),
                 PromooTextField(
                   controller: _tagsController,
-                  hint: 'Comma separated tags',
+                  hint: l10n.addCommonTagsHint,
                 ),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
-            title: 'Pricing & Delivery',
+            title: l10n.addServicePricingTitle,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -104,7 +102,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const _FieldLabel('Price'),
+                      _FieldLabel(l10n.commonPrice),
                       PromooTextField(
                         controller: _priceController,
                         hint: '0.00',
@@ -121,12 +119,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const _FieldLabel('Delivery'),
+                      _FieldLabel(l10n.addServiceDeliveryLabel),
                       PromooTextField(
                         controller: _deliveryController,
-                        hint: 'e.g. 3',
+                        hint: l10n.addServiceDeliveryHint,
                         keyboardType: TextInputType.number,
-                        suffixIcon: const _Adornment('days'),
+                        suffixIcon: _Adornment(l10n.addServiceDaysSuffix),
                       ),
                     ],
                   ),
@@ -136,15 +134,15 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
-            title: 'Media',
+            title: l10n.profileMediaTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _FieldLabel('Images'),
+                _FieldLabel(l10n.addServiceImagesLabel),
                 _UploadBox(
                   icon: Icons.add_photo_alternate_outlined,
-                  label: 'Upload service images',
-                  caption: 'JPG, PNG up to 2MB',
+                  label: l10n.addServiceUploadImages,
+                  caption: l10n.addCommonUploadCaption,
                   onTap: _showUploadNotice,
                 ),
               ],
@@ -156,6 +154,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _pickCategory() async {
+    final l10n = AppLocalizations.of(context);
     final selected = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: context.colors.elevatedSurface,
@@ -169,13 +168,13 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  'Select category',
+                  l10n.commonSelectCategory,
                   style: Theme.of(sheetContext).textTheme.titleMedium,
                 ),
               ),
-              for (final option in _categories)
+              for (final option in addCategoryValues)
                 ListTile(
-                  title: Text(option),
+                  title: Text(addCategoryLabel(sheetContext, option)),
                   trailing: option == _category
                       ? Icon(
                           Icons.check_rounded,
@@ -196,13 +195,11 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   void _showUploadNotice() {
-    _showNotice('Media upload will be enabled in the next phase.');
+    _showNotice(AppLocalizations.of(context).addCommonMediaUploadComingSoon);
   }
 
   void _createService() {
-    _showNotice(
-      'Your service is ready! Publishing will be enabled in the next phase.',
-    );
+    _showNotice(AppLocalizations.of(context).addServiceReadySnackbar);
     Navigator.of(context).maybePop();
   }
 
@@ -236,7 +233,7 @@ class _FormActions extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         PromooButton.secondary(
-          label: 'Cancel',
+          label: AppLocalizations.of(context).addCommonCancelButton,
           fullWidth: true,
           onPressed: onCancel,
         ),

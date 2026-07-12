@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -64,14 +65,15 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooSubpageScaffold(
-      title: 'Saved',
+      title: l10n.menuSaved,
       child: _items.isEmpty
-          ? const Padding(
-              padding: EdgeInsetsDirectional.only(top: AppSpacing.xxl),
+          ? Padding(
+              padding: const EdgeInsetsDirectional.only(top: AppSpacing.xxl),
               child: PromooEmptyState(
-                title: 'Nothing saved yet',
-                message: 'Bookmark offers and services to find them here.',
+                title: l10n.profileSavedEmptyTitle,
+                message: l10n.profileSavedEmptyMessage,
               ),
             )
           : Column(
@@ -115,7 +117,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Remove from saved',
+                          tooltip: l10n.profileSavedRemoveTooltip,
                           onPressed: () {
                             setState(() {
                               _items.removeWhere((it) => it.id == item.id);

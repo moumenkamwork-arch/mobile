@@ -12,6 +12,8 @@ extension NotificationTypeValue on NotificationType {
     };
   }
 
+  /// English-only fallback for non-UI use. For display, use
+  /// `notificationTypeLabel(context, type)` instead.
   String get label {
     return switch (this) {
       NotificationType.follow => 'Follow',

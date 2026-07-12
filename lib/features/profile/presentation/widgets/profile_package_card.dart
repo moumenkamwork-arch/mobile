@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -13,6 +14,7 @@ class ProfilePackageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,8 +64,12 @@ class ProfilePackageCard extends StatelessWidget {
                     if (package.categoryName != null)
                       _Chip(label: package.categoryName!),
                     if (package.deliveryDays != null)
-                      _Chip(label: '${package.deliveryDays} day delivery'),
-                    const _Chip(label: 'Contact only'),
+                      _Chip(
+                        label: l10n.servicesDeliveryDaysLabel(
+                          package.deliveryDays!,
+                        ),
+                      ),
+                    _Chip(label: l10n.profilePackageContactOnly),
                   ],
                 ),
               ],

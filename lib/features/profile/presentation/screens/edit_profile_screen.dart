@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/result.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -35,17 +36,18 @@ class EditProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(editProfileSourceProvider);
+    final l10n = AppLocalizations.of(context);
 
     return PromooSubpageScaffold(
-      title: 'Edit Profile',
+      title: l10n.profileEditScreenTitle,
       child: profileAsync.when(
         loading: () => const Padding(
           padding: EdgeInsetsDirectional.only(top: AppSpacing.xxl),
           child: Center(child: PromooLoadingIndicator()),
         ),
         error: (error, _) => PromooErrorState(
-          title: 'Profile unavailable',
-          message: 'Could not load your profile right now.',
+          title: l10n.profileEditUnavailableTitle,
+          message: l10n.profileEditUnavailableMessage,
           onRetry: () => ref.invalidate(editProfileSourceProvider),
         ),
         data: (profile) => _EditProfileForm(profile: profile),
@@ -89,6 +91,7 @@ class _EditProfileFormState extends State<_EditProfileForm> {
   @override
   Widget build(BuildContext context) {
     final profile = widget.profile;
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,16 +145,15 @@ class _EditProfileFormState extends State<_EditProfileForm> {
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
-                    '${profile.stats.followers} Followers',
+                    l10n.leaderboardFollowersCount(profile.stats.followers),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   InkWell(
-                    onTap: () => _showNotice(
-                      'Changing the profile photo arrives with uploads in the next phase.',
-                    ),
+                    onTap: () =>
+                        _showNotice(l10n.profileEditChangePhotoComingSoon),
                     child: Text(
-                      'Change profile photo',
+                      l10n.profileEditChangePhoto,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: context.colors.accent,
                         fontWeight: FontWeight.w700,
@@ -166,13 +168,13 @@ class _EditProfileFormState extends State<_EditProfileForm> {
         const SizedBox(height: AppSpacing.lg),
         _FieldCard(
           icon: Icons.person_outline_rounded,
-          label: 'Name',
+          label: l10n.profileEditFieldName,
           child: PromooTextField(controller: _nameController),
         ),
         const SizedBox(height: AppSpacing.md),
         _FieldCard(
           icon: Icons.info_outline_rounded,
-          label: 'Subtitle / Bio',
+          label: l10n.profileEditFieldBio,
           child: PromooTextField(controller: _bioController),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -182,7 +184,7 @@ class _EditProfileFormState extends State<_EditProfileForm> {
             Expanded(
               child: _FieldCard(
                 icon: Icons.location_on_outlined,
-                label: 'Location',
+                label: l10n.profileEditFieldLocation,
                 child: PromooTextField(controller: _locationController),
               ),
             ),
@@ -190,15 +192,13 @@ class _EditProfileFormState extends State<_EditProfileForm> {
             Expanded(
               child: _FieldCard(
                 icon: Icons.category_outlined,
-                label: 'Category',
+                label: l10n.profileEditFieldCategory,
                 child: InkWell(
-                  onTap: () => _showNotice(
-                    'Category selection will be enabled in the next phase.',
-                  ),
+                  onTap: () => _showNotice(l10n.profileEditCategoryComingSoon),
                   child: InputDecorator(
                     decoration: const InputDecoration(),
                     child: Text(
-                      profile.categoryName ?? 'Select category',
+                      profile.categoryName ?? l10n.commonSelectCategory,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge,
@@ -210,7 +210,10 @@ class _EditProfileFormState extends State<_EditProfileForm> {
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text('Media', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          l10n.profileMediaTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: AppSpacing.sm),
         GridView.builder(
           shrinkWrap: true,
@@ -225,18 +228,16 @@ class _EditProfileFormState extends State<_EditProfileForm> {
           itemBuilder: (context, index) {
             return _MediaTile(
               imageUrl: profile.mediaUrls[index],
-              title: 'Post ${index + 1}',
+              title: l10n.profileEditPostLabel(index + 1),
               views: '${(index + 1) * 10}.4K',
             );
           },
         ),
         const SizedBox(height: AppSpacing.lg),
         PromooButton.primary(
-          label: 'Save',
+          label: l10n.profileEditSaveButton,
           fullWidth: true,
-          onPressed: () => _showNotice(
-            'Profile changes will sync with your account in the next phase.',
-          ),
+          onPressed: () => _showNotice(l10n.profileEditSaveComingSoon),
         ),
       ],
     );

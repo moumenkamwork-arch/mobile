@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -13,20 +14,33 @@ import '../../../../theme/app_spacing.dart';
 class MyPackagesScreen extends StatelessWidget {
   const MyPackagesScreen({super.key});
 
-  static const _packages = [
-    (title: 'Basic Package', price: '99.0 AED', posts: 'Includes 3 posts'),
-    (title: 'Standard Package', price: '149.0 AED', posts: 'Includes 6 posts'),
-    (title: 'Premium Package', price: '249.0 AED', posts: 'Includes 12 posts'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final packages = [
+      (
+        title: l10n.profileMyPackagesBasicTitle,
+        price: '99.0 AED',
+        posts: l10n.profileMyPackagesBasicPosts,
+      ),
+      (
+        title: l10n.profileMyPackagesStandardTitle,
+        price: '149.0 AED',
+        posts: l10n.profileMyPackagesStandardPosts,
+      ),
+      (
+        title: l10n.profileMyPackagesPremiumTitle,
+        price: '249.0 AED',
+        posts: l10n.profileMyPackagesPremiumPosts,
+      ),
+    ];
+
     return PromooSubpageScaffold(
-      title: 'Packages',
+      title: l10n.profilePackagesTitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final package in _packages) ...[
+          for (final package in packages) ...[
             _PackageCard(
               title: package.title,
               price: package.price,
@@ -55,6 +69,7 @@ class _PackageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
     // Gold ink in light mode, brand yellow on black — same premium accent.
     final yellowTitle = theme.textTheme.titleLarge?.copyWith(
       color: colors.accent,
@@ -98,30 +113,26 @@ class _PackageCard extends StatelessWidget {
               style: theme.textTheme.titleMedium?.copyWith(fontSize: 18),
             ),
             const SizedBox(height: AppSpacing.xs),
-            const _Bullet('Professionally designed social media posts'),
-            const _Bullet('High-quality content tailored to your brand'),
-            const _Bullet('Guaranteed fast delivery within 24 hours'),
+            _Bullet(l10n.profileMyPackagesBullet1),
+            _Bullet(l10n.profileMyPackagesBullet2),
+            _Bullet(l10n.profileMyPackagesBullet3),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Guarantee:',
+              l10n.profileMyPackagesGuaranteeLabel,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colors.accent,
               ),
             ),
             const SizedBox(height: AppSpacing.xxs),
-            const _Bullet(
-              'Trust that your content will reach more than 1,000 people.',
-            ),
-            const _Bullet(
-              'Your engagement and visibility are our top priority.',
-            ),
+            _Bullet(l10n.profileMyPackagesGuaranteeBullet1),
+            _Bullet(l10n.profileMyPackagesGuaranteeBullet2),
             const Padding(
               padding: EdgeInsetsDirectional.symmetric(vertical: AppSpacing.sm),
               child: Divider(height: 1),
             ),
             Center(
               child: Text(
-                'Tap to view details and proceed to secure checkout.',
+                l10n.profileMyPackagesTapToView,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.accent.withValues(alpha: 0.75),
@@ -138,9 +149,9 @@ class _PackageCard extends StatelessWidget {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Package checkout will be available in the next phase.',
+            AppLocalizations.of(context).profileMyPackagesCheckoutComingSoon,
           ),
         ),
       );

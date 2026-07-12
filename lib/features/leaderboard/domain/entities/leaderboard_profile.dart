@@ -52,25 +52,18 @@ class LeaderboardProfile {
 
   int get displayScore => score ?? followersCount;
 
-  String get followersLabel {
+  /// Compact follower count with a K/M suffix ("48.6K", "1.2M") and no word —
+  /// the "followers" word is locale-dependent (grammar differs — see
+  /// `leaderboardFollowersLabel` in `leaderboard_podium.dart`), so it's
+  /// resolved in the presentation layer, not here.
+  String? get compactFollowersCount {
+    if (followersCount < 1000) {
+      return null;
+    }
     if (followersCount >= 1000000) {
-      final millions = followersCount / 1000000;
-      return '${_formatCompactNumber(millions)}M followers';
+      return '${_formatCompactNumber(followersCount / 1000000)}M';
     }
-    if (followersCount >= 1000) {
-      final thousands = followersCount / 1000;
-      return '${_formatCompactNumber(thousands)}K followers';
-    }
-    return '$followersCount followers';
-  }
-
-  String get accountTypeLabel {
-    return switch (accountType) {
-      'company' => 'Company',
-      'influencer' => 'Influencer',
-      'service_provider' => 'Service provider',
-      _ => 'Promoo profile',
-    };
+    return '${_formatCompactNumber(followersCount / 1000)}K';
   }
 }
 

@@ -1,6 +1,8 @@
 enum ChatMessageStatus { sending, sent, delivered, read, failed, unknown }
 
 extension ChatMessageStatusLabel on ChatMessageStatus {
+  /// English-only fallback for non-UI use. For display, use
+  /// `chatMessageStatusLabel(context, status)` instead.
   String get label {
     return switch (this) {
       ChatMessageStatus.sending => 'Sending',

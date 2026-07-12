@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
@@ -22,13 +23,6 @@ class AddAdWizardScreen extends StatefulWidget {
 }
 
 class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
-  static const _stepTitles = [
-    'Basic Ad Details',
-    'Location Information',
-    'Contact Information',
-    'Pricing Information',
-  ];
-
   static const _cities = [
     'Dubai',
     'Abu Dhabi',
@@ -88,10 +82,32 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     super.dispose();
   }
 
+  static String _cityLabel(BuildContext context, String city) {
+    final l10n = AppLocalizations.of(context);
+    return switch (city) {
+      'Dubai' => l10n.addAdCityDubai,
+      'Abu Dhabi' => l10n.addAdCityAbuDhabi,
+      'Sharjah' => l10n.addAdCitySharjah,
+      'Ajman' => l10n.addAdCityAjman,
+      'Ras Al Khaimah' => l10n.addAdCityRasAlKhaimah,
+      'Fujairah' => l10n.addAdCityFujairah,
+      'Umm Al Quwain' => l10n.addAdCityUmmAlQuwain,
+      'Al Ain' => l10n.addAdCityAlAin,
+      _ => city,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final stepTitles = [
+      l10n.addAdStepBasic,
+      l10n.addAdStepLocation,
+      l10n.addAdStepContact,
+      l10n.addAdStepPricing,
+    ];
     return PromooSubpageScaffold(
-      title: 'Add New AD',
+      title: l10n.addAdScreenTitle,
       bottomBar: _WizardActions(
         step: _step,
         onBack: () {
@@ -112,15 +128,15 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _StepIndicator(current: _step, total: _stepTitles.length),
+          _StepIndicator(current: _step, total: stepTitles.length),
           const SizedBox(height: AppSpacing.lg),
           _WizardCard(
-            title: _stepTitles[_step],
+            title: stepTitles[_step],
             child: switch (_step) {
-              0 => _buildBasicStep(),
-              1 => _buildLocationStep(),
-              2 => _buildContactStep(),
-              _ => _buildPricingStep(),
+              0 => _buildBasicStep(l10n),
+              1 => _buildLocationStep(l10n),
+              2 => _buildContactStep(l10n),
+              _ => _buildPricingStep(l10n),
             },
           ),
         ],
@@ -128,152 +144,160 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     );
   }
 
-  Widget _buildBasicStep() {
+  Widget _buildBasicStep(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _FieldLabel('Ad Title'),
-        PromooTextField(controller: _titleController, hint: 'Ad Title'),
+        _FieldLabel(l10n.addAdTitleLabel),
+        PromooTextField(
+          controller: _titleController,
+          hint: l10n.addAdTitleLabel,
+        ),
         const _FieldGap(),
-        const _FieldLabel('Description'),
+        _FieldLabel(l10n.addCommonDescriptionLabel),
         PromooTextField(
           controller: _descriptionController,
-          hint: 'Description',
+          hint: l10n.addCommonDescriptionLabel,
         ),
         const _FieldGap(),
-        const _FieldLabel('Main Image'),
+        _FieldLabel(l10n.addOfferMainImageLabel),
         _UploadBox(
           icon: Icons.add_photo_alternate_outlined,
-          label: 'Upload additional images',
-          caption: 'JPG, PNG up to 2MB',
+          label: l10n.addAdUploadImagesLabel,
+          caption: l10n.addCommonUploadCaption,
           onTap: _showUploadNotice,
         ),
         const _FieldGap(),
-        const _FieldLabel('Additional Image'),
+        _FieldLabel(l10n.addOfferAdditionalImageLabel),
         _UploadBox(
           icon: Icons.add_photo_alternate_outlined,
-          label: 'Upload additional images',
-          caption: 'JPG, PNG up to 2MB',
+          label: l10n.addAdUploadImagesLabel,
+          caption: l10n.addCommonUploadCaption,
           onTap: _showUploadNotice,
         ),
         const _FieldGap(),
-        const _FieldLabel('Post Date'),
+        _FieldLabel(l10n.addAdPostDateLabel),
         _PickerField(
           hint: _postDate == null
-              ? 'Select Date'
+              ? l10n.addAdSelectDateCap
               : '${_postDate!.year}-${_postDate!.month.toString().padLeft(2, '0')}-${_postDate!.day.toString().padLeft(2, '0')}',
           trailing: Icons.calendar_month_rounded,
           onTap: _pickDate,
         ),
         const _FieldGap(),
-        const _FieldLabel('Tags'),
-        PromooTextField(controller: _tagsController, hint: 'Add Tags'),
+        _FieldLabel(l10n.addCommonTagsLabel),
+        PromooTextField(controller: _tagsController, hint: l10n.addAdTagsHint),
       ],
     );
   }
 
-  Widget _buildLocationStep() {
+  Widget _buildLocationStep(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _FieldLabel('City'),
+        _FieldLabel(l10n.addAdCityLabel),
         _DropdownField(
-          hint: 'Select City',
-          value: _city,
-          items: _cities,
-          onChanged: (value) => setState(() {
-            _city = value;
+          hint: l10n.addAdSelectCity,
+          value: _city == null ? null : _cityLabel(context, _city!),
+          items: [for (final city in _cities) _cityLabel(context, city)],
+          onChanged: (label) => setState(() {
+            _city = label == null
+                ? null
+                : _cities.firstWhere((c) => _cityLabel(context, c) == label);
             _area = null;
           }),
         ),
         const _FieldGap(),
-        const _FieldLabel('Area'),
+        _FieldLabel(l10n.addAdAreaLabel),
         _DropdownField(
-          hint: 'Select Area',
+          hint: l10n.addAdSelectArea,
           value: _area,
           items: _areasByCity[_city] ?? const [],
           onChanged: (value) => setState(() => _area = value),
         ),
         const _FieldGap(),
-        const _FieldLabel('full Address'),
-        PromooTextField(controller: _addressController, hint: 'Full Address'),
+        _FieldLabel(l10n.addAdFullAddressLabel),
+        PromooTextField(
+          controller: _addressController,
+          hint: l10n.addAdFullAddressHint,
+        ),
         const _FieldGap(),
-        const _FieldLabel('Location Map'),
+        _FieldLabel(l10n.addAdLocationMapLabel),
         _UploadBox(
           icon: Icons.map_outlined,
-          label: 'Upload Location Map',
-          caption: 'Please upload location map',
+          label: l10n.addAdUploadLocationMap,
+          caption: l10n.addAdLocationMapCaption,
           onTap: _showUploadNotice,
         ),
       ],
     );
   }
 
-  Widget _buildContactStep() {
+  Widget _buildContactStep(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _FieldLabel('Phone Number'),
+        _FieldLabel(l10n.addAdPhoneLabel),
         PromooTextField(
           controller: _phoneController,
-          hint: 'Phone Number',
+          hint: l10n.addAdPhoneLabel,
           keyboardType: TextInputType.phone,
         ),
         const _FieldGap(),
-        const _FieldLabel('Whatsapp Number'),
+        _FieldLabel(l10n.addAdWhatsappLabel),
         PromooTextField(
           controller: _whatsappController,
-          hint: 'Whatsapp Number',
+          hint: l10n.addAdWhatsappLabel,
           keyboardType: TextInputType.phone,
         ),
         const _FieldGap(),
-        const _FieldLabel('Email'),
+        _FieldLabel(l10n.authFieldEmail),
         PromooTextField(
           controller: _emailController,
-          hint: 'Email',
+          hint: l10n.authFieldEmail,
           keyboardType: TextInputType.emailAddress,
         ),
         const _FieldGap(),
-        const _FieldLabel('Instagram Link'),
+        _FieldLabel(l10n.addAdInstagramLabel),
         PromooTextField(
           controller: _instagramController,
-          hint: 'Instagram Link',
+          hint: l10n.addAdInstagramLabel,
           keyboardType: TextInputType.url,
         ),
       ],
     );
   }
 
-  Widget _buildPricingStep() {
+  Widget _buildPricingStep(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _FieldLabel('Price'),
+        _FieldLabel(l10n.commonPrice),
         PromooTextField(
           controller: _priceController,
-          hint: 'Price',
+          hint: l10n.commonPrice,
           keyboardType: TextInputType.number,
         ),
         const _FieldGap(),
-        const _FieldLabel('Currency'),
+        _FieldLabel(l10n.addAdCurrencyLabel),
         _DropdownField(
-          hint: 'Select Currency',
+          hint: l10n.addAdSelectCurrency,
           value: _currency,
           items: _currencies,
           onChanged: (value) => setState(() => _currency = value),
         ),
         const _FieldGap(),
-        const _FieldLabel('Service / Product'),
+        _FieldLabel(l10n.addAdServiceProductLabel),
         _DropdownField(
-          hint: 'Select Type',
+          hint: l10n.addAdSelectType,
           value: _serviceType,
           items: _serviceTypes,
           onChanged: (value) => setState(() => _serviceType = value),
         ),
         const _FieldGap(),
-        const _FieldLabel('Payment Method'),
+        _FieldLabel(l10n.addAdPaymentMethodLabel),
         _DropdownField(
-          hint: 'Select Payment Method',
+          hint: l10n.addAdSelectPaymentMethod,
           value: _paymentMethod,
           items: _paymentMethods,
           onChanged: (value) => setState(() => _paymentMethod = value),
@@ -299,8 +323,10 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Media upload will be enabled in the next phase.'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context).addCommonMediaUploadComingSoon,
+          ),
         ),
       );
   }
@@ -309,10 +335,8 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Your ad is ready! Publishing will be enabled in the next phase.',
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).addAdReadySnackbar),
         ),
       );
     Navigator.of(context).maybePop();
@@ -456,6 +480,7 @@ class _WizardActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -465,13 +490,15 @@ class _WizardActions extends StatelessWidget {
               foregroundColor: context.colors.error,
               side: BorderSide(color: context.colors.error),
             ),
-            child: Text(step == 0 ? 'Cancel' : 'Back'),
+            child: Text(
+              step == 0 ? l10n.addCommonCancelButton : l10n.commonBack,
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: PromooButton.primary(
-            label: step == 3 ? 'Create AD' : 'Next',
+            label: step == 3 ? l10n.addAdCreateButton : l10n.addAdNextButton,
             fullWidth: true,
             onPressed: onNext,
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_spacing.dart';
@@ -37,14 +38,15 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
           child: PromooTextField(
             controller: _controller,
-            label: 'Message',
-            hint: 'Write a message',
+            label: l10n.profileActionMessage,
+            hint: l10n.chatWriteMessageHint,
             enabled: widget.enabled && !widget.isSending,
             textInputAction: TextInputAction.send,
             prefixIcon: const Icon(Icons.chat_bubble_outline_rounded),
@@ -53,7 +55,9 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
         ),
         const SizedBox(width: AppSpacing.sm),
         PromooButton.primary(
-          label: widget.isSending ? 'Sending' : 'Send',
+          label: widget.isSending
+              ? l10n.chatSendingButton
+              : l10n.chatSendButton,
           icon: Icons.send_rounded,
           onPressed: widget.enabled && !widget.isSending ? _send : null,
         ),

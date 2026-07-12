@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/chat.dart';
+import 'chat_message_status_label.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({super.key, required this.message});
@@ -12,6 +14,7 @@ class ChatMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isMine = message.isMine;
     final colors = context.colors;
     final background = isMine ? colors.primaryYellow : colors.cardSurface;
@@ -37,14 +40,16 @@ class ChatMessageBubble extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  message.content.isEmpty ? 'Message' : message.content,
+                  message.content.isEmpty
+                      ? l10n.profileActionMessage
+                      : message.content,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: foreground),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  _messageMeta(message),
+                  _messageMeta(context, message),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isMine
                         ? AppColors.brandBlack.withValues(alpha: 0.72)
@@ -60,11 +65,11 @@ class ChatMessageBubble extends StatelessWidget {
   }
 }
 
-String _messageMeta(ChatMessage message) {
+String _messageMeta(BuildContext context, ChatMessage message) {
   final hour = message.createdAt.hour.toString().padLeft(2, '0');
   final minute = message.createdAt.minute.toString().padLeft(2, '0');
   if (message.isMine && message.status != ChatMessageStatus.unknown) {
-    return '$hour:$minute - ${message.status.label}';
+    return '$hour:$minute - ${chatMessageStatusLabel(context, message.status)}';
   }
   return '$hour:$minute';
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../widgets/add_category_label.dart';
 
 /// "Add New Offer" single-page creation form.
 ///
@@ -22,13 +24,6 @@ class AddOfferScreen extends StatefulWidget {
 }
 
 class _AddOfferScreenState extends State<AddOfferScreen> {
-  static const _categories = [
-    'Beauty & Wellness',
-    'Restaurants & Cafes',
-    'Events & Photography',
-    'Digital Marketing',
-  ];
-
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _originalPriceController = TextEditingController();
@@ -53,10 +48,11 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooSubpageScaffold(
-      title: 'Add New Offer',
+      title: l10n.menuAddOffer,
       bottomBar: _FormActions(
-        submitLabel: 'Create Offer',
+        submitLabel: l10n.addOfferCreateButton,
         onSubmit: _createOffer,
         onCancel: () => Navigator.of(context).maybePop(),
       ),
@@ -64,44 +60,46 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SectionCard(
-            title: 'Offer Details',
+            title: l10n.addOfferDetailsTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _FieldLabel('Title'),
+                _FieldLabel(l10n.addCommonTitleLabel),
                 PromooTextField(
                   controller: _titleController,
-                  hint: 'Offer title',
+                  hint: l10n.addOfferTitleHint,
                   textInputAction: TextInputAction.next,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Description'),
+                _FieldLabel(l10n.addCommonDescriptionLabel),
                 PromooTextField(
                   controller: _descriptionController,
-                  hint: 'Describe your offer (at least 10 characters)',
+                  hint: l10n.addOfferDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Category'),
+                _FieldLabel(l10n.addCommonCategoryLabel),
                 _PickerField(
-                  hint: _category ?? 'Select category',
+                  hint: _category == null
+                      ? l10n.commonSelectCategory
+                      : addCategoryLabel(context, _category!),
                   isPlaceholder: _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Tags'),
+                _FieldLabel(l10n.addCommonTagsLabel),
                 PromooTextField(
                   controller: _tagsController,
-                  hint: 'Comma separated tags',
+                  hint: l10n.addCommonTagsHint,
                 ),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
-            title: 'Pricing',
+            title: l10n.addOfferPricingTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -112,7 +110,7 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const _FieldLabel('Original Price'),
+                          _FieldLabel(l10n.addOfferOriginalPriceLabel),
                           PromooTextField(
                             controller: _originalPriceController,
                             hint: '0.00',
@@ -129,7 +127,7 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const _FieldLabel('Offer Price'),
+                          _FieldLabel(l10n.addOfferOfferPriceLabel),
                           PromooTextField(
                             controller: _offerPriceController,
                             hint: '0.00',
@@ -144,23 +142,21 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                   ],
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Discount %'),
+                _FieldLabel(l10n.addOfferDiscountLabel),
                 PromooTextField(
                   controller: _discountController,
-                  hint: 'Optional',
+                  hint: l10n.addOfferDiscountOptionalHint,
                   keyboardType: TextInputType.number,
                   suffixIcon: const _Adornment('%'),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                const _FieldNote(
-                  'Leave empty to auto-calculate from the prices above.',
-                ),
+                _FieldNote(l10n.addOfferDiscountNote),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
-            title: 'Schedule',
+            title: l10n.addOfferScheduleTitle,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -168,10 +164,10 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const _FieldLabel('Start Date'),
+                      _FieldLabel(l10n.addOfferStartDateLabel),
                       _PickerField(
                         hint: _startDate == null
-                            ? 'Select date'
+                            ? l10n.addOfferSelectDate
                             : _formatDate(_startDate!),
                         isPlaceholder: _startDate == null,
                         trailing: Icons.calendar_month_rounded,
@@ -185,10 +181,10 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const _FieldLabel('End Date'),
+                      _FieldLabel(l10n.addOfferEndDateLabel),
                       _PickerField(
                         hint: _endDate == null
-                            ? 'Select date'
+                            ? l10n.addOfferSelectDate
                             : _formatDate(_endDate!),
                         isPlaceholder: _endDate == null,
                         trailing: Icons.calendar_month_rounded,
@@ -202,23 +198,23 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
-            title: 'Media',
+            title: l10n.profileMediaTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _FieldLabel('Main Image'),
+                _FieldLabel(l10n.addOfferMainImageLabel),
                 _UploadBox(
                   icon: Icons.add_photo_alternate_outlined,
-                  label: 'Upload main image',
-                  caption: 'JPG, PNG up to 2MB',
+                  label: l10n.addOfferUploadMainImage,
+                  caption: l10n.addCommonUploadCaption,
                   onTap: _showUploadNotice,
                 ),
                 const _FieldGap(),
-                const _FieldLabel('Additional Image'),
+                _FieldLabel(l10n.addOfferAdditionalImageLabel),
                 _UploadBox(
                   icon: Icons.add_photo_alternate_outlined,
-                  label: 'Upload additional images',
-                  caption: 'JPG, PNG up to 2MB',
+                  label: l10n.addOfferUploadAdditionalImages,
+                  caption: l10n.addCommonUploadCaption,
                   onTap: _showUploadNotice,
                 ),
               ],
@@ -230,6 +226,7 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
   }
 
   Future<void> _pickCategory() async {
+    final l10n = AppLocalizations.of(context);
     final selected = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: context.colors.elevatedSurface,
@@ -243,13 +240,13 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
               Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  'Select category',
+                  l10n.commonSelectCategory,
                   style: Theme.of(sheetContext).textTheme.titleMedium,
                 ),
               ),
-              for (final option in _categories)
+              for (final option in addCategoryValues)
                 ListTile(
-                  title: Text(option),
+                  title: Text(addCategoryLabel(sheetContext, option)),
                   trailing: option == _category
                       ? Icon(
                           Icons.check_rounded,
@@ -308,13 +305,11 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
   }
 
   void _showUploadNotice() {
-    _showNotice('Media upload will be enabled in the next phase.');
+    _showNotice(AppLocalizations.of(context).addCommonMediaUploadComingSoon);
   }
 
   void _createOffer() {
-    _showNotice(
-      'Your offer is ready! Publishing will be enabled in the next phase.',
-    );
+    _showNotice(AppLocalizations.of(context).addOfferReadySnackbar);
     Navigator.of(context).maybePop();
   }
 
@@ -348,7 +343,7 @@ class _FormActions extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         PromooButton.secondary(
-          label: 'Cancel',
+          label: AppLocalizations.of(context).addCommonCancelButton,
           fullWidth: true,
           onPressed: onCancel,
         ),

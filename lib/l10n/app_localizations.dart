@@ -1171,6 +1171,1254 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Booking and payment open in the next phase.'**
   String get seatsCheckoutNextPhaseNotice;
+
+  /// No description provided for @leaderboardLoadingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading leaderboard'**
+  String get leaderboardLoadingMessage;
+
+  /// No description provided for @leaderboardRefreshErrorFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh leaderboard.'**
+  String get leaderboardRefreshErrorFallback;
+
+  /// No description provided for @leaderboardErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load leaderboard'**
+  String get leaderboardErrorTitle;
+
+  /// No description provided for @leaderboardScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cup'**
+  String get leaderboardScreenTitle;
+
+  /// No description provided for @leaderboardScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Promoo leaderboard ranked by follower reach.'**
+  String get leaderboardScreenSubtitle;
+
+  /// No description provided for @leaderboardEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No leaderboard yet'**
+  String get leaderboardEmptyTitle;
+
+  /// No description provided for @leaderboardEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranked profiles will appear here when they are available.'**
+  String get leaderboardEmptyMessage;
+
+  /// No description provided for @leaderboardPodiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top of the Cup'**
+  String get leaderboardPodiumTitle;
+
+  /// No description provided for @leaderboardPodiumSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers-based Promoo standings'**
+  String get leaderboardPodiumSubtitle;
+
+  /// No description provided for @leaderboardChampionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Champion / {followers}'**
+  String leaderboardChampionLine(String followers);
+
+  /// No description provided for @leaderboardRankingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking'**
+  String get leaderboardRankingTitle;
+
+  /// No description provided for @leaderboardRankingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active companies, influencers, and service providers'**
+  String get leaderboardRankingSubtitle;
+
+  /// No description provided for @leaderboardFollowersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}'**
+  String leaderboardFollowersCount(num count);
+
+  /// No description provided for @leaderboardFollowersCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'{compact} followers'**
+  String leaderboardFollowersCompact(String compact);
+
+  /// No description provided for @leaderboardAccountTypeFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Promoo profile'**
+  String get leaderboardAccountTypeFallback;
+
+  /// No description provided for @commonSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get commonSelectCategory;
+
+  /// No description provided for @profileLoadingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading profile'**
+  String get profileLoadingMessage;
+
+  /// No description provided for @profileEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile not found'**
+  String get profileEmptyTitle;
+
+  /// No description provided for @profileEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile is unavailable or no longer exists.'**
+  String get profileEmptyMessage;
+
+  /// No description provided for @profileRefreshErrorFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh profile.'**
+  String get profileRefreshErrorFallback;
+
+  /// No description provided for @profileErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load profile'**
+  String get profileErrorTitle;
+
+  /// No description provided for @profileActionFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get profileActionFollow;
+
+  /// No description provided for @profileActionFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get profileActionFollowing;
+
+  /// No description provided for @profileActionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get profileActionMessage;
+
+  /// No description provided for @profileActionEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileActionEditProfile;
+
+  /// No description provided for @profileFeaturedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get profileFeaturedBadge;
+
+  /// No description provided for @profileAccountTypeUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get profileAccountTypeUser;
+
+  /// No description provided for @profileStatsFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get profileStatsFollowers;
+
+  /// No description provided for @profileStatsLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes'**
+  String get profileStatsLikes;
+
+  /// No description provided for @profileStatsPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get profileStatsPosts;
+
+  /// No description provided for @profileStatsViews.
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get profileStatsViews;
+
+  /// No description provided for @profilePackagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages'**
+  String get profilePackagesTitle;
+
+  /// No description provided for @profilePackagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile services ready for client discovery'**
+  String get profilePackagesSubtitle;
+
+  /// No description provided for @profilePackagesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No packages yet'**
+  String get profilePackagesEmptyTitle;
+
+  /// No description provided for @profilePackagesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile packages will appear here when available.'**
+  String get profilePackagesEmptyMessage;
+
+  /// No description provided for @profilePackageContactOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact only'**
+  String get profilePackageContactOnly;
+
+  /// No description provided for @profileMediaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get profileMediaTitle;
+
+  /// No description provided for @profileMediaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent profile posts and campaign visuals'**
+  String get profileMediaSubtitle;
+
+  /// No description provided for @profileMediaEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No media yet'**
+  String get profileMediaEmptyTitle;
+
+  /// No description provided for @profileMediaEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile media will appear here when it is available.'**
+  String get profileMediaEmptyMessage;
+
+  /// No description provided for @profileMediaItemSemantic.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile media item {index}'**
+  String profileMediaItemSemantic(int index);
+
+  /// No description provided for @profileMediaCloseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Close media'**
+  String get profileMediaCloseTooltip;
+
+  /// No description provided for @profileMediaCommentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get profileMediaCommentsLabel;
+
+  /// No description provided for @profileMediaShareLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get profileMediaShareLabel;
+
+  /// No description provided for @profileAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get profileAboutTitle;
+
+  /// No description provided for @profileAboutFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile details will appear here soon.'**
+  String get profileAboutFallback;
+
+  /// No description provided for @profileEditScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get profileEditScreenTitle;
+
+  /// No description provided for @profileEditUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile unavailable'**
+  String get profileEditUnavailableTitle;
+
+  /// No description provided for @profileEditUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your profile right now.'**
+  String get profileEditUnavailableMessage;
+
+  /// No description provided for @profileEditChangePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get profileEditChangePhoto;
+
+  /// No description provided for @profileEditChangePhotoComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the profile photo arrives with uploads in the next phase.'**
+  String get profileEditChangePhotoComingSoon;
+
+  /// No description provided for @profileEditFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get profileEditFieldName;
+
+  /// No description provided for @profileEditFieldBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle / Bio'**
+  String get profileEditFieldBio;
+
+  /// No description provided for @profileEditFieldLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get profileEditFieldLocation;
+
+  /// No description provided for @profileEditFieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get profileEditFieldCategory;
+
+  /// No description provided for @profileEditCategoryComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Category selection will be enabled in the next phase.'**
+  String get profileEditCategoryComingSoon;
+
+  /// No description provided for @profileEditPostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Post {index}'**
+  String profileEditPostLabel(int index);
+
+  /// No description provided for @profileEditSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get profileEditSaveButton;
+
+  /// No description provided for @profileEditSaveComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile changes will sync with your account in the next phase.'**
+  String get profileEditSaveComingSoon;
+
+  /// No description provided for @profileFollowingEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No follows yet'**
+  String get profileFollowingEmptyTitle;
+
+  /// No description provided for @profileFollowingEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profiles you follow will appear here.'**
+  String get profileFollowingEmptyMessage;
+
+  /// No description provided for @profileMyPackagesBasicTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Package'**
+  String get profileMyPackagesBasicTitle;
+
+  /// No description provided for @profileMyPackagesStandardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard Package'**
+  String get profileMyPackagesStandardTitle;
+
+  /// No description provided for @profileMyPackagesPremiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Package'**
+  String get profileMyPackagesPremiumTitle;
+
+  /// No description provided for @profileMyPackagesBasicPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes 3 posts'**
+  String get profileMyPackagesBasicPosts;
+
+  /// No description provided for @profileMyPackagesStandardPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes 6 posts'**
+  String get profileMyPackagesStandardPosts;
+
+  /// No description provided for @profileMyPackagesPremiumPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes 12 posts'**
+  String get profileMyPackagesPremiumPosts;
+
+  /// No description provided for @profileMyPackagesBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Professionally designed social media posts'**
+  String get profileMyPackagesBullet1;
+
+  /// No description provided for @profileMyPackagesBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'High-quality content tailored to your brand'**
+  String get profileMyPackagesBullet2;
+
+  /// No description provided for @profileMyPackagesBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Guaranteed fast delivery within 24 hours'**
+  String get profileMyPackagesBullet3;
+
+  /// No description provided for @profileMyPackagesGuaranteeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Guarantee:'**
+  String get profileMyPackagesGuaranteeLabel;
+
+  /// No description provided for @profileMyPackagesGuaranteeBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust that your content will reach more than 1,000 people.'**
+  String get profileMyPackagesGuaranteeBullet1;
+
+  /// No description provided for @profileMyPackagesGuaranteeBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your engagement and visibility are our top priority.'**
+  String get profileMyPackagesGuaranteeBullet2;
+
+  /// No description provided for @profileMyPackagesTapToView.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to view details and proceed to secure checkout.'**
+  String get profileMyPackagesTapToView;
+
+  /// No description provided for @profileMyPackagesCheckoutComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Package checkout will be available in the next phase.'**
+  String get profileMyPackagesCheckoutComingSoon;
+
+  /// No description provided for @profileSavedEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get profileSavedEmptyTitle;
+
+  /// No description provided for @profileSavedEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark offers and services to find them here.'**
+  String get profileSavedEmptyMessage;
+
+  /// No description provided for @profileSavedRemoveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get profileSavedRemoveTooltip;
+
+  /// No description provided for @profileSupportHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We are here 24/7'**
+  String get profileSupportHeroTitle;
+
+  /// No description provided for @profileSupportHeroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about offers, seats, or your account? Reach the Promoo team any time.'**
+  String get profileSupportHeroBody;
+
+  /// No description provided for @profileSupportChatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with support'**
+  String get profileSupportChatLabel;
+
+  /// No description provided for @profileSupportMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send us a message'**
+  String get profileSupportMessageTitle;
+
+  /// No description provided for @profileSupportMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your issue or question'**
+  String get profileSupportMessageHint;
+
+  /// No description provided for @profileSupportSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get profileSupportSendButton;
+
+  /// No description provided for @profileSupportComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Support messaging will be connected in the next phase.'**
+  String get profileSupportComingSoon;
+
+  /// No description provided for @staticInfoAboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Promoo is a premium marketplace connecting companies, influencers, and service providers across the UAE.\n\nDiscover offers, book influencer seats, promote your brand, and grow your reach — all in one place, in AED.'**
+  String get staticInfoAboutBody;
+
+  /// No description provided for @staticInfoTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms And Condition'**
+  String get staticInfoTermsTitle;
+
+  /// No description provided for @staticInfoTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'By using Promoo you agree to use the platform fairly and lawfully.\n\n• Content you publish must be accurate and owned by you.\n• Paid placements (seats, featured offers) follow the posted pricing at the time of purchase.\n• Accounts that violate our community standards may be suspended.\n\nThe full legal terms will be published here before the public store release.'**
+  String get staticInfoTermsBody;
+
+  /// No description provided for @staticInfoPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your privacy matters to Promoo.\n\n• We only collect the data needed to run your account and show relevant content.\n• Your data is never sold to third parties.\n• You can request account deletion at any time.\n\nThe full privacy policy will be published here before the public store release.'**
+  String get staticInfoPrivacyBody;
+
+  /// No description provided for @addCommonTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get addCommonTitleLabel;
+
+  /// No description provided for @addCommonDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get addCommonDescriptionLabel;
+
+  /// No description provided for @addCommonCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get addCommonCategoryLabel;
+
+  /// No description provided for @addCommonTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get addCommonTagsLabel;
+
+  /// No description provided for @addCommonTagsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Comma separated tags'**
+  String get addCommonTagsHint;
+
+  /// No description provided for @addCommonCancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get addCommonCancelButton;
+
+  /// No description provided for @addCommonUploadCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'JPG, PNG up to 2MB'**
+  String get addCommonUploadCaption;
+
+  /// No description provided for @addCommonMediaUploadComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Media upload will be enabled in the next phase.'**
+  String get addCommonMediaUploadComingSoon;
+
+  /// No description provided for @addCommonCategoryBeautyWellness.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty & Wellness'**
+  String get addCommonCategoryBeautyWellness;
+
+  /// No description provided for @addCommonCategoryRestaurantsCafes.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants & Cafes'**
+  String get addCommonCategoryRestaurantsCafes;
+
+  /// No description provided for @addCommonCategoryEventsPhotography.
+  ///
+  /// In en, this message translates to:
+  /// **'Events & Photography'**
+  String get addCommonCategoryEventsPhotography;
+
+  /// No description provided for @addCommonCategoryDigitalMarketing.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital Marketing'**
+  String get addCommonCategoryDigitalMarketing;
+
+  /// No description provided for @addOfferCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Offer'**
+  String get addOfferCreateButton;
+
+  /// No description provided for @addOfferDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer Details'**
+  String get addOfferDetailsTitle;
+
+  /// No description provided for @addOfferTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer title'**
+  String get addOfferTitleHint;
+
+  /// No description provided for @addOfferDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your offer (at least 10 characters)'**
+  String get addOfferDescriptionHint;
+
+  /// No description provided for @addOfferPricingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing'**
+  String get addOfferPricingTitle;
+
+  /// No description provided for @addOfferOriginalPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Original Price'**
+  String get addOfferOriginalPriceLabel;
+
+  /// No description provided for @addOfferOfferPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer Price'**
+  String get addOfferOfferPriceLabel;
+
+  /// No description provided for @addOfferDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount %'**
+  String get addOfferDiscountLabel;
+
+  /// No description provided for @addOfferDiscountOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get addOfferDiscountOptionalHint;
+
+  /// No description provided for @addOfferDiscountNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to auto-calculate from the prices above.'**
+  String get addOfferDiscountNote;
+
+  /// No description provided for @addOfferScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get addOfferScheduleTitle;
+
+  /// No description provided for @addOfferStartDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get addOfferStartDateLabel;
+
+  /// No description provided for @addOfferEndDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get addOfferEndDateLabel;
+
+  /// No description provided for @addOfferSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get addOfferSelectDate;
+
+  /// No description provided for @addOfferMainImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Image'**
+  String get addOfferMainImageLabel;
+
+  /// No description provided for @addOfferAdditionalImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Image'**
+  String get addOfferAdditionalImageLabel;
+
+  /// No description provided for @addOfferUploadMainImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload main image'**
+  String get addOfferUploadMainImage;
+
+  /// No description provided for @addOfferUploadAdditionalImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload additional images'**
+  String get addOfferUploadAdditionalImages;
+
+  /// No description provided for @addOfferReadySnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your offer is ready! Publishing will be enabled in the next phase.'**
+  String get addOfferReadySnackbar;
+
+  /// No description provided for @addServiceCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Service'**
+  String get addServiceCreateButton;
+
+  /// No description provided for @addServiceDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Details'**
+  String get addServiceDetailsTitle;
+
+  /// No description provided for @addServiceTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Service title'**
+  String get addServiceTitleHint;
+
+  /// No description provided for @addServiceDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your service (at least 10 characters)'**
+  String get addServiceDescriptionHint;
+
+  /// No description provided for @addServicePricingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing & Delivery'**
+  String get addServicePricingTitle;
+
+  /// No description provided for @addServiceDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get addServiceDeliveryLabel;
+
+  /// No description provided for @addServiceDeliveryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 3'**
+  String get addServiceDeliveryHint;
+
+  /// No description provided for @addServiceDaysSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get addServiceDaysSuffix;
+
+  /// No description provided for @addServiceImagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get addServiceImagesLabel;
+
+  /// No description provided for @addServiceUploadImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload service images'**
+  String get addServiceUploadImages;
+
+  /// No description provided for @addServiceReadySnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service is ready! Publishing will be enabled in the next phase.'**
+  String get addServiceReadySnackbar;
+
+  /// No description provided for @addAdScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New AD'**
+  String get addAdScreenTitle;
+
+  /// No description provided for @addAdStepBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Ad Details'**
+  String get addAdStepBasic;
+
+  /// No description provided for @addAdStepLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Information'**
+  String get addAdStepLocation;
+
+  /// No description provided for @addAdStepContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Information'**
+  String get addAdStepContact;
+
+  /// No description provided for @addAdStepPricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing Information'**
+  String get addAdStepPricing;
+
+  /// No description provided for @addAdTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad Title'**
+  String get addAdTitleLabel;
+
+  /// No description provided for @addAdUploadImagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload additional images'**
+  String get addAdUploadImagesLabel;
+
+  /// No description provided for @addAdPostDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Date'**
+  String get addAdPostDateLabel;
+
+  /// No description provided for @addAdSelectDateCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get addAdSelectDateCap;
+
+  /// No description provided for @addAdTagsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Tags'**
+  String get addAdTagsHint;
+
+  /// No description provided for @addAdCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get addAdCityLabel;
+
+  /// No description provided for @addAdSelectCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select City'**
+  String get addAdSelectCity;
+
+  /// No description provided for @addAdAreaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get addAdAreaLabel;
+
+  /// No description provided for @addAdSelectArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Area'**
+  String get addAdSelectArea;
+
+  /// No description provided for @addAdFullAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'full Address'**
+  String get addAdFullAddressLabel;
+
+  /// No description provided for @addAdFullAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Address'**
+  String get addAdFullAddressHint;
+
+  /// No description provided for @addAdLocationMapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Map'**
+  String get addAdLocationMapLabel;
+
+  /// No description provided for @addAdUploadLocationMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Location Map'**
+  String get addAdUploadLocationMap;
+
+  /// No description provided for @addAdLocationMapCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Please upload location map'**
+  String get addAdLocationMapCaption;
+
+  /// No description provided for @addAdPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get addAdPhoneLabel;
+
+  /// No description provided for @addAdWhatsappLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Whatsapp Number'**
+  String get addAdWhatsappLabel;
+
+  /// No description provided for @addAdInstagramLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram Link'**
+  String get addAdInstagramLabel;
+
+  /// No description provided for @addAdCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get addAdCurrencyLabel;
+
+  /// No description provided for @addAdSelectCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Currency'**
+  String get addAdSelectCurrency;
+
+  /// No description provided for @addAdServiceProductLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Service / Product'**
+  String get addAdServiceProductLabel;
+
+  /// No description provided for @addAdSelectType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Type'**
+  String get addAdSelectType;
+
+  /// No description provided for @addAdPaymentMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get addAdPaymentMethodLabel;
+
+  /// No description provided for @addAdSelectPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Payment Method'**
+  String get addAdSelectPaymentMethod;
+
+  /// No description provided for @addAdNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get addAdNextButton;
+
+  /// No description provided for @addAdCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create AD'**
+  String get addAdCreateButton;
+
+  /// No description provided for @addAdReadySnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ad is ready! Publishing will be enabled in the next phase.'**
+  String get addAdReadySnackbar;
+
+  /// No description provided for @addAdCityDubai.
+  ///
+  /// In en, this message translates to:
+  /// **'Dubai'**
+  String get addAdCityDubai;
+
+  /// No description provided for @addAdCityAbuDhabi.
+  ///
+  /// In en, this message translates to:
+  /// **'Abu Dhabi'**
+  String get addAdCityAbuDhabi;
+
+  /// No description provided for @addAdCitySharjah.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharjah'**
+  String get addAdCitySharjah;
+
+  /// No description provided for @addAdCityAjman.
+  ///
+  /// In en, this message translates to:
+  /// **'Ajman'**
+  String get addAdCityAjman;
+
+  /// No description provided for @addAdCityRasAlKhaimah.
+  ///
+  /// In en, this message translates to:
+  /// **'Ras Al Khaimah'**
+  String get addAdCityRasAlKhaimah;
+
+  /// No description provided for @addAdCityFujairah.
+  ///
+  /// In en, this message translates to:
+  /// **'Fujairah'**
+  String get addAdCityFujairah;
+
+  /// No description provided for @addAdCityUmmAlQuwain.
+  ///
+  /// In en, this message translates to:
+  /// **'Umm Al Quwain'**
+  String get addAdCityUmmAlQuwain;
+
+  /// No description provided for @addAdCityAlAin.
+  ///
+  /// In en, this message translates to:
+  /// **'Al Ain'**
+  String get addAdCityAlAin;
+
+  /// No description provided for @commonSomethingWentWrongShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong.'**
+  String get commonSomethingWentWrongShort;
+
+  /// No description provided for @commonLoginRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login required'**
+  String get commonLoginRequiredTitle;
+
+  /// No description provided for @commonGoToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to login'**
+  String get commonGoToLogin;
+
+  /// No description provided for @chatWriteMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message'**
+  String get chatWriteMessageHint;
+
+  /// No description provided for @chatSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSendButton;
+
+  /// No description provided for @chatSendingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get chatSendingButton;
+
+  /// No description provided for @chatNoMessagesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chatNoMessagesYet;
+
+  /// No description provided for @chatListSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep campaign conversations in one place.'**
+  String get chatListSubtitle;
+
+  /// No description provided for @chatLoadingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading chats'**
+  String get chatLoadingMessage;
+
+  /// No description provided for @chatEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats yet'**
+  String get chatEmptyTitle;
+
+  /// No description provided for @chatEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your conversations will appear here.'**
+  String get chatEmptyMessage;
+
+  /// No description provided for @chatErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load chats'**
+  String get chatErrorTitle;
+
+  /// No description provided for @chatAuthRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use Promoo chat.'**
+  String get chatAuthRequiredMessage;
+
+  /// No description provided for @chatConversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get chatConversationTitle;
+
+  /// No description provided for @chatRoomLoadingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading messages'**
+  String get chatRoomLoadingMessage;
+
+  /// No description provided for @chatRoomEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the conversation with a short message.'**
+  String get chatRoomEmptyMessage;
+
+  /// No description provided for @chatRoomAuthRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to open this conversation.'**
+  String get chatRoomAuthRequiredMessage;
+
+  /// No description provided for @chatRoomErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load messages'**
+  String get chatRoomErrorTitle;
+
+  /// No description provided for @chatMessageStatusSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get chatMessageStatusSending;
+
+  /// No description provided for @chatMessageStatusSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get chatMessageStatusSent;
+
+  /// No description provided for @chatMessageStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get chatMessageStatusDelivered;
+
+  /// No description provided for @chatMessageStatusRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get chatMessageStatusRead;
+
+  /// No description provided for @chatMessageStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get chatMessageStatusFailed;
+
+  /// No description provided for @chatMessageStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get chatMessageStatusUnknown;
+
+  /// No description provided for @notificationDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete notification'**
+  String get notificationDeleteTooltip;
+
+  /// No description provided for @notificationsUnreadSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No unread notifications.} =1{1 unread notification} other{{count} unread notifications}}'**
+  String notificationsUnreadSubtitle(num count);
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsLoadingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading notifications'**
+  String get notificationsLoadingMessage;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Promoo updates and messages will appear here.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @notificationsAuthRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to view notifications.'**
+  String get notificationsAuthRequiredMessage;
+
+  /// No description provided for @notificationsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load notifications'**
+  String get notificationsErrorTitle;
+
+  /// No description provided for @notificationTypeFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get notificationTypeFollow;
+
+  /// No description provided for @notificationTypeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get notificationTypeMessage;
+
+  /// No description provided for @notificationTypeOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer'**
+  String get notificationTypeOffer;
+
+  /// No description provided for @notificationTypeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationTypeSystem;
+
+  /// No description provided for @notificationTypePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get notificationTypePayment;
+
+  /// No description provided for @notificationTypeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get notificationTypeUnknown;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
@@ -23,19 +24,20 @@ class ProfileMediaSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaItems = _mediaItemsFrom(mediaUrls);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PromooSectionHeader(
-          title: 'Media',
-          subtitle: 'Recent profile posts and campaign visuals',
+        PromooSectionHeader(
+          title: l10n.profileMediaTitle,
+          subtitle: l10n.profileMediaSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         if (mediaItems.isEmpty)
-          const PromooEmptyState(
-            title: 'No media yet',
-            message: 'Profile media will appear here when it is available.',
+          PromooEmptyState(
+            title: l10n.profileMediaEmptyTitle,
+            message: l10n.profileMediaEmptyMessage,
             icon: Icons.photo_library_outlined,
           )
         else
@@ -87,7 +89,7 @@ class _ProfileMediaTile extends StatelessWidget {
     return Semantics(
       button: true,
       image: true,
-      label: 'Profile media item ${index + 1}',
+      label: AppLocalizations.of(context).profileMediaItemSemantic(index + 1),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

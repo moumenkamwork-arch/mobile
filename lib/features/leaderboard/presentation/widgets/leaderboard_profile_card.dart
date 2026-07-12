@@ -6,6 +6,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/leaderboard_profile.dart';
+import 'leaderboard_labels.dart';
 
 class LeaderboardProfileCard extends StatelessWidget {
   const LeaderboardProfileCard({
@@ -62,7 +63,7 @@ class LeaderboardProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  _metadataFor(profile).join(' / '),
+                  _metadataFor(context, profile).join(' / '),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
@@ -81,11 +82,11 @@ class LeaderboardProfileCard extends StatelessWidget {
   }
 }
 
-List<String> _metadataFor(LeaderboardProfile profile) {
+List<String> _metadataFor(BuildContext context, LeaderboardProfile profile) {
   return [
     if (profile.username != null) '@${profile.username}',
-    profile.accountTypeLabel,
-    profile.followersLabel,
+    leaderboardAccountTypeLabel(context, profile.accountType),
+    leaderboardFollowersLabel(context, profile),
     if (profile.badgeLabel != null) profile.badgeLabel!,
   ];
 }

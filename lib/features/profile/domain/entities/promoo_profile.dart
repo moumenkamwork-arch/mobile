@@ -12,6 +12,8 @@ extension ProfileAccountTypeValue on ProfileAccountType {
     };
   }
 
+  /// English-only fallback for non-UI use (e.g. logs, demo-data checks).
+  /// For display, use `profileAccountTypeLabel(context, type)` instead.
   String get label {
     return switch (this) {
       ProfileAccountType.company => 'Company',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -119,14 +120,14 @@ class _ConversationHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            tooltip: 'Back',
+            tooltip: AppLocalizations.of(context).commonBack,
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              'Conversation',
+              AppLocalizations.of(context).chatConversationTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge,
@@ -151,17 +152,18 @@ class _ConversationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return switch (state.status) {
-      ChatRoomStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading messages',
+      ChatRoomStatus.loading => PromooLoadingIndicator(
+        message: l10n.chatRoomLoadingMessage,
       ),
       ChatRoomStatus.empty => CustomScrollView(
         slivers: [
-          const SliverFillRemaining(
+          SliverFillRemaining(
             hasScrollBody: false,
             child: PromooEmptyState(
-              title: 'No messages yet',
-              message: 'Start the conversation with a short message.',
+              title: l10n.chatNoMessagesYet,
+              message: l10n.chatRoomEmptyMessage,
               icon: Icons.chat_bubble_outline_rounded,
             ),
           ),
@@ -174,20 +176,22 @@ class _ConversationBody extends StatelessWidget {
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: PromooEmptyState(
-                      title: 'Login required',
+                      title: l10n.commonLoginRequiredTitle,
                       message:
                           state.failure?.message ??
-                          'Sign in to open this conversation.',
+                          l10n.chatRoomAuthRequiredMessage,
                       icon: Icons.lock_outline_rounded,
-                      actionLabel: 'Go to login',
+                      actionLabel: l10n.commonGoToLogin,
                       onActionPressed: onLogin,
                     ),
                   ),
                 ],
               )
             : PromooErrorState(
-                title: 'Could not load messages',
-                message: state.failure?.message ?? 'Something went wrong.',
+                title: l10n.chatRoomErrorTitle,
+                message:
+                    state.failure?.message ??
+                    l10n.commonSomethingWentWrongShort,
                 onRetry: onRetry,
               ),
       ChatRoomStatus.success ||

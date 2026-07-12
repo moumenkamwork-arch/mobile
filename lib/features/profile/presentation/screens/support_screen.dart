@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
@@ -27,8 +28,9 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooSubpageScaffold(
-      title: 'Support',
+      title: l10n.menuSupport,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -45,15 +47,14 @@ class _SupportScreenState extends State<SupportScreen> {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      'We are here 24/7',
+                      l10n.profileSupportHeroTitle,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Questions about offers, seats, or your account? '
-                  'Reach the Promoo team any time.',
+                  l10n.profileSupportHeroBody,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -77,7 +78,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 ),
                 _ContactRow(
                   icon: Icons.chat_bubble_outline_rounded,
-                  label: 'Chat with support',
+                  label: l10n.profileSupportChatLabel,
                   onTap: () => _showNotice(context),
                 ),
               ],
@@ -89,17 +90,17 @@ class _SupportScreenState extends State<SupportScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Send us a message',
+                  l10n.profileSupportMessageTitle,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 PromooTextField(
                   controller: _messageController,
-                  hint: 'Describe your issue or question',
+                  hint: l10n.profileSupportMessageHint,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 PromooButton.primary(
-                  label: 'Send',
+                  label: l10n.profileSupportSendButton,
                   fullWidth: true,
                   onPressed: () => _showNotice(context),
                 ),
@@ -115,10 +116,8 @@ class _SupportScreenState extends State<SupportScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Support messaging will be connected in the next phase.',
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).profileSupportComingSoon),
         ),
       );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -21,8 +22,8 @@ class LeaderboardScreen extends ConsumerWidget {
     final state = ref.watch(leaderboardControllerProvider);
 
     return switch (state.status) {
-      LeaderboardStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading leaderboard',
+      LeaderboardStatus.loading => PromooLoadingIndicator(
+        message: AppLocalizations.of(context).leaderboardLoadingMessage,
       ),
       LeaderboardStatus.error => _LeaderboardErrorView(state: state),
       LeaderboardStatus.empty ||
@@ -43,6 +44,7 @@ class _LeaderboardErrorView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     if (state.hasContent) {
       return Stack(
         children: [
@@ -64,7 +66,8 @@ class _LeaderboardErrorView extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  state.failure?.message ?? 'Could not refresh leaderboard.',
+                  state.failure?.message ??
+                      l10n.leaderboardRefreshErrorFallback,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -76,8 +79,8 @@ class _LeaderboardErrorView extends ConsumerWidget {
     }
 
     return PromooErrorState(
-      title: 'Could not load leaderboard',
-      message: state.failure?.message ?? 'Something went wrong. Try again.',
+      title: l10n.leaderboardErrorTitle,
+      message: state.failure?.message ?? l10n.commonSomethingWentWrong,
       onRetry: () => ref.read(leaderboardControllerProvider.notifier).retry(),
     );
   }
@@ -97,6 +100,7 @@ class _LeaderboardContentView extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final topInset = MediaQuery.paddingOf(context).top;
     return Stack(
       children: [
@@ -120,20 +124,19 @@ class _LeaderboardContentView extends StatelessWidget {
                 sliver: SliverList.list(
                   children: [
                     Text(
-                      'Cup',
+                      l10n.leaderboardScreenTitle,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'The Promoo leaderboard ranked by follower reach.',
+                      l10n.leaderboardScreenSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     if (state.profiles.isEmpty)
-                      const PromooEmptyState(
-                        title: 'No leaderboard yet',
-                        message:
-                            'Ranked profiles will appear here when they are available.',
+                      PromooEmptyState(
+                        title: l10n.leaderboardEmptyTitle,
+                        message: l10n.leaderboardEmptyMessage,
                         icon: Icons.emoji_events_rounded,
                       )
                     else ...[

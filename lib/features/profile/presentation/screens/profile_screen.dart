@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -42,6 +43,7 @@ class _ProfileScreenBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(profileControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -52,13 +54,13 @@ class _ProfileScreenBody extends ConsumerWidget {
         child: Stack(
           children: [
             switch (state.status) {
-              ProfileStatus.loading => const PromooLoadingIndicator(
-                message: 'Loading profile',
+              ProfileStatus.loading => PromooLoadingIndicator(
+                message: l10n.profileLoadingMessage,
               ),
               ProfileStatus.error => _ProfileErrorView(state: state),
-              ProfileStatus.empty => const PromooEmptyState(
-                title: 'Profile not found',
-                message: 'This profile is unavailable or no longer exists.',
+              ProfileStatus.empty => PromooEmptyState(
+                title: l10n.profileEmptyTitle,
+                message: l10n.profileEmptyMessage,
                 icon: Icons.person_off_rounded,
               ),
               ProfileStatus.success ||
@@ -92,7 +94,7 @@ class _ProfileBackButton extends StatelessWidget {
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: IconButton(
-        tooltip: 'Back',
+        tooltip: AppLocalizations.of(context).commonBack,
         icon: const Icon(Icons.arrow_back_rounded),
         onPressed: () {
           if (context.canPop()) {
@@ -113,6 +115,7 @@ class _ProfileErrorView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     if (state.hasContent) {
       return Stack(
         children: [
@@ -134,7 +137,7 @@ class _ProfileErrorView extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  state.failure?.message ?? 'Could not refresh profile.',
+                  state.failure?.message ?? l10n.profileRefreshErrorFallback,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -146,8 +149,8 @@ class _ProfileErrorView extends ConsumerWidget {
     }
 
     return PromooErrorState(
-      title: 'Could not load profile',
-      message: state.failure?.message ?? 'Something went wrong. Try again.',
+      title: l10n.profileErrorTitle,
+      message: state.failure?.message ?? l10n.commonSomethingWentWrong,
       onRetry: () => ref.read(profileControllerProvider.notifier).retry(),
     );
   }
@@ -163,9 +166,10 @@ class _ProfileContentView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = state.profile;
     if (profile == null) {
-      return const PromooEmptyState(
-        title: 'Profile not found',
-        message: 'This profile is unavailable or no longer exists.',
+      final l10n = AppLocalizations.of(context);
+      return PromooEmptyState(
+        title: l10n.profileEmptyTitle,
+        message: l10n.profileEmptyMessage,
         icon: Icons.person_off_rounded,
       );
     }

@@ -9,7 +9,7 @@
 >
 > يَحلّ هذا الملف محل المسودة `promo_backend/docs/justdraft.md` ويصحّح أرقامها. (لم نعدّل أي ملف بالباك — القاعدة الذهبية.)
 >
-> آخر تحديث: 2026-07-09
+> آخر تحديث: 2026-07-09 (+ فجوات الداتا بيز المؤجّلة — قسم 9، بنود 8–9 — 2026-07-12)
 
 ---
 
@@ -332,6 +332,8 @@
 | 5 | **لا endpoint للدعم (Support)** | 🟢 | رسائل الدعم بلا باك — إمّا mailto/رابط، أو استخدام Reports، أو تأجيل. |
 | 6 | **لا كيان Content Packages** (99/149/249) | 🟢 (v2) | قرار: جدول `packages` جديد، أو ربط بـ subscriptions، أو إسقاط. Packages تبقى display-only. |
 | 7 | **لا `location` بكائن Service** ولا `GET /ads/:id` عام | 🟢 | تجميلي — الفرونت يتعامل مع الغياب (يفلتر `/ads/active`). |
+| 8 | **Leaked Password Protection معطّلة** (Supabase Auth) | 🟡 (Phase B) | تفعيل من Dashboard → Authentication (toggle، مو SQL). مهم قبل ربط تسجيل مستخدمين حقيقيين مباشرة بـ Supabase. |
+| 9 | **جولة أداء RLS مؤجّلة** — 47 `auth_rls_initplan` + 165 `multiple_permissive_policies` + 4 FK بلا index + 8 index غير مستخدم | 🟡 (scale) | migration `035` مستقلّة. WARN فقط، ما بتأثّر بالأحجام الحالية. **الأمان انعمل** بـ migration 034 (search_path + revokes + chat_rooms). التفاصيل: `promo_backend/docs/DB_AUDIT_AND_HARDENING_2026-07-12.md`. |
 
 ---
 

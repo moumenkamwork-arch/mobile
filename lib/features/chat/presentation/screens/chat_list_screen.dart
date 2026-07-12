@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -83,10 +84,11 @@ class _ChatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back',
+          tooltip: l10n.commonBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
@@ -95,17 +97,20 @@ class _ChatHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Chats', style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                l10n.headerChats,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
-                'Keep campaign conversations in one place.',
+                l10n.chatListSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
         ),
         IconButton(
-          tooltip: 'Notifications',
+          tooltip: l10n.headerNotifications,
           onPressed: onNotifications,
           icon: const Icon(Icons.notifications_none_rounded),
         ),
@@ -129,16 +134,17 @@ class _ChatBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return switch (state.status) {
-      ChatStatus.loading => const SizedBox(
+      ChatStatus.loading => SizedBox(
         height: 420,
-        child: PromooLoadingIndicator(message: 'Loading chats'),
+        child: PromooLoadingIndicator(message: l10n.chatLoadingMessage),
       ),
-      ChatStatus.empty => const SizedBox(
+      ChatStatus.empty => SizedBox(
         height: 420,
         child: PromooEmptyState(
-          title: 'No chats yet',
-          message: 'Your conversations will appear here.',
+          title: l10n.chatEmptyTitle,
+          message: l10n.chatEmptyMessage,
           icon: Icons.chat_bubble_outline_rounded,
         ),
       ),
@@ -154,8 +160,10 @@ class _ChatBody extends StatelessWidget {
             : SizedBox(
                 height: 420,
                 child: PromooErrorState(
-                  title: 'Could not load chats',
-                  message: state.failure?.message ?? 'Something went wrong.',
+                  title: l10n.chatErrorTitle,
+                  message:
+                      state.failure?.message ??
+                      l10n.commonSomethingWentWrongShort,
                   onRetry: onRetry,
                 ),
               ),
@@ -183,11 +191,12 @@ class _AuthRequiredState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooEmptyState(
-      title: 'Login required',
-      message: message ?? 'Sign in to use Promoo chat.',
+      title: l10n.commonLoginRequiredTitle,
+      message: message ?? l10n.chatAuthRequiredMessage,
       icon: Icons.lock_outline_rounded,
-      actionLabel: 'Go to login',
+      actionLabel: l10n.commonGoToLogin,
       onActionPressed: onLogin,
     );
   }
