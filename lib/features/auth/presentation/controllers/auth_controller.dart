@@ -19,25 +19,39 @@ enum AuthStatus {
   loggingOut,
 }
 
+/// Client-side validation failures for the Login/Register forms. Kept as an
+/// enum (not a string) so the presentation layer can resolve the message via
+/// `AppLocalizations` — this controller has no `BuildContext`.
+enum AuthValidationIssue {
+  emailRequired,
+  emailInvalid,
+  passwordRequired,
+  fullNameTooShort,
+  passwordTooShort,
+}
+
 class AuthState {
   const AuthState({
     required this.status,
     this.session,
     this.failure,
-    this.validationMessage,
-    this.successMessage,
+    this.validationIssue,
+    this.registrationPending = false,
   });
 
-  const AuthState.unauthenticated({String? successMessage})
-    : this(status: AuthStatus.unauthenticated, successMessage: successMessage);
+  const AuthState.unauthenticated({bool registrationPending = false})
+    : this(
+        status: AuthStatus.unauthenticated,
+        registrationPending: registrationPending,
+      );
 
   const AuthState.authenticating() : this(status: AuthStatus.authenticating);
 
   const AuthState.authenticated(AuthSession session)
     : this(status: AuthStatus.authenticated, session: session);
 
-  const AuthState.validationError(String message)
-    : this(status: AuthStatus.validationError, validationMessage: message);
+  const AuthState.validationError(AuthValidationIssue issue)
+    : this(status: AuthStatus.validationError, validationIssue: issue);
 
   const AuthState.error(AppFailure failure)
     : this(status: AuthStatus.error, failure: failure);
@@ -48,18 +62,17 @@ class AuthState {
   final AuthStatus status;
   final AuthSession? session;
   final AppFailure? failure;
-  final String? validationMessage;
-  final String? successMessage;
+  final AuthValidationIssue? validationIssue;
+
+  /// True right after registration, before the demo/verification message is
+  /// shown — resolved to text by the presentation layer.
+  final bool registrationPending;
 
   bool get isAuthenticated => session?.isAuthenticated ?? false;
 
   bool get isBusy {
     return status == AuthStatus.authenticating ||
         status == AuthStatus.loggingOut;
-  }
-
-  String? get displayMessage {
-    return validationMessage ?? failure?.message ?? successMessage;
   }
 }
 
@@ -172,36 +185,33 @@ class AuthController extends Notifier<AuthState> {
       return AuthState.authenticated(session);
     }
 
-    return const AuthState.unauthenticated(
-      successMessage:
-          'Registration created. Please verify your account before signing in.',
-    );
+    return const AuthState.unauthenticated(registrationPending: true);
   }
 
-  String? _validateEmailPassword({
+  AuthValidationIssue? _validateEmailPassword({
     required String email,
     required String password,
   }) {
     final normalizedEmail = email.trim();
     if (normalizedEmail.isEmpty) {
-      return 'Email is required.';
+      return AuthValidationIssue.emailRequired;
     }
     if (!_emailPattern.hasMatch(normalizedEmail)) {
-      return 'Enter a valid email address.';
+      return AuthValidationIssue.emailInvalid;
     }
     if (password.isEmpty) {
-      return 'Password is required.';
+      return AuthValidationIssue.passwordRequired;
     }
     return null;
   }
 
-  String? _validateRegister({
+  AuthValidationIssue? _validateRegister({
     required String fullName,
     required String email,
     required String password,
   }) {
     if (fullName.trim().length < 2) {
-      return 'Full name must be at least 2 characters.';
+      return AuthValidationIssue.fullNameTooShort;
     }
 
     final baseValidation = _validateEmailPassword(
@@ -213,7 +223,7 @@ class AuthController extends Notifier<AuthState> {
     }
 
     if (password.length < 8) {
-      return 'Password must be at least 8 characters.';
+      return AuthValidationIssue.passwordTooShort;
     }
 
     return null;

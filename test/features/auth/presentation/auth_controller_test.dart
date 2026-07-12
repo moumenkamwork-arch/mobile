@@ -42,7 +42,7 @@ void main() {
 
     final state = container.read(authControllerProvider);
     expect(state.status, AuthStatus.validationError);
-    expect(state.validationMessage, 'Enter a valid email address.');
+    expect(state.validationIssue, AuthValidationIssue.emailInvalid);
   });
 
   test('emits authenticating then authenticated', () async {

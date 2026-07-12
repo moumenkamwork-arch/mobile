@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_glow_background.dart';
 import '../../../../shared/widgets/promoo_logo.dart';
 import '../../../../theme/app_spacing.dart';
@@ -20,6 +21,7 @@ class AuthScreenFrame extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
 
     // Status icons follow the ambient theme: light on the dark glow, dark
@@ -47,7 +49,7 @@ class AuthScreenFrame extends ConsumerWidget {
                           children: [
                             if (showBackButton)
                               IconButton(
-                                tooltip: 'Back',
+                                tooltip: l10n.commonBack,
                                 onPressed: () {
                                   if (context.canPop()) {
                                     context.pop();
@@ -64,8 +66,8 @@ class AuthScreenFrame extends ConsumerWidget {
                               const SizedBox.shrink(),
                             IconButton(
                               tooltip: isDark
-                                  ? 'Switch to light mode'
-                                  : 'Switch to dark mode',
+                                  ? l10n.headerSwitchToLightMode
+                                  : l10n.headerSwitchToDarkMode,
                               onPressed: () {
                                 final notifier = ref.read(
                                   themeModeProvider.notifier,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -12,6 +13,13 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/seat.dart';
 import '../controllers/seats_controller.dart';
+
+/// Maps a [SeatTier] to the ICU `select` key used by the `seats*Label`
+/// messages (`seatsLegendLabel`/`seatsSingularLabel`/
+/// `seatsVisibilityPlacementLabel`). Kept as a `select` (not naive string
+/// concatenation) because adjective+noun order differs by language — Arabic
+/// "Gold Seat" is "مقعد ذهبي" (noun first), not a tier word glued onto "Seat".
+String _seatTierKey(SeatTier tier) => tier.apiValue ?? 'unknown';
 
 /// Influencer page recreating the original app: search bar, tier legend,
 /// and a large seat grid that overflows the screen in BOTH directions.
@@ -38,6 +46,7 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(seatsControllerProvider);
 
     // The header paints its own status-bar inset so the black chrome band
@@ -55,7 +64,7 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
           ),
           child: PromooTextField(
             controller: _searchController,
-            hint: 'Search',
+            hint: l10n.seatsSearchHint,
             prefixIcon: Icon(
               Icons.search_rounded,
               color: context.colors.accent,
@@ -79,25 +88,25 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
   }
 
   Widget _buildBody(SeatsState state) {
+    final l10n = AppLocalizations.of(context);
     switch (state.status) {
       case SeatsStatus.loading:
-        return const Center(
-          child: PromooLoadingIndicator(message: 'Loading seats'),
+        return Center(
+          child: PromooLoadingIndicator(message: l10n.seatsLoadingMessage),
         );
       case SeatsStatus.error when !state.hasContent:
         return Center(
           child: PromooErrorState(
-            title: 'Seats unavailable',
-            message:
-                state.failure?.message ?? 'Could not load seats right now.',
+            title: l10n.seatsErrorTitle,
+            message: state.failure?.message ?? l10n.seatsErrorFallback,
             onRetry: () => ref.read(seatsControllerProvider.notifier).retry(),
           ),
         );
       case SeatsStatus.empty:
         return Center(
           child: PromooErrorState(
-            title: 'No seats yet',
-            message: 'No seats available yet.',
+            title: l10n.seatsEmptyTitle,
+            message: l10n.seatsEmptyMessage,
             onRetry: () => ref.read(seatsControllerProvider.notifier).retry(),
           ),
         );
@@ -114,6 +123,7 @@ class _StatsStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final influencers = seats.where((s) => s.holder != null).length;
     final available = seats.where((s) => s.isAvailable).length;
 
@@ -127,7 +137,7 @@ class _StatsStrip extends StatelessWidget {
             child: _StatChip(
               icon: Icons.people_alt_rounded,
               value: '$influencers',
-              label: 'Influencers',
+              label: l10n.seatsStatsInfluencers,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -135,7 +145,7 @@ class _StatsStrip extends StatelessWidget {
             child: _StatChip(
               icon: Icons.event_seat_rounded,
               value: '$available',
-              label: 'Available seats',
+              label: l10n.seatsStatsAvailable,
             ),
           ),
         ],
@@ -197,12 +207,22 @@ class _SeatLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _LegendItem(color: context.colors.primaryYellow, label: 'Gold Seats'),
-        _LegendItem(color: _SeatGrid.silverColor, label: 'Silver Seats'),
-        _LegendItem(color: _SeatGrid.bronzeColor, label: 'Bronze Seats'),
+        _LegendItem(
+          color: context.colors.primaryYellow,
+          label: l10n.seatsLegendLabel('gold'),
+        ),
+        _LegendItem(
+          color: _SeatGrid.silverColor,
+          label: l10n.seatsLegendLabel('silver'),
+        ),
+        _LegendItem(
+          color: _SeatGrid.bronzeColor,
+          label: l10n.seatsLegendLabel('bronze'),
+        ),
       ],
     );
   }
@@ -412,7 +432,11 @@ class _SeatCell extends StatelessWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('More seats are opening soon.')),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).seatsMoreSeatsOpeningSoon,
+            ),
+          ),
         );
       return;
     }
@@ -436,12 +460,14 @@ class _SeatCell extends StatelessWidget {
           seat: seat,
           tierColor: _getTierColor(context),
           onBookNow: () {
+            final l10n = AppLocalizations.of(context);
+            final tierKey = _seatTierKey(seat.tier);
             Navigator.of(sheetContext).pop();
             context.push(
               AppRoutes.seatCheckout(
                 seatId: seat.id,
-                title: seat.title,
-                tier: '${seat.tier.label} visibility placement',
+                title: '${l10n.seatsSingularLabel(tierKey)} ${seat.position}',
+                tier: l10n.seatsVisibilityPlacementLabel(tierKey),
                 price: _priceLabel,
               ),
             );
@@ -454,6 +480,7 @@ class _SeatCell extends StatelessWidget {
   void _showInfluencerSheet(BuildContext context, Seat seat) {
     final holder = seat.holder!;
     final tierColor = _getTierColor(context);
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: context.colors.cardSurface,
@@ -498,7 +525,7 @@ class _SeatCell extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      '${seat.tier.label} Seat',
+                      l10n.seatsSingularLabel(_seatTierKey(seat.tier)),
                       style: Theme.of(sheetContext).textTheme.bodyMedium,
                     ),
                   ],
@@ -513,12 +540,12 @@ class _SeatCell extends StatelessWidget {
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
                             ..showSnackBar(
-                              const SnackBar(
-                                content: Text('Follow is coming soon.'),
+                              SnackBar(
+                                content: Text(l10n.seatsFollowComingSoon),
                               ),
                             );
                         },
-                        child: const Text('Follow'),
+                        child: Text(l10n.seatsFollow),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -528,7 +555,7 @@ class _SeatCell extends StatelessWidget {
                           Navigator.of(sheetContext).pop();
                           context.push(AppRoutes.profileById(holder.id));
                         },
-                        child: const Text('View profile'),
+                        child: Text(l10n.seatsViewProfile),
                       ),
                     ),
                   ],
@@ -555,7 +582,7 @@ class _AvailableContent extends StatelessWidget {
         Icon(Icons.chair_outlined, color: context.colors.textPrimary, size: 20),
         const SizedBox(height: AppSpacing.xxxs),
         Text(
-          'Book Seat',
+          AppLocalizations.of(context).seatsBookSeatLabel,
           textAlign: TextAlign.center,
           maxLines: 1,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -641,39 +668,19 @@ class _SeatDetailSheet extends StatelessWidget {
   final Color tierColor;
   final VoidCallback onBookNow;
 
-  static const _descriptions = {
-    SeatTier.gold:
-        'Gold seats provide a premium viewing experience with the highest '
-        'level of comfort and visibility. These seats are positioned in the '
-        'most strategic locations to ensure perfect coverage and maximum '
-        'exposure. Influencers seated here enjoy top-tier placement for '
-        'enhanced visibility during events. Designed for VIP guests, they '
-        'offer exclusive benefits such as faster access and priority '
-        'interaction. Gold seating represents luxury, exclusivity, and '
-        'guaranteed premium engagement.',
-    SeatTier.silver:
-        'Silver seats offer excellent value with strong visibility and great '
-        'overall positioning within the layout. These seats are ideal for '
-        'influencers looking for balanced exposure without the premium cost. '
-        'Silver seating provides comfort and a clear line of sight while '
-        'still being close to the core areas. Perfect for mid-range '
-        'promotions and events requiring consistent, reliable engagement. A '
-        'smart choice for those who want quality placement at an affordable '
-        'rate.',
-    SeatTier.bronze:
-        'Bronze seats offer an accessible entry point while still '
-        'maintaining good overall visibility. Influencers in this category '
-        'benefit from cost-effective placement suitable for general '
-        'campaigns. These seats provide steady engagement and broad audience '
-        'reach without premium pricing. Ideal for newcomers or those '
-        'exploring event participation for the first time. A practical and '
-        'budget-friendly choice that still ensures a good presence within '
-        'the venue.',
-  };
+  String? _descriptionFor(AppLocalizations l10n, SeatTier tier) {
+    return switch (tier) {
+      SeatTier.gold => l10n.seatsTierDescriptionGold,
+      SeatTier.silver => l10n.seatsTierDescriptionSilver,
+      SeatTier.bronze => l10n.seatsTierDescriptionBronze,
+      SeatTier.unknown => null,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -695,7 +702,7 @@ class _SeatDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  '${seat.tier.label} Seat',
+                  l10n.seatsSingularLabel(_seatTierKey(seat.tier)),
                   style: theme.textTheme.titleLarge,
                 ),
                 const Spacer(),
@@ -705,7 +712,7 @@ class _SeatDetailSheet extends StatelessWidget {
                     foregroundColor: context.colors.accent,
                     side: BorderSide(color: context.colors.accent),
                   ),
-                  child: const Text('Book Now'),
+                  child: Text(l10n.seatsBookNow),
                 ),
               ],
             ),
@@ -718,7 +725,7 @@ class _SeatDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              _descriptions[seat.tier] ?? '',
+              _descriptionFor(l10n, seat.tier) ?? '',
               style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
             ),
           ],

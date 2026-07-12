@@ -9,6 +9,7 @@ import 'package:promoo_app/features/services/data/repositories/services_reposito
 import 'package:promoo_app/features/services/domain/entities/promoo_service.dart';
 import 'package:promoo_app/features/services/domain/repositories/services_repository.dart';
 import 'package:promoo_app/features/services/presentation/screens/service_detail_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_theme.dart';
@@ -102,6 +103,8 @@ Widget _buildServiceDetailScreen(ServicesRepository repository) {
     overrides: [servicesRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(
         body: ServiceDetailScreen(serviceId: 'service-influencer-launch'),
       ),

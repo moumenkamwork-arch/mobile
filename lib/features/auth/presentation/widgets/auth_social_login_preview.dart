@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 
@@ -10,15 +11,14 @@ import '../../../../theme/app_spacing.dart';
 /// docs/v2_deferred_scope.md §1). Facebook is not shown: the backend never
 /// supported it (Supabase OAuth is Google/Apple only).
 class AuthSocialLoginPreview extends StatelessWidget {
-  const AuthSocialLoginPreview({
-    super.key,
-    this.caption = 'Log in with account',
-  });
+  const AuthSocialLoginPreview({super.key, this.caption});
 
-  final String caption;
+  /// Defaults to the localized "Log in with account" when not overridden.
+  final String? caption;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.colors;
     return Column(
       children: [
@@ -30,7 +30,7 @@ class AuthSocialLoginPreview extends StatelessWidget {
               icon: Icons.apple,
               iconColor: colors.textPrimary,
               background: const Color(0xFF3A3A3A),
-              onTap: () => _showComingSoon(context, 'Apple sign-in'),
+              onTap: () => _showComingSoon(context, l10n, 'Apple sign-in'),
             ),
             const SizedBox(width: AppSpacing.lg),
             _SocialCircle(
@@ -41,13 +41,13 @@ class AuthSocialLoginPreview extends StatelessWidget {
                 height: 26,
               ),
               background: const Color(0xFF3A3A3A),
-              onTap: () => _showComingSoon(context, 'Google sign-in'),
+              onTap: () => _showComingSoon(context, l10n, 'Google sign-in'),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          caption,
+          caption ?? l10n.authSocialLoginCaption,
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
@@ -111,8 +111,14 @@ class _SocialCircle extends StatelessWidget {
   }
 }
 
-void _showComingSoon(BuildContext context, String label) {
+void _showComingSoon(
+  BuildContext context,
+  AppLocalizations l10n,
+  String provider,
+) {
   final messenger = ScaffoldMessenger.of(context);
   messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(SnackBar(content: Text('$label coming soon')));
+  messenger.showSnackBar(
+    SnackBar(content: Text(l10n.commonComingSoon(provider))),
+  );
 }

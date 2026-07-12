@@ -9,6 +9,7 @@ import 'package:promoo_app/features/notifications/data/repositories/notification
 import 'package:promoo_app/features/notifications/domain/entities/app_notification.dart';
 import 'package:promoo_app/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:promoo_app/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/theme/app_theme.dart';
@@ -45,7 +46,12 @@ void main() {
               _ChatRepository(messages: [_message]),
             ),
           ],
-          child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+          child: MaterialApp.router(
+            theme: AppTheme.dark,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -62,7 +68,12 @@ void main() {
 Widget _buildNotificationsScreen(NotificationsRepository repository) {
   return ProviderScope(
     overrides: [notificationsRepositoryProvider.overrideWithValue(repository)],
-    child: MaterialApp(theme: AppTheme.dark, home: const NotificationsScreen()),
+    child: MaterialApp(
+      theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const NotificationsScreen(),
+    ),
   );
 }
 

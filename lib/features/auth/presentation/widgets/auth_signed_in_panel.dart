@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -22,6 +23,7 @@ class AuthSignedInPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       elevated: true,
       child: Column(
@@ -33,7 +35,10 @@ class AuthSignedInPanel extends StatelessWidget {
             size: 32,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text('Signed in', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            l10n.authSignedInTitle,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             session.user.displayName,
@@ -41,14 +46,14 @@ class AuthSignedInPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
-            label: 'Continue',
+            label: l10n.authContinue,
             icon: Icons.arrow_forward_rounded,
             fullWidth: true,
             onPressed: () => context.go(AppRoutes.home),
           ),
           const SizedBox(height: AppSpacing.sm),
           PromooButton.secondary(
-            label: isLoggingOut ? 'Signing out...' : 'Sign out',
+            label: isLoggingOut ? l10n.authSigningOut : l10n.authSignOut,
             icon: Icons.logout_rounded,
             fullWidth: true,
             onPressed: isLoggingOut ? null : onLogout,

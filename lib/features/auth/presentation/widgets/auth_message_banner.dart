@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -39,7 +40,7 @@ class AuthMessageBanner extends StatelessWidget {
           if (onDismiss != null) ...[
             const SizedBox(width: AppSpacing.sm),
             IconButton(
-              tooltip: 'Dismiss',
+              tooltip: AppLocalizations.of(context).commonDismiss,
               onPressed: onDismiss,
               icon: const Icon(Icons.close_rounded),
             ),

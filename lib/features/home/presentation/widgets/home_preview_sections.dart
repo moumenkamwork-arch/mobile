@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -28,13 +29,14 @@ class HomeServicesPreviewSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context);
     return _CarouselSection(
-      title: 'Services',
-      subtitle: 'Premium campaign services ready for contact',
+      title: l10n.tabServices,
+      subtitle: l10n.homeSectionServicesSubtitle,
       height: 148,
       itemCount: services.length,
       viewportFraction: 0.33,
-      actionLabel: onSeeAll == null ? null : 'See All',
+      actionLabel: onSeeAll == null ? null : l10n.commonSeeAll,
       onActionPressed: onSeeAll,
       itemBuilder: (context, index) {
         final service = services[index];
@@ -51,15 +53,18 @@ class HomeOffersPreviewSection extends StatelessWidget {
   const HomeOffersPreviewSection({
     super.key,
     required this.offers,
-    this.title = 'For You',
-    this.subtitle = 'Selected offers for today',
+    this.title,
+    this.subtitle,
     this.layout = HomeOfferPreviewLayout.compact,
     this.onSeeAll,
   });
 
   final List<HomeOfferPreview> offers;
-  final String title;
-  final String subtitle;
+
+  /// Defaults to the localized "For You" / "Selected offers for today" when
+  /// not overridden (Top Offers passes its own title/subtitle).
+  final String? title;
+  final String? subtitle;
   final HomeOfferPreviewLayout layout;
   final VoidCallback? onSeeAll;
 
@@ -69,15 +74,16 @@ class HomeOffersPreviewSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context);
     final isHero = layout == HomeOfferPreviewLayout.hero;
 
     return _CarouselSection(
-      title: title,
-      subtitle: subtitle,
+      title: title ?? l10n.homeSectionForYouTitle,
+      subtitle: subtitle ?? l10n.homeSectionForYouSubtitle,
       height: isHero ? 252 : 216,
       itemCount: offers.length,
       viewportFraction: isHero ? 1 : 0.6,
-      actionLabel: onSeeAll == null ? null : 'See All',
+      actionLabel: onSeeAll == null ? null : l10n.commonSeeAll,
       onActionPressed: onSeeAll,
       itemBuilder: (context, index) {
         final offer = offers[index];
@@ -223,7 +229,7 @@ class _TopOfferCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _PillLabel(label: 'Top offer'),
+            _PillLabel(label: AppLocalizations.of(context).homeTopOfferBadge),
             const Spacer(),
             Text(
               offer.title,
@@ -309,6 +315,7 @@ class _ServiceImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return _ImageCardShell(
       imageUrl: service.imageUrl,
       semanticLabel: service.title,
@@ -319,7 +326,7 @@ class _ServiceImageCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _PillLabel(label: 'Service'),
+            _PillLabel(label: l10n.homeServiceBadge),
             const Spacer(),
             Text(
               service.title,
@@ -333,7 +340,7 @@ class _ServiceImageCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xxs),
             Text(
               _joinNonEmpty([service.categoryName, service.location]) ??
-                  'Provider service',
+                  l10n.homeServiceFallbackSubtitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
@@ -15,13 +16,14 @@ class HomeStoryStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         PromooSectionHeader(
-          title: 'Stories',
-          subtitle: 'Fresh updates from Promoo partners',
-          actionLabel: onSeeAll == null ? null : 'See All',
+          title: l10n.homeSectionStoriesTitle,
+          subtitle: l10n.homeSectionStoriesSubtitle,
+          actionLabel: onSeeAll == null ? null : l10n.commonSeeAll,
           onActionPressed: onSeeAll,
         ),
         const SizedBox(height: AppSpacing.md),

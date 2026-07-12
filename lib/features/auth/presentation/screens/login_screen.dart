@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -11,6 +12,7 @@ import '../../../../theme/app_spacing.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_form_field.dart';
 import '../widgets/auth_message_banner.dart';
+import '../widgets/auth_messages.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
 import '../widgets/auth_social_login_preview.dart';
@@ -92,7 +94,8 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = state.displayMessage;
+    final l10n = AppLocalizations.of(context);
+    final message = resolveAuthMessage(l10n, state);
     final colors = context.colors;
 
     return PromooCard(
@@ -102,22 +105,22 @@ class _LoginForm extends StatelessWidget {
         children: [
           if (message != null) ...[
             AuthMessageBanner(
-              message: message,
-              isError: state.successMessage == null,
+              message: message.text,
+              isError: message.isError,
               onDismiss: onClearMessage,
             ),
             const SizedBox(height: AppSpacing.md),
           ],
-          const AuthFieldLabel('Email'),
+          AuthFieldLabel(l10n.authFieldEmail),
           const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: emailController,
-            hint: 'Email',
+            hint: l10n.authFieldEmail,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
-          const AuthFieldLabel('Password'),
+          AuthFieldLabel(l10n.authFieldPassword),
           const SizedBox(height: AppSpacing.xs),
           AuthPasswordField(
             controller: passwordController,
@@ -125,7 +128,7 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
-            label: state.isBusy ? 'Signing in...' : 'Login',
+            label: state.isBusy ? l10n.authLoggingIn : l10n.authLogin,
             fullWidth: true,
             onPressed: state.isBusy ? null : onSubmit,
           ),
@@ -135,9 +138,9 @@ class _LoginForm extends StatelessWidget {
             child: TextButton(
               onPressed: state.isBusy
                   ? null
-                  : () => _showComingSoon(context, 'Password reset'),
+                  : () => _showComingSoon(context, l10n, 'Password reset'),
               child: Text(
-                'forget password?',
+                l10n.authForgetPassword,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: colors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -149,7 +152,7 @@ class _LoginForm extends StatelessWidget {
           const AuthSocialLoginPreview(),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
-            label: 'Sign Up',
+            label: l10n.authSignUp,
             fullWidth: true,
             // Push keeps Login beneath, so back returns here step-wise.
             onPressed: state.isBusy
@@ -158,7 +161,7 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(
-            label: 'Continue as Guest',
+            label: l10n.authContinueAsGuest,
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.home),
           ),
@@ -168,8 +171,14 @@ class _LoginForm extends StatelessWidget {
   }
 }
 
-void _showComingSoon(BuildContext context, String label) {
+void _showComingSoon(
+  BuildContext context,
+  AppLocalizations l10n,
+  String feature,
+) {
   final messenger = ScaffoldMessenger.of(context);
   messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(SnackBar(content: Text('$label coming soon')));
+  messenger.showSnackBar(
+    SnackBar(content: Text(l10n.commonComingSoon(feature))),
+  );
 }

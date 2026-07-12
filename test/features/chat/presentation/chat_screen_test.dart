@@ -7,6 +7,7 @@ import 'package:promoo_app/features/chat/domain/entities/chat.dart';
 import 'package:promoo_app/features/chat/domain/repositories/chat_repository.dart';
 import 'package:promoo_app/features/chat/presentation/screens/chat_list_screen.dart';
 import 'package:promoo_app/features/chat/presentation/screens/chat_room_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/theme/app_theme.dart';
@@ -34,7 +35,12 @@ void main() {
             _ChatRepository(rooms: [_room], messages: [_message]),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -56,6 +62,8 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: const MediaQuery(
             data: MediaQueryData(viewInsets: EdgeInsets.only(bottom: 280)),
             child: ChatRoomScreen(roomId: 'room-1'),
@@ -79,7 +87,12 @@ void main() {
 Widget _buildChatListScreen(ChatRepository repository) {
   return ProviderScope(
     overrides: [chatRepositoryProvider.overrideWithValue(repository)],
-    child: MaterialApp(theme: AppTheme.dark, home: const ChatListScreen()),
+    child: MaterialApp(
+      theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const ChatListScreen(),
+    ),
   );
 }
 

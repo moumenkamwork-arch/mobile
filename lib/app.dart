@@ -25,6 +25,20 @@ class PromooApp extends ConsumerWidget {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // Owner decision (2026-07-11): translate text to Arabic but keep the
+      // LAYOUT direction fixed LTR in both languages — no mirrored UI. Flutter
+      // derives Directionality from the locale by default (ar -> rtl), so we
+      // force it back to ltr here regardless of `locale`. Arabic text still
+      // renders correctly right-to-left at the glyph level (that's the
+      // Unicode bidi algorithm inside each Text run, independent of this
+      // layout-direction override) — only widget layout (Row order, start/end
+      // padding resolution, alignment) stays LTR.
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       routerConfig: router,
     );
   }

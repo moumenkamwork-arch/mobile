@@ -199,8 +199,9 @@ class _ProfileContentView extends ConsumerWidget {
                       onFollowPressed: () => ref
                           .read(profileControllerProvider.notifier)
                           .toggleFollow(),
-                      onMessagePressed: () =>
-                          context.push(AppRoutes.chatRoom('chat-${profile.id}')),
+                      onMessagePressed: () => context.push(
+                        AppRoutes.chatRoom('chat-${profile.id}'),
+                      ),
                       onEditPressed: () => context.push(AppRoutes.profileEdit),
                     ),
                     const SizedBox(height: AppSpacing.lg),

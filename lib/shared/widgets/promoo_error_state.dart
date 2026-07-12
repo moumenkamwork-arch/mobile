@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import 'promoo_button.dart';
@@ -9,13 +10,15 @@ class PromooErrorState extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.retryLabel = 'Retry',
+    this.retryLabel,
     this.onRetry,
   });
 
   final String title;
   final String message;
-  final String retryLabel;
+
+  /// Defaults to the localized "Retry" when not overridden.
+  final String? retryLabel;
   final VoidCallback? onRetry;
 
   @override
@@ -46,7 +49,7 @@ class PromooErrorState extends StatelessWidget {
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.lg),
               PromooButton.secondary(
-                label: retryLabel,
+                label: retryLabel ?? AppLocalizations.of(context).actionRetry,
                 icon: Icons.refresh_rounded,
                 onPressed: onRetry,
               ),

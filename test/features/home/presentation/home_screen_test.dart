@@ -12,6 +12,7 @@ import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
 import 'package:promoo_app/features/home/presentation/screens/home_screen.dart';
 import 'package:promoo_app/features/home/presentation/widgets/home_story_viewer.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_empty_state.dart';
@@ -203,7 +204,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -238,7 +244,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -288,6 +299,8 @@ Widget _buildHomeScreen(HomeRepository repository) {
     overrides: [homeRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(body: HomeScreen()),
     ),
   );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -30,13 +31,15 @@ class AuthPasswordField extends StatefulWidget {
   const AuthPasswordField({
     super.key,
     required this.controller,
-    this.hint = 'Password',
+    this.hint,
     this.textInputAction = TextInputAction.done,
     this.onSubmitted,
   });
 
   final TextEditingController controller;
-  final String hint;
+
+  /// Defaults to the localized "Password" when not overridden.
+  final String? hint;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
 
@@ -49,14 +52,15 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooTextField(
       controller: widget.controller,
-      hint: widget.hint,
+      hint: widget.hint ?? l10n.authFieldPassword,
       obscureText: _obscure,
       textInputAction: widget.textInputAction,
       onSubmitted: widget.onSubmitted,
       suffixIcon: IconButton(
-        tooltip: _obscure ? 'Show password' : 'Hide password',
+        tooltip: _obscure ? l10n.authPasswordShow : l10n.authPasswordHide,
         icon: Icon(
           _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
         ),

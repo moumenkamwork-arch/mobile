@@ -900,10 +900,10 @@ class HomeContentDetailDto {
     return HomeContentDetail(
       id: id ?? fallbackId,
       type: type,
-      title: title ?? type.label,
+      title: title ?? type.dataFallbackLabel,
       description: description,
       imageUrl: imageUrl,
-      badge: badge ?? type.label,
+      badge: badge ?? type.dataFallbackLabel,
       provider: provider?.toDomain(),
       categoryName: categoryName,
       tags: tags,

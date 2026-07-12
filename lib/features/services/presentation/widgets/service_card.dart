@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
@@ -15,6 +16,7 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       onTap: onTap,
       child: Row(
@@ -68,10 +70,12 @@ class ServiceCard extends StatelessWidget {
                       _ServiceMetaChip(label: service.provider!.name),
                     if (service.deliveryDays != null)
                       _ServiceMetaChip(
-                        label: '${service.deliveryDays} day delivery',
+                        label: l10n.servicesDeliveryDaysLabel(
+                          service.deliveryDays!,
+                        ),
                       ),
                     if (service.price == null)
-                      const _ServiceMetaChip(label: 'Contact for pricing'),
+                      _ServiceMetaChip(label: l10n.commonContactForPricing),
                     if (service.location != null)
                       _ServiceMetaChip(label: service.location!),
                   ],

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../l10n/app_localizations.dart';
 import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
 import '../shared/state/shell_scroll_provider.dart';
@@ -13,14 +14,30 @@ import '../shared/widgets/promoo_scaffold.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
+enum PromooShellTabId { home, influencer, promoo, services, profile }
+
+/// Resolves the localized label for a tab. A separate function (not a field on
+/// [PromooShellTab]) because the tab list below is `static const` and can't
+/// depend on `BuildContext`.
+String promooShellTabLabel(BuildContext context, PromooShellTabId id) {
+  final l10n = AppLocalizations.of(context);
+  return switch (id) {
+    PromooShellTabId.home => l10n.tabHome,
+    PromooShellTabId.influencer => l10n.tabInfluencer,
+    PromooShellTabId.promoo => l10n.tabPromoo,
+    PromooShellTabId.services => l10n.tabServices,
+    PromooShellTabId.profile => l10n.tabProfile,
+  };
+}
+
 class PromooShellTab {
   const PromooShellTab({
-    required this.label,
+    required this.id,
     required this.route,
     required this.icon,
   });
 
-  final String label;
+  final PromooShellTabId id;
   final String route;
   final IconData icon;
 }
@@ -37,29 +54,29 @@ class PromooShell extends ConsumerStatefulWidget {
 
   static const tabs = [
     PromooShellTab(
-      label: 'Home',
+      id: PromooShellTabId.home,
       route: AppRoutes.home,
       icon: Icons.home_rounded,
     ),
     PromooShellTab(
-      label: 'Influencer',
+      id: PromooShellTabId.influencer,
       route: AppRoutes.seats,
       icon: Icons.event_seat_rounded,
     ),
     // Center (index 2) is the elevated P mark. Per owner request it now leads
     // to the Cup page and is labelled "Promoo"; Services moved to a normal tab.
     PromooShellTab(
-      label: 'Promoo',
+      id: PromooShellTabId.promoo,
       route: AppRoutes.cup,
       icon: Icons.emoji_events_rounded,
     ),
     PromooShellTab(
-      label: 'Services',
+      id: PromooShellTabId.services,
       route: AppRoutes.services,
       icon: Icons.storefront_rounded,
     ),
     PromooShellTab(
-      label: 'Profile',
+      id: PromooShellTabId.profile,
       route: AppRoutes.profile,
       icon: Icons.person_rounded,
     ),
@@ -125,8 +142,8 @@ class _PromooShellState extends ConsumerState<PromooShell> {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                content: const Text(
-                  'Press back again to exit',
+                content: Text(
+                  AppLocalizations.of(context).snackbarPressBackAgainToExit,
                   textAlign: TextAlign.center,
                 ),
                 behavior: SnackBarBehavior.floating,
@@ -312,7 +329,7 @@ class _CenterServicesLabel extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
           child: Text(
-            tab.label,
+            promooShellTabLabel(context, tab.id),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: selected
                   ? context.colors.accent
@@ -339,12 +356,14 @@ class _CenterPMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final label = promooShellTabLabel(context, PromooShellTabId.promoo);
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Promoo tab',
+      label: l10n.tabSemanticLabel(label),
       child: Tooltip(
-        message: 'Promoo',
+        message: label,
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.opaque,
@@ -386,15 +405,17 @@ class _PromooNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.colors;
     final color = selected ? colors.accent : colors.textMuted;
+    final label = promooShellTabLabel(context, tab.id);
 
     return Semantics(
       button: true,
       selected: selected,
-      label: '${tab.label} tab',
+      label: l10n.tabSemanticLabel(label),
       child: Tooltip(
-        message: tab.label,
+        message: label,
         child: InkWell(
           onTap: onTap,
           child: Column(
@@ -404,7 +425,7 @@ class _PromooNavItem extends StatelessWidget {
               Icon(tab.icon, color: color, size: 24),
               const SizedBox(height: AppSpacing.xxxs),
               Text(
-                tab.label,
+                label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(

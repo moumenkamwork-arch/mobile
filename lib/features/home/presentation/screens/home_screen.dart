@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -21,16 +22,17 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(homeControllerProvider);
 
     return switch (state.status) {
-      HomeStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading Promoo home',
+      HomeStatus.loading => PromooLoadingIndicator(
+        message: l10n.homeLoadingMessage,
       ),
       HomeStatus.empty => PromooEmptyState(
-        title: 'Nothing to show yet',
-        message: 'Promoo home content will appear here when it is available.',
-        actionLabel: 'Retry',
+        title: l10n.homeEmptyTitle,
+        message: l10n.homeEmptyMessage,
+        actionLabel: l10n.actionRetry,
         onActionPressed: () {
           ref.read(homeControllerProvider.notifier).retry();
         },
@@ -52,6 +54,7 @@ class _HomeErrorView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final staleContent = state.content;
     final failure = state.failure;
 
@@ -76,7 +79,7 @@ class _HomeErrorView extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  failure?.message ?? 'Could not refresh home content.',
+                  failure?.message ?? l10n.homeRefreshErrorFallback,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -88,8 +91,8 @@ class _HomeErrorView extends ConsumerWidget {
     }
 
     return PromooErrorState(
-      title: 'Could not load home',
-      message: failure?.message ?? 'Something went wrong. Try again.',
+      title: l10n.homeErrorTitle,
+      message: failure?.message ?? l10n.commonSomethingWentWrong,
       onRetry: () => ref.read(homeControllerProvider.notifier).retry(),
     );
   }
@@ -108,6 +111,7 @@ class _HomeContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final topOffers = content.offers.take(5).toList(growable: false);
     final forYouOffers = content.offers.skip(5).toList(growable: false);
 
@@ -143,8 +147,8 @@ class _HomeContentView extends StatelessWidget {
                     if (topOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
                       HomeOffersPreviewSection(
-                        title: 'Top Offers',
-                        subtitle: 'Featured offers from Promoo partners',
+                        title: l10n.homeSectionTopOffersTitle,
+                        subtitle: l10n.homeSectionTopOffersSubtitle,
                         offers: topOffers,
                         layout: HomeOfferPreviewLayout.hero,
                         onSeeAll: () =>
@@ -162,9 +166,9 @@ class _HomeContentView extends StatelessWidget {
                     if (content.highlight != null) ...[
                       const SizedBox(height: AppSpacing.lg),
                       PromooSectionHeader(
-                        title: 'Promoo of the Day',
-                        subtitle: "Today's featured Promoo pick",
-                        actionLabel: 'See All',
+                        title: l10n.homeSectionPromooOfDayTitle,
+                        subtitle: l10n.homeSectionPromooOfDaySubtitle,
+                        actionLabel: l10n.commonSeeAll,
                         onActionPressed: () =>
                             context.push(AppRoutes.homeSeeAll('offers')),
                       ),

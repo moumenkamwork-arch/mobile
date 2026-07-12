@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/shared/widgets/promoo_empty_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
@@ -10,6 +11,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: const Scaffold(
           body: PromooLoadingIndicator(message: 'Loading content'),
         ),
@@ -24,6 +27,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: PromooEmptyState(
             title: 'Nothing here yet',
@@ -44,6 +49,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: PromooErrorState(
             title: 'Something went wrong',

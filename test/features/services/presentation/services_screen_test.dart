@@ -9,6 +9,7 @@ import 'package:promoo_app/features/services/data/repositories/services_reposito
 import 'package:promoo_app/features/services/domain/entities/promoo_service.dart';
 import 'package:promoo_app/features/services/domain/repositories/services_repository.dart';
 import 'package:promoo_app/features/services/presentation/screens/services_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
@@ -180,7 +181,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -226,6 +232,8 @@ Widget _buildServicesScreen(ServicesRepository repository) {
     overrides: [servicesRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(body: ServicesScreen()),
     ),
   );

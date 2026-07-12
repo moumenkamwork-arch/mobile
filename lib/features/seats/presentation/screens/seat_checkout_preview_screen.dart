@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -25,12 +26,15 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final displayTitle = title.trim().isEmpty ? 'Influencer Seat' : title;
+    final l10n = AppLocalizations.of(context);
+    final displayTitle = title.trim().isEmpty
+        ? l10n.seatsCheckoutFallbackTitle
+        : title;
     final displayTier = tierLabel.trim().isEmpty
-        ? 'Visibility seat'
+        ? l10n.seatsCheckoutFallbackTier
         : tierLabel;
     final displayPrice = priceLabel.trim().isEmpty
-        ? 'Price shown after seat selection'
+        ? l10n.seatsCheckoutFallbackPrice
         : priceLabel;
 
     return CustomScrollView(
@@ -47,7 +51,7 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
               Row(
                 children: [
                   IconButton.filledTonal(
-                    tooltip: 'Back to seats',
+                    tooltip: l10n.seatsCheckoutBackTooltip,
                     onPressed: () {
                       if (context.canPop()) {
                         context.pop();
@@ -63,12 +67,12 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Checkout preview',
+                          l10n.seatsCheckoutTitle,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: AppSpacing.xxxs),
                         Text(
-                          'Confirm the placement before payment is enabled.',
+                          l10n.seatsCheckoutSubtitle,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -121,9 +125,18 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _SummaryRow(label: 'Seat ID', value: seatId),
-                    _SummaryRow(label: 'Placement', value: displayTier),
-                    _SummaryRow(label: 'Amount', value: displayPrice),
+                    _SummaryRow(
+                      label: l10n.seatsCheckoutSeatIdLabel,
+                      value: seatId,
+                    ),
+                    _SummaryRow(
+                      label: l10n.seatsCheckoutPlacementLabel,
+                      value: displayTier,
+                    ),
+                    _SummaryRow(
+                      label: l10n.seatsCheckoutAmountLabel,
+                      value: displayPrice,
+                    ),
                   ],
                 ),
               ),
@@ -133,36 +146,36 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Payment details',
+                      l10n.seatsCheckoutPaymentDetailsTitle,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    const PromooTextField(
-                      label: 'Cardholder name',
-                      hint: 'Name on card',
-                      prefixIcon: Icon(Icons.person_rounded),
+                    PromooTextField(
+                      label: l10n.seatsCheckoutCardholderName,
+                      hint: l10n.seatsCheckoutNameOnCard,
+                      prefixIcon: const Icon(Icons.person_rounded),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    const PromooTextField(
-                      label: 'Card number',
+                    PromooTextField(
+                      label: l10n.seatsCheckoutCardNumber,
                       hint: '0000 0000 0000 0000',
                       keyboardType: TextInputType.number,
-                      prefixIcon: Icon(Icons.credit_card_rounded),
+                      prefixIcon: const Icon(Icons.credit_card_rounded),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Row(
-                      children: const [
+                      children: [
                         Expanded(
                           child: PromooTextField(
-                            label: 'Expiry',
+                            label: l10n.seatsCheckoutExpiry,
                             hint: 'MM / YY',
                             keyboardType: TextInputType.datetime,
                           ),
                         ),
-                        SizedBox(width: AppSpacing.sm),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: PromooTextField(
-                            label: 'CVV',
+                            label: l10n.seatsCheckoutCvv,
                             hint: '123',
                             keyboardType: TextInputType.number,
                           ),
@@ -171,16 +184,16 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     PromooButton.primary(
-                      label: 'Preview payment',
+                      label: l10n.seatsCheckoutPreviewPayment,
                       icon: Icons.lock_rounded,
                       fullWidth: true,
                       onPressed: () {
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                'Checkout preview only. No payment was processed.',
+                                l10n.seatsCheckoutPreviewOnlyNotice,
                               ),
                             ),
                           );
@@ -188,7 +201,7 @@ class SeatCheckoutPreviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Booking and payment open in the next phase.',
+                      l10n.seatsCheckoutNextPhaseNotice,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

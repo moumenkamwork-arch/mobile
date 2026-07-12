@@ -36,7 +36,12 @@ extension HomeContentDetailTypeValue on HomeContentDetailType {
     };
   }
 
-  String get label {
+  /// Data-layer-only fallback used when a fixture/backend record omits
+  /// `title`/`badge` (see `HomeContentDetailDto.toDomain`). English-only and
+  /// NOT shown as-is by the UI — the presentation layer resolves its own
+  /// localized label via `homeContentDetailTypeLabel(context, type)` for
+  /// actual display. Domain code has no `BuildContext` to localize this.
+  String get dataFallbackLabel {
     return switch (this) {
       HomeContentDetailType.offer => 'Offer',
       HomeContentDetailType.ad => 'Promotion',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -14,6 +15,21 @@ import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../domain/entities/home_content.dart';
 import '../controllers/home_content_detail_controller.dart';
+
+/// Resolves the localized label for a [HomeContentDetailType]. A free
+/// function (not a domain-entity getter) because domain code must stay
+/// Flutter-free.
+String homeContentDetailTypeLabel(
+  BuildContext context,
+  HomeContentDetailType type,
+) {
+  final l10n = AppLocalizations.of(context);
+  return switch (type) {
+    HomeContentDetailType.offer => l10n.homeDetailTypeOffer,
+    HomeContentDetailType.ad => l10n.homeDetailTypeAd,
+    HomeContentDetailType.unknown => l10n.homeDetailTypeUnknown,
+  };
+}
 
 class HomeContentDetailScreen extends StatelessWidget {
   const HomeContentDetailScreen({
@@ -58,17 +74,18 @@ class _HomeContentDetailBodyState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(
       homeContentDetailControllerProvider(widget.request),
     );
 
     return switch (state.status) {
-      HomeContentDetailStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading details',
+      HomeContentDetailStatus.loading => PromooLoadingIndicator(
+        message: l10n.homeDetailLoadingMessage,
       ),
       HomeContentDetailStatus.error => PromooErrorState(
-        title: 'Could not load details',
-        message: state.failure?.message ?? 'Something went wrong.',
+        title: l10n.homeDetailErrorTitle,
+        message: state.failure?.message ?? l10n.commonSomethingWentWrong,
         onRetry: () => ref
             .read(homeContentDetailControllerProvider(widget.request).notifier)
             .retry(),
@@ -79,8 +96,7 @@ class _HomeContentDetailBodyState
         onBack: () => _goBack(context),
         onContactPressed: () {
           setState(() {
-            _noticeMessage =
-                'Contact flow coming soon. You can open chats or view the provider profile.';
+            _noticeMessage = l10n.commonContactFlowComingSoon;
           });
         },
         // Push keeps the stack intact so back returns to these details.
@@ -89,8 +105,9 @@ class _HomeContentDetailBodyState
             ? null
             : () {
                 setState(() {
-                  _noticeMessage =
-                      'Location details coming soon. The current location is ${state.detail!.location}.';
+                  _noticeMessage = l10n.homeDetailLocationComingSoon(
+                    state.detail!.location!,
+                  );
                 });
               },
         onViewProfilePressed: state.detail!.provider == null
@@ -140,7 +157,10 @@ class _HomeContentDetailContent extends StatelessWidget {
           ),
           sliver: SliverList.list(
             children: [
-              _DetailHeader(title: detail.type.label, onBack: onBack),
+              _DetailHeader(
+                title: homeContentDetailTypeLabel(context, detail.type),
+                onBack: onBack,
+              ),
               const SizedBox(height: AppSpacing.lg),
               _HeroCard(detail: detail),
               const SizedBox(height: AppSpacing.lg),
@@ -188,7 +208,7 @@ class _DetailHeader extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back',
+          tooltip: AppLocalizations.of(context).commonBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
@@ -243,7 +263,9 @@ class _HeroCard extends StatelessWidget {
                   icon: detail.type == HomeContentDetailType.ad
                       ? Icons.campaign_rounded
                       : Icons.local_offer_rounded,
-                  label: detail.badge ?? detail.type.label,
+                  label:
+                      detail.badge ??
+                      homeContentDetailTypeLabel(context, detail.type),
                   highlighted: true,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -291,22 +313,23 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       child: Row(
         children: [
           Expanded(
             child: _SummaryMetric(
               icon: Icons.sell_outlined,
-              label: 'Price',
-              value: detail.price?.label ?? 'Contact for pricing',
+              label: l10n.commonPrice,
+              value: detail.price?.label ?? l10n.commonContactForPricing,
             ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: _SummaryMetric(
               icon: Icons.schedule_rounded,
-              label: 'Availability',
-              value: detail.validUntil ?? 'Confirm with provider',
+              label: l10n.homeDetailAvailabilityLabel,
+              value: detail.validUntil ?? l10n.homeDetailAvailabilityFallback,
             ),
           ),
         ],
@@ -356,7 +379,9 @@ class _DescriptionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(title: 'Description'),
+        PromooSectionHeader(
+          title: AppLocalizations.of(context).commonDescription,
+        ),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: Text(
@@ -379,7 +404,7 @@ class _ProviderSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(title: 'Provider'),
+        PromooSectionHeader(title: AppLocalizations.of(context).commonProvider),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: Row(
@@ -458,7 +483,7 @@ class _DetailsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(title: 'Details'),
+        PromooSectionHeader(title: AppLocalizations.of(context).commonDetails),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: Column(
@@ -524,12 +549,13 @@ class _ActionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(
-          title: 'Next step',
-          subtitle: 'Connect with the provider before taking action',
+        PromooSectionHeader(
+          title: l10n.homeDetailNextStepTitle,
+          subtitle: l10n.homeDetailNextStepSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         if (noticeMessage != null) ...[
@@ -548,7 +574,7 @@ class _ActionSection extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Dismiss',
+                  tooltip: l10n.commonDismiss,
                   onPressed: onDismissNotice,
                   icon: const Icon(Icons.close_rounded),
                 ),
@@ -558,14 +584,14 @@ class _ActionSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
         ],
         PromooButton.primary(
-          label: 'Contact',
+          label: l10n.homeDetailContact,
           icon: Icons.phone_in_talk_rounded,
           fullWidth: true,
           onPressed: onContactPressed,
         ),
         const SizedBox(height: AppSpacing.sm),
         PromooButton.secondary(
-          label: 'Open chats',
+          label: l10n.commonOpenChats,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,
           onPressed: onOpenChatsPressed,
@@ -573,7 +599,7 @@ class _ActionSection extends StatelessWidget {
         if (hasProfile) ...[
           const SizedBox(height: AppSpacing.sm),
           PromooButton.tertiary(
-            label: 'View provider profile',
+            label: l10n.commonViewProviderProfile,
             icon: Icons.person_rounded,
             fullWidth: true,
             onPressed: onViewProfilePressed,
@@ -582,7 +608,7 @@ class _ActionSection extends StatelessWidget {
         if (hasLocation) ...[
           const SizedBox(height: AppSpacing.sm),
           PromooButton.tertiary(
-            label: 'Location',
+            label: l10n.homeDetailLocation,
             icon: Icons.place_outlined,
             fullWidth: true,
             onPressed: onLocationPressed,

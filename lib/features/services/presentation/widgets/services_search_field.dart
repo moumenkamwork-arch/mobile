@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -46,15 +47,16 @@ class _ServicesSearchFieldState extends State<ServicesSearchField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooTextField(
       controller: _controller,
-      hint: 'Search services',
+      hint: l10n.servicesSearchHint,
       textInputAction: TextInputAction.search,
       prefixIcon: Icon(Icons.search_rounded, color: context.colors.accent),
       suffixIcon: widget.onClear == null
           ? null
           : IconButton(
-              tooltip: 'Clear search',
+              tooltip: l10n.servicesClearSearchTooltip,
               onPressed: widget.onClear,
               icon: const Icon(Icons.close_rounded),
             ),

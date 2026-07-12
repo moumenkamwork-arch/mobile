@@ -19,6 +19,7 @@ import 'package:promoo_app/features/search/presentation/widgets/search_filter_ch
 import 'package:promoo_app/features/services/data/repositories/services_repository_impl.dart';
 import 'package:promoo_app/features/services/domain/entities/promoo_service.dart';
 import 'package:promoo_app/features/services/domain/repositories/services_repository.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_empty_state.dart';
@@ -109,7 +110,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
 
@@ -141,7 +147,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
 
@@ -169,7 +180,12 @@ void main() {
             const _HomeRepository(detailResult: Result.success(_offerDetail)),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
 
@@ -198,7 +214,12 @@ void main() {
             const _HomeRepository(detailResult: Result.success(_adDetail)),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
 
@@ -218,6 +239,8 @@ Widget _buildSearchScreen(SearchRepository repository) {
     overrides: [searchRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(body: SearchScreen()),
     ),
   );

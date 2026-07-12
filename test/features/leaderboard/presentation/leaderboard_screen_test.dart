@@ -11,6 +11,7 @@ import 'package:promoo_app/features/leaderboard/domain/entities/leaderboard_prof
 import 'package:promoo_app/features/leaderboard/domain/repositories/leaderboard_repository.dart';
 import 'package:promoo_app/features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import 'package:promoo_app/features/leaderboard/presentation/widgets/leaderboard_podium.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
@@ -91,7 +92,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appConfigProvider.overrideWithValue(_mockConfig)],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -111,6 +117,8 @@ Widget _buildLeaderboardScreen(LeaderboardRepository repository) {
     overrides: [leaderboardRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(body: LeaderboardScreen()),
     ),
   );

@@ -1,12 +1,14 @@
 <div dir="rtl">
 
-# خطة التعريب (Arabic / English + RTL) — قبل الربط
+# خطة التعريب (Arabic / English) — قبل الربط
 
-> **الهدف:** جعل تطبيق `promo_mobile` ثنائي اللغة (عربي/إنجليزي) مع دعم RTL كامل، **قبل** مرحلة ربط الـ backend.
+> **الهدف:** جعل تطبيق `promo_mobile` ثنائي اللغة (عربي/إنجليزي)، **قبل** مرحلة ربط الـ backend.
 >
-> **لماذا قبل الربط؟** التعريب ينقسم قسمين ينفصلان نظيفاً: **نصوص الواجهة + RTL (≈90%) مستقلّة تماماً عن الـ backend** ونعملها الآن على قاعدة frontend-only مستقرّة؛ و**لغة المحتوى الديناميكي (≈10%) تندمج طبيعياً في الربط** (هيدر `Accept-Language`).
+> ⚠️ **قرار مالك حاسم (2026-07-11): بلا RTL.** التطبيق **يترجم النص فقط** — اتجاه الواجهة (layout) **يضل LTR ثابت بكلا اللغتين**، بدون أي انقلاب/مرآة. اتجاه القراءة الفعلي لحروف العربي داخل كل نص بيضل صحيح تلقائياً (خوارزمية Unicode bidi على مستوى الحرف، مستقلة عن اتجاه الـ layout) — بس ترتيب العناصر (Row، محاذاة start/end، إلخ) ثابت LTR دايماً. الفرض بـ [app.dart](../lib/app.dart) عبر `builder` بيغلّف كل التطبيق بـ `Directionality(textDirection: TextDirection.ltr)` بغضّ النظر عن اللغة المختارة. **كل مراحل L0-Seats كانت مبنية على افتراض RTL كامل وتصحّحت بأثر رجعي بعد هالقرار** — شوف "تحديث 2026-07-11 (بعد الشغل)" تحت.
 >
-> الحالة: **قيد التنفيذ** — ✅ L0 (السكافولد + شاشة الإعدادات) منجزة · ⏭️ L1 التالية · التاريخ: 2026-07-11.
+> **لماذا قبل الربط؟** التعريب ينقسم قسمين ينفصلان نظيفاً: **نصوص الواجهة (≈90%) مستقلّة تماماً عن الـ backend** ونعملها الآن على قاعدة frontend-only مستقرّة؛ و**لغة المحتوى الديناميكي (≈10%) تندمج طبيعياً في الربط** (هيدر `Accept-Language`).
+>
+> الحالة: **قيد التنفيذ** — L0 حتى Influencer/Seats منجزة (نص فقط، LTR ثابت) · ⏭️ Cup التالية · آخر تحديث: 2026-07-11.
 
 ---
 
@@ -22,9 +24,9 @@
 
 ## جاهزية التطبيق الحالية (نقاط قوة)
 - ✅ `intl` + `flutter_localizations` **موجودان** في [pubspec.yaml](../pubspec.yaml).
-- ✅ **صفر** paddings/alignments غير اتجاهية — 172 موضعاً كلها `EdgeInsetsDirectional`/`AlignmentDirectional`/`PositionedDirectional` → RTL سينقلب "تلقائياً" دون أعطال تخطيط تقريباً.
+- ✅ **صفر** paddings/alignments غير اتجاهية — 172 موضعاً كلها `EdgeInsetsDirectional`/`AlignmentDirectional`/`PositionedDirectional`. (هاي كانت أصلاً تحضيراً لـ RTL؛ بعد قرار "بلا RTL" صارت غير حرجة لكن ما في داعي نرجّعها — الأسلوب الاتجاهي شغّال تمام بـ LTR الثابت وهو أفضل ممارسة بأي حال.)
 - ✅ يوجد toggle "Arabic/English" في الإعدادات (حالياً stub) + نمط حفظ جاهز نقلّده ([theme_mode_controller.dart](../lib/theme/theme_mode_controller.dart)).
-- ✅ نقطة تبديل واحدة للتطبيق: [app.dart](../lib/app.dart) (`MaterialApp.router`).
+- ✅ نقطة تبديل واحدة للتطبيق: [app.dart](../lib/app.dart) (`MaterialApp.router`) — وفيها الآن `builder` يفرض `Directionality.ltr` دايماً.
 
 ---
 
@@ -42,17 +44,20 @@
 > **قرارات مُعتمدة:** الافتراضي = لغة الجهاز (fallback إنجليزي) · أرقام غربية · الترجمة العربية مسودّة مني (تُراجَع لاحقاً).
 > **ملاحظة تحقّق:** الإثبات الحيّ للـ RTL عبر اختبار الودجت (مُوثوق)؛ معاينة المتصفح كانت عالقة هالجولة (مشكلة أداة، مش كود).
 
-## المرحلة L1 — النصوص المشتركة/الأساسية (أعلى رافعة)
-تظهر في كل الشاشات، فترجمتها تُعرّب أجزاء واسعة دفعة واحدة.
-- [ ] الودجت المشتركة: `promoo_empty_state`, `promoo_error_state`, `promoo_loading_indicator`, `promoo_section_header`, `promoo_button` (نصوص شائعة).
-- [ ] الهيدر/الفوتر: `promoo_page_header` (Chats/Notifications/Switch mode)، تبويبات `promoo_shell` (Home/Influencer/Promoo/Services/Profile)، snackbar "Press back again to exit".
+## المرحلة L1 — النصوص المشتركة/الأساسية ✅ (منجزة 2026-07-11)
+تظهر في كل الشاشات، فترجمتها عرّبت أجزاء واسعة دفعة واحدة.
+- [x] الودجت المشتركة: فحصت [promoo_section_header.dart](../lib/shared/widgets/promoo_section_header.dart) و[promoo_button.dart](../lib/shared/widgets/promoo_button.dart) — لا نصوص مكتوبة بداخلهما (كل شي parameters من المستدعي، هيترجم مع كل feature بـ L2+). عرّبت الافتراضيات الحقيقية: [promoo_error_state.dart](../lib/shared/widgets/promoo_error_state.dart) (`retryLabel` صار nullable ويرجع لـ `actionRetry` من ARB) و[promoo_loading_indicator.dart](../lib/shared/widgets/promoo_loading_indicator.dart) (`semanticLabel` نفس المبدأ مع `commonLoading`).
+- [x] الهيدر: [promoo_page_header.dart](../lib/shared/widgets/promoo_page_header.dart) — تلميحات Chats/Notifications/Switch to light-dark mode.
+- [x] الفوتر: [promoo_shell.dart](../lib/shell/promoo_shell.dart) — تبويبات Home/Influencer/Promoo/Services/Profile (حُوّل `PromooShellTab.label` الثابت لـ `PromooShellTabId` enum + دالة `promooShellTabLabel(context, id)` تحلّ النص وقت البناء، لأن قائمة `tabs` هي `static const` وما فيها توصل لـ `BuildContext`)، وsnackbar "Press back again to exit".
+- [x] اختبار: [promoo_shell_l10n_test.dart](../test/shell/promoo_shell_l10n_test.dart) يثبت التبويبات + تلميحات الهيدر بالعربي + RTL على الشل كامل.
+- [x] حُدّثت 12 ملف اختبار كان يعرض هالودجت المشتركة (Home/Services/Seats/Cup/Profile/Search/Chat/Notifications/Auth) بإضافة `AppLocalizations.localizationsDelegates` + `supportedLocales` لـ `MaterialApp` تبعها (كل ودجت صار يستدعي `AppLocalizations.of(context)` فلازم يكون فيه Localizations ancestor بالاختبار). **164 اختبار يمرّ، analyze نظيف.**
 
 ## المراحل L2…Ln — استخراج feature بعد feature
-لكل ميزة: استخراج النصوص إلى ARB + الترجمة العربية + تحقّق RTL بصري.
-- [ ] **Auth** — Login / Register (حقول، أزرار، "Continue as Guest"، رسائل).
-- [ ] **Home** — عناوين الأقسام (Top Offers, For You, Promoo of the Day, Services, Stories)، See All.
-- [ ] **Services** — البحث، حالات "No service found"، شريط النتائج.
-- [ ] **Influencer/Seats** — Influencers/Available seats، Gold/Silver/Bronze، Place/Book Seat، ورقة المقعد.
+لكل ميزة: استخراج النصوص إلى ARB + الترجمة العربية + تحقّق أنو النص عربي **والـ layout ثابت LTR** (بعد قرار إلغاء RTL — شوف الملاحظة بالأعلى).
+- [x] **Auth** — ✅ منجزة 2026-07-11. Login/Register كاملة: حقول (Email/Password/Full name/Account type)، كل الأزرار (Login/Sign Up/Create account/Already have an account/Continue as Guest/forget password?/Continue/Sign out)، شرائح Social login + "{feature} coming soon" (مفتاح `commonComingSoon` قابل لإعادة الاستخدام)، Account type chips (User/Company/Influencer/Service provider — عبر دالة `authAccountTypeLabel` بدل getter بالـ domain layer، وحذفت `AuthAccountType.label` القديمة لأنها صارت ميتة). **رسائل التحقق والنجاح:** كانت نصوص إنجليزية مكتوبة مباشرة بالـ `AuthController` (يلي ما عندو `BuildContext`) — حوّلتها لـ `enum AuthValidationIssue` + `registrationPending: bool`، وأضفت `auth_messages.dart` (`resolveAuthMessage(l10n, state)`) يحلّها كنص وقت العرض. **مؤجَّل بوعي (مو Auth تحديداً):** رسائل فشل الشبكة الفعلية (`AppFailure.message`، مثل "Invalid email or password.") تبقى إنجليزي — هاي ملك بنية `Result<T,AppFailure>` المشتركة بين *كل* الـ features، مو خاصة بـ Auth، فترجمتها Lx منفصلة لاحقاً مش جزء من هالمرحلة. اختبارات: [auth_screen_l10n_test.dart](../test/features/auth/presentation/auth_screen_l10n_test.dart) يثبت عربي+RTL على Login (بما فيها رسالة "البريد الإلكتروني مطلوب.") وRegister (Account type chips). حدّثت `auth_controller_test.dart` + `demo_data_quality_test.dart` + `launch_intro_screen_test.dart` (كانت بتتعثر بعد ما صارت شاشة Login معرّبة). **166 اختبار يمرّ.**
+- [x] **Home** — ✅ منجزة 2026-07-11. تغطّي `home_screen`، `home_story_strip`، `home_story_viewer`، `home_preview_sections`، `home_see_all_screen`، `home_content_detail_screen` (`home_header`/`home_highlight_card` لا تحتاج تعديل — أول واحد alias بلا نصوص، والتاني يعرض محتوى ديناميكي بالكامل). عناوين/أوصاف الأقسام (Stories, Top Offers, For You, Promoo of the Day, Services)، شارات الكروت (Top offer, Service badge + "Provider service" fallback)، حالات التحميل/الفراغ/الخطأ، شاشة See All (عناوين لكل قسم + فراغ/خطأ)، وصفحة تفاصيل العنصر كاملة (نوع العنصر Offer/Promotion/Promoo item، السعر/التوفر، أقسام الوصف/المزوّد/التفاصيل/الخطوة التالية، أزرار Contact/Open chats/View provider profile/Location، رسائل "قريباً" الديناميكية). أُضيفت مفاتيح مشتركة معاد استخدامها: `commonSeeAll`, `commonSomethingWentWrong` (ستتكرر بباقي الميزات). **نفس نمط الـ resolver:** `HomeContentDetailType` كان عندها `.label` بطبقة الـ domain تُستخدم بمكانين: العرض (استبدلتها بـ `homeContentDetailTypeLabel(context, type)`) **و** fallback بطبقة البيانات (`home_content_dto.dart` `toDomain()` عند غياب title/badge من المصدر) — هاي الحالة الثانية أعدتها كـ getter منفصل `dataFallbackLabel` (إنجليزي فقط عمداً، موثّق أنه مو للعرض المباشر، لأن طبقة البيانات ما عندها `BuildContext`). اختبار: [home_screen_l10n_test.dart](../test/features/home/presentation/home_screen_l10n_test.dart) يثبت عربي+RTL على عناوين الأقسام + شارة "أفضل عرض" + تلميحات الهيدر. **167 اختبار يمرّ**، لا كسر أي اختبار موجود (حافظت على كل النصوص الإنجليزية الافتراضية مطابقة تماماً للنصوص القديمة المُختبَرة).
+- [x] **Services** — ✅ منجزة 2026-07-11. تغطّي `services_screen`، `services_search_field`، `services_category_list`، `service_card`، `service_detail_screen`. البحث + شريط النتائج (استُخدم ICU **plural** حقيقي لعدد النتائج `servicesResultsCount` بدل تفريع يدوي 0/1/غيره — العربية عندها فئات جمع أدق: zero/one/two/few/many/other) + شارة "كل الخدمات" + حالتَي الفراغ (بحث بلا نتيجة / بلا فلترة) + صفحة تفاصيل الخدمة كاملة (السعر، المدة الزمنية بصيغة plural، الوصف، تفاصيل التسليم، المزوّد، قسم التواصل). **تنظيف DRY أثناء الشغل:** رقّيت 8 مفاتيح كانت مكرّرة حرفياً بين Home وServices لقسم مشترك (`commonPrice`, `commonContactForPricing`, `commonDescription`, `commonProvider`, `commonDetails`, `commonOpenChats`, `commonViewProviderProfile`, `commonContactFlowComingSoon`) — أعدت تسميتها من `homeDetail*` إلى `common*` وحدّثت كل الاستخدامات بالملفين. **درس مستفاد:** لما بنعمل ARB لميزة جديدة، أول شي نتأكد هل النص نفسه تماماً موجود بميزة سابقة (نفس الكلمة الإنجليزية) — إذا آه، نرقّيه لمفتاح مشترك بدل تكراره. اختبار: [services_screen_l10n_test.dart](../test/features/services/presentation/services_screen_l10n_test.dart) يثبت عربي+RTL على فئة "كل الخدمات"، تلميح البحث، ورسالة "لا توجد خدمة مطابقة." **168 اختبار يمرّ**، صفر كسر.
+- [x] **Influencer/Seats** — ✅ منجزة 2026-07-11. تغطّي `seats_screen` (الشريط + شريط البحث + مفتاح الفئات + الشبكة + ورقتَي المقعد/المؤثر) و`seat_checkout_preview_screen` كاملة. **قرار نحوي مهم:** "Gold Seat/Seats" ما انترجمت بتركيب حرفي (صفة+اسم إنجليزي) لأنو **العربي بترتيب معاكس** (اسم فالصفة: "مقعد ذهبي" مش "ذهبي مقعد"). استخدمت ICU **`select`** حقيقي (`seatsLegendLabel`, `seatsSingularLabel`, `seatsVisibilityPlacementLabel`) بدل الدمج النصي، كل وحدة بترجع عبارة كاملة حسب الفئة (gold/silver/bronze/other) — نفس فكرة الـ plural من مرحلة Services بس لتركيب نحوي مختلف. **نفس نمط split الـ getter:** `SeatTier.label`/`SeatStatus.label` ضلّوا بالـ domain (إنجليزي فقط، fallback داخلي لـ `Seat.title` + اختبار جودة البيانات)، والعرض الفعلي صار عبر دالة مساعدة `_seatTierKey(tier)` + مفاتيح الـ `select`. وصف كل فئة (فقرة تسويقية كاملة لكل من Gold/Silver/Bronze) اتنقل لملفات ARB بالكامل. **ملاحظة:** أربع widgets يتيمة غير مستخدمة بأي مكان بالتطبيق (`seat_card.dart`, `seat_tier_cards.dart`, `seat_status_badge.dart`, `seat_visibility_grid.dart`) — تُركت بلا تعريب لأنها كود ميت غير قابل للوصول، مو لأنها مؤجَّلة. اختبار: [seats_screen_l10n_test.dart](../test/features/seats/presentation/seats_screen_l10n_test.dart) يثبت عربي+RTL **وصحّة الترتيب النحوي** (جمع ومفرد). **170 اختبار يمرّ**، صفر كسر.
 - [ ] **Cup/Leaderboard** — العناوين، Champion، Ranking.
 - [ ] **Profile** — البروفايل العام (Follow/Following/Message/Packages/Media/About)، قائمة الإعدادات، Edit، Following، My Packages، Saved، Support، Static info (About/Terms/Privacy).
 - [ ] **Chat** — قائمة الشات، غرفة المحادثة، composer، حالات فارغة.
@@ -60,11 +65,10 @@
 - [ ] **Add wizards** — Add Offer / Ad / Service (عناوين الحقول، الأزرار، إشعارات "next phase").
 - [ ] **Story viewer** — أي نصوص + تأكيد اتجاه السحب في RTL.
 
-## المرحلة Lx — تلميع RTL + التنسيق
-- [ ] الأيقونات الاتجاهية: `Icons.chevron_right_rounded` في صفوف القوائم لا ينقلب تلقائياً → استبداله بأيقونة تحترم `Directionality` (أو `Icons.chevron_right` مع انعكاس). زر الرجوع `arrow_back` ينقلب تلقائياً.
-- [ ] تنسيق الأرقام/العملة عبر `intl` (`NumberFormat` باللغة الحالية) — العملة AED.
+## المرحلة Lx — تلميع التنسيق (بعد إلغاء RTL، ما في تلميع اتجاه — بس تنسيق أرقام/تواريخ)
+- [ ] تنسيق الأرقام/العملة عبر `intl` (`NumberFormat` باللغة الحالية إذا لزم) — العملة AED والأرقام غربية بكل الأحوال (قرار مُعتمد).
 - [ ] التواريخ/الأوقات (الشات، التنبيهات) عبر `DateFormat` باللغة.
-- [ ] تأكيد الكاروسيلات والـ PageView تحترم الاتجاه.
+- ~~الأيقونات الاتجاهية / انقلاب الكاروسيلات~~ — **غير مطلوب** بعد قرار "بلا RTL"؛ كل شي ثابت LTR بكلا اللغتين فما في أيقونات أو ترتيب يحتاج ينقلب.
 
 ---
 
@@ -74,15 +78,21 @@
 - [ ] محتوى المستخدمين يُعرض بلغته الأصلية (لا ترجمة) — سلوك متوقّع.
 
 ## الاختبارات
-- [x] widget tests: `Locale('ar')` → نص عربي + `Directionality.rtl` ([localization_test.dart](../test/i18n/localization_test.dart)). يُوسَّع مع كل feature.
-- [x] الإبقاء على الاختبارات خضراء (163 تمرّ الآن). **ملاحظة:** أي harness يعرض شاشة معرّبة يحتاج `localizationsDelegates: AppLocalizations.localizationsDelegates` + `supportedLocales` في الـ MaterialApp.
+- [x] widget tests: `Locale('ar')` → نص عربي + `Directionality.ltr` **ثابت** (مو rtl) — كل ملف `*_l10n_test.dart` بيبني `MaterialApp` بنفس `builder` الموجود بـ [app.dart](../lib/app.dart) (تكرار مقصود بكل ملف اختبار، مو helper مشترك، حتى الاختبار يعكس تطابق فعلي مع كود الإنتاج). يُوسَّع مع كل feature.
+- [x] الإبقاء على الاختبارات خضراء (170 تمرّ الآن). **ملاحظة:** أي harness يعرض شاشة معرّبة يحتاج `localizationsDelegates: AppLocalizations.localizationsDelegates` + `supportedLocales` في الـ MaterialApp؛ وأي اختبار Arabic حيّ لازم يضيف نفس `builder` LTR (وإلا Flutter بيفرض RTL تلقائياً من الـ locale ويطلع الاختبار غلط).
 - [ ] تحقّق بصري حيّ للثيمين × اللغتين على شاشات مفتاحية.
 
 ## Definition of Done
 - كل نصوص الواجهة تأتي من ARB (لا نص إنجليزي مكتوب مباشرة في الشاشات).
-- تبديل اللغة من الإعدادات يقلب النص + الاتجاه فوراً ويُحفظ.
-- لا أعطال RTL (محاذاة/حشو/أيقونات اتجاهية).
+- تبديل اللغة من الإعدادات يقلب **النص فقط** فوراً ويُحفظ — **الـ layout يضل LTR بكلا اللغتين** (لا انقلاب/مرآة).
 - جاهزية الربط: `localeProvider` مصدر وحيد يقرأ منه الـ interceptor لاحقاً.
+
+## تحديث 2026-07-11 (بعد الشغل) — إلغاء RTL بالكامل
+المالك لاحظ إنو تبديل اللغة كان عم يقلب اتجاه كل قسم بالتطبيق لـ RTL (مرآة كاملة) وقال هالشي **غلط** — المطلوب ترجمة نص بس، بلا أي تغيير باتجاه الواجهة. التصحيح:
+- [x] [app.dart](../lib/app.dart): أضفت `builder` بيغلّف `MaterialApp.router` بـ `Directionality(textDirection: TextDirection.ltr)` صريح، فبيلغي الـ RTL التلقائي يلي Flutter كان عم يطبّقو من `Locale('ar')`.
+- [x] حدّثت **6 ملفات اختبار** كانت بتفترض RTL (`localization_test.dart`, `promoo_shell_l10n_test.dart`, `auth_screen_l10n_test.dart`, `home_screen_l10n_test.dart`, `services_screen_l10n_test.dart`, `seats_screen_l10n_test.dart`) — كل وحدة زودت نفس الـ `builder` وبدّلت التوقّع لـ `TextDirection.ltr`.
+- [x] **170 اختبار يمرّ، analyze نظيف.** النص العربي هلق بيظهر صح (حروف عربي طبيعية بحكم Unicode bidi) بس ترتيب العناصر (أيقونات، أزرار، محاذاة) ثابت LTR بكلا اللغتين — بالضبط متل ما طلب المالك.
+- **الأثر على باقي الخطة:** لا حاجة لأي شغل إضافي بالشاشات المُعرَّبة (Auth/Home/Services/Seats) — كانت مبنية بشكل صحيح أصلاً (`EdgeInsetsDirectional` وغيرها بتشتغل مثالي بـ LTR ثابت، وهي أفضل ممارسة برمجية بغضّ النظر عن RTL). التغيير الوحيد كان بـ `app.dart` + ملفات الاختبار. **مرحلة Lx القديمة (تلميع أيقونات/كاروسيلات اتجاهية) بطّلت مطلوبة كلياً**.
 
 ---
 

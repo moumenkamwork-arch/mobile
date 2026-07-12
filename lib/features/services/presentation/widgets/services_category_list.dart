@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -23,7 +24,7 @@ class ServicesCategoryList extends StatelessWidget {
     final items = [
       ServiceCategory(
         id: '',
-        name: 'All services',
+        name: AppLocalizations.of(context).servicesAllCategory,
         imageUrl: categories.isEmpty ? null : categories.first.imageUrl,
       ),
       ...categories,
@@ -75,7 +76,7 @@ class _CategoryCard extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: '$label category',
+      label: AppLocalizations.of(context).servicesCategorySemanticLabel(label),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

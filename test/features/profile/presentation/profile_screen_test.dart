@@ -9,6 +9,7 @@ import 'package:promoo_app/features/profile/data/repositories/profile_repository
 import 'package:promoo_app/features/profile/domain/entities/promoo_profile.dart';
 import 'package:promoo_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:promoo_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_spacing.dart';
@@ -199,6 +200,8 @@ Widget _buildProfileScreen(
     overrides: [profileRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: ProfileScreen(idOrUsername: idOrUsername)),
     ),
   );

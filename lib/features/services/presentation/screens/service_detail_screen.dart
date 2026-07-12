@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -46,15 +47,16 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(serviceDetailControllerProvider(widget.serviceId));
 
     return switch (state.status) {
-      ServiceDetailStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading service details',
+      ServiceDetailStatus.loading => PromooLoadingIndicator(
+        message: l10n.serviceDetailLoadingMessage,
       ),
       ServiceDetailStatus.error => PromooErrorState(
-        title: 'Could not load service',
-        message: state.failure?.message ?? 'Something went wrong.',
+        title: l10n.serviceDetailErrorTitle,
+        message: state.failure?.message ?? l10n.commonSomethingWentWrong,
         onRetry: () => ref
             .read(serviceDetailControllerProvider(widget.serviceId).notifier)
             .retry(),
@@ -153,17 +155,18 @@ class _DetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back',
+          tooltip: l10n.commonBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
-            'Service details',
+            l10n.serviceDetailScreenTitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.headlineSmall,
@@ -253,23 +256,24 @@ class _ServiceSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PromooCard(
       child: Row(
         children: [
           Expanded(
             child: _SummaryMetric(
-              label: 'Price',
-              value: service.price?.label ?? 'Contact for pricing',
+              label: l10n.commonPrice,
+              value: service.price?.label ?? l10n.commonContactForPricing,
               icon: Icons.sell_outlined,
             ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: _SummaryMetric(
-              label: 'Timeline',
+              label: l10n.serviceDetailTimelineLabel,
               value: service.deliveryDays == null
-                  ? 'Discuss with provider'
-                  : '${service.deliveryDays} days',
+                  ? l10n.serviceDetailDiscussWithProvider
+                  : l10n.serviceDetailDaysCount(service.deliveryDays!),
               icon: Icons.schedule_rounded,
             ),
           ),
@@ -320,7 +324,9 @@ class _DescriptionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(title: 'Description'),
+        PromooSectionHeader(
+          title: AppLocalizations.of(context).commonDescription,
+        ),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: Text(
@@ -340,12 +346,13 @@ class _DeliveryTagsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(
-          title: 'Details',
-          subtitle: 'Useful signals before contacting the provider',
+        PromooSectionHeader(
+          title: l10n.commonDetails,
+          subtitle: l10n.serviceDetailTagsSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
@@ -356,7 +363,7 @@ class _DeliveryTagsSection extends StatelessWidget {
               if (service.deliveryDays != null)
                 _DetailChip(
                   icon: Icons.schedule_rounded,
-                  label: '${service.deliveryDays} day delivery',
+                  label: l10n.servicesDeliveryDaysLabel(service.deliveryDays!),
                 ),
               for (final tag in service.tags) _DetailChip(label: tag),
             ],
@@ -374,11 +381,12 @@ class _ProviderSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final current = provider;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(title: 'Provider'),
+        PromooSectionHeader(title: l10n.commonProvider),
         const SizedBox(height: AppSpacing.md),
         PromooCard(
           child: current == null
@@ -388,7 +396,7 @@ class _ProviderSummary extends StatelessWidget {
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Text(
-                        'Provider details will appear when available.',
+                        l10n.serviceDetailProviderPending,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -466,7 +474,11 @@ class _ProviderAvatar extends StatelessWidget {
       child: ClipOval(
         child: PromooImage(
           imageUrl: avatarUrl,
-          semanticLabel: provider?.name ?? 'Service provider',
+          semanticLabel:
+              provider?.name ??
+              AppLocalizations.of(
+                context,
+              ).serviceDetailProviderFallbackSemantic,
           fallbackIcon: provider == null
               ? Icons.storefront_rounded
               : Icons.person_rounded,
@@ -495,12 +507,13 @@ class _ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PromooSectionHeader(
-          title: 'Contact',
-          subtitle: 'Connect with the provider before taking the next step',
+        PromooSectionHeader(
+          title: l10n.homeDetailContact,
+          subtitle: l10n.serviceDetailContactSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
         if (showNotice) ...[
@@ -514,12 +527,12 @@ class _ContactSection extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Contact flow coming soon. You can open chats or view the provider profile.',
+                    l10n.commonContactFlowComingSoon,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Dismiss',
+                  tooltip: l10n.commonDismiss,
                   onPressed: onDismissNotice,
                   icon: const Icon(Icons.close_rounded),
                 ),
@@ -529,14 +542,14 @@ class _ContactSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
         ],
         PromooButton.primary(
-          label: 'Contact provider',
+          label: l10n.serviceDetailContactProvider,
           icon: Icons.phone_in_talk_rounded,
           fullWidth: true,
           onPressed: onContactPressed,
         ),
         const SizedBox(height: AppSpacing.sm),
         PromooButton.secondary(
-          label: 'Open chats',
+          label: l10n.commonOpenChats,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,
           onPressed: onOpenChatsPressed,
@@ -544,7 +557,7 @@ class _ContactSection extends StatelessWidget {
         if (hasProfile) ...[
           const SizedBox(height: AppSpacing.sm),
           PromooButton.tertiary(
-            label: 'View provider profile',
+            label: l10n.commonViewProviderProfile,
             icon: Icons.person_rounded,
             fullWidth: true,
             onPressed: onViewProfilePressed,

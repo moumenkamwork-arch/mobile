@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/chat/presentation/controllers/chat_controller.dart';
 import '../../features/notifications/presentation/controllers/notifications_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -41,6 +42,7 @@ class PromooPageHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.colors;
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
     final bool scrolled = isScrolled ?? ref.watch(shellScrolledProvider);
@@ -88,8 +90,8 @@ class PromooPageHeader extends ConsumerWidget {
               const Spacer(),
               _HeaderAction(
                 tooltip: isDark
-                    ? 'Switch to light mode'
-                    : 'Switch to dark mode',
+                    ? l10n.headerSwitchToLightMode
+                    : l10n.headerSwitchToDarkMode,
                 icon: Icon(
                   isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                   color: colors.textSecondary,
@@ -106,7 +108,7 @@ class PromooPageHeader extends ConsumerWidget {
               ),
               const SizedBox(width: AppSpacing.xxs),
               _HeaderAction(
-                tooltip: 'Chats',
+                tooltip: l10n.headerChats,
                 badgeLabel: _badgeLabel(chatUnread),
                 icon: SvgPicture.asset(
                   'assets/brand/icons/chat.svg',
@@ -121,7 +123,7 @@ class PromooPageHeader extends ConsumerWidget {
               ),
               const SizedBox(width: AppSpacing.xxs),
               _HeaderAction(
-                tooltip: 'Notifications',
+                tooltip: l10n.headerNotifications,
                 badgeLabel: _badgeLabel(notificationsUnread),
                 icon: SvgPicture.asset(
                   'assets/brand/icons/notification.svg',

@@ -268,6 +268,6 @@ Future<List<String>> _collectVisibleDemoStrings() async {
     ],
     authSession.user.displayName,
     ?authSession.user.email,
-    authSession.user.accountType.label,
+    authSession.user.accountType.apiValue,
   ];
 }

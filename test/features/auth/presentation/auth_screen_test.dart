@@ -12,6 +12,7 @@ import 'package:promoo_app/features/auth/presentation/screens/register_screen.da
 import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:promoo_app/features/profile/domain/entities/promoo_profile.dart';
 import 'package:promoo_app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_logo.dart';
@@ -70,7 +71,12 @@ void main() {
           appConfigProvider.overrideWithValue(_mockConfig),
           authRepositoryProvider.overrideWithValue(const _AuthRepository()),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -145,7 +151,12 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+        child: MaterialApp.router(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -163,7 +174,12 @@ void main() {
 Widget _buildAuthScreen(Widget screen, AuthRepository repository) {
   return ProviderScope(
     overrides: [authRepositoryProvider.overrideWithValue(repository)],
-    child: MaterialApp(theme: AppTheme.dark, home: screen),
+    child: MaterialApp(
+      theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: screen,
+    ),
   );
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/back_interceptors.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
@@ -56,8 +57,8 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
     final state = ref.watch(servicesControllerProvider);
 
     return switch (state.status) {
-      ServicesStatus.loading => const PromooLoadingIndicator(
-        message: 'Loading services',
+      ServicesStatus.loading => PromooLoadingIndicator(
+        message: AppLocalizations.of(context).servicesLoadingMessage,
       ),
       ServicesStatus.error => _ServicesErrorView(state: state),
       ServicesStatus.empty ||
@@ -78,6 +79,7 @@ class _ServicesErrorView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     if (state.hasContent) {
       return Stack(
         children: [
@@ -99,7 +101,7 @@ class _ServicesErrorView extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 child: Text(
-                  state.failure?.message ?? 'Could not refresh services.',
+                  state.failure?.message ?? l10n.servicesRefreshErrorFallback,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -111,8 +113,8 @@ class _ServicesErrorView extends ConsumerWidget {
     }
 
     return PromooErrorState(
-      title: 'Could not load services',
-      message: state.failure?.message ?? 'Something went wrong. Try again.',
+      title: l10n.servicesErrorTitle,
+      message: state.failure?.message ?? l10n.commonSomethingWentWrong,
       onRetry: () => ref.read(servicesControllerProvider.notifier).retry(),
     );
   }
@@ -230,19 +232,15 @@ class _ResultsContextBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final categoryName = _selectedCategoryName(state);
-    final title = categoryName ?? 'Search results';
-    final count = state.services.length;
-    final countLabel = switch (count) {
-      0 => 'No services',
-      1 => '1 service',
-      _ => '$count services',
-    };
+    final title = categoryName ?? l10n.servicesSearchResultsTitle;
+    final countLabel = l10n.servicesResultsCount(state.services.length);
 
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back to categories',
+          tooltip: l10n.servicesBackToCategoriesTooltip,
           onPressed: onBackToCategories,
           icon: Icon(Icons.arrow_back_rounded, color: context.colors.accent),
         ),
@@ -308,12 +306,15 @@ class _ServicesEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final filtered = selectedCategoryId != null || query.isNotEmpty;
     return PromooEmptyState(
-      title: filtered ? 'No service found.' : 'No services yet',
+      title: filtered
+          ? l10n.servicesEmptyFilteredTitle
+          : l10n.servicesEmptyDefaultTitle,
       message: filtered
-          ? "We couldn't find this service yet."
-          : 'Search or choose a category to discover services.',
+          ? l10n.servicesEmptyFilteredMessage
+          : l10n.servicesEmptyDefaultMessage,
     );
   }
 }

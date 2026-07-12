@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -159,7 +160,9 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
                         ),
                       ),
                       IconButton(
-                        tooltip: 'Close story',
+                        tooltip: AppLocalizations.of(
+                          context,
+                        ).homeStoryViewerCloseTooltip,
                         onPressed: () => Navigator.of(context).pop(),
                         icon: Icon(
                           Icons.close_rounded,

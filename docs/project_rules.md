@@ -96,21 +96,40 @@
   first, AND show an in-app back affordance.
 - Shell back order: interceptors → non-Home tab → Home → double-press exit.
 
-## 3c. Localization (i18n / RTL) — phase started 2026-07-11
+## 3c. Localization (i18n) — phase started 2026-07-11
 
 - **All user-facing strings come from ARB**, never hardcoded in widgets. Add a
   key to `lib/l10n/app_en.arb` + `app_ar.arb`, run `flutter gen-l10n` (output is
   `lib/l10n/app_localizations.dart`), then use
   `AppLocalizations.of(context).<key>`. Roadmap + phase status:
   [localization_plan.md](localization_plan.md).
+- **⚠️ NO RTL — text-only translation, owner decision (2026-07-11).**
+  Switching to Arabic translates strings but the **layout direction stays LTR
+  in both languages**, no mirroring. `app.dart` forces this via a `builder`
+  that wraps `MaterialApp.router` in `Directionality(textDirection:
+  TextDirection.ltr)`, overriding Flutter's automatic RTL-from-locale
+  behavior. Arabic glyphs still render correctly right-to-left at the text-run
+  level (Unicode bidi is independent of widget layout direction) — only
+  Row/Column ordering, start/end padding resolution, and alignment stay fixed
+  LTR. **Do not remove this override or reintroduce RTL** without asking
+  first. Any live-Arabic widget test must add the same `builder` (see any
+  `*_l10n_test.dart`) or Flutter will default to RTL from the locale and the
+  test will assert the wrong thing.
+- **String-concatenation display text needs a grammar check, not just
+  translation.** English composes phrases like `'${tierLabel} Seat'`; Arabic
+  adjective+noun order is often reversed ("مقعد ذهبي", noun-first). Never
+  translate by concatenating a translated word into an English sentence
+  template — use ICU `select` (per-language full phrases, see
+  `seatsLegendLabel`/`seatsSingularLabel` in `seats_screen.dart`) or ICU
+  `plural` for count-based grammar (see `servicesResultsCount`).
 - **Locale is a single source of truth:** `localeProvider`
   (`lib/i18n/locale_controller.dart`, mirrors `themeModeProvider`) — default =
   device locale, persists `promoo_locale`. The Settings language toggle drives
   it; the Phase-B network client will read it to set `Accept-Language`.
-- **RTL is automatic** because the codebase is 100% directional — keep it that
-  way: never use `EdgeInsets.only(left/right)` or `Alignment.centerLeft/right`
-  (use the `*Directional` variants). Direction-implying icons (e.g. list-row
-  chevrons) must flip with the locale.
+- Directional widgets (`EdgeInsetsDirectional`, `AlignmentDirectional`, etc.)
+  are still used throughout and should stay that way — it's correct practice
+  regardless of the no-RTL decision — but no RTL-specific mirroring work
+  (flipping icons, swapping start/end) is needed since layout never flips.
 - **Backend owns content language, not the app:** reference content (categories,
   subscription plans) is resolved server-side by `Accept-Language` (returns a
   single `name`/`description`); user content (offers/services/bios/chat) stays

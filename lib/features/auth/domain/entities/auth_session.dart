@@ -19,15 +19,6 @@ extension AuthAccountTypeValue on AuthAccountType {
       AuthAccountType.serviceProvider => 'service_provider',
     };
   }
-
-  String get label {
-    return switch (this) {
-      AuthAccountType.user => 'User',
-      AuthAccountType.company => 'Company',
-      AuthAccountType.influencer => 'Influencer',
-      AuthAccountType.serviceProvider => 'Service provider',
-    };
-  }
 }
 
 class AuthUser {

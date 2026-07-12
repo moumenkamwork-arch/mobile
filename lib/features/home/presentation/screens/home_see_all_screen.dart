@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -27,18 +28,19 @@ class HomeSeeAllScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(homeControllerProvider);
 
     final Widget body;
     if (state.status == HomeStatus.loading) {
-      body = const Padding(
-        padding: EdgeInsetsDirectional.only(top: AppSpacing.xxl),
-        child: PromooLoadingIndicator(message: 'Loading'),
+      body = Padding(
+        padding: const EdgeInsetsDirectional.only(top: AppSpacing.xxl),
+        child: PromooLoadingIndicator(message: l10n.commonLoading),
       );
     } else if (state.status == HomeStatus.error && state.content == null) {
       body = PromooErrorState(
-        title: 'Could not load',
-        message: state.failure?.message ?? 'Something went wrong. Try again.',
+        title: l10n.homeSeeAllErrorTitle,
+        message: state.failure?.message ?? l10n.commonSomethingWentWrong,
         onRetry: () => ref.read(homeControllerProvider.notifier).retry(),
       );
     } else {
@@ -49,19 +51,19 @@ class HomeSeeAllScreen extends ConsumerWidget {
     }
 
     return PromooSubpageScaffold(
-      title: _titleFor(section),
+      title: _titleFor(l10n, section),
       scrollable: false,
       child: body,
     );
   }
 
-  String _titleFor(String section) {
+  String _titleFor(AppLocalizations l10n, String section) {
     return switch (section) {
-      'offers' => 'Top Offers',
-      'for_you' => 'For You',
-      'services' => 'Services',
-      'stories' => 'Stories',
-      _ => 'Browse',
+      'offers' => l10n.homeSectionTopOffersTitle,
+      'for_you' => l10n.homeSectionForYouTitle,
+      'services' => l10n.tabServices,
+      'stories' => l10n.homeSectionStoriesTitle,
+      _ => l10n.homeSeeAllTitleBrowse,
     };
   }
 }
@@ -76,9 +78,10 @@ class _SeeAllBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final cards = _buildCards(context);
     if (cards.isEmpty) {
-      return const PromooEmptyState(
-        title: 'Nothing here yet',
-        message: 'Items for this section will appear here soon.',
+      final l10n = AppLocalizations.of(context);
+      return PromooEmptyState(
+        title: l10n.homeSeeAllEmptyTitle,
+        message: l10n.homeSeeAllEmptyMessage,
       );
     }
 

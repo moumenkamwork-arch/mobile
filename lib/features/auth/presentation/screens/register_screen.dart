@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
@@ -12,6 +13,7 @@ import '../controllers/auth_controller.dart';
 import '../widgets/auth_account_type_selector.dart';
 import '../widgets/auth_form_field.dart';
 import '../widgets/auth_message_banner.dart';
+import '../widgets/auth_messages.dart';
 import '../widgets/auth_screen_frame.dart';
 import '../widgets/auth_signed_in_panel.dart';
 import '../widgets/auth_social_login_preview.dart';
@@ -109,7 +111,8 @@ class _RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = state.displayMessage;
+    final l10n = AppLocalizations.of(context);
+    final message = resolveAuthMessage(l10n, state);
 
     return PromooCard(
       elevated: true,
@@ -118,37 +121,37 @@ class _RegisterForm extends StatelessWidget {
         children: [
           if (message != null) ...[
             AuthMessageBanner(
-              message: message,
-              isError: state.successMessage == null,
+              message: message.text,
+              isError: message.isError,
               onDismiss: onClearMessage,
             ),
             const SizedBox(height: AppSpacing.md),
           ],
-          const AuthFieldLabel('Full name'),
+          AuthFieldLabel(l10n.authFieldFullName),
           const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: nameController,
-            hint: 'Full name',
+            hint: l10n.authFieldFullName,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
-          const AuthFieldLabel('Email'),
+          AuthFieldLabel(l10n.authFieldEmail),
           const SizedBox(height: AppSpacing.xs),
           PromooTextField(
             controller: emailController,
-            hint: 'Email',
+            hint: l10n.authFieldEmail,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
-          const AuthFieldLabel('Password'),
+          AuthFieldLabel(l10n.authFieldPassword),
           const SizedBox(height: AppSpacing.xs),
           AuthPasswordField(
             controller: passwordController,
             onSubmitted: (_) => state.isBusy ? null : onSubmit(),
           ),
           const SizedBox(height: AppSpacing.md),
-          const AuthFieldLabel('Account type'),
+          AuthFieldLabel(l10n.authFieldAccountType),
           const SizedBox(height: AppSpacing.xs),
           AuthAccountTypeSelector(
             selected: accountType,
@@ -156,15 +159,17 @@ class _RegisterForm extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
-            label: state.isBusy ? 'Creating account...' : 'Create account',
+            label: state.isBusy
+                ? l10n.authCreatingAccount
+                : l10n.authCreateAccount,
             fullWidth: true,
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.sm),
-          const AuthSocialLoginPreview(caption: 'Sign up with account'),
+          AuthSocialLoginPreview(caption: l10n.authSocialSignupCaption),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.secondary(
-            label: 'Already have an account',
+            label: l10n.authAlreadyHaveAccount,
             fullWidth: true,
             onPressed: state.isBusy
                 ? null
@@ -179,7 +184,7 @@ class _RegisterForm extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           PromooButton.tertiary(
-            label: 'Continue as Guest',
+            label: l10n.authContinueAsGuest,
             fullWidth: true,
             onPressed: state.isBusy ? null : () => context.go(AppRoutes.home),
           ),

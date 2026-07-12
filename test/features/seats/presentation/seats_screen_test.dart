@@ -10,6 +10,7 @@ import 'package:promoo_app/features/seats/data/repositories/seats_repository_imp
 import 'package:promoo_app/features/seats/domain/entities/seat.dart';
 import 'package:promoo_app/features/seats/domain/repositories/seats_repository.dart';
 import 'package:promoo_app/features/seats/presentation/screens/seats_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
@@ -108,6 +109,8 @@ Widget _buildSeatsScreen(SeatsRepository repository) {
     overrides: [seatsRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(body: SeatsScreen()),
     ),
   );
@@ -120,7 +123,12 @@ Widget _buildSeatsApp(SeatsRepository repository) {
       appConfigProvider.overrideWithValue(_mockConfig),
       seatsRepositoryProvider.overrideWithValue(repository),
     ],
-    child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
+    child: MaterialApp.router(
+      theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 

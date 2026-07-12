@@ -30,8 +30,7 @@ class LocaleController extends Notifier<Locale> {
   }
 
   static Locale _deviceDefault() {
-    final code =
-        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    final code = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
     return code == 'ar' ? const Locale('ar') : const Locale('en');
   }
 

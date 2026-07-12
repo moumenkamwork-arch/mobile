@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_spacing.dart';
 
 class PromooLoadingIndicator extends StatelessWidget {
-  const PromooLoadingIndicator({
-    super.key,
-    this.message,
-    this.semanticLabel = 'Loading',
-  });
+  const PromooLoadingIndicator({super.key, this.message, this.semanticLabel});
 
   final String? message;
-  final String semanticLabel;
+
+  /// Defaults to the localized "Loading" when not overridden.
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Semantics(
-        label: semanticLabel,
+        label: semanticLabel ?? AppLocalizations.of(context).commonLoading,
         liveRegion: true,
         child: Column(
           mainAxisSize: MainAxisSize.min,

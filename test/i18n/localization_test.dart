@@ -4,11 +4,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/i18n/locale_controller.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 
+/// Mirrors the real `builder` override in `lib/app.dart`: translate text, but
+/// keep the LAYOUT direction fixed LTR regardless of locale (owner decision
+/// 2026-07-11 — no mirrored UI when switching to Arabic).
 Widget _localizedProbe(Locale locale) {
   return MaterialApp(
     locale: locale,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
+    builder: (context, child) {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: child ?? const SizedBox.shrink(),
+      );
+    },
     home: Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context);
@@ -30,16 +39,19 @@ void main() {
     );
   });
 
-  testWidgets('Arabic locale renders Arabic strings and RTL', (tester) async {
-    await tester.pumpWidget(_localizedProbe(const Locale('ar')));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Arabic locale renders Arabic strings but stays LTR (no mirrored layout)',
+    (tester) async {
+      await tester.pumpWidget(_localizedProbe(const Locale('ar')));
+      await tester.pumpAndSettle();
 
-    expect(find.text('اللغة'), findsOneWidget);
-    expect(
-      Directionality.of(tester.element(find.text('اللغة'))),
-      TextDirection.rtl,
-    );
-  });
+      expect(find.text('اللغة'), findsOneWidget);
+      expect(
+        Directionality.of(tester.element(find.text('اللغة'))),
+        TextDirection.ltr,
+      );
+    },
+  );
 
   test('LocaleController toggles English/Arabic', () {
     final container = ProviderContainer();

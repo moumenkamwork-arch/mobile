@@ -9,6 +9,7 @@ import 'package:promoo_app/features/home/data/repositories/home_repository_impl.
 import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
 import 'package:promoo_app/features/home/presentation/screens/home_content_detail_screen.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_theme.dart';
@@ -104,6 +105,8 @@ Widget _buildDetailScreen(HomeRepository repository) {
     overrides: [homeRepositoryProvider.overrideWithValue(repository)],
     child: MaterialApp(
       theme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const Scaffold(
         body: HomeContentDetailScreen(type: 'offer', itemId: 'offer-1'),
       ),

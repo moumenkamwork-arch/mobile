@@ -164,7 +164,6 @@ class ProfileMenuScreen extends ConsumerWidget {
       },
     );
   }
-
 }
 
 /// Greeting card at the top of the settings screen: the signed-in user's
