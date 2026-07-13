@@ -1298,6 +1298,12 @@ abstract class AppLocalizations {
   /// **'Could not load profile'**
   String get profileErrorTitle;
 
+  /// No description provided for @profileDetailScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile details'**
+  String get profileDetailScreenTitle;
+
   /// No description provided for @profileActionFollow.
   ///
   /// In en, this message translates to:

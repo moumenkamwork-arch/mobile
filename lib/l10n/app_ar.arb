@@ -231,6 +231,7 @@
   "profileEmptyMessage": "هذا الملف الشخصي غير متاح أو لم يعد موجوداً.",
   "profileRefreshErrorFallback": "تعذّر تحديث الملف الشخصي.",
   "profileErrorTitle": "تعذّر تحميل الملف الشخصي",
+  "profileDetailScreenTitle": "تفاصيل الحساب",
 
   "profileActionFollow": "متابعة",
   "profileActionFollowing": "متابَع",

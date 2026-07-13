@@ -50,7 +50,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('All services'), findsOneWidget);
+    expect(find.text('All services'), findsNothing);
     expect(find.text('Influencer Campaigns'), findsWidgets);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Listings'), findsNothing);

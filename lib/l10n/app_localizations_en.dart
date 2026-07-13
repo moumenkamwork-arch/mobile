@@ -706,6 +706,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileErrorTitle => 'Could not load profile';
 
   @override
+  String get profileDetailScreenTitle => 'Profile details';
+
+  @override
   String get profileActionFollow => 'Follow';
 
   @override

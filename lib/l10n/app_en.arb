@@ -301,6 +301,7 @@
   "profileEmptyMessage": "This profile is unavailable or no longer exists.",
   "profileRefreshErrorFallback": "Could not refresh profile.",
   "profileErrorTitle": "Could not load profile",
+  "profileDetailScreenTitle": "Profile details",
 
   "profileActionFollow": "Follow",
   "profileActionFollowing": "Following",

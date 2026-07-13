@@ -1,6 +1,6 @@
 # Promoo project memory
 
-Last updated: 2026-07-02
+Last updated: 2026-07-13
 
 ## Current state
 
@@ -512,5 +512,6 @@ Typography note:
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 1 + Step 2. Full test suite passed with 177 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` passed after Final Pre-Client Patch Step 3 + Step 4. Full test suite passed with 181 tests; known non-fatal SVG `<style/>` warnings remain.
 - 2026-06-27: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true` passed after Final Pre-Client Patch Step 5. Full test suite passed with 182 tests; known non-fatal SVG `<style/>` warnings remain.
-- 2026-07-02: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed after Final Client APK QA. Full test suite passed with 188 tests; universal and split mock-mode APKs were generated successfully. Known non-fatal SVG `<style/>` warnings remain.
 - 2026-07-02: `flutter pub get`, `dart format .`, `flutter analyze`, `flutter test`, `flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true`, and `flutter build apk --release --split-per-abi --dart-define=PROMOO_USE_MOCKS=true` passed after Final Client Review Fix Patch. Full test suite passed with 192 tests; universal and split mock-mode APKs were generated successfully. Local final install on `M2012K11AG` was blocked by Android with `INSTALL_FAILED_USER_RESTRICTED`.
+- 2026-07-13: `flutter gen-l10n` and `flutter test` passed after fixing story viewer horizontal swipe gestures, restricting carousel indicators to Hero-only slides, removing the redundant "All Categories" card from `ServicesCategoryList`, and replacing the floating back button overlay in `ProfileScreen` with a clean, scrollable navigation header. Full test suite passed with 176 tests.
+

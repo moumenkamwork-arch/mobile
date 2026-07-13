@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 ---
 
@@ -36,7 +36,7 @@ Last updated: 2026-07-11
 | Search | ✅ | Own Scaffold; grouped/typed results |
 | Chat (list + room) | ✅ | Room keyed by roomId (family); **compose + send works** (in-memory); header chat badge = live unread |
 | Notifications | 🔄 | In-app list works (mark read/all, delete, tap→room); header badge = live unread. Push/FCM feature deferred (v2). |
-| Localization (i18n / RTL) | 🔄 | **L0 done** — bilingual scaffold (ARB gen-l10n, `localeProvider`, `MaterialApp` wired) + Settings screen fully Arabic/English with RTL; toggle persists. Remaining screens per [localization_plan.md](localization_plan.md) (L1+). |
+| Localization (i18n / RTL) | ✅ | **All phases (L0-Lx) complete.** Full bilingual interface Arabic/English (text-only translation, layout stays LTR in both). Toggle persists. |
 
 ## Deferred to v2 (not built in v1)
 
@@ -55,10 +55,10 @@ categories/services data, auth (email login/register), token persistence
 
 ## Health
 
-**163 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
+**176 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
 AED everywhere · Light + Black themes done · role-gated Add Offer/Ad/Service ·
 **frontend-only (no network layer — reset 2026-07-09)** · **bilingual scaffold
-live (L0), RTL proven by test**.
+live, RTL proven by test**.
 The re-wiring plan is [integration_map.md](integration_map.md); the localization
 plan is [localization_plan.md](localization_plan.md); see
 [MEMORY_BANK.md](MEMORY_BANK.md) for the full change timeline.

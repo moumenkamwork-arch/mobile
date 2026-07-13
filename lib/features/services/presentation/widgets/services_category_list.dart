@@ -21,19 +21,10 @@ class ServicesCategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      ServiceCategory(
-        id: '',
-        name: AppLocalizations.of(context).servicesAllCategory,
-        imageUrl: categories.isEmpty ? null : categories.first.imageUrl,
-      ),
-      ...categories,
-    ];
-
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
+      itemCount: categories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: AppSpacing.sm,
@@ -41,16 +32,13 @@ class ServicesCategoryList extends StatelessWidget {
         childAspectRatio: 1.05,
       ),
       itemBuilder: (context, index) {
-        final category = items[index];
-        final isAll = index == 0;
-        final selected = isAll
-            ? selectedCategoryId == null
-            : selectedCategoryId == category.id;
+        final category = categories[index];
+        final selected = selectedCategoryId == category.id;
 
         return _CategoryCard(
           category: category,
           selected: selected,
-          onTap: () => onSelected(isAll ? null : category.id),
+          onTap: () => onSelected(category.id),
         );
       },
     );

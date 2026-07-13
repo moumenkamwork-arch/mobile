@@ -713,6 +713,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileErrorTitle => 'تعذّر تحميل الملف الشخصي';
 
   @override
+  String get profileDetailScreenTitle => 'تفاصيل الحساب';
+
+  @override
   String get profileActionFollow => 'متابعة';
 
   @override

@@ -49,34 +49,23 @@ class _ProfileScreenBody extends ConsumerWidget {
       backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
-        // A floating back button sits over every state (cover image, loading,
-        // error) so a pushed profile always has a step-wise way back.
-        child: Stack(
-          children: [
-            switch (state.status) {
-              ProfileStatus.loading => PromooLoadingIndicator(
-                message: l10n.profileLoadingMessage,
-              ),
-              ProfileStatus.error => _ProfileErrorView(state: state),
-              ProfileStatus.empty => PromooEmptyState(
-                title: l10n.profileEmptyTitle,
-                message: l10n.profileEmptyMessage,
-                icon: Icons.person_off_rounded,
-              ),
-              ProfileStatus.success ||
-              ProfileStatus.refreshing => _ProfileContentView(
-                state: state,
-                onRefresh: () =>
-                    ref.read(profileControllerProvider.notifier).refresh(),
-              ),
-            },
-            const PositionedDirectional(
-              top: AppSpacing.xs,
-              start: AppSpacing.xs,
-              child: _ProfileBackButton(),
+        child: switch (state.status) {
+          ProfileStatus.loading => PromooLoadingIndicator(
+              message: l10n.profileLoadingMessage,
             ),
-          ],
-        ),
+          ProfileStatus.error => _ProfileErrorView(state: state),
+          ProfileStatus.empty => PromooEmptyState(
+              title: l10n.profileEmptyTitle,
+              message: l10n.profileEmptyMessage,
+              icon: Icons.person_off_rounded,
+            ),
+          ProfileStatus.success ||
+          ProfileStatus.refreshing => _ProfileContentView(
+              state: state,
+              onRefresh: () =>
+                  ref.read(profileControllerProvider.notifier).refresh(),
+            ),
+        },
       ),
     );
   }
@@ -84,26 +73,31 @@ class _ProfileScreenBody extends ConsumerWidget {
 
 /// Circular back button floated over the profile cover. Uses a translucent
 /// scrim so it stays legible over both the cover photo and plain backgrounds.
-class _ProfileBackButton extends StatelessWidget {
-  const _ProfileBackButton();
+class _DetailHeader extends StatelessWidget {
+  const _DetailHeader({required this.onBack});
+
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: context.colors.background.withValues(alpha: 0.55),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: IconButton(
-        tooltip: AppLocalizations.of(context).commonBack,
-        icon: const Icon(Icons.arrow_back_rounded),
-        onPressed: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.go(AppRoutes.home);
-          }
-        },
-      ),
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        IconButton(
+          tooltip: l10n.commonBack,
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            l10n.profileDetailScreenTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -193,6 +187,18 @@ class _ProfileContentView extends ConsumerWidget {
                 ),
                 sliver: SliverList.list(
                   children: [
+                    if (Navigator.of(context).canPop()) ...[
+                      _DetailHeader(
+                        onBack: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go(AppRoutes.home);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
                     ProfileHeader(profile: profile),
                     const SizedBox(height: AppSpacing.md),
                     ProfileStatsRow(stats: profile.stats),

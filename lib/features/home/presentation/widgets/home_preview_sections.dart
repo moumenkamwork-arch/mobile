@@ -199,7 +199,7 @@ class _CarouselSectionState extends State<_CarouselSection> {
             },
           ),
         ),
-        if (widget.itemCount > 1) ...[
+        if (widget.viewportFraction == 1.0 && widget.itemCount > 1) ...[
           const SizedBox(height: AppSpacing.sm),
           _CarouselIndicator(
             count: widget.itemCount,

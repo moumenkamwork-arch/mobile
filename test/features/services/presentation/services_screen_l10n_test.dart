@@ -43,11 +43,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('كل الخدمات'), findsOneWidget);
       expect(find.text('ابحث عن خدمات'), findsOneWidget);
       // Arabic text, but the layout stays LTR (owner decision — no mirrored UI).
       expect(
-        Directionality.of(tester.element(find.text('كل الخدمات'))),
+        Directionality.of(tester.element(find.text('ابحث عن خدمات'))),
         TextDirection.ltr,
       );
 
