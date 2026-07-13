@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_avatar_circle.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
-import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -135,15 +135,10 @@ class _FollowingRow extends StatelessWidget {
           padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
           child: Row(
             children: [
-              ClipOval(
-                child: SizedBox(
-                  width: 52,
-                  height: 52,
-                  child: PromooImage(
-                    imageUrl: profile.avatarUrl,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              PromooAvatarCircle(
+                imageUrl: profile.avatarUrl,
+                semanticLabel: profile.name,
+                size: 52,
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(

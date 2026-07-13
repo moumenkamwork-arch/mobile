@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -51,7 +52,7 @@ class PromooSubpageScaffold extends StatelessWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        tooltip: 'Back',
+                        tooltip: AppLocalizations.of(context).commonBack,
                         onPressed: () {
                           if (context.canPop()) {
                             context.pop();

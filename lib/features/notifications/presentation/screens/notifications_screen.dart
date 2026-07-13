@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_list_header.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -112,35 +113,14 @@ class _NotificationsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        IconButton(
-          tooltip: l10n.commonBack,
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.headerNotifications,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                l10n.notificationsUnreadSubtitle(unreadCount),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        TextButton(
-          onPressed: onMarkAllRead,
-          child: Text(l10n.notificationsMarkAllRead),
-        ),
-      ],
+    return PromooListHeader(
+      title: l10n.headerNotifications,
+      subtitle: l10n.notificationsUnreadSubtitle(unreadCount),
+      onBack: onBack,
+      trailing: TextButton(
+        onPressed: onMarkAllRead,
+        child: Text(l10n.notificationsMarkAllRead),
+      ),
     );
   }
 }

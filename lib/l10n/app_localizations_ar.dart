@@ -827,11 +827,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختيار الفئة سيُفعّل بالمرحلة القادمة.';
 
   @override
-  String profileEditPostLabel(int index) {
-    return 'منشور $index';
-  }
-
-  @override
   String get profileEditSaveButton => 'حفظ';
 
   @override

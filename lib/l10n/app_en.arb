@@ -349,12 +349,6 @@
   "profileEditFieldLocation": "Location",
   "profileEditFieldCategory": "Category",
   "profileEditCategoryComingSoon": "Category selection will be enabled in the next phase.",
-  "profileEditPostLabel": "Post {index}",
-  "@profileEditPostLabel": {
-    "placeholders": {
-      "index": { "type": "int" }
-    }
-  },
   "profileEditSaveButton": "Save",
   "profileEditSaveComingSoon": "Profile changes will sync with your account in the next phase.",
 

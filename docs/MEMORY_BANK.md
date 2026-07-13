@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-11
+> Last updated: 2026-07-13
 
 ---
 
@@ -13,7 +13,8 @@
 Promoo is a premium **dark marketplace / social app** (black `#000000` + yellow
 `#FFE604`) for companies, influencers, service providers, and users to discover
 offers, book influencer "seats", promote via ads, and rank on a Cup leaderboard.
-Currency is **AED**. Arabic/RTL-ready.
+Currency is **AED**. **Bilingual Arabic/English — layout always stays LTR**, text
+translates only (see §5 2026-07-11 correction and `docs/localization_plan.md`).
 
 This repo is the **Flutter mobile app**. It is one of three sibling repos under
 `E:\Personal Work Projects\`:
@@ -70,7 +71,7 @@ $env:Path = "C:\flutter_sdk\flutter\bin;" + $env:Path   # PowerShell
 flutter pub get ; dart format . ; flutter analyze ; flutter test
 # Offline demo APK (mock data): flutter build apk --release --dart-define=PROMOO_USE_MOCKS=true
 ```
-Current health: **192 tests passing**, `flutter analyze` clean.
+Current health: **176 tests passing**, `flutter analyze` clean.
 
 ---
 
@@ -105,6 +106,92 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-13 — Localization plan COMPLETE + full component-deduplication sweep
+  (Profile, Chat, Notifications, Lx, then whole-app consistency pass).**
+  (a) **Finished the localization roadmap:** Profile (all sub-pages: Edit,
+  Following, My Packages, Saved, Support, Static Info, plus the Add
+  Offer/Ad/Service wizards done together since they share fields), Chat, and
+  Notifications — each with its own `*_l10n_test.dart` proving Arabic renders
+  with layout still forced LTR. Fixed a real grammar bug while at it: the
+  notifications unread count was always "N unread notifications" even for
+  N=1 (now real ICU plural). Closed the **Lx** phase as "nothing to do"
+  rather than busywork: numbers/currency were already decided to stay
+  Western/AED, and the only timestamp in the app (chat's `HH:mm`) has no
+  month/day names so it's language-invariant — wiring `intl.DateFormat`
+  there would be pure churn with zero visible difference.
+  [localization_plan.md](localization_plan.md) is now fully ✅.
+  **Owner decision recorded:** user-generated content (offer/service titles,
+  bios, chat) stays single-language as authored, no dual-language input —
+  matches Instagram/Etsy/Airbnb; if the client later wants bilingual user
+  content, that's v2 (needs backend schema changes to add `_ar`/`_en`
+  columns per field, mirroring the reference-content pattern — see
+  `v2_deferred_scope.md` §9).
+  (b) **Owner-reported bug: Edit Profile's own media grid didn't match the
+  public profile's media grid** (no likes/comments/share, no tap-to-view) —
+  root cause was `edit_profile_screen.dart` defining its own separate,
+  poorer `_MediaTile` instead of reusing `ProfileMediaSection`. Fixed by
+  deleting the duplicate and reusing the shared component directly — this
+  **also fixed a light-mode bug for free**: the old tile drew its "Post N"
+  text with the theme's default (unstyled) color over a `Colors.black87`
+  photo scrim, which is readable in dark mode (default text is light) but
+  went invisible in light mode (default text is dark ink on a dark scrim).
+  `ProfileMediaSection`'s tile already forces light text over the scrim
+  correctly in both themes.
+  (c) **Whole-app deduplication sweep** (owner asked for a full pass, not
+  just the one bug): ran systematic Explore-agent audits across the entire
+  `lib/` tree — one for hardcoded/theme-invariant colors, one (then a
+  second, broader pass covering `presentation/widgets/*.dart` too) for
+  duplicated UI components — then fixed every actionable finding. New
+  shared widgets in `lib/shared/widgets/`: `PromooDetailHeader` (back+title
+  row, replacing 4 copy-pasted versions across `profile_screen.dart`,
+  `home_content_detail_screen.dart`, `service_detail_screen.dart`,
+  `chat_room_screen.dart`), `PromooDetailChip` (pill label with an optional
+  `highlighted` fill state — fixed a real inconsistency where Services'
+  copy of this chip was missing the highlighted variant Home's had),
+  `PromooMetric` (icon+label+value block), `PromooAvatarCircle` (circular
+  avatar w/ fallback, now optionally bordered, replacing hand-rolled
+  versions in home/service provider rows, `following_screen.dart`, and the
+  Profile-tab welcome card), `PromooInlineNotice` (dismissible info card —
+  also fixed a light-mode contrast bug: one copy used `primaryYellow`
+  (always-bright-yellow) for its border instead of `accent`, washing out on
+  a white card in light mode), `PromooListHeader` (back+title/subtitle+
+  trailing-slot row, replacing separate `_ChatHeader`/`_NotificationsHeader`
+  copies). Feature-local: `lib/features/profile/presentation/widgets/
+  add_form_widgets.dart` (`AddFormSectionCard`/`FieldLabel`/`FieldGap`/
+  `UploadBox`/`PickerField`/`Adornment`) unifies 6 classes that were
+  copy-pasted across all three Add Offer/Ad/Service screens — while merging
+  it, fixed a latent bug where the Ad wizard's date-picker field never
+  switched out of placeholder-gray text after a date was actually picked
+  (its copy of the field was missing the `isPlaceholder` parameter the
+  other two screens' copies had). Also fixed a stray un-translated `'Back'`
+  tooltip in `PromooSubpageScaffold` (missed during the localization pass).
+  **Deliberately left separate** after inspection (real behavioral/visual
+  differences, not true duplicates): Seats' `_StatChip` vs `PromooMetric`
+  (bordered horizontal pill vs bare card-embedded block, one caller each),
+  `following_screen.dart`'s row vs `LeaderboardProfileCard` (rank badge +
+  verified + chevron-nav vs plain follow-toggle — only their avatar circle
+  was unified), `AuthMessageBanner` vs `PromooInlineNotice` (genuine
+  dual error/success color semantics), Services' `_ResultsContextBar` vs
+  the shared headers (denser in-page step-context bar, not a page header).
+  (d) **Found and deleted 7 fully orphaned dead files**
+  (`lib/features/seats/presentation/widgets/{seat_booking_notice,seat_card,
+  seat_status_badge,seat_tier_cards,seat_tier_explainer,seat_visibility_grid,
+  seats_premium_header}.dart`) — zero references anywhere in `lib/` or
+  `test/`, confirmed via grep both before asking and via a dedicated
+  research pass against `promo_backend` (real Stripe seat-booking checkout
+  exists server-side but is intentionally v1-deferred per
+  `v2_deferred_scope.md`, and no doc references these filenames or a
+  reuse plan) before deleting — these were pre-rewrite leftovers from an
+  earlier Seats screen design, fully superseded by `seats_screen.dart`'s
+  own inline widgets. **This session's delete command was correctly
+  auto-blocked once** by the safety classifier for being an irreversible
+  action on pre-existing files with no explicit user sign-off yet; asked
+  the owner directly, got explicit approval, then deleted.
+  (e) Rewrote `README.md` for GitHub: brand header with light/dark logo
+  switching, feature tour, tech stack, architecture tree, the LTR-locked
+  localization story, setup/testing instructions — all numbers in it
+  (176 tests, 400+ ARB keys) verified against the repo before writing.
+  **176 tests pass throughout, `flutter analyze` clean at every step.**
 - **2026-07-13 — Fixed story swipe, carousel dots, services categories, and profile headers.** Inverted the swipe handler logic inside [HomeStoryViewer](file:///e:/Personal%20Work%20Projects/promo_mobile/lib/features/home/presentation/widgets/home_story_viewer.dart) to match the fixed LTR layout. Restricted [_CarouselSection](file:///e:/Personal%20Work%20Projects/promo_mobile/lib/features/home/presentation/widgets/home_preview_sections.dart) indicators to only show when `viewportFraction == 1.0`. Removed the redundant "All Categories" card from [ServicesCategoryList](file:///e:/Personal%20Work%20Projects/promo_mobile/lib/features/services/presentation/widgets/services_category_list.dart). Replaced the floating back button overlay on [ProfileScreen](file:///e:/Personal%20Work%20Projects/promo_mobile/lib/features/profile/presentation/screens/profile_screen.dart) with a clean, scrollable navigation header matching the ServiceDetailScreen style. Added corresponding widget tests (176 tests passing).
 - **2026-07-11 — Localization phase STARTED (L0 done).** Roadmap:
   [localization_plan.md](localization_plan.md). **Backend is bilingual** via
@@ -301,7 +388,7 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 | [build_plan.md](build_plan.md) | Master Phase A checklist + Phase B 15-row integration table |
 | [v2_deferred_scope.md](v2_deferred_scope.md) | Everything deferred/hidden for v1 |
 | [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. Now the *re-wiring* guide (app was reset to frontend-only). |
-| [localization_plan.md](localization_plan.md) | **Localization roadmap** (Arabic/English + RTL, before wiring): phased checklist, backend bilingual model, RTL readiness. L0 done. |
+| [localization_plan.md](localization_plan.md) | **Localization roadmap** (Arabic/English, text-only — no RTL). **Complete (2026-07-13):** all phases L0-Lx done, every screen bilingual, backend bilingual-content model documented. |
 | [client_requirements_checklist.md](client_requirements_checklist.md) | Client-requested frontend edits, item-by-item with ✔ + locations. |
 | [work_summary.md](work_summary.md) | Full chronological summary of this session's work (light-mode → theme/chrome → icons/logo → integration analysis → role-gating + screens → frontend-only reset). |
 | [project_memory.md](project_memory.md) | Older detailed slice-by-slice notes |
@@ -313,6 +400,16 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 7. Known follow-ups / open items
 
+- **Localization (RESOLVED 2026-07-13):** all phases complete, see §5 above and
+  [localization_plan.md](localization_plan.md). Owner decision on file: user
+  content stays single-language forever unless the client explicitly asks for
+  bilingual input (that would be v2, needs backend schema changes).
+- **Component duplication (RESOLVED 2026-07-13):** whole-app sweep done, see §5
+  above. When adding a new screen, check `lib/shared/widgets/` (and the
+  feature's own `presentation/widgets/`) for an existing component before
+  writing a new private `class _X` inside a screen file — this exact pattern
+  (a screen quietly reimplementing something that already exists elsewhere,
+  slightly worse) was the root cause of every finding in this sweep.
 - **Feedback #4 (RESOLVED 2026-07-10):** owner confirmed the center P mark
   should lead to Cup and be labelled "Promoo"; Services was moved to a normal
   tab. Footer order is now Home · Influencer · [P] Promoo→Cup · Services ·

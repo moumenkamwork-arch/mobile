@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_detail_chip.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -77,18 +78,18 @@ class ProfileHeader extends StatelessWidget {
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
                   children: [
-                    _MetaChip(
+                    PromooDetailChip(
                       label: profileAccountTypeLabel(
                         context,
                         profile.accountType,
                       ),
                     ),
                     if (profile.categoryName != null)
-                      _MetaChip(label: profile.categoryName!),
+                      PromooDetailChip(label: profile.categoryName!),
                     if (profile.location != null)
-                      _MetaChip(label: profile.location!),
+                      PromooDetailChip(label: profile.location!),
                     if (profile.isFeatured)
-                      _MetaChip(
+                      PromooDetailChip(
                         label: AppLocalizations.of(
                           context,
                         ).profileFeaturedBadge,
@@ -197,33 +198,6 @@ class _Avatar extends StatelessWidget {
                 fallbackIcon: Icons.person_rounded,
                 semanticLabel: profile.displayName,
               ),
-      ),
-    );
-  }
-}
-
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.labelSmall,
       ),
     );
   }

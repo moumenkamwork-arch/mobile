@@ -28,7 +28,12 @@ class AuthSocialLoginPreview extends StatelessWidget {
             _SocialCircle(
               label: 'Apple',
               icon: Icons.apple,
-              iconColor: colors.textPrimary,
+              // The circle's background is a fixed dark-grey brand chip in
+              // both themes (matching Google's circle), so the icon must
+              // stay fixed light too — following context.colors.textPrimary
+              // here would turn near-black in light mode and vanish against
+              // the still-dark background.
+              iconColor: AppColors.textPrimary,
               background: const Color(0xFF3A3A3A),
               onTap: () => _showComingSoon(context, l10n, 'Apple sign-in'),
             ),

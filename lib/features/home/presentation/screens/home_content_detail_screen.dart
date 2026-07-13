@@ -4,11 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_avatar_circle.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_detail_chip.dart';
+import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
+import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../shared/widgets/promoo_metric.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -157,7 +162,7 @@ class _HomeContentDetailContent extends StatelessWidget {
           ),
           sliver: SliverList.list(
             children: [
-              _DetailHeader(
+              PromooDetailHeader(
                 title: homeContentDetailTypeLabel(context, detail.type),
                 onBack: onBack,
               ),
@@ -190,35 +195,6 @@ class _HomeContentDetailContent extends StatelessWidget {
                 onDismissNotice: onDismissNotice,
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader({required this.title, required this.onBack});
-
-  final String title;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          tooltip: AppLocalizations.of(context).commonBack,
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
       ],
@@ -259,7 +235,7 @@ class _HeroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _DetailChip(
+                PromooDetailChip(
                   icon: detail.type == HomeContentDetailType.ad
                       ? Icons.campaign_rounded
                       : Icons.local_offer_rounded,
@@ -279,19 +255,19 @@ class _HeroCard extends StatelessWidget {
                   runSpacing: AppSpacing.xs,
                   children: [
                     if (detail.categoryName != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: Icons.category_rounded,
                         label: detail.categoryName!,
                       ),
                     if (detail.provider != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: detail.provider!.isVerified
                             ? Icons.verified_rounded
                             : Icons.person_rounded,
                         label: detail.provider!.displayName,
                       ),
                     if (detail.location != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: Icons.place_outlined,
                         label: detail.location!,
                       ),
@@ -318,7 +294,7 @@ class _SummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _SummaryMetric(
+            child: PromooMetric(
               icon: Icons.sell_outlined,
               label: l10n.commonPrice,
               value: detail.price?.label ?? l10n.commonContactForPricing,
@@ -326,7 +302,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: _SummaryMetric(
+            child: PromooMetric(
               icon: Icons.schedule_rounded,
               label: l10n.homeDetailAvailabilityLabel,
               value: detail.validUntil ?? l10n.homeDetailAvailabilityFallback,
@@ -334,37 +310,6 @@ class _SummaryCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SummaryMetric extends StatelessWidget {
-  const _SummaryMetric({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: context.colors.accent, size: 20),
-        const SizedBox(height: AppSpacing.xs),
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-        const SizedBox(height: AppSpacing.xxxs),
-        Text(
-          value,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ],
     );
   }
 }
@@ -409,20 +354,9 @@ class _ProviderSection extends StatelessWidget {
         PromooCard(
           child: Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: context.colors.elevatedSurface,
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: PromooImage(
-                    imageUrl: provider.avatarUrl,
-                    semanticLabel: provider.displayName,
-                    fallbackIcon: Icons.person_rounded,
-                  ),
-                ),
+              PromooAvatarCircle(
+                imageUrl: provider.avatarUrl,
+                semanticLabel: provider.displayName,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -460,7 +394,7 @@ class _ProviderSection extends StatelessWidget {
                     ],
                     if (provider.accountType != null) ...[
                       const SizedBox(height: AppSpacing.xs),
-                      _DetailChip(label: _labelFor(provider.accountType!)),
+                      PromooDetailChip(label: _labelFor(provider.accountType!)),
                     ],
                   ],
                 ),
@@ -494,21 +428,21 @@ class _DetailsSection extends StatelessWidget {
                 runSpacing: AppSpacing.xs,
                 children: [
                   if (detail.location != null)
-                    _DetailChip(
+                    PromooDetailChip(
                       icon: Icons.place_outlined,
                       label: detail.location!,
                     ),
                   if (detail.promoCode != null)
-                    _DetailChip(
+                    PromooDetailChip(
                       icon: Icons.confirmation_number_outlined,
                       label: detail.promoCode!,
                     ),
                   if (detail.validUntil != null)
-                    _DetailChip(
+                    PromooDetailChip(
                       icon: Icons.event_available_rounded,
                       label: detail.validUntil!,
                     ),
-                  for (final tag in detail.tags) _DetailChip(label: tag),
+                  for (final tag in detail.tags) PromooDetailChip(label: tag),
                 ],
               ),
               if (detail.terms != null) ...[
@@ -559,27 +493,9 @@ class _ActionSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         if (noticeMessage != null) ...[
-          PromooCard(
-            borderColor: context.colors.accent,
-            color: context.colors.elevatedSurface,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline_rounded, color: context.colors.accent),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    noticeMessage!,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                IconButton(
-                  tooltip: l10n.commonDismiss,
-                  onPressed: onDismissNotice,
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
-            ),
+          PromooInlineNotice(
+            message: noticeMessage!,
+            onDismiss: onDismissNotice,
           ),
           const SizedBox(height: AppSpacing.md),
         ],
@@ -615,59 +531,6 @@ class _ActionSection extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _DetailChip extends StatelessWidget {
-  const _DetailChip({required this.label, this.icon, this.highlighted = false});
-
-  final String label;
-  final IconData? icon;
-  final bool highlighted;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final foreground = highlighted ? AppColors.brandBlack : colors.textPrimary;
-
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: highlighted ? colors.primaryYellow : colors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(
-          color: highlighted ? colors.primaryYellow : colors.border,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              color: highlighted ? AppColors.brandBlack : colors.accent,
-              size: 14,
-            ),
-            const SizedBox(width: AppSpacing.xxs),
-          ],
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 220),
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: foreground,
-                fontWeight: highlighted ? FontWeight.w800 : null,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

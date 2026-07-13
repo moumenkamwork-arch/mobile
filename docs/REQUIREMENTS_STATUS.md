@@ -24,10 +24,10 @@ Last updated: 2026-07-13
 | Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets |
 | Seat checkout preview | ✅ | Display-only, no payment |
 | Cup / Leaderboard | ✅ | Header + podium + ranked list |
-| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated), Saved, My Packages, Following (above Support), Support, Language (functional toggle → ar/en), Theme Mode (Black/Light, persisted), Logout, legal links. **Fully localized (L0).** |
+| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated), Saved, My Packages, Following (above Support), Support, Language (functional toggle → ar/en), Theme Mode (Black/Light, persisted), Logout, legal links. **Fully localized.** |
 | Light theme (all screens) | ✅ | 2026-07-08: token system (`context.colors`), AA contrast, black brand chrome, dark-locked auth/splash/media viewers |
 | Back navigation (system + in-app) | ✅ | 2026-07-08: step-wise everywhere — details → list → categories → Home → double-press exit; push-based details; Services results layer intercepts back |
-| Edit Profile | ✅ | Fields = `updateProfileSchema`; local only |
+| Edit Profile | ✅ | Fields = `updateProfileSchema`; local only. Media grid reuses the same `ProfileMediaSection` component as the public profile (fixed 2026-07-13 — it used to be a separate, poorer copy with no likes/comments/share). |
 | Add New Ad (wizard) | ✅ | 4 steps; fields map to `POST /ads` (`createAdSchema`); local only |
 | MyPackages | ✅ | Display-only (no backend package entity — v2) |
 | Saved / Following | ✅ | Mock lists (map to `/saved`, `/follows`) |
@@ -57,11 +57,23 @@ categories/services data, auth (email login/register), token persistence
 
 **176 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
 AED everywhere · Light + Black themes done · role-gated Add Offer/Ad/Service ·
-**frontend-only (no network layer — reset 2026-07-09)** · **bilingual scaffold
-live, RTL proven by test**.
+**frontend-only (no network layer — reset 2026-07-09)** · **bilingual, fully
+localized, LTR-locked layout proven by test** · **zero known duplicated UI
+components** (whole-app dedup sweep 2026-07-13).
 The re-wiring plan is [integration_map.md](integration_map.md); the localization
 plan is [localization_plan.md](localization_plan.md); see
 [MEMORY_BANK.md](MEMORY_BANK.md) for the full change timeline.
+
+**Recent (2026-07-13):** localization plan finished end-to-end (Profile, Chat,
+Notifications, Lx closed) · owner decision: user content stays single-language
+forever unless the client asks for bilingual input (v2) · whole-app
+component-deduplication sweep — 6 new shared widgets, several real bugs fixed
+along the way (light-mode-invisible text on Edit Profile's media grid, Apple
+sign-in button icon invisible in light mode, a washed-out notice-card border,
+a date picker stuck in placeholder styling, an un-translated "Back" tooltip) ·
+7 fully orphaned dead files deleted from the Seats feature (confirmed zero
+references anywhere + checked against the backend before deleting) · `README.md`
+rewritten for GitHub.
 
 **Recent (2026-07-10→11):** client-edit fixes (footer P→Cup, See-All, glass
 header) · UX-audit fixes (live header badges, distinct per-id profiles, profile

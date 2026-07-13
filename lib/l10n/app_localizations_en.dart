@@ -823,11 +823,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Category selection will be enabled in the next phase.';
 
   @override
-  String profileEditPostLabel(int index) {
-    return 'Post $index';
-  }
-
-  @override
   String get profileEditSaveButton => 'Save';
 
   @override

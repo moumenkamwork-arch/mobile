@@ -14,6 +14,7 @@ import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/promoo_profile.dart';
+import '../widgets/profile_media_section.dart';
 
 /// Loads the demo profile used to prefill the Edit Profile form.
 final editProfileSourceProvider = FutureProvider<PromooProfile>((ref) async {
@@ -210,28 +211,14 @@ class _EditProfileFormState extends State<_EditProfileForm> {
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text(
-          l10n.profileMediaTitle,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: AppSpacing.sm,
-            crossAxisSpacing: AppSpacing.sm,
-            childAspectRatio: 0.72,
-          ),
-          itemCount: profile.mediaUrls.length,
-          itemBuilder: (context, index) {
-            return _MediaTile(
-              imageUrl: profile.mediaUrls[index],
-              title: l10n.profileEditPostLabel(index + 1),
-              views: '${(index + 1) * 10}.4K',
-            );
-          },
+        // Reuses the exact same media grid + full-screen viewer as the public
+        // profile page, so a profile's media looks and behaves identically
+        // whether you're viewing it here (Profile Management) or on the
+        // profile itself — same likes/comments/share, same tap-to-view.
+        ProfileMediaSection(
+          mediaUrls: profile.mediaUrls,
+          profileName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
         ),
         const SizedBox(height: AppSpacing.lg),
         PromooButton.primary(
@@ -282,53 +269,6 @@ class _FieldCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           child,
-        ],
-      ),
-    );
-  }
-}
-
-class _MediaTile extends StatelessWidget {
-  const _MediaTile({
-    required this.imageUrl,
-    required this.title,
-    required this.views,
-  });
-
-  final String imageUrl;
-  final String title;
-  final String views;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: AppRadius.card,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          PromooImage(imageUrl: imageUrl, fit: BoxFit.cover),
-          Align(
-            alignment: AlignmentDirectional.bottomStart,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black87],
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
-                  Text(views, style: Theme.of(context).textTheme.bodyMedium),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

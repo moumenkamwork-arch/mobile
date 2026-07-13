@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_detail_chip.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
@@ -62,14 +63,14 @@ class ProfilePackageCard extends StatelessWidget {
                   runSpacing: AppSpacing.xs,
                   children: [
                     if (package.categoryName != null)
-                      _Chip(label: package.categoryName!),
+                      PromooDetailChip(label: package.categoryName!),
                     if (package.deliveryDays != null)
-                      _Chip(
+                      PromooDetailChip(
                         label: l10n.servicesDeliveryDaysLabel(
                           package.deliveryDays!,
                         ),
                       ),
-                    _Chip(label: l10n.profilePackageContactOnly),
+                    PromooDetailChip(label: l10n.profilePackageContactOnly),
                   ],
                 ),
               ],
@@ -104,28 +105,6 @@ class _PackageIcon extends StatelessWidget {
       child: imageUrl == null
           ? Icon(Icons.local_offer_rounded, color: context.colors.accent)
           : null,
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
     );
   }
 }

@@ -1514,12 +1514,6 @@ abstract class AppLocalizations {
   /// **'Category selection will be enabled in the next phase.'**
   String get profileEditCategoryComingSoon;
 
-  /// No description provided for @profileEditPostLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Post {index}'**
-  String profileEditPostLabel(int index);
-
   /// No description provided for @profileEditSaveButton.
   ///
   /// In en, this message translates to:

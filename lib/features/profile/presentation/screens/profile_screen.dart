@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
@@ -51,53 +52,22 @@ class _ProfileScreenBody extends ConsumerWidget {
         bottom: false,
         child: switch (state.status) {
           ProfileStatus.loading => PromooLoadingIndicator(
-              message: l10n.profileLoadingMessage,
-            ),
+            message: l10n.profileLoadingMessage,
+          ),
           ProfileStatus.error => _ProfileErrorView(state: state),
           ProfileStatus.empty => PromooEmptyState(
-              title: l10n.profileEmptyTitle,
-              message: l10n.profileEmptyMessage,
-              icon: Icons.person_off_rounded,
-            ),
+            title: l10n.profileEmptyTitle,
+            message: l10n.profileEmptyMessage,
+            icon: Icons.person_off_rounded,
+          ),
           ProfileStatus.success ||
           ProfileStatus.refreshing => _ProfileContentView(
-              state: state,
-              onRefresh: () =>
-                  ref.read(profileControllerProvider.notifier).refresh(),
-            ),
+            state: state,
+            onRefresh: () =>
+                ref.read(profileControllerProvider.notifier).refresh(),
+          ),
         },
       ),
-    );
-  }
-}
-
-/// Circular back button floated over the profile cover. Uses a translucent
-/// scrim so it stays legible over both the cover photo and plain backgrounds.
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        IconButton(
-          tooltip: l10n.commonBack,
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            l10n.profileDetailScreenTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -188,7 +158,10 @@ class _ProfileContentView extends ConsumerWidget {
                 sliver: SliverList.list(
                   children: [
                     if (Navigator.of(context).canPop()) ...[
-                      _DetailHeader(
+                      PromooDetailHeader(
+                        title: AppLocalizations.of(
+                          context,
+                        ).profileDetailScreenTitle,
                         onBack: () {
                           if (context.canPop()) {
                             context.pop();

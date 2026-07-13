@@ -5,8 +5,8 @@ import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
-import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../widgets/add_form_widgets.dart';
 
 /// "Add New AD" 4-step wizard recreating the original app flow.
 ///
@@ -130,7 +130,7 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
         children: [
           _StepIndicator(current: _step, total: stepTitles.length),
           const SizedBox(height: AppSpacing.lg),
-          _WizardCard(
+          AddFormSectionCard(
             title: stepTitles[_step],
             child: switch (_step) {
               0 => _buildBasicStep(l10n),
@@ -148,44 +148,45 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _FieldLabel(l10n.addAdTitleLabel),
+        AddFormFieldLabel(l10n.addAdTitleLabel),
         PromooTextField(
           controller: _titleController,
           hint: l10n.addAdTitleLabel,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addCommonDescriptionLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addCommonDescriptionLabel),
         PromooTextField(
           controller: _descriptionController,
           hint: l10n.addCommonDescriptionLabel,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addOfferMainImageLabel),
-        _UploadBox(
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addOfferMainImageLabel),
+        AddFormUploadBox(
           icon: Icons.add_photo_alternate_outlined,
           label: l10n.addAdUploadImagesLabel,
           caption: l10n.addCommonUploadCaption,
           onTap: _showUploadNotice,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addOfferAdditionalImageLabel),
-        _UploadBox(
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addOfferAdditionalImageLabel),
+        AddFormUploadBox(
           icon: Icons.add_photo_alternate_outlined,
           label: l10n.addAdUploadImagesLabel,
           caption: l10n.addCommonUploadCaption,
           onTap: _showUploadNotice,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdPostDateLabel),
-        _PickerField(
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdPostDateLabel),
+        AddFormPickerField(
           hint: _postDate == null
               ? l10n.addAdSelectDateCap
               : '${_postDate!.year}-${_postDate!.month.toString().padLeft(2, '0')}-${_postDate!.day.toString().padLeft(2, '0')}',
+          isPlaceholder: _postDate == null,
           trailing: Icons.calendar_month_rounded,
           onTap: _pickDate,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addCommonTagsLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addCommonTagsLabel),
         PromooTextField(controller: _tagsController, hint: l10n.addAdTagsHint),
       ],
     );
@@ -195,7 +196,7 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _FieldLabel(l10n.addAdCityLabel),
+        AddFormFieldLabel(l10n.addAdCityLabel),
         _DropdownField(
           hint: l10n.addAdSelectCity,
           value: _city == null ? null : _cityLabel(context, _city!),
@@ -207,23 +208,23 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
             _area = null;
           }),
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdAreaLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdAreaLabel),
         _DropdownField(
           hint: l10n.addAdSelectArea,
           value: _area,
           items: _areasByCity[_city] ?? const [],
           onChanged: (value) => setState(() => _area = value),
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdFullAddressLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdFullAddressLabel),
         PromooTextField(
           controller: _addressController,
           hint: l10n.addAdFullAddressHint,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdLocationMapLabel),
-        _UploadBox(
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdLocationMapLabel),
+        AddFormUploadBox(
           icon: Icons.map_outlined,
           label: l10n.addAdUploadLocationMap,
           caption: l10n.addAdLocationMapCaption,
@@ -237,28 +238,28 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _FieldLabel(l10n.addAdPhoneLabel),
+        AddFormFieldLabel(l10n.addAdPhoneLabel),
         PromooTextField(
           controller: _phoneController,
           hint: l10n.addAdPhoneLabel,
           keyboardType: TextInputType.phone,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdWhatsappLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdWhatsappLabel),
         PromooTextField(
           controller: _whatsappController,
           hint: l10n.addAdWhatsappLabel,
           keyboardType: TextInputType.phone,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.authFieldEmail),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.authFieldEmail),
         PromooTextField(
           controller: _emailController,
           hint: l10n.authFieldEmail,
           keyboardType: TextInputType.emailAddress,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdInstagramLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdInstagramLabel),
         PromooTextField(
           controller: _instagramController,
           hint: l10n.addAdInstagramLabel,
@@ -272,30 +273,30 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _FieldLabel(l10n.commonPrice),
+        AddFormFieldLabel(l10n.commonPrice),
         PromooTextField(
           controller: _priceController,
           hint: l10n.commonPrice,
           keyboardType: TextInputType.number,
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdCurrencyLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdCurrencyLabel),
         _DropdownField(
           hint: l10n.addAdSelectCurrency,
           value: _currency,
           items: _currencies,
           onChanged: (value) => setState(() => _currency = value),
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdServiceProductLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdServiceProductLabel),
         _DropdownField(
           hint: l10n.addAdSelectType,
           value: _serviceType,
           items: _serviceTypes,
           onChanged: (value) => setState(() => _serviceType = value),
         ),
-        const _FieldGap(),
-        _FieldLabel(l10n.addAdPaymentMethodLabel),
+        const AddFormFieldGap(),
+        AddFormFieldLabel(l10n.addAdPaymentMethodLabel),
         _DropdownField(
           hint: l10n.addAdSelectPaymentMethod,
           value: _paymentMethod,
@@ -440,33 +441,6 @@ class _DashedConnector extends StatelessWidget {
   }
 }
 
-class _WizardCard extends StatelessWidget {
-  const _WizardCard({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: context.colors.cardSurface,
-        borderRadius: AppRadius.card,
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.md),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
 class _WizardActions extends StatelessWidget {
   const _WizardActions({
     required this.step,
@@ -504,104 +478,6 @@ class _WizardActions extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.xs),
-      child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
-    );
-  }
-}
-
-class _FieldGap extends StatelessWidget {
-  const _FieldGap();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(height: AppSpacing.md);
-  }
-}
-
-class _UploadBox extends StatelessWidget {
-  const _UploadBox({
-    required this.icon,
-    required this.label,
-    required this.caption,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String caption;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.card,
-      child: Container(
-        padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: AppRadius.card,
-          border: Border.all(color: context.colors.borderStrong),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: context.colors.textSecondary, size: 30),
-            const SizedBox(height: AppSpacing.xs),
-            Text(label, style: Theme.of(context).textTheme.bodyLarge),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(caption, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PickerField extends StatelessWidget {
-  const _PickerField({
-    required this.hint,
-    required this.trailing,
-    required this.onTap,
-  });
-
-  final String hint;
-  final IconData trailing;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.input,
-      child: InputDecorator(
-        decoration: const InputDecoration(),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                hint,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: context.colors.textSecondary,
-                ),
-              ),
-            ),
-            Icon(trailing, color: context.colors.textSecondary, size: 22),
-          ],
-        ),
-      ),
     );
   }
 }

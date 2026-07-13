@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
+import '../../../../shared/widgets/promoo_list_header.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -85,36 +86,15 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        IconButton(
-          tooltip: l10n.commonBack,
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.headerChats,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                l10n.chatListSubtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          tooltip: l10n.headerNotifications,
-          onPressed: onNotifications,
-          icon: const Icon(Icons.notifications_none_rounded),
-        ),
-      ],
+    return PromooListHeader(
+      title: l10n.headerChats,
+      subtitle: l10n.chatListSubtitle,
+      onBack: onBack,
+      trailing: IconButton(
+        tooltip: l10n.headerNotifications,
+        onPressed: onNotifications,
+        icon: const Icon(Icons.notifications_none_rounded),
+      ),
     );
   }
 }

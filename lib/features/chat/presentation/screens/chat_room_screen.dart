@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
@@ -117,23 +118,9 @@ class _ConversationHeader extends StatelessWidget {
         AppSpacing.screenHorizontal,
         AppSpacing.sm,
       ),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: AppLocalizations.of(context).commonBack,
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded),
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context).chatConversationTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-        ],
+      child: PromooDetailHeader(
+        title: AppLocalizations.of(context).chatConversationTitle,
+        onBack: onBack,
       ),
     );
   }

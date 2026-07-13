@@ -4,11 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_avatar_circle.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_detail_chip.dart';
+import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
+import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
+import '../../../../shared/widgets/promoo_metric.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -115,7 +120,10 @@ class _ServiceDetailContent extends StatelessWidget {
           ),
           sliver: SliverList.list(
             children: [
-              _DetailHeader(onBack: onBack),
+              PromooDetailHeader(
+                title: AppLocalizations.of(context).serviceDetailScreenTitle,
+                onBack: onBack,
+              ),
               const SizedBox(height: AppSpacing.lg),
               _HeroCard(service: service),
               const SizedBox(height: AppSpacing.lg),
@@ -141,35 +149,6 @@ class _ServiceDetailContent extends StatelessWidget {
                 onDismissNotice: onDismissContactNotice,
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        IconButton(
-          tooltip: l10n.commonBack,
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            l10n.serviceDetailScreenTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
       ],
@@ -222,19 +201,19 @@ class _HeroCard extends StatelessWidget {
                   runSpacing: AppSpacing.xs,
                   children: [
                     if (service.category != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: Icons.category_rounded,
                         label: service.category!.name,
                       ),
                     if (service.provider != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: service.provider!.isVerified
                             ? Icons.verified_rounded
                             : Icons.person_rounded,
                         label: service.provider!.name,
                       ),
                     if (service.location != null)
-                      _DetailChip(
+                      PromooDetailChip(
                         icon: Icons.place_outlined,
                         label: service.location!,
                       ),
@@ -261,7 +240,7 @@ class _ServiceSummary extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _SummaryMetric(
+            child: PromooMetric(
               label: l10n.commonPrice,
               value: service.price?.label ?? l10n.commonContactForPricing,
               icon: Icons.sell_outlined,
@@ -269,7 +248,7 @@ class _ServiceSummary extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: _SummaryMetric(
+            child: PromooMetric(
               label: l10n.serviceDetailTimelineLabel,
               value: service.deliveryDays == null
                   ? l10n.serviceDetailDiscussWithProvider
@@ -279,37 +258,6 @@ class _ServiceSummary extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SummaryMetric extends StatelessWidget {
-  const _SummaryMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: context.colors.accent, size: 20),
-        const SizedBox(height: AppSpacing.xs),
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-        const SizedBox(height: AppSpacing.xxxs),
-        Text(
-          value,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ],
     );
   }
 }
@@ -361,11 +309,11 @@ class _DeliveryTagsSection extends StatelessWidget {
             runSpacing: AppSpacing.xs,
             children: [
               if (service.deliveryDays != null)
-                _DetailChip(
+                PromooDetailChip(
                   icon: Icons.schedule_rounded,
                   label: l10n.servicesDeliveryDaysLabel(service.deliveryDays!),
                 ),
-              for (final tag in service.tags) _DetailChip(label: tag),
+              for (final tag in service.tags) PromooDetailChip(label: tag),
             ],
           ),
         ),
@@ -392,7 +340,11 @@ class _ProviderSummary extends StatelessWidget {
           child: current == null
               ? Row(
                   children: [
-                    _ProviderAvatar(provider: null),
+                    PromooAvatarCircle(
+                      imageUrl: null,
+                      semanticLabel: l10n.serviceDetailProviderFallbackSemantic,
+                      fallbackIcon: Icons.storefront_rounded,
+                    ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Text(
@@ -404,7 +356,10 @@ class _ProviderSummary extends StatelessWidget {
                 )
               : Row(
                   children: [
-                    _ProviderAvatar(provider: current),
+                    PromooAvatarCircle(
+                      imageUrl: current.avatarUrl,
+                      semanticLabel: current.name,
+                    ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
@@ -443,7 +398,9 @@ class _ProviderSummary extends StatelessWidget {
                           ],
                           if (current.accountType != null) ...[
                             const SizedBox(height: AppSpacing.xs),
-                            _DetailChip(label: _labelFor(current.accountType!)),
+                            PromooDetailChip(
+                              label: _labelFor(current.accountType!),
+                            ),
                           ],
                         ],
                       ),
@@ -452,38 +409,6 @@ class _ProviderSummary extends StatelessWidget {
                 ),
         ),
       ],
-    );
-  }
-}
-
-class _ProviderAvatar extends StatelessWidget {
-  const _ProviderAvatar({required this.provider});
-
-  final ServiceProvider? provider;
-
-  @override
-  Widget build(BuildContext context) {
-    final avatarUrl = provider?.avatarUrl;
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: context.colors.elevatedSurface,
-        shape: BoxShape.circle,
-      ),
-      child: ClipOval(
-        child: PromooImage(
-          imageUrl: avatarUrl,
-          semanticLabel:
-              provider?.name ??
-              AppLocalizations.of(
-                context,
-              ).serviceDetailProviderFallbackSemantic,
-          fallbackIcon: provider == null
-              ? Icons.storefront_rounded
-              : Icons.person_rounded,
-        ),
-      ),
     );
   }
 }
@@ -517,27 +442,9 @@ class _ContactSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         if (showNotice) ...[
-          PromooCard(
-            borderColor: context.colors.primaryYellow,
-            color: context.colors.elevatedSurface,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline_rounded, color: context.colors.accent),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l10n.commonContactFlowComingSoon,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                IconButton(
-                  tooltip: l10n.commonDismiss,
-                  onPressed: onDismissNotice,
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
-            ),
+          PromooInlineNotice(
+            message: l10n.commonContactFlowComingSoon,
+            onDismiss: onDismissNotice,
           ),
           const SizedBox(height: AppSpacing.md),
         ],
@@ -564,47 +471,6 @@ class _ContactSection extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _DetailChip extends StatelessWidget {
-  const _DetailChip({required this.label, this.icon});
-
-  final String label;
-  final IconData? icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(color: colors.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, color: colors.accent, size: 14),
-            const SizedBox(width: AppSpacing.xxs),
-          ],
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 220),
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

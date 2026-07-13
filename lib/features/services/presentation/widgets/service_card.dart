@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_card.dart';
+import '../../../../shared/widgets/promoo_detail_chip.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -65,19 +66,19 @@ class ServiceCard extends StatelessWidget {
                   runSpacing: AppSpacing.xs,
                   children: [
                     if (service.category != null)
-                      _ServiceMetaChip(label: service.category!.name),
+                      PromooDetailChip(label: service.category!.name),
                     if (service.provider != null)
-                      _ServiceMetaChip(label: service.provider!.name),
+                      PromooDetailChip(label: service.provider!.name),
                     if (service.deliveryDays != null)
-                      _ServiceMetaChip(
+                      PromooDetailChip(
                         label: l10n.servicesDeliveryDaysLabel(
                           service.deliveryDays!,
                         ),
                       ),
                     if (service.price == null)
-                      _ServiceMetaChip(label: l10n.commonContactForPricing),
+                      PromooDetailChip(label: l10n.commonContactForPricing),
                     if (service.location != null)
-                      _ServiceMetaChip(label: service.location!),
+                      PromooDetailChip(label: service.location!),
                   ],
                 ),
               ],
@@ -111,33 +112,6 @@ class _ServiceImage extends StatelessWidget {
         imageUrl: imageUrl,
         semanticLabel: service.title,
         fallbackIcon: Icons.storefront_rounded,
-      ),
-    );
-  }
-}
-
-class _ServiceMetaChip extends StatelessWidget {
-  const _ServiceMetaChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: AppRadius.pill,
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.labelSmall,
       ),
     );
   }

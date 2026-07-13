@@ -35,6 +35,21 @@
 - Keep mock data behind data-source/repository interfaces (never in widgets).
 - **Every top-level (non-shell) route screen must provide its own `Scaffold`**
   (search + all detail pages are top-level now — they need Material).
+- **Before writing a private `class _X` inside a screen file, check for an
+  existing equivalent** in `lib/shared/widgets/` (app-wide: chips, headers,
+  avatars, metric blocks, cards, empty/error/loading states) or the feature's
+  own `presentation/widgets/` (feature-specific pieces). A whole-app dedup
+  sweep (2026-07-13) found the exact same class of bug repeated 10+ times —
+  a screen quietly reimplements something that already exists elsewhere,
+  slightly worse (missing a state, an unlocalized string, or a light-mode
+  color bug the original component already handles correctly). Shared
+  building blocks: `PromooDetailHeader`, `PromooListHeader`,
+  `PromooDetailChip`, `PromooMetric`, `PromooAvatarCircle`,
+  `PromooInlineNotice`, plus the usual `PromooCard`/`PromooButton`/
+  `PromooSectionHeader`/`PromooEmptyState`/`PromooErrorState`/
+  `PromooLoadingIndicator`. If a screen only needs a small config difference
+  from an existing widget (an extra param, an optional slot), extend the
+  shared widget — don't fork it.
 
 ## 3. Design system
 
@@ -52,6 +67,16 @@
   - Photo scrims + text over photos: constant dark scrim
     (`AppColors.brandBlack` alphas) + `AppColors.dark.textPrimary` text.
   - Avatar wells: `AppColors.brandBlack` + brand-yellow ring in both modes.
+  - **If you hardcode a background/fill color, hardcode everything drawn on
+    top of it too — never mix a fixed background with theme-following
+    content color (or vice versa).** This exact mismatch caused two real
+    bugs found 2026-07-13: a media tile drew text in the *default* (theme-
+    following) color over a fixed dark scrim — invisible in light mode,
+    since the default text color is dark ink there; and a social sign-in
+    circle had a fixed dark background but a theme-following icon color —
+    same failure, inverted. The fix is always: pick one policy for that
+    widget (fully fixed, or fully `context.colors.*`) and apply it to both
+    the surface and the content together.
 - **The header, bottom nav, and Login/Register are theme-aware** (paper in
   light, black in dark) — this is deliberate as of 2026-07-08. The only
   brand-fixed-dark surfaces left are the launch splash and the two
@@ -96,7 +121,7 @@
   first, AND show an in-app back affordance.
 - Shell back order: interceptors → non-Home tab → Home → double-press exit.
 
-## 3c. Localization (i18n) — phase started 2026-07-11
+## 3c. Localization (i18n) — complete (2026-07-13)
 
 - **All user-facing strings come from ARB**, never hardcoded in widgets. Add a
   key to `lib/l10n/app_en.arb` + `app_ar.arb`, run `flutter gen-l10n` (output is
@@ -134,6 +159,10 @@
   subscription plans) is resolved server-side by `Accept-Language` (returns a
   single `name`/`description`); user content (offers/services/bios/chat) stays
   in the language it was authored in — do NOT translate it client-side.
+  **Owner decision (2026-07-12):** this is permanent unless the client
+  explicitly asks for bilingual user-content input later — that would need a
+  backend schema change (new `_ar`/`_en` columns per field) and is v2 by
+  definition; see `v2_deferred_scope.md` §9.
 - **Test harnesses that render a localized screen** must pass
   `localizationsDelegates: AppLocalizations.localizationsDelegates` +
   `supportedLocales: AppLocalizations.supportedLocales` to their `MaterialApp`.

@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../i18n/locale_controller.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
+import '../../../../shared/widgets/promoo_avatar_circle.dart';
 import '../../../../shared/widgets/promoo_card.dart';
-import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
@@ -181,21 +181,11 @@ class _WelcomeCard extends StatelessWidget {
     return PromooCard(
       child: Row(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: colors.elevatedSurface,
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.accent, width: 1.5),
-            ),
-            child: ClipOval(
-              child: PromooImage(
-                imageUrl: avatarUrl,
-                semanticLabel: displayName,
-                fallbackIcon: Icons.person_rounded,
-              ),
-            ),
+          PromooAvatarCircle(
+            imageUrl: avatarUrl,
+            semanticLabel: displayName,
+            size: 48,
+            borderColor: colors.accent,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
