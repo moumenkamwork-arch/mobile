@@ -16,11 +16,24 @@ void main() {
     'chat list screen renders Arabic header and empty state, stays LTR',
     (tester) async {
       await tester.pumpWidget(
-        _arabicApp(
+        ProviderScope(
           overrides: [
             chatRepositoryProvider.overrideWithValue(const _ChatRepository()),
           ],
-          home: const ChatListScreen(),
+          child: MaterialApp(
+            theme: AppTheme.dark,
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            // Mirrors lib/app.dart: translate, don't mirror the layout.
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
+            home: const Scaffold(body: ChatListScreen()),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -41,13 +54,26 @@ void main() {
     'chat room screen renders Arabic conversation title and message status, stays LTR',
     (tester) async {
       await tester.pumpWidget(
-        _arabicApp(
+        ProviderScope(
           overrides: [
             chatRepositoryProvider.overrideWithValue(
               _ChatRepository(messages: [_deliveredMessage]),
             ),
           ],
-          home: const ChatRoomScreen(roomId: 'room-1'),
+          child: MaterialApp(
+            theme: AppTheme.dark,
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            // Mirrors lib/app.dart: translate, don't mirror the layout.
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
+            home: const Scaffold(body: ChatRoomScreen(roomId: 'room-1')),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -60,29 +86,6 @@ void main() {
         TextDirection.ltr,
       );
     },
-  );
-}
-
-Widget _arabicApp({
-  required List<Override> overrides,
-  required Widget home,
-}) {
-  return ProviderScope(
-    overrides: overrides,
-    child: MaterialApp(
-      theme: AppTheme.dark,
-      locale: const Locale('ar'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      // Mirrors lib/app.dart: translate, don't mirror the layout.
-      builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.ltr,
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
-      home: Scaffold(body: home),
-    ),
   );
 }
 
@@ -102,7 +105,10 @@ class _ChatRepository implements ChatRepository {
   final List<ChatMessage> messages;
 
   @override
-  Future<Result<List<ChatRoom>>> getRooms({int page = 1, int limit = 20}) async {
+  Future<Result<List<ChatRoom>>> getRooms({
+    int page = 1,
+    int limit = 20,
+  }) async {
     return const Result.success([]);
   }
 

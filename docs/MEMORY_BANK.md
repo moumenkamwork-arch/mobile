@@ -105,6 +105,7 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-13 — Fixed story viewer horizontal swipe gestures.** Inverted the swipe handler logic inside [HomeStoryViewer](file:///e:/Personal%20Work%20Projects/promo_mobile/lib/features/home/presentation/widgets/home_story_viewer.dart) (`onHorizontalDragEnd`) to match the fixed LTR layout (swiping left transitions to the next group, and swiping right returns to the previous group). Added an automated widget test and ran full test verification (176 tests passing).
 - **2026-07-11 — Localization phase STARTED (L0 done).** Roadmap:
   [localization_plan.md](localization_plan.md). **Backend is bilingual** via
   separate columns (`name_ar`/`name_en` on categories + subscription plans),

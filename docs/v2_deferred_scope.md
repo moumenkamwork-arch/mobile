@@ -1,6 +1,6 @@
 # Promoo Mobile — v2 Deferred Scope
 
-Last updated: 2026-07-12
+Last updated: 2026-07-12 (added §9 — dual-language user content)
 
 > **Purpose.** This is the single, authoritative list of everything we are **deferring to v2** and everything we are **hiding in v1**. Rule of the project: **the backend is the single source of truth; the app must match it 100%.** For each item below we record: (a) the backend endpoint / entity it will map to when we build it later, and (b) the exact **v1 behaviour** in the app right now.
 >
@@ -119,6 +119,16 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 > yet — it becomes security-relevant only once **Phase B** wires the app to Supabase
 > (Realtime / OAuth). Backend-side tracking: `promo_backend/docs/REQUIREMENTS_STATUS.md`
 > (Phase 21) + `MEMORY_BANK.md` (decisions #34–#36).
+
+---
+
+## 9. Dual-language input/display for user-generated content (defer — needs backend schema)
+
+| Item | Backend support | v1 behaviour |
+| --- | --- | --- |
+| Bilingual user content (offer/service titles & descriptions, profile bio, chat messages) | **None** — user-content tables have a single text column per field; only *reference* content (categories, subscription plans) has `_ar`/`_en` column pairs resolved via `Accept-Language` (see `docs/localization_plan.md` §0) | **Single-language, as authored** — user content always displays in whichever language its author wrote it in, regardless of the app's UI language. No dual-language entry form, no per-field language toggle, no auto-translation. Matches how Instagram/Etsy/Airbnb handle user content. |
+
+> Owner decision (2026-07-12): keep this behaviour permanently unless the client explicitly asks for bilingual user content later. If requested, it needs new `_ar`/`_en` columns per user-content field (mirroring the existing reference-content pattern) — a backend schema change, so it's v2 by definition. Recorded in `docs/localization_plan.md` §"القرارات (مُعتمدة)" item 4.
 
 ---
 

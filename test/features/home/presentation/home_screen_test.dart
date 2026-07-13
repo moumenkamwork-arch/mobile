@@ -181,6 +181,47 @@ void main() {
     expect(find.byType(HomeStoryViewer), findsNothing);
   });
 
+  testWidgets(
+    'story viewer swiping left shows next story group, swiping right shows previous story group',
+    (tester) async {
+      await tester.pumpWidget(
+        _buildHomeScreen(
+          _HomeRepository(Result.success(HomeContentDto.fixture().toDomain())),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Maya Studio'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 260));
+
+      expect(find.byType(HomeStoryViewer), findsOneWidget);
+      expect(find.text('Maya Studio'), findsOneWidget);
+
+      // Swipe left (velocity < 0, dx = -400) -> Next group (Omar Visuals)
+      await tester.fling(
+        find.byType(HomeStoryViewer),
+        const Offset(-400, 0),
+        1200,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 260));
+
+      expect(find.text('Omar Visuals'), findsOneWidget);
+
+      // Swipe right (velocity > 0, dx = 400) -> Previous group (Maya Studio)
+      await tester.fling(
+        find.byType(HomeStoryViewer),
+        const Offset(400, 0),
+        1200,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 260));
+
+      expect(find.text('Maya Studio'), findsOneWidget);
+    },
+  );
+
   testWidgets('highlight card navigates to home detail route', (tester) async {
     final router = createAppRouter(initialLocation: AppRoutes.home);
     addTearDown(router.dispose);

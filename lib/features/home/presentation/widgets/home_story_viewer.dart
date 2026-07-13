@@ -84,11 +84,11 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
         if (velocity.abs() < 300) return;
 
         if (velocity > 0) {
-          // Swiped right -> Next story group (RTL behavior)
-          _showNextStoryGroup();
-        } else {
-          // Swiped left -> Previous story group (RTL behavior)
+          // Swiped right -> Previous story group (LTR behavior)
           _showPreviousStoryGroup();
+        } else {
+          // Swiped left -> Next story group (LTR behavior)
+          _showNextStoryGroup();
         }
       },
       child: Stack(
