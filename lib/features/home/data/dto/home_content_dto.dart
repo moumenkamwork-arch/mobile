@@ -567,6 +567,17 @@ class HomeOfferPreviewDto {
   final String? imageUrl;
 
   factory HomeOfferPreviewDto.fromJson(Map<String, Object?> json) {
+    // The backend returns offer/ad images as a `media_urls[]` array; fall back
+    // to its first element when no singular image field is present (mirrors
+    // HomeContentDetailDto). Without this the home offer/ad cards render the
+    // image placeholder even though the backend sent a real image.
+    final mediaUrls = _readStringList(json, const [
+      'media_urls',
+      'mediaUrls',
+      'image_urls',
+      'imageUrls',
+      'images',
+    ]);
     return HomeOfferPreviewDto(
       id: _readString(json, const ['id', 'offer_id']),
       title: _readString(json, const ['title', 'name', 'headline']),
@@ -575,12 +586,14 @@ class HomeOfferPreviewDto {
         HomeContentDetailType.offer,
       ),
       subtitle: _readString(json, const ['subtitle', 'description', 'summary']),
-      imageUrl: _readString(json, const [
-        'image_url',
-        'imageUrl',
-        'cover_url',
-        'thumbnail_url',
-      ]),
+      imageUrl:
+          _readString(json, const [
+            'image_url',
+            'imageUrl',
+            'cover_url',
+            'thumbnail_url',
+          ]) ??
+          (mediaUrls.isEmpty ? null : mediaUrls.first),
     );
   }
 

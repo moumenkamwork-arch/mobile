@@ -1,6 +1,6 @@
 # Promoo Mobile — v2 Deferred Scope
 
-Last updated: 2026-07-12 (added §9 — dual-language user content)
+Last updated: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid seed took migration `035`, so the RLS pass is now `036`)
 
 > **Purpose.** This is the single, authoritative list of everything we are **deferring to v2** and everything we are **hiding in v1**. Rule of the project: **the backend is the single source of truth; the app must match it 100%.** For each item below we record: (a) the backend endpoint / entity it will map to when we build it later, and (b) the exact **v1 behaviour** in the app right now.
 >
@@ -91,6 +91,7 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 | `best_price` badge | Not returned by API | **Hidden**. |
 | Location/map on offers (sticky map action, "open in maps") | No maps flow in v1 | **Hidden** — show plain text location if present; no map launch. |
 | Reviews/ratings/likes/comments/share | See §4 | **Hidden**. |
+| `views_count` (profile stat) | No source table on `profiles` — offers/services/media/ads track views, `profiles` doesn't | **Hidden** — owner decision 2026-07-13. During profile wiring (Phase 3) the stats row shows Followers + Posts (+ Following once counted); Views is dropped until a source exists in v2. |
 
 ## 7. Dynamic Seats Expansion & Management (Dashboard)
 
@@ -110,8 +111,8 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 
 | Item | Type | Why deferred | When to do it |
 | --- | --- | --- | --- |
-| Enable **Leaked Password Protection** | Security (Auth) | Supabase Dashboard toggle (Authentication → Passwords); **cannot** be done via SQL/MCP. | Owner — before real users sign up. |
-| **RLS performance pass** — 47 `auth_rls_initplan` (`auth.uid()` → `(select auth.uid())`) + 165 `multiple_permissive_policies` + 4 unindexed FKs + 8 unused indexes | Performance | All WARN-level; a non-issue at current row counts, matters at scale. Best as its own reviewed migration (`035`). | Phase B, before real traffic. |
+| Enable **Leaked Password Protection** | Security (Auth) | **Confirmed 2026-07-13: requires a Supabase Pro-plan-or-above subscription** — the dashboard toggle is disabled/grayed out on the current Free plan (not just a click-to-enable setting as first assumed). Not achievable via SQL/MCP either way. | Owner — a plan-upgrade + cost decision, revisit before real public launch (not urgent now: real user registration isn't wired until Phase 2/3 of integration_map, so there's no live signup surface yet). |
+| **RLS performance pass** — 47 `auth_rls_initplan` (`auth.uid()` → `(select auth.uid())`) + 165 `multiple_permissive_policies` + 4 unindexed FKs + 8 unused indexes | Performance | All WARN-level; a non-issue at current row counts, matters at scale. Best as its own reviewed migration (`036` — `035` is now the seat-grid seed). | Phase B, before real traffic. |
 | `is_admin()` / `is_room_participant()` stay anon/authenticated-executable | Security (**accepted, permanent**) | They are RLS **helper** functions evaluated inside policies; revoking EXECUTE breaks legitimate RLS reads, and they leak nothing (return `false` for non-admins/non-participants). Not a TODO — a documented exception. | — |
 
 > **Scope note:** these are DB/infra items, not app features. In v1 the app is

@@ -106,6 +106,47 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-13 — Phase B STARTED: Phase 0 (compatibility hardening) done + verified
+  against the live DB.** Approved wiring plan: reach 100% front↔back↔DB compat for the
+  v1 slice, then wire feature-by-feature (~12 phases). Owner **authorized backend edits**
+  for this work (golden rule overridden) and chose to close gaps at the source. Done:
+  **F0.1** (mobile) — `HomeOfferPreviewDto` now falls back to `media_urls[0]` (was rendering
+  the placeholder even when the backend sent an image); analyze + 176 tests green.
+  **Backend (`promo_backend`, all `tsc --noEmit` clean):** **B0.1** migration
+  `035_seed_seat_grid.sql` seeds the full 144-seat grid (16 gold / 48 silver / 80 bronze —
+  matching the app's fixed 12×12 client-required grid; the "correct" dynamic seat logic stays
+  v2), + kept `seed.sql` in sync; **B0.2** `saved.service.ts` now groups saved rows by type and
+  returns enriched item details (no more id-only); **B0.3** `profile.service.ts` computes
+  `following_count`+`posts_count` (COUNT on follows/media) — `views_count` **deferred to v2**
+  (no source table); **B0.4** wired `pickLocalized` (it was defined but **never called** — so
+  reference content always returned English regardless of `Accept-Language`) into
+  `category.service` + `home.service`, resolving a single `name` per language. **Verified live
+  against the remote Supabase** (owner-authorized write): seats = 16/48/80, categories resolve
+  ar↔en, profile response carries the new counters. B0.2 gets its full live test with an
+  authenticated user in Phase 11. **Owner still to do:** enable Leaked Password Protection
+  (Supabase dashboard toggle). Note: the seat-grid seed took migration `035`, so the deferred
+  RLS-perf pass is now `036`. Backend targets a **remote cloud Supabase** (no local setup) — a
+  gotcha for anyone verifying: there's no `supabase start`; apply migrations via `db push` or
+  the SQL editor. Next: Phase 1 (mobile plumbing — rebuild the network layer + Bearer/
+  Accept-Language interceptor + secure token store).
+- **2026-07-13 — Regenerated the Phase-B integration map against current state.**
+  Owner is about to start backend wiring and wanted the plan re-verified since the
+  frontend + DB changed. Re-read the current mobile data layer directly (DTOs,
+  `app_config`, `auth_session_store`, `locale_controller`, `profile` repo/datasource,
+  pubspec) and cross-checked the backend (migrations stop at `034`, no `035` — DB
+  state = the 2026-07-12 note). Findings folded into
+  [integration_map.md](integration_map.md): (1) **field-compatibility %s are
+  unchanged (~89%)** — the DTOs were never touched by the localization/dedup work,
+  only presentation/domain layers were; (2) added the **`Accept-Language`
+  integration axis** (new since the map — `localeProvider` is the single source, the
+  Phase-B interceptor must inject it alongside the Bearer token; reference content
+  resolves server-side, user content stays single-language, bilingual input = v2);
+  (3) reframed every "wiring status" as target-after-wiring since the remote layer
+  is fully deleted (app is cleanly frontend-only; the old §0 "app is secretly wired"
+  discovery is now historical); (4) recorded the deltas — Follow is now a working
+  local toggle (not a dead-end), `flutter_secure_storage` is now used (theme+locale,
+  so token storage is lower-risk), `dio`/`PROMOO_USE_MOCKS`/base-URL removed,
+  `updateMyProfile` confirmed still a hard stub. No code changed — docs only.
 - **2026-07-13 — Localization plan COMPLETE + full component-deduplication sweep
   (Profile, Chat, Notifications, Lx, then whole-app consistency pass).**
   (a) **Finished the localization roadmap:** Profile (all sub-pages: Edit,
@@ -387,7 +428,7 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 | [REQUIREMENTS_STATUS.md](REQUIREMENTS_STATUS.md) | Screen-by-screen status (points to build_plan) |
 | [build_plan.md](build_plan.md) | Master Phase A checklist + Phase B 15-row integration table |
 | [v2_deferred_scope.md](v2_deferred_scope.md) | Everything deferred/hidden for v1 |
-| [integration_map.md](integration_map.md) | **Phase B authoritative map**: 111 endpoints, section→API, field-level compatibility (~89%), backend gaps, wiring order. Verified vs live code + Apis-Resaults. Now the *re-wiring* guide (app was reset to frontend-only). |
+| [integration_map.md](integration_map.md) | **Phase B authoritative map** (fully regenerated 2026-07-13 against current frontend + DB): 111 endpoints, section→API, field-level compatibility (~89%, unchanged — DTOs untouched), backend gaps, wiring order. Now folds in the **`Accept-Language` axis** (localization), the frontend-only reality (remote layer deleted), and the deltas since 2026-07-09 (Follow=local toggle, secure-storage now used, dio removed). The re-wiring guide. |
 | [localization_plan.md](localization_plan.md) | **Localization roadmap** (Arabic/English, text-only — no RTL). **Complete (2026-07-13):** all phases L0-Lx done, every screen bilingual, backend bilingual-content model documented. |
 | [client_requirements_checklist.md](client_requirements_checklist.md) | Client-requested frontend edits, item-by-item with ✔ + locations. |
 | [work_summary.md](work_summary.md) | Full chronological summary of this session's work (light-mode → theme/chrome → icons/logo → integration analysis → role-gating + screens → frontend-only reset). |

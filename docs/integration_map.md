@@ -2,86 +2,89 @@
 
 # Promoo — خريطة الربط المعتمدة (Backend ↔ Mobile Integration Map)
 
-> **هذا الملف هو المرجع المعتمد لمرحلة الربط (Phase B).** أُنشئ بعد فحص عميق ومُتحقَّق منه لـ:
-> - كامل عقد الـ API بالباك إند: `promoo-api-reference.json` + كل ملفات `src/routes/**` + كل نتائج الاختبار الحيّة في `docs/Apis-Resaults/` (21 مجلد).
-> - كامل طبقة البيانات بالموبايل: كل `*_dto.dart` و `*_remote_data_source.dart` و `*_repository_impl.dart` و entities، حقلاً بحقل.
-> - إعدادات الشبكة والمصادقة الفعلية بالموبايل (`api_client.dart`, `app_config.dart`, `auth_session_store.dart`).
+> **هذا الملف هو المرجع المعتمد لمرحلة الربط (Phase B).** أُعيد توليده بالكامل بفحص مُتحقَّق منه لـ:
+> - **طبقة البيانات بالموبايل (الحالية):** كل `*_dto.dart` و entities و `*_data_source.dart` (واجهات) و `*_fake_data_source.dart` و `*_repository_impl.dart`، حقلاً بحقل، بالإضافة لملفات السباكة (`app_config.dart`, `auth_session_store.dart`, `locale_controller.dart`, `pubspec.yaml`).
+> - **عقد الـ API بالباك إند:** جرد الـ endpoints + الحقول من التوليد الأصلي المُتحقَّق منه (`promoo-api-reference.json` + `src/routes/**` + نتائج `Apis-Resaults/`)، **والباك مقفول ولم يتغيّر** — آخر migration = `034_advisor_security_hardening.sql` (لا يوجد 035 بعد).
 >
-> يَحلّ هذا الملف محل المسودة `promo_backend/docs/justdraft.md` ويصحّح أرقامها. (لم نعدّل أي ملف بالباك — القاعدة الذهبية.)
+> **⚠️ ما تغيّر عن نسخة 2026-07-09 (المهم):** أُعيد فحص المشروع بعد: (1) **حذف طبقة الشبكة بالكامل** (frontend-only)، (2) **إنجاز التعريب بالكامل** (محور ربط جديد: `Accept-Language`)، (3) إصلاحات UX (Follow صار toggle محلي فعّال، البروفايل يولّد نسخة لكل id، الشات صار `family`)، (4) تنظيف مكوّنات مكرّرة (طبقة العرض فقط — **لم يمسّ الـ DTOs**، لذا نِسَب التوافق ثابتة). التفاصيل بقسم 0.1.
 >
-> آخر تحديث: 2026-07-09 (+ فجوات الداتا بيز المؤجّلة — قسم 9، بنود 8–9 — 2026-07-12)
-
----
-
-> ## ⚠️ تحديث لاحق (2026-07-09) — التطبيق أُعيد لحالة frontend-only
+> **القاعدة الذهبية:** لم نعدّل أي ملف بالباك.
 >
-> **بقرار المالك، بعد إنجاز هذا التحليل، أُزيل كل الربط بالكامل:** حُذفت طبقة الشبكة (`core/network/*`: ApiClient/Dio/ApiResponse/ApiException/ApiEndpoints)، وكل `*_remote_data_source.dart` (9 ملفات)، و`dio` من `pubspec`، وعَلَم `useMocks`/`baseUrl` من `AppConfig`. كل الـ repositories صارت **تخدم بيانات محلية (fake) فقط**.
->
-> **ماذا يعني ذلك لهذا الملف؟**
-> - **جرد الـ endpoints (قسم 1)، تحليل الحقول، فجوات الباك (قسم 9)، وترتيب الربط (قسم 8) — كلها ما زالت صالحة** كمرجع رسمي لعقد الباك ولمرحلة الربط القادمة.
-> - **أعمدة "حالة الربط الآن" (🟢/🟡/🟠) في قسم 3 لم تعد تنطبق** — الحالة الحالية لكل الأقسام هي: **غير مربوط، بيانات محلية**. اعتبرها "الحالة المستهدفة بعد الربط".
-> - الفكرة: نبني الربط **جزءاً‑جزءاً** لاحقاً بالاعتماد على هذا الدليل — feature بـ feature، بدءاً من سباكة المصادقة (قسم 2/8).
+> آخر تحديث: 2026-07-13 (إعادة توليد كاملة). التحديثات السابقة: 2026-07-09 (أصل)، 2026-07-12 (فجوات الـ DB).
 
 ---
 
 ## 0. الخلاصة التنفيذية (اقرأ هذا أولاً)
 
-> **ملاحظة:** القسم التالي كُتب وقت التحليل (قبل المسح) ويصف كيف *كان* الكود مربوطاً. يُقرأ الآن كـ "ما الذي سنعيد بناءه"، لا كوصف للحالة الحالية.
+**الحالة الحالية للتطبيق: frontend-only بالكامل.** لا توجد طبقة شبكة إطلاقاً — حُذفت `core/network/*` و`dio` وكل `*_remote_data_source.dart`. كل repository يخدم **مصدر بيانات محلي (fake) فقط**. لم يعد هناك عَلَم `PROMOO_USE_MOCKS` ولا `baseUrl` بالإعدادات (بقي `fallbackCurrency` فقط بـ `AppConfig`).
 
-**الاكتشاف الأهم:** التطبيق **ليس مجرد Mock**. العَلَم `PROMOO_USE_MOCKS` قيمته الافتراضية **`false`**، وكل الـ `RemoteDataSource` **مكتوبة ومربوطة فعلاً بالـ endpoints الحقيقية**. نسخة الـ APK للعميل بُنيت بـ `--dart-define=PROMOO_USE_MOCKS=true` فقط للعرض، لكن الكود الأساسي جاهز يضرب الباك الحقيقي.
+**لماذا لا يزال هذا الملف صالحاً وحاسماً؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
 
-**بمعنى آخر:** الربط أبعد بكثير مما توحي به المستندات القديمة ("لسا ما اتربط"). القصة الحقيقية:
-- **مكتوب ومربوط** (يضرب endpoint حقيقي): auth, home, services, seats, leaderboard, search, chat, notifications.
-- **مختلط**: profile (العرض العام حقيقي؛ بروفايلي أنا + التعديل يستخدمان بيانات وهمية دائماً).
-- **الفجوة الحقيقية ليست "بناء طبقة بيانات"، بل 3 أشياء فقط:**
-  1. **سباكة المصادقة (Auth plumbing):** لا يوجد Dio interceptor يحقن الـ Bearer token تلقائياً، و`AuthSessionStore` **في الذاكرة فقط** (`InMemoryAuthSessionStore`) — التوكن يضيع عند إعادة التشغيل. `flutter_secure_storage` موجودة بالـ deps لكن **غير مستخدمة**. → هذا أهم عائق، لأنه يمنع كل الـ endpoints المحمية من العمل.
-  2. **تدفق البروفايل الشخصي:** `updateMyProfile` عبارة عن **stub ثابت** (يرجّع فشل دائماً بدون طلب شبكة)، وبروفايلي أنا يستخدم `getDemoProfile()` الوهمي.
-  3. **أزرار مدعومة بالباك لكن مش موصولة بعد** (Follow, حفظ التعديل, نشر الإعلان, رفع الأفاتار).
+**الفجوة الحقيقية للربط = 4 أشياء (لا "بناء طبقة بيانات"):**
+1. **إعادة بناء السباكة:** طبقة شبكة جديدة (Dio أو client) + **interceptor** يحقن (أ) `Authorization: Bearer` من `AuthSessionStore` و(ب) **`Accept-Language`** من `localeProvider`، + auto-refresh على 401، + إعادة إدخال `baseUrl` للإعدادات.
+2. **تخزين التوكن الآمن:** `AuthSessionStore` الحالي `InMemoryAuthSessionStore` فقط (يضيع عند إعادة التشغيل). يلزم `SecureAuthSessionStore` عبر `flutter_secure_storage` — **والخبر الجيد: هذه الحزمة صارت مستخدمة فعلاً** (حفظ الثيم واللغة)، أي أنها مُثبتة وتعمل على الجهاز، فالمخاطرة أقل.
+3. **تدفق البروفايل الشخصي:** `updateMyProfile` **stub ثابت** (يرجّع فشل فوراً بلا طلب)، و`getMyProfile` يقرأ من الـ fake. يلزم ربطهما بـ `GET/PUT /profiles/me`.
+4. **أزرار مدعومة بالباك بلا توصيل:** حفظ التعديل، نشر الإعلان، رفع الأفاتار/الصور. (**Follow لم يعد ضمن هذه القائمة** — صار toggle محلي فعّال، يتبقّى استبداله بـ `POST/DELETE /follows/:id`.)
 
 **الأرقام:**
 
 | المقياس | القيمة | ملاحظة |
 | --- | --- | --- |
-| إجمالي endpoints بالباك | **111** | 108 موثّقة + 3 admin content غير موثّقة (مكتشفة بالكود) |
+| إجمالي endpoints بالباك | **111** | 108 موثّقة + 3 admin content مكتشفة بالكود |
 | endpoints يحتاجها الموبايل بـ v1 | **~50** | القراءة + المصادقة + follow/saved/upload/chat |
-| endpoints مؤجلة لـ v2 (Stripe/Notifications/Reports/Featured) | **~27** | تفصيلها بالقسم 6 |
-| endpoints خاصة بالداشبورد فقط (لا يستخدمها الموبايل) | **23** | كل `/admin/*` |
-| endpoints أخرى (Auth مؤجل، Webhook، إدارة المالك) | **~11** | phone/oauth/otp، webhook، PUT/DELETE للمالك |
-| نسبة التوافق الإجمالية (حقول ↔ حقول) | **~89%** | محسوبة حقلاً بحقل، القسم 4 |
-| صفحات ناقصة بالموبايل | **صفر** | كل المسارات الـ 23 تفتح شاشة حقيقية (القسم 7) |
+| endpoints مؤجلة v2 (Stripe/Notifications/Reports/Featured) | **~27** | القسم 6 |
+| endpoints للداشبورد فقط | **23** | كل `/admin/*` |
+| endpoints أخرى (Auth موسّع، Webhook، إدارة المالك) | **~11** | phone/oauth/otp، webhook، PUT/DELETE للمالك |
+| **حالة الربط الحالية** | **0 موصول** | frontend-only بالكامل — كله "الحالة المستهدفة" |
+| نسبة التوافق المتوقعة (حقول ↔ حقول) | **~89%** | ثابتة — الـ DTOs لم تُمَس منذ الفحص الأصلي |
+| صفحات ناقصة بالموبايل | **صفر** | كل المسارات تفتح شاشة حقيقية (القسم 7) |
+| اختبارات تمرّ حالياً | **176** | `flutter analyze` نظيف |
+
+### 0.1 — ماذا تغيّر منذ النسخة الأصلية (2026-07-09 → 2026-07-13)؟
+
+| التغيير | الأثر على الربط |
+| --- | --- |
+| **حذف طبقة الشبكة بالكامل** (2026-07-09) | كل أعمدة "ربط الآن" السابقة (🟢/🟡) لم تعد تنطبق — **الكل الآن fake محلي**. أي كلام سابق عن "موصول حقيقي" (chat/profile عام/auth) صار تاريخياً. اقرأ كل الحالات كـ "الهدف بعد الربط". |
+| **التعريب اكتمل** (Arabic/English، بلا RTL) | **محور ربط جديد بالكامل:** `localeProvider` ([locale_controller.dart](../lib/i18n/locale_controller.dart)) هو المصدر الوحيد، والـ interceptor بمرحلة الربط لازم يحقن `Accept-Language`. الباك يحلّ المحتوى المرجعي server-side عبر `pickLocalized` → يرجّع `name`/`description` مفرد (الـ DTOs تقرأ `name` مع fallback `name_ar/name_en` — **متوافق**). محتوى المستخدمين يبقى بلغته الأصلية (قرار مالك — الإدخال ثنائي اللغة = v2، قسم 6). |
+| **`flutter_secure_storage` صارت مُستخدمة** (ثيم + لغة) | مُثبتة وتعمل على الجهاز → تنفيذ `SecureAuthSessionStore` للتوكن صار أقل مخاطرة. النسخة السابقة قالت "موجودة لكن غير مستخدمة" — لم يعد صحيحاً. |
+| **`dio` أُزيلت من pubspec** · `intl`+`flutter_localizations` أُضيفتا | يلزم إعادة إضافة عميل HTTP عند الربط. |
+| **Follow صار toggle محلي فعّال** (كان "coming soon") | العمل تغيّر من "توصيل زر معطّل" إلى "استبدال toggle متفائل محلي بـ `POST/DELETE /follows/:id` + `GET status`". |
+| **البروفايل يولّد نسخة لكل id** | البروفايل العام قابل للعرض بأي id ديمو؛ الربط يستبدل التوليد بـ `GET /profiles/:id`. |
+| **الشات صار `NotifierProvider.family`** بـ roomId | لا أثر على الحقول؛ البنية أصبحت صحيحة للربط (كل غرفة controller مستقل). |
+| **تنظيف مكوّنات مكرّرة + حذف 7 ملفات ميتة بـ seats** | طبقة عرض فقط — **صفر أثر على DTOs/الربط**. |
 
 </div>
 
 ---
 
-## 1. Total API inventory — 111 endpoints
+## 1. جرد الـ API الكامل — 111 endpoint
 
-| # | Module | Count | Mobile v1? | Notes |
+| # | Module | العدد | Mobile v1؟ | ملاحظات |
 |---|---|---|---|---|
-| 1 | Health | 1 | ➖ | `GET /health` — infra only |
-| 2 | Auth | 11 | 4 kept | login/email, register/email, refresh, logout kept; **7 deferred** (phone×2, oauth, verify-otp, forgot, reset, delete-account) |
-| 3 | Profiles | 7 | 6 | me(GET/PUT), avatar, cover, :id, :id/media used; verify-request = v2 |
-| 4 | Follows | 5 | 5 | all v1 |
-| 5 | Offers | 7 | ~4 | list/detail/by-profile/create v1; PUT/DELETE(owner), feature(Stripe)=v2 |
-| 6 | Ads | 8 | ~4 | active/impression/click/create v1; toggle/stats/PUT(owner)=later |
-| 7 | Services | 5 | 5 | GET×2 read; POST/PUT/DELETE for provider/company |
-| 8 | Seats | 4 | 2 | GET, GET me = v1; **book/cancel (Stripe) = v2** |
-| 9 | Stories | 5 | ~2 | GET feeds v1 (via /home); POST/DELETE = v2 |
-| 10 | Saved Items | 3 | 3 | all v1 |
-| 11 | Home & Leaderboard | 2 | 2 | both v1 (core) |
-| 12 | Subscriptions | 4 | 0 | **ALL v2** (Stripe; `POST /subscriptions` = open 500 bug) |
-| 13 | Chats | 6 | 6 | all v1 (chat is a kept feature) |
-| 14 | Notifications | 5 | 0* | whole feature deferred v2 (demoable skeleton kept) |
-| 15 | Upload | 4 | 4 | needed for avatar/cover/ad-image (currently "next phase") |
-| 16 | Search & Categories | 3 | 3 | all v1 |
+| 1 | Health | 1 | ➖ | `GET /health` — بنية تحتية |
+| 2 | Auth | 11 | 4 | login/email, register/email, refresh, logout؛ **7 مؤجلة** (phone×2, oauth, verify-otp, forgot, reset, delete-account) |
+| 3 | Profiles | 7 | 6 | me(GET/PUT), avatar, cover, :id, :id/media؛ verify-request = v2 |
+| 4 | Follows | 5 | 5 | كلها v1 |
+| 5 | Offers | 7 | ~4 | list/detail/by-profile/create v1؛ PUT/DELETE(مالك), feature(Stripe)=v2 |
+| 6 | Ads | 8 | ~4 | active/impression/click/create v1؛ toggle/stats/PUT(مالك)=لاحقاً |
+| 7 | Services | 5 | 5 | GET×2 قراءة؛ POST/PUT/DELETE للمزوّد/الشركة |
+| 8 | Seats | 4 | 2 | GET, GET me = v1؛ **book/cancel (Stripe) = v2** |
+| 9 | Stories | 5 | ~2 | GET feeds v1 (عبر /home)؛ POST/DELETE = v2 |
+| 10 | Saved Items | 3 | 3 | كلها v1 |
+| 11 | Home & Leaderboard | 2 | 2 | كلاهما v1 (أساسي) |
+| 12 | Subscriptions | 4 | 0 | **كلها v2** (Stripe؛ `POST /subscriptions` = خطأ 500 مفتوح) |
+| 13 | Chats | 6 | 6 | كلها v1 (الشات ميزة معتمدة) |
+| 14 | Notifications | 5 | 0* | الميزة كاملة مؤجلة v2 (skeleton قابل للعرض) |
+| 15 | Upload | 4 | 4 | لازم لِـ avatar/cover/ad-image |
+| 16 | Search & Categories | 3 | 3 | كلها v1 |
 | 17 | Featured | 2 | 0 | **v2** (Stripe) |
 | 18 | Payments | 3 | 0 | **v2** (Stripe) |
-| 19 | Reports | 2 | 0 | **v2** (no report UI in v1) |
-| 20 | Admin | 23 | 0 | **dashboard-only**, mobile never calls these |
-| 21 | Webhooks | 1 | 0 | Stripe→server only |
-| | **Total** | **111** | **~50 v1** | |
+| 19 | Reports | 2 | 0 | **v2** (لا واجهة تبليغ) |
+| 20 | Admin | 23 | 0 | **للداشبورد فقط** |
+| 21 | Webhooks | 1 | 0 | Stripe→server |
+| | **الإجمالي** | **111** | **~50 v1** | |
 
-> **3 endpoints موجودة بالكود لكن غير موثّقة بالـ reference JSON** (أُضيفت بعد توليد الـ JSON): `GET /admin/content/{offers,ads,services}`. خاصة بالداشبورد، لا تؤثر على الموبايل.
+> **3 endpoints بالكود غير موثّقة بالـ reference JSON:** `GET /admin/content/{offers,ads,services}` — للداشبورد، لا تؤثر على الموبايل.
 
 ---
 
@@ -89,15 +92,16 @@
 
 <div dir="rtl">
 
-| العنصر | الحالة الفعلية بالكود | ما يحتاجه الربط |
+| العنصر | الحالة الفعلية الآن | ما يحتاجه الربط |
 | --- | --- | --- |
-| **Dio interceptor للتوكن** | ❌ **غير موجود** — `api_client.dart` فيه صفر interceptors. الـ chat/notifications data sources تحقن `Authorization: Bearer` **يدوياً**، لكن باقي الـ endpoints المحمية (profiles/me, follows, saved, ads, offers, book seat) **لا تحقن التوكن**. | إضافة `InterceptorsWrapper` يحقن `Authorization: Bearer <token>` من `AuthSessionStore` على كل طلب محمي + auto-refresh عند 401. |
-| **تخزين التوكن** | ⚠️ `InMemoryAuthSessionStore` — **بالذاكرة فقط**، يضيع عند إعادة التشغيل. `flutter_secure_storage` موجودة بالـ pubspec لكن **غير مستخدمة**. | تنفيذ `SecureAuthSessionStore` يكتب/يقرأ الـ tokens من `flutter_secure_storage`. |
-| **الـ envelope** | ✅ جاهز — `ApiResponse.parse` يفهم `{ success, data, message, meta?, error{code,details} }` **أو** كائن/قائمة مجردة. الباك يرجّع نفس الشكل بالضبط. | لا شيء — متوافق 100%. |
-| **Base URL** | ✅ `http://localhost:3000/api/v1` افتراضي، يتغيّر بـ `--dart-define PROMOO_BASE_URL`. | تحديده لـ IP الشبكة/السيرفر المستضاف عند التشغيل على جهاز حقيقي. |
-| **`PROMOO_USE_MOCKS`** | ✅ افتراضي `false` (يضرب الحقيقي). | إبقاؤه `false` بالإنتاج؛ استخدامه `true` فقط للعروض. |
+| **طبقة الشبكة (Dio/client)** | ❌ **محذوفة بالكامل.** لا `core/network`، لا `dio` بالـ pubspec. | إعادة بناء عميل HTTP + إعادة إدخال `baseUrl` للإعدادات (كان يُضبط بـ `--dart-define PROMOO_BASE_URL`). |
+| **interceptor للتوكن + اللغة** | ❌ غير موجود. | `InterceptorsWrapper` يحقن **`Authorization: Bearer <token>`** من `AuthSessionStore` + **`Accept-Language: <locale>`** من `localeProvider` على كل طلب، + auto-refresh عند 401. |
+| **تخزين التوكن** | ⚠️ `InMemoryAuthSessionStore` فقط ([auth_session_store.dart](../lib/features/auth/data/session/auth_session_store.dart)) — بالذاكرة، يضيع عند إعادة التشغيل. | تنفيذ `SecureAuthSessionStore` عبر `flutter_secure_storage`. **الحزمة مُثبتة وتعمل فعلاً** (ثيم/لغة) → منخفض المخاطرة. |
+| **`Accept-Language`** | ✅ المصدر جاهز — `localeProvider` مصدر وحيد، والـ DTOs المرجعية تقرأ الحقل الموحّد `name`. | حقن الهيدر بالـ interceptor فقط. |
+| **الـ envelope** | ✅ منطق التحليل الدفاعي بالـ DTOs يفهم `{ success, data, message, meta? }` أو كائن/قائمة مجرّدة. | متوافق — يُعاد ربطه مع العميل الجديد. |
+| **`PROMOO_USE_MOCKS`** | ➖ **أُزيل** — لم يعد موجوداً. | لا حاجة له؛ الربط يستبدل الـ fake data source بـ remote مباشرةً feature بـ feature. |
 
-> **القاعدة الحاكمة:** كل الـ endpoints المحمية (Bearer) لن تعمل قبل إنجاز أول بندين أعلاه. **ابدأ الربط منهما.**
+> **القاعدة الحاكمة:** ابدأ الربط من إعادة بناء السباكة (شبكة + interceptor: Bearer + Accept-Language + secure store + refresh). **كل الـ endpoints المحمية والمحتوى المُعرّب يعتمدان عليها.**
 
 </div>
 
@@ -105,163 +109,147 @@
 
 ## 3. خريطة الربط لكل قسم (Section → API)
 
-> **الأعمدة:** الـ endpoint · الحالة بالباك (من الاختبار الحيّ) · حالة الربط بالموبايل الآن · التوافق (حقول) · العمل المطلوب.
-> **حالة الربط:** 🟢 موصول بحقيقي · 🟡 موصول لكن ناقص سباكة · 🟠 stub/وهمي · ⏸️ مؤجل v2.
+> **الحالة الحالية لكل الأقسام: غير مربوط، بيانات محلية (fake).** الأعمدة أدناه تصف **الهدف بعد الربط**: الـ endpoint · حالة الباك (من الاختبار الحيّ الأصلي) · التوافق المتوقّع (حقول، ثابت لأن الـ DTOs لم تتغيّر) · العمل المطلوب.
 
 ### 3.1 — Auth (Login / Register)
-| Endpoint | Method | Backend | ربط الآن | توافق | العمل المطلوب |
-|---|---|---|---|---|---|
-| `/auth/login/email` | POST | ✅200 | 🟡 | 95% | يعمل؛ لكن لازم **حفظ `session.access_token`+`refresh_token`** بـ secure storage. الـ DTO يقرأ `user_metadata.account_type/full_name` + `session.*` بشكل دفاعي — مطابق. |
-| `/auth/register/email` | POST | ✅(⚠️rate-limit بالتست) | 🟡 | 95% | الحقول مطابقة 100% (`email/password/full_name/account_type`). انتبه: قد يرجع `session:null` لو التحقق بالإيميل مطلوب → عالج الحالة. |
-| `/auth/refresh` | POST | ✅200 | 🟠 | 90% | الدالة موجودة لكن **غير مستدعاة** — تُربط داخل الـ 401-interceptor. |
-| `/auth/logout` | POST | ✅200 | 🟢 | 100% | يعمل. |
-| مؤجل v2 | — | — | ⏸️ | — | phone login/register, oauth (google/apple), verify-otp, forgot/reset-password, delete-account. |
+| Endpoint | Method | Backend | توافق | العمل المطلوب |
+|---|---|---|---|---|
+| `/auth/login/email` | POST | ✅200 | 95% | ربط + **حفظ `session.access_token`+`refresh_token`** بـ secure storage. الـ DTO يقرأ `user_metadata.account_type/full_name` + `session.*` دفاعياً. |
+| `/auth/register/email` | POST | ✅(⚠️rate-limit بالتست) | 95% | الحقول مطابقة 100% (`email/password/full_name/account_type`). انتبه: قد يرجع `session:null` لو التحقق بالإيميل مطلوب → عالج الحالة. |
+| `/auth/refresh` | POST | ✅200 | 90% | يُربط داخل الـ 401-interceptor. |
+| `/auth/logout` | POST | ✅200 | 100% | يمسح الجلسة الآمنة. |
+| مؤجل v2 | — | — | — | phone login/register, oauth (google/apple), verify-otp, forgot/reset-password, delete-account. |
 
 ### 3.2 — Home (شاشة واحدة تجيب كل شي)
-`GET /home` يرجّع: `stories[] · categories[] · featured_profiles[] · promoo_of_the_day · latest_offers[] · services[] · ads[]`. الـ `HomeContentDto` يقرأ **نفس المفاتيح بالضبط** (`promoo_of_the_day`, `ads`, `stories`, `categories`, `featured_profiles`, `latest_offers`, `services`).
+`GET /home` يرجّع: `stories[] · categories[] · featured_profiles[] · promoo_of_the_day · latest_offers[] · services[] · ads[]`. الـ `HomeContentDto` ([home_content_dto.dart](../lib/features/home/data/dto/home_content_dto.dart)) يقرأ **نفس المفاتيح بالضبط** (مع aliases).
 
-| القسم بالشاشة | مصدره من `/home` | ربط | توافق | ملاحظة حقول |
-|---|---|---|---|---|
-| Stories | `stories[]` | 🟢 | 80% | الباك: كل ستوري = `media_url` + `profile` واحد. الفرونت يتوقع `items[]` متعددة → **كل ستوري ستظهر عنصر واحد**. تعديل DTO بسيط. |
-| Services (مصغّرة) | `services[]` | 🟢 | 88% | Service فيه `profile`+`category`. لا يوجد حقل `location` بالباك للخدمة → يظهر فاضي (مقبول). |
-| Top Offers / For You | `latest_offers[]` + `ads[]` | 🟢 | 85% | **تنبيه:** الباك يرجّع صور العرض بـ `media_urls[]` (مصفوفة)، لكن `HomeOfferPreviewDto` يقرأ `image_url/cover_url` (مفردة). → أضف قراءة `media_urls[0]`. |
-| Categories | `categories[]` | 🟢 | 90% | `name_ar/name_en/icon_url/slug` — مطابق. |
-| Promoo of the Day | `promoo_of_the_day` | 🟢 | 85% | قد يكون `null` — الفرونت مجهّز. |
-| **تفاصيل عرض/إعلان** | `GET /offers/:id` أو `GET /ads/active` | 🟢 | 85% | **لا يوجد `GET /ads/:id` عام** — الفرونت يجيب `/ads/active` ويفلتر بالـ id محلياً (موجود ويعمل). |
+| القسم | مصدره | توافق | ملاحظة حقول (مُتحقَّقة الآن) |
+|---|---|---|---|
+| Stories | `stories[]` | 80% | الباك: كل ستوري = `media_url`+`profile` واحد. `HomeStoryDto` يقرأ `items[]` متعددة → **كل ستوري ستظهر عنصراً واحداً** ما لم يرسل الباك `items`. تعديل بسيط. |
+| Services (مصغّرة) | `services[]` | 88% | `HomeServicePreviewDto` يقرأ `category` المتداخل. لا `location` للخدمة بالباك → يظهر فاضي (مقبول). |
+| Top Offers / For You | `latest_offers[]`+`ads[]` | 85% | **تنبيه قائم:** `HomeOfferPreviewDto` يقرأ `image_url/cover_url/thumbnail_url` (مفردة) فقط، **لا يقرأ `media_urls[]`**. لو الباك يرجّع الصورة كمصفوفة → **أضف `media_urls[0]`**. (ملاحظة: `HomeContentDetailDto` للتفاصيل **يقرأ `media_urls` ويأخذ الأول** — التفاصيل سليمة، المشكلة بالمعاينة فقط.) |
+| Categories | `categories[]` | 90% | `HomeCategoryDto` يقرأ `name` (+ `name_en/name_ar` fallback) — **متوافق مع نموذج `Accept-Language`**. |
+| Promoo of the Day | `promoo_of_the_day` | 85% | قد يكون `null` — الفرونت مجهّز. |
+| تفاصيل عرض/إعلان | `GET /offers/:id` أو `GET /ads/active` | 85% | لا `GET /ads/:id` عام — الفرونت يجيب `/ads/active` ويفلتر بالـ id محلياً. |
 
-**عمل مطلوب:** تعديلا DTO صغيران (`media_urls[0]` للصور، ستوري = عنصر واحد). لا مصادقة (كله public).
+**عمل مطلوب:** تعديلا DTO صغيران (`media_urls[0]` للمعاينة، ستوري = عنصر واحد). كله public (لا مصادقة) لكن **يستفيد من `Accept-Language`** للتصنيفات.
 
 ### 3.3 — Services Tab + Service Detail
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /categories` | GET | ✅200 | 🟢 | 90% | `id/name_ar/name_en/slug/icon_url` — مطابق (DTO يقرأ `icon_url`). |
-| `GET /services?category_id=&q=` | GET | ✅200 | 🟢 | 88% | مع `profile`+`category` مضمّنين. الباك يدعم `category_id` و`q`. |
-| `GET /services/:id` | GET | ✅200 | 🟢 | 88% | مطابق. لا يوجد `location` للخدمة (فاضي). |
-| `GET /categories/:id/content` | GET | ✅200 | 🟠 غير مستخدم | — | بديل اختياري: الفرونت حالياً يفلتر `/services` بدل هذا. يرجّع Offers لا Services. |
+| Endpoint | Method | Backend | توافق | ملاحظة |
+|---|---|---|---|---|
+| `GET /categories` | GET | ✅200 | 90% | `id/name(_ar/_en)/slug/icon_url` — متوافق مع `Accept-Language`. |
+| `GET /services?category_id=&q=` | GET | ✅200 | 88% | مع `profile`+`category` مضمّنين. |
+| `GET /services/:id` | GET | ✅200 | 88% | مطابق. لا `location` للخدمة (فاضي). |
+| `GET /categories/:id/content` | GET | ✅200 | — | غير مستخدم؛ الفرونت يفلتر `/services` بدلاً منه. |
 
 ### 3.4 — Influencer / Seats
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /seats?tier=` | GET | ✅200 | 🟢 | 90% (حقول) | **الفجوة الحرجة data:** الباك مزروع فيه **~مقعد واحد لكل tier** (اختبار `?tier=gold` رجّع 1). الفرونت يرسم شبكة 144. الحقول متطابقة (`tier/price/status/position/profile`). |
-| `GET /seats/me` | GET | ✅200 | 🟡 | 90% | يحتاج Bearer. |
-| `POST /seats/:id/book` | POST | ✅200 (Stripe) | ⏸️ | — | يرجّع `checkoutUrl` — **مؤجل v2** (Payments). زر Book Now يفتح preview محلي فقط. |
-| `DELETE /seats/:id/cancel` | DELETE | ✅200 | ⏸️ | — | مؤجل v2. |
-
-**عمل مطلوب:** الباك لازم **يزرع مقاعد أكثر** لكل tier (seed)، ثم `GET /seats` يملأ الشبكة تلقائياً. الحجز/الدفع يبقى v2.
+| Endpoint | Method | Backend | توافق | ملاحظة |
+|---|---|---|---|---|
+| `GET /seats?tier=` | GET | ✅200 | 90% حقول | **الفجوة الحرجة (data):** الباك مزروع فيه ~مقعد واحد لكل tier (اختبار أصلي). الفرونت يرسم شبكة 144. الحقول متطابقة (`tier/price/status/position/profile`). **يُعاد التحقق من الـ seed عند الربط** (migrations 027/029/030/033 مسّت المقاعد لكن لا migration يزرع شبكة كاملة). |
+| `GET /seats/me` | GET | ✅200 | 90% | يحتاج Bearer. |
+| `POST /seats/:id/book` | POST | ✅200 (Stripe) | — | يرجّع `checkoutUrl` — **مؤجل v2**. زر Book Now يفتح preview محلي فقط. |
+| `DELETE /seats/:id/cancel` | DELETE | ✅200 | — | مؤجل v2. |
 
 ### 3.5 — Cup / Leaderboard
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /leaderboard?page=&limit=&type=` | GET | ✅200 | 🟢 | **98%** | أفضل توافق بالتطبيق. الباك يرجّع `rank/id/full_name/username/avatar_url/bio/account_type/followers_count/is_verified/is_featured` — الـ DTO يقرأها **كلها**. `type=all` يستثني `user`. جاهز فعلياً. |
+| Endpoint | Method | Backend | توافق | ملاحظة |
+|---|---|---|---|---|
+| `GET /leaderboard?page=&limit=&type=` | GET | ✅200 | **98%** | أفضل توافق. الـ DTO يقرأ `rank/id/full_name/username/avatar_url/bio/account_type/followers_count/is_verified/is_featured` كلها. `type=all` يستثني `user`. جاهز فعلياً. |
 
 ### 3.6 — Profile (بروفايلي + العام + التعديل)
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /profiles/:idOrUsername` | GET | ✅200 | 🟢 | 88% | البروفايل العام موصول حقيقي. |
-| `GET /profiles/me` | GET | ✅200 | 🟠 | 88% | الدالة موجودة (real) لكن **الـ UI لا يستدعيها** — بروفايلي أنا يستخدم `getDemoProfile()` الوهمي. |
-| `PUT /profiles/me` | PUT | ✅200 | 🟠 **stub** | 90% | **`updateMyProfile` stub ثابت — يرجّع فشل دائماً بدون طلب.** الحقول (`full_name/bio/location/website/category_id/social_links`) مطابقة `updateProfileSchema`. |
-| `POST /profiles/me/avatar` · `/cover` | POST | ✅200 | 🟠 | 85% | يحتاج ربط مع Upload أولاً (يرسل `avatar_url` نصّي بعد الرفع). |
-| `GET /profiles/:id/media` | GET | ✅200 | 🟠 غير مستخدم | — | البروفايل حالياً يقرأ الميديا من كائن البروفايل؛ **لا يستدعي هذا الـ endpoint** → شبكة الميديا تحتاج ربطه. |
+| Endpoint | Method | Backend | توافق | ملاحظة (مُتحقَّقة الآن) |
+|---|---|---|---|---|
+| `GET /profiles/:idOrUsername` | GET | ✅200 | 88% | الفرونت يولّد **نسخة ديمو لكل id** حالياً؛ الربط يستبدلها بالطلب الحقيقي. |
+| `GET /profiles/me` | GET | ✅200 | 88% | `getMyProfile` يقرأ من الـ **fake** الآن ([profile_repository_impl.dart](../lib/features/profile/data/repositories/profile_repository_impl.dart)). استبدله بالطلب الحقيقي. |
+| `PUT /profiles/me` | PUT | ✅200 | 90% | **`updateMyProfile` stub ثابت مُؤكَّد — يرجّع فشل فوراً بلا طلب.** الحقول (`full_name/bio/location/website/category_id/social_links`) مطابقة `updateProfileSchema`. |
+| `POST /profiles/me/avatar` · `/cover` | POST | ✅200 | 85% | **ليست بواجهة `ProfileDataSource` الحالية** (حُذفت مع الطبقة البعيدة) — تُضاف عند الربط، وتعتمد على Upload أولاً. |
+| `GET /profiles/:id/media` | GET | ✅200 | — | غير مستخدم؛ الميديا تُقرأ من كائن البروفايل. يُربط لشبكة ميديا حقيقية. |
 
-**تنبيه حقول مهم — إحصائيات البروفايل:** كائن البروفايل بالباك يرجّع `followers_count` فقط. لا يرجّع `following_count / posts_count / views_count`. صف الإحصائيات (Followers/Posts/Views) **سيظهر Followers حقيقي والباقي صفر**. (Likes محذوف أصلاً — v2.) → قرار: إمّا الباك يضيف العدّادات، أو الفرونت يخفي ما لا يتوفر.
+**تنبيه حقول قائم — إحصائيات البروفايل:** كائن الباك يرجّع `followers_count` فقط. `ProfileStatsDto` يقرأ `following/posts/views_count` دفاعياً لكن **الباك لا يرسلها** → ستظهر Followers حقيقي والباقي صفر. (Likes محذوف — v2.) → قرار: الباك يضيف العدّادات، أو الفرونت يخفي غير المتوفر.
 
 ### 3.7 — Follow / Unfollow
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `POST /follows/:profileId` | POST | ✅200 | 🟠 | 90% | الـ repository جاهز لكن **الأزرار تعرض "coming soon"** (seats sheet + profile action). فقط لازم توصيل الزر بالـ repo + Bearer. |
-| `DELETE /follows/:profileId` | DELETE | ✅200 | 🟠 | 90% | نفس الشي. |
-| `GET /follows/:profileId/status` | GET | ✅200 | 🟠 | 90% | لتحديد حالة الزر (متابَع/لا). |
-| `GET /follows/followers/:id` · `following/:id` | GET | ✅200 | 🟡 | 85% | قائمة "Following" بالبروفايل تستخدم `following`. الباك يرجّع `{created_at, following{id,username,full_name,avatar_url,account_type}}`. |
+| Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
+|---|---|---|---|---|
+| `POST /follows/:profileId` | POST | ✅200 | 90% | **Follow صار toggle محلي متفائل فعّال** (لم يعد "coming soon"). العمل: استبداله بالطلب الحقيقي + Bearer. |
+| `DELETE /follows/:profileId` | DELETE | ✅200 | 90% | نفس الشي. |
+| `GET /follows/:profileId/status` | GET | ✅200 | 90% | لتهيئة حالة الزر عند فتح البروفايل. |
+| `GET /follows/followers/:id` · `following/:id` | GET | ✅200 | 85% | شاشة Following تستخدم بيانات ديمو محلية الآن؛ تُربط بـ `following`. |
 
 ### 3.8 — Saved Items
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /saved` | GET | ✅200 | 🟠 شاشة ثابتة | **75%** | **فجوة:** الباك يرجّع `item_id`+`item_type` **فقط، بدون تفاصيل العنصر**. الفرونت يحتاج تفاصيل → إمّا الباك يعمل join، أو الفرونت يجيب كل عنصر بطلب إضافي. شاشة Saved حالياً static (بدون طلب). |
-| `POST /saved` · `DELETE /saved/:id` | POST/DELETE | ✅ | 🟠 | 90% | يحتاج توصيل زر الحفظ. |
-
-### 3.9 — Chat (v1 feature)
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /chats` | GET | ✅200 | 🟡 | 88% | موصول حقيقي (يحقن Bearer يدوياً). يرجّع `{room, otherParticipant, lastMessage, unreadCount}` — الـ DTO يقرأها. |
-| `POST /chats` | POST | ✅201 | 🟡 | 85% | `{participant_id}` → `{room, participant, isNew}`. |
-| `GET/POST /chats/:roomId/messages` | GET/POST | ✅ | 🟡 | 88% | الرسائل مع `sender` — مطابق. |
-| `PATCH /chats/:roomId/read` | PATCH | ✅200 | 🟡 | 90% | — |
-| **Realtime** | Supabase Realtime | — | ⬜ | — | الباك جاهز؛ الفرونت يتصل مباشرة بـ Supabase SDK (غير مضاف بعد — دليل `Realtime-Chat-Flutter-Guide.md`). |
-
-### 3.10 — Notifications (مؤجل v2، لكن مربوط)
-| Endpoint | Method | Backend | ربط | ملاحظة |
+| Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /notifications` · read · read-all · delete · token | GET/PATCH/DELETE/POST | ✅ | 🟡 مربوط | الميزة كاملة **مؤجلة v2** (بما فيها FCM)، لكن الـ data source مكتوب. جرس الهيدر يفتح skeleton. لا تستثمر بالربط الآن. |
+| `GET /saved` | GET | ✅200 | **75%** | **فجوة باك:** يرجّع `item_id`+`item_type` فقط بلا تفاصيل. الفرونت يحتاج التفاصيل → join بالباك (مفضّل) أو N+1 بالفرونت. الشاشة الآن ديمو محلي. |
+| `POST /saved` · `DELETE /saved/:id` | POST/DELETE | ✅ | 90% | توصيل زر الحفظ. |
 
-### 3.11 — إنشاء المحتوى (Add Ad / Add Offer)
-| Endpoint | Method | Backend | Role | ربط | ملاحظة |
-|---|---|---|---|---|---|
-| `POST /ads` | POST | ✅201 | **company, influencer** | 🟠 | wizard 4 خطوات، الحقول تطابق `createAdSchema` (`phone/whatsapp/contact_email/instagram_link/city/area/full_address/location_map_url/media_url/price/currency/tags` + المطلوبة `ad_type/budget/target_url` تحتاج defaults). زر Create AD حالياً "next phase". |
-| `POST /offers` | POST | ✅201 | **company, service_provider** | ⬜ لا شاشة منفصلة | راجع **تعارض المنطق** بالقسم 5. |
-| `POST /services` | POST | ✅201 | **service_provider, company** | ⬜ لا شاشة | لا توجد شاشة "Add Service" بالـ MVP — قرار v2. |
+### 3.9 — Chat (ميزة v1)
+| Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
+|---|---|---|---|---|
+| `GET /chats` | GET | ✅200 | 88% | fake الآن؛ الـ DTO يقرأ `{room, otherParticipant, lastMessage, unreadCount}`. |
+| `POST /chats` | POST | ✅201 | 85% | `{participant_id}` → `{room, participant, isNew}`. |
+| `GET/POST /chats/:roomId/messages` | GET/POST | ✅ | 88% | الرسائل مع `sender`. الـ controller صار **`family` بـ roomId** (بنية صحيحة للربط). |
+| `PATCH /chats/:roomId/read` | PATCH | ✅200 | 90% | — |
+| **Realtime** | Supabase Realtime | — | — | الباك جاهز؛ الفرونت يتصل بـ Supabase SDK (غير مضاف — دليل `Realtime-Chat-Flutter-Guide.md`). |
+
+### 3.10 — Notifications (مؤجل v2)
+| Endpoint | Method | Backend | ملاحظة |
+|---|---|---|---|
+| `GET /notifications` · read · read-all · delete · token | GET/PATCH/DELETE/POST | ✅ | الميزة كاملة **مؤجلة v2** (+FCM). الشاشة معرّبة بالكامل وعدّاد غير المقروء بصيغة plural صحيحة، لكن **لا تُربط الآن**. |
+
+### 3.11 — إنشاء المحتوى (Add Ad / Offer / Service)
+| Endpoint | Method | Backend | Role | ملاحظة |
+|---|---|---|---|---|
+| `POST /ads` | POST | ✅201 | company, influencer | wizard 4 خطوات؛ الحقول تطابق `createAdSchema` (المطلوبة `ad_type/budget/target_url` تحتاج defaults). زر Create AD "next phase". |
+| `POST /offers` | POST | ✅201 | company, service_provider | شاشة `AddOfferScreen` موجودة (role-gated). "next phase". |
+| `POST /services` | POST | ✅201 | service_provider, company | شاشة `AddServiceScreen` موجودة (role-gated). "next phase". |
+
+> الشاشات الثلاث تتشارك chrome عبر `add_form_widgets.dart` (عرض فقط — لا أثر على الحقول)، وتُظهرها `accountCapabilitiesProvider` حسب `account_type`. راجع القسم 5.
 
 ### 3.12 — Upload (شرط لِـ avatar/cover/ad-image)
-| Endpoint | Method | Backend | ربط | ملاحظة |
-|---|---|---|---|---|
-| `POST /upload/image` · video · file | POST | ✅201 (multipart) | 🟠 | يرجّع `file_url` → يُخزَّن ويُرسل للـ avatar/cover/ad. حقول الرفع بالفرونت حالياً "next phase". |
-| `DELETE /upload/:id` | DELETE | ✅200 | ⬜ | — |
+| Endpoint | Method | Backend | ملاحظة |
+|---|---|---|---|
+| `POST /upload/image` · video · file | POST | ✅201 (multipart) | يرجّع `file_url` → يُرسل للـ avatar/cover/ad. حقول الرفع "next phase". |
+| `DELETE /upload/:id` | DELETE | ✅200 | — |
 
 ### 3.13 — Search
-| Endpoint | Method | Backend | ربط | توافق | ملاحظة |
-|---|---|---|---|---|---|
-| `GET /search?q=&type=&…` | GET | ✅200 | 🟢 | 92% | يرجّع `{profiles[],offers[],ads[],services[]}` — الـ DTO يقرأها مجمّعة. `type` values و pagination (`meta`) مدعومة. |
+| Endpoint | Method | Backend | توافق | ملاحظة |
+|---|---|---|---|---|
+| `GET /search?q=&type=&…` | GET | ✅200 | 92% | يرجّع `{profiles[],offers[],ads[],services[]}` مجمّعة. `type` + `meta` (pagination) مدعومان. |
 
 ---
 
-## 4. نسبة التوافق حقلاً بحقل (Compatibility)
+## 4. نسبة التوافق حقلاً بحقل (Compatibility) — ثابتة
 
 <div dir="rtl">
 
-الطريقة: لكل قسم = (حقول الباك المطلوبة والمتوفرة بالـ DTO ÷ إجمالي الحقول المطلوبة) مع خصم للأفعال غير المدعومة. التوافق **عالٍ** لأن التطبيق بُني **backend-first** والـ DTOs **دفاعية جداً** (كل حقل يقبل عدة تهجئات snake_case + camelCase + aliases).
+النِّسَب لم تتغيّر عن الفحص الأصلي لأن **الـ DTOs لم تُمَس** (التعريب والتنظيف كانا بطبقة العرض/الدومين فقط). التوافق عالٍ لأن التطبيق بُني backend-first والـ DTOs دفاعية.
 
 </div>
 
 | القسم | Endpoints | توافق | أهم فجوة |
 | --- | --- | --- | --- |
 | Login / Register | 2 | **95%** | حفظ التوكن + interceptor |
-| Home (كامل) | 3 | **85%** | صور `media_urls[0]`، ستوري = عنصر واحد |
+| Home (كامل) | 3 | **85%** | صور `media_urls[0]` بالمعاينة، ستوري = عنصر واحد |
 | Search | 1 | **92%** | — |
 | Services + Detail | 3 | **88%** | لا `location` للخدمة |
 | Leaderboard | 1 | **98%** | — (جاهز) |
-| Seats | 2 | **90% حقول / بيانات ناقصة** | **seed 3 مقاعد فقط** |
+| Seats | 2 | **90% حقول / بيانات ناقصة** | **seed مقعد/tier** |
 | Profile (عام) | 2 | **88%** | — |
-| Profile (أنا + تعديل) | 3 | **60%** | `updateMyProfile` stub، بروفايلي وهمي، إحصائيات ناقصة |
-| Follow/Unfollow | 5 | **88%** | الأزرار مش موصولة |
-| Saved | 3 | **75%** | الباك يرجّع id فقط بدون تفاصيل |
+| Profile (أنا + تعديل) | 3 | **60%** | `updateMyProfile` stub، my-profile fake، إحصائيات ناقصة |
+| Follow/Unfollow | 5 | **88%** | toggle محلي بدل الطلب الحقيقي |
+| Saved | 3 | **75%** | الباك يرجّع id فقط بلا تفاصيل |
 | Chat | 6 | **88%** | Realtime غير مضاف |
 | Upload | 4 | **80%** | حقول الرفع "next phase" |
-| Add Ad | 1 | **85%** | defaults لـ ad_type/budget |
+| Add Ad/Offer/Service | 3 | **85%** | defaults لـ ad_type/budget؛ التوصيل الفعلي |
 | **الإجمالي المرجّح** | **~50** | **≈89%** | |
 
 ---
 
-## 5. ⚠️ تعارض منطقي مهم — Add Offer vs Add Ad (يحتاج قرارك)
+## 5. تعارض Add Offer vs Add Ad — ✅ مُعالَج بالفرونت
 
 <div dir="rtl">
 
-بحسب `roles_logic.md`:
-- **العروض (Offers):** يضيفها `company` + `service_provider` (عبر `POST /offers`).
-- **الإعلانات (Ads):** يضيفها `company` + `influencer` (عبر `POST /ads`).
+التعارض الأصلي (صف واحد "Add New Offer" يفتح wizard الإعلان → أسماء/صلاحيات متضاربة → 403 محتمل) **حُلّ**: صار في 3 شاشات منفصلة (`add_offer_screen.dart` · `add_service_screen.dart` · Ad wizard)، و`accountCapabilitiesProvider` ([account_capabilities.dart](../lib/features/profile/presentation/controllers/account_capabilities.dart)) يقرأ `account_type` ويُظهر الإنشاءات المسموحة فقط (Offer=company/service_provider · Ad=company/influencer · Service=company/service_provider · guest/user=لا شيء).
 
-لكن بالتطبيق الحالي (قرار `build_plan` A15): **صف واحد اسمه "Add New Offer" يفتح wizard الإعلان** (`POST /ads`). فينتج **ثلاثة تناقضات**:
-1. **الاسم** يقول "Offer" لكن **الفعل** ينشئ "Ad".
-2. **الصلاحية:** لو المستخدم `service_provider` (مسموح له بالعروض، ممنوع من الإعلانات) وضغط "Add New Offer" الذي ينشئ إعلاناً → الباك يرفض بـ **403**.
-3. **لا توجد شاشة "Add Service"** رغم أن `service_provider`/`company` يحق لهم إنشاء خدمات.
-
-**التوصية للربط:** فصل تدفّق الإنشاء حسب `account_type`:
-- `company` → يرى: Add Offer, Add Ad, (اختياري Add Service).
-- `service_provider` → يرى: Add Offer, Add Service (لا Ads).
-- `influencer` → يرى: Add Ad فقط.
-- `user` → لا يرى أي إنشاء.
-
-وإصلاح الاسم/الفعل ليتطابقا. (يمكن تأجيل شاشتَي Offer/Service المنفصلتين لـ v2 لكن يجب **على الأقل إخفاء/تعطيل** الزر حسب الدور لتفادي الـ 403.)
-
-**✅ تحديث 2026-07-09 — الجزء الفرونت أُنجز:** فُصلت التدفّقات فعلاً — صار في 3 شاشات منفصلة: `add_offer_screen.dart` (`AddOfferScreen`)، `add_service_screen.dart` (`AddServiceScreen`)، والـ Ad wizard الموجود — وأُضيف `accountCapabilitiesProvider` (`features/profile/presentation/controllers/account_capabilities.dart`) يقرأ `account_type` من جلسة الـ auth ويُظهر بقائمة البروفايل فقط الإنشاءات المسموحة (Offer=company/service_provider · Ad=company/influencer · Service=company/service_provider · guest/user=لا شيء). مغطّى باختبارات (200 اختبار يمرّ). **يتبقّى للربط:** الجزء الفعّال يعتمد على `account_type` الحقيقي بعد ربط الـ auth؛ حتى ذلك يعمل على نوع الحساب المتاح من الجلسة (register يحدّده).
+**يتبقّى للربط:** يعتمد على `account_type` الحقيقي من الجلسة بعد ربط الـ auth (register يحدّده)؛ وتوصيل أزرار الـ "next phase" الثلاثة بـ `POST /ads|/offers|/services` (تعتمد على Upload + Auth).
 
 </div>
 
@@ -271,7 +259,7 @@
 
 | القسم | Endpoints | السبب |
 | --- | --- | --- |
-| 💳 Subscriptions | `GET/POST /subscriptions*` (4) | Stripe؛ **`POST /subscriptions` = خطأ 500 مفتوح** (`client_secret`، إصدار Stripe API). |
+| 💳 Subscriptions | `GET/POST /subscriptions*` (4) | Stripe؛ **`POST /subscriptions` = خطأ 500 مفتوح**. |
 | 💰 Payments | `/payments/*` (3) | Stripe. |
 | ⭐ Featured | `/featured*` (2) | Stripe. |
 | 🔔 Notifications | `/notifications*` (5) | الميزة كاملة مؤجلة (+FCM). |
@@ -279,9 +267,10 @@
 | 🪑 Seat booking/cancel | `POST /seats/:id/book`, `DELETE …/cancel` (2) | Stripe checkout. |
 | 📸 Stories create/delete | `POST /stories`, `DELETE /stories/:id` (2) | إنشاء القصص display-only. |
 | 🔐 Auth الموسّع | phone×2, oauth, verify-otp, forgot, reset, delete (7) | email-only بـ v1. |
-| 🛡️ Admin | `/admin/*` (23) | للداشبورد فقط — الموبايل لا يستعملها. |
+| 🛡️ Admin | `/admin/*` (23) | للداشبورد فقط. |
 | 🔗 Webhook | `/webhooks/stripe` (1) | Stripe→server. |
-| 📦 Content Packages | — | **لا يوجد كيان بالباك** (خطط 99/149/249 محذوفة migration 032). شاشة Packages display-only. قرار الكيان مؤجل. |
+| 📦 Content Packages | — | لا كيان بالباك (خطط 99/149/249 محذوفة migration 032). شاشة Packages display-only. |
+| 🌐 **إدخال محتوى مستخدم ثنائي اللغة** | — | **جديد (قرار مالك 2026-07-12):** محتوى المستخدمين يبقى بلغة واحدة كما كُتب. الإدخال/العرض ثنائي اللغة = v2 (يحتاج أعمدة `_ar/_en` لكل حقل بالباك). راجع `v2_deferred_scope.md` §9. |
 
 ---
 
@@ -289,14 +278,17 @@
 
 <div dir="rtl">
 
-**النتيجة: لا توجد صفحات ناقصة.** كل الـ 23 مساراً المُعرَّفة في `route_names.dart` تفتح شاشة حقيقية موجودة في `app_router.dart`. لا يوجد أي زر يشير لصفحة غير موجودة. كل تدفقات الـ MVP (splash → login/register → home/services/influencer/cup/profile + التفاصيل + الشات + الإشعارات + البروفايل العام + البحث + الإعدادات الفرعية) لها وجهة.
+**النتيجة: لا توجد صفحات ناقصة.** كل مسارات `route_names.dart` تفتح شاشة حقيقية بـ `app_router.dart`. لا زر يشير لصفحة غير موجودة.
 
-**الأزرار المسدودة (dead-ends)** كلها مقصودة، وتنقسم إلى:
-- **مؤجل v2 (لا عمل الآن):** social login, password reset, packages checkout, seat booking/payment, location map, See-All على الهوم.
-- **مدعوم بالباك لكن يحتاج توصيل بالربط:** حفظ تعديل البروفايل، نشر الإعلان، رفع الأفاتار/الصور، زر Follow.
-- **بلا endpoint بالباك:** رسائل الدعم (Support) — لا يوجد endpoint للدعم؛ التعريب (Arabic).
+**الأزرار المسدودة (dead-ends) المقصودة:**
+- **مؤجل v2:** social login, password reset, packages checkout, seat booking/payment, location map.
+- **مدعوم بالباك، يحتاج توصيل بالربط:** حفظ تعديل البروفايل، نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور.
+- **بلا endpoint بالباك:** رسائل الدعم (Support) — لا endpoint.
 
-**شاشات قد تحتاجها لاحقاً (قرارات، ليست "ناقصة" بالـ MVP):** شاشة Add Offer منفصلة، شاشة Add Service، شاشة "See All" للقوائم الكاملة. كلها خارج نطاق الـ MVP الحالي.
+**تغيّرات عن النسخة السابقة:**
+- **Follow لم يعد dead-end** — صار toggle محلي فعّال (يتبقّى استبداله بالطلب الحقيقي).
+- **التعريب (Arabic) اكتمل** — لم يعد ضمن "المؤجل/بلا باك"؛ جانبه الخلفي الوحيد هو هيدر `Accept-Language`.
+- **See-All على الهوم** يعمل (كان مؤجلاً).
 
 </div>
 
@@ -306,34 +298,42 @@
 
 | # | الخطوة | Endpoints | لماذا |
 | --- | --- | --- | --- |
-| 1️⃣ | **سباكة المصادقة** — Dio Bearer interceptor + `flutter_secure_storage` + auto-refresh على 401 | (بنية تحتية) | **يفتح كل الـ endpoints المحمية.** بدونه لا شيء محمي يعمل. |
+| 1️⃣ | **إعادة بناء السباكة** — عميل HTTP + interceptor (**Bearer + `Accept-Language`**) + `SecureAuthSessionStore` (`flutter_secure_storage`) + auto-refresh على 401 + إعادة `baseUrl` | (بنية تحتية) | **يفتح كل المحمي + المحتوى المُعرّب.** بدونه لا شيء يعمل. |
 | 2️⃣ | **Auth wiring** — ربط login/register بالتخزين الآمن | 4 | أساس الجلسة. |
-| 3️⃣ | **Profile الشخصي** — استبدال `getDemoProfile` بـ `GET /profiles/me`، وتنفيذ `PUT /profiles/me` (إزالة الـ stub) | 2 | أكبر فجوة "موصولة". |
-| 4️⃣ | **Home** — تعديلا DTO (`media_urls[0]`، ستوري واحدة) | 1 | الشاشة الأهم (public، بلا مصادقة). |
-| 5️⃣ | **Categories + Services + Search + Leaderboard** — تأكيد فقط (شبه جاهزة) | 5 | سريعة. |
-| 6️⃣ | **Seats** — بانتظار **seed** بالباك، ثم `GET /seats` | 2 | يحتاج عمل بالباك. |
-| 7️⃣ | **Follow/Unfollow** — توصيل الأزرار + status | 5 | يحدّث `followers_count` → Cup. |
-| 8️⃣ | **Upload** — ربط `/upload/image` ثم avatar/cover/ad-image | 4 | شرط للتعديل والإنشاء. |
-| 9️⃣ | **Add Ad publish** — `POST /ads` + role-gating | 1 | يعتمد على Upload + Auth. |
-| 🔟 | **Saved** — حل الـ join، ثم ربط الشاشة | 3 | يحتاج قرار الباك (join). |
-| 1️⃣1️⃣ | **Chat** — تأكيد + إضافة Supabase Realtime | 6 | الأكثر تعقيداً. |
-| 1️⃣2️⃣ | **Role-gating** — إظهار/إخفاء أزرار الإنشاء حسب `account_type` + إصلاح تعارض Offer/Ad | — | يمنع أخطاء 403. |
+| 3️⃣ | **Profile الشخصي** — استبدال fake بـ `GET /profiles/me`، وتنفيذ `PUT /profiles/me` (إزالة الـ stub) | 2 | أكبر فجوة. |
+| 4️⃣ | **Home** — تعديلا DTO (`media_urls[0]`، ستوري واحدة) | 1 | الشاشة الأهم (public). |
+| 5️⃣ | **Categories + Services + Search + Leaderboard** — تأكيد (شبه جاهزة) + التحقق من `Accept-Language` بالتصنيفات | 5 | سريعة. |
+| 6️⃣ | **Seats** — تأكيد الـ seed بالباك، ثم `GET /seats` | 2 | يحتاج تحقق بالباك. |
+| 7️⃣ | **Follow/Unfollow** — استبدال الـ toggle المحلي بالطلب + status | 5 | يحدّث `followers_count` → Cup. |
+| 8️⃣ | **Upload** — `/upload/image` ثم avatar/cover/ad-image | 4 | شرط للتعديل والإنشاء. |
+| 9️⃣ | **Add Ad/Offer/Service publish** — `POST` + role-gating | 3 | يعتمد على Upload + Auth. |
+| 🔟 | **Saved** — حل الـ join، ثم ربط الشاشة | 3 | يحتاج قرار الباك. |
+| 1️⃣1️⃣ | **Chat** — تأكيد + Supabase Realtime | 6 | الأكثر تعقيداً. |
+| 1️⃣2️⃣ | **Role-gating حيّ** — أزرار الإنشاء حسب `account_type` الحقيقي | — | يمنع 403. |
 
 ---
 
 ## 9. ما ينقص/يحتاج انتباه بالباك (Backend gaps)
 
+> **✅ تحديث Phase 0 (2026-07-13) — أُغلقت الفجوات الأساسية عند المصدر:**
+> - **الفجوة 1 (seat seed):** ✅ منجز ومُتحقَّق حياً — migration `035_seed_seat_grid.sql` زرع 144 مقعد (16/48/80) على الـ DB الحقيقي.
+> - **الفجوة 3 (`GET /saved`):** ✅ منجز بالكود (`saved.service.ts` صار يجمّع حسب النوع ويرجّع تفاصيل العنصر) — يُختبر حياً بمستخدم مصادَق بمرحلة Saved (Phase 11).
+> - **الفجوة 4 (إحصائيات البروفايل):** ✅ `following_count`+`posts_count` صاروا يُحسبوا (`profile.service.ts`) ومُتحقَّق. `views_count` **مؤجّل v2** (لا مصدر بالـ DB — قرار مالك 2026-07-13، `v2_deferred_scope.md` §6).
+> - **بالإضافة (تعريب):** `pickLocalized` كان معرّف وغير مستدعى — وُصِّل الآن بـ `categories`+`/home` (`name` واحد حسب `Accept-Language`) ومُتحقَّق حياً (عربي/إنكليزي).
+> - **الفجوة 8 (Leaked Password Protection):** لسا بانتظارك — toggle بلوحة Supabase.
+
 | # | الفجوة | الخطورة | الحل |
 | --- | --- | --- | --- |
-| 1 | **Seats seed** — مقعد واحد لكل tier فقط، الفرونت يريد شبكة كاملة | 🔴 حرجة (للـ Influencer) | توسيع `seed.sql` ليحقن عدداً كافياً لكل tier. |
-| 2 | **`POST /subscriptions` = 500** (`client_secret`) | 🟠 (v2) | إصلاح flow الـ PaymentSheet (تثبيت `apiVersion` أو `confirmation_secret`). لا يؤثر v1. |
-| 3 | **`GET /saved` بدون تفاصيل** — يرجّع `item_id`+`item_type` فقط | 🟡 | إضافة join يرجّع تفاصيل العنصر (مفضّل)، أو N+1 بالفرونت. |
-| 4 | **إحصائيات البروفايل** — لا `following/posts/views count` | 🟡 | إمّا الباك يضيف العدّادات، أو الفرونت يخفي ما لا يتوفر (Followers فقط متاح). |
-| 5 | **لا endpoint للدعم (Support)** | 🟢 | رسائل الدعم بلا باك — إمّا mailto/رابط، أو استخدام Reports، أو تأجيل. |
-| 6 | **لا كيان Content Packages** (99/149/249) | 🟢 (v2) | قرار: جدول `packages` جديد، أو ربط بـ subscriptions، أو إسقاط. Packages تبقى display-only. |
-| 7 | **لا `location` بكائن Service** ولا `GET /ads/:id` عام | 🟢 | تجميلي — الفرونت يتعامل مع الغياب (يفلتر `/ads/active`). |
-| 8 | **Leaked Password Protection معطّلة** (Supabase Auth) | 🟡 (Phase B) | تفعيل من Dashboard → Authentication (toggle، مو SQL). مهم قبل ربط تسجيل مستخدمين حقيقيين مباشرة بـ Supabase. |
-| 9 | **جولة أداء RLS مؤجّلة** — 47 `auth_rls_initplan` + 165 `multiple_permissive_policies` + 4 FK بلا index + 8 index غير مستخدم | 🟡 (scale) | migration `035` مستقلّة. WARN فقط، ما بتأثّر بالأحجام الحالية. **الأمان انعمل** بـ migration 034 (search_path + revokes + chat_rooms). التفاصيل: `promo_backend/docs/DB_AUDIT_AND_HARDENING_2026-07-12.md`. |
+| 1 | **Seats seed** — ~مقعد/tier، الفرونت يريد شبكة كاملة | 🔴 حرجة (Influencer) | توسيع `seed.sql`. **يُعاد التحقق عند الربط** (migrations المقاعد الأخيرة لم تزرع شبكة). |
+| 2 | **`POST /subscriptions` = 500** (`client_secret`) | 🟠 (v2) | إصلاح flow الـ PaymentSheet. لا يؤثر v1. |
+| 3 | **`GET /saved` بلا تفاصيل** — id+type فقط | 🟡 | join يرجّع تفاصيل العنصر (مفضّل)، أو N+1 بالفرونت. |
+| 4 | **إحصائيات البروفايل** — لا `following/posts/views count` | 🟡 | الباك يضيف العدّادات، أو الفرونت يخفي غير المتوفر. |
+| 5 | **لا endpoint للدعم (Support)** | 🟢 | mailto/رابط، أو Reports، أو تأجيل. |
+| 6 | **لا كيان Content Packages** (99/149/249) | 🟢 (v2) | جدول جديد أو ربط subscriptions أو إسقاط. display-only حالياً. |
+| 7 | **لا `location` بكائن Service** ولا `GET /ads/:id` عام | 🟢 | تجميلي — الفرونت يتعامل مع الغياب. |
+| 8 | **Leaked Password Protection معطّلة** (Supabase Auth) | 🟡 (Phase B) | تفعيل من Dashboard → Authentication (toggle). مهم قبل تسجيل مستخدمين حقيقيين. |
+| 9 | **جولة أداء RLS مؤجّلة** — 47 `auth_rls_initplan` + 165 `multiple_permissive_policies` + 4 FK بلا index + 8 index غير مستخدم | 🟡 (scale) | migration `035` مستقلّة (لم تُنفَّذ بعد). WARN فقط. الأمان أُنجز بـ `034`. التفاصيل: `promo_backend/docs/DB_AUDIT_AND_HARDENING_2026-07-12.md`. |
+| 10 | **لا أعمدة `_ar/_en` لمحتوى المستخدمين** | 🟢 (v2) | مطلوب فقط لو طلب العميل إدخال محتوى ثنائي اللغة (قسم 6). المحتوى المرجعي (تصنيفات/باقات) عنده الأعمدة أصلاً. |
 
 ---
 
@@ -341,9 +341,11 @@
 
 - عقد الـ API الكامل: `promo_backend/docs/promoo-api-reference.json` + `promoo_full_api.postman_collection.json`
 - نتائج الاختبار الحيّة: `promo_backend/docs/Apis-Resaults/` (21 مجلد)
+- تدقيق/تقوية الـ DB: `promo_backend/docs/DB_AUDIT_AND_HARDENING_2026-07-12.md`
 - منطق الصلاحيات: `promo_mobile/docs/roles_logic.md`
 - المؤجل v2: `promo_mobile/docs/v2_deferred_scope.md`
-- قرارات الربط (15 صف): `promo_mobile/docs/build_plan.md` §Phase B
+- خطة التعريب (مكتملة): `promo_mobile/docs/localization_plan.md`
+- الذاكرة/الخط الزمني: `promo_mobile/docs/MEMORY_BANK.md`
 - دليل الشات الفوري: `promo_backend/docs/Realtime-Chat-Flutter-Guide.md`
 
 </div>
