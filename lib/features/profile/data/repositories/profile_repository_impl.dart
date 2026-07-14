@@ -5,12 +5,13 @@ import '../../../../core/errors/app_failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
-import '../datasources/profile_fake_data_source.dart';
+import '../datasources/profile_data_source.dart';
+import '../datasources/profile_remote_data_source.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return ProfileRepositoryImpl(
     config: ref.watch(appConfigProvider),
-    dataSource: ref.watch(profileFakeDataSourceProvider),
+    dataSource: ref.watch(profileRemoteDataSourceProvider),
   );
 });
 
@@ -18,12 +19,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl({required this.config, required this.dataSource});
 
   final AppConfig config;
-  final ProfileFakeDataSource dataSource;
+  final ProfileDataSource dataSource;
 
+  /// Kept as a distinct method name for interface/test stability (several
+  /// widget tests implement their own [ProfileRepository] test double with
+  /// this exact override) — it now just means "the signed-in user's own
+  /// profile", same as [getMyProfile].
   @override
   Future<Result<PromooProfile>> getDemoProfile() async {
     try {
-      final dto = await dataSource.fetchDemoProfile();
+      final dto = await dataSource.fetchMyProfile();
       return Result.success(dto.toDomain(fallbackId: 'profile-current'));
     } on AppFailure catch (failure) {
       return Result.failure(failure);
@@ -87,9 +92,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Result<PromooProfile>> updateMyProfile(
     ProfileUpdateDraft draft,
   ) async {
-    // Frontend-only: profile edits are local UI until integration is wired.
-    return const Result.failure(
-      AppFailure.unauthorized(message: 'Sign in to edit your profile.'),
-    );
+    try {
+      final dto = await dataSource.updateMyProfile(draft);
+      return Result.success(dto.toDomain(fallbackId: 'me'));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
   }
 }

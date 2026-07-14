@@ -1,3 +1,4 @@
+import '../../domain/entities/promoo_profile.dart';
 import '../dto/profile_dto.dart';
 
 abstract interface class ProfileDataSource {
@@ -6,4 +7,6 @@ abstract interface class ProfileDataSource {
   Future<PromooProfileDto> fetchMyProfile();
 
   Future<ProfilePackagesDto> fetchProfilePackages(String profileId);
+
+  Future<PromooProfileDto> updateMyProfile(ProfileUpdateDraft draft);
 }

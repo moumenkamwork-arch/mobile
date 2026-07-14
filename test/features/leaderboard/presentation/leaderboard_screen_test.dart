@@ -6,11 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
+import 'package:promoo_app/features/leaderboard/data/datasources/leaderboard_fake_data_source.dart';
 import 'package:promoo_app/features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
 import 'package:promoo_app/features/leaderboard/domain/entities/leaderboard_profile.dart';
 import 'package:promoo_app/features/leaderboard/domain/repositories/leaderboard_repository.dart';
 import 'package:promoo_app/features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import 'package:promoo_app/features/leaderboard/presentation/widgets/leaderboard_podium.dart';
+import 'package:promoo_app/features/profile/data/datasources/profile_fake_data_source.dart';
+import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
@@ -91,7 +94,24 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [appConfigProvider.overrideWithValue(_mockConfig)],
+        overrides: [
+          appConfigProvider.overrideWithValue(_mockConfig),
+          // This screen itself now hits the real leaderboard repository by
+          // default.
+          leaderboardRepositoryProvider.overrideWithValue(
+            const LeaderboardRepositoryImpl(
+              dataSource: LeaderboardFakeDataSource(),
+            ),
+          ),
+          // The profile card navigates into a public profile screen, which
+          // now hits the real profile repository by default.
+          profileRepositoryProvider.overrideWithValue(
+            ProfileRepositoryImpl(
+              config: _mockConfig,
+              dataSource: ProfileFakeDataSource(),
+            ),
+          ),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.dark,
           localizationsDelegates: AppLocalizations.localizationsDelegates,

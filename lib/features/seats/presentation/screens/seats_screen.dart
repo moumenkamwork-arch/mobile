@@ -328,15 +328,21 @@ class _SeatGrid extends StatelessWidget {
       rows.add(Row(mainAxisSize: MainAxisSize.min, children: cells));
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        AppSpacing.screenHorizontal,
-        AppSpacing.xs,
-        AppSpacing.screenHorizontal,
-        AppSpacing.shellScrollBottom,
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+    // A single InteractiveViewer (pan-only, no scale) instead of nested
+    // SingleChildScrollViews — nested scrollables with different axes each
+    // grab a straight-line drag, so a diagonal swipe only ever moves one
+    // direction at a time. One gesture recognizer here lets the grid pan
+    // freely in both directions from a single drag.
+    return InteractiveViewer(
+      constrained: false,
+      scaleEnabled: false,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppSpacing.screenHorizontal,
+          AppSpacing.xs,
+          AppSpacing.screenHorizontal,
+          AppSpacing.shellScrollBottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

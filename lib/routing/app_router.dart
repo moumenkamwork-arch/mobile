@@ -9,6 +9,7 @@ import '../features/chat/presentation/screens/chat_room_screen.dart';
 import '../features/home/presentation/screens/home_content_detail_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/home_see_all_screen.dart';
+import '../features/home/presentation/screens/offers_screen.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/add_ad_wizard_screen.dart';
@@ -215,6 +216,12 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
             name: RouteNames.seats,
             builder: (context, state) => const SeatsScreen(),
           ),
+          // Same bottom-nav slot as Seats (index 1), shown to non-influencers.
+          GoRoute(
+            path: AppRoutes.offers,
+            name: RouteNames.offers,
+            builder: (context, state) => const OffersScreen(),
+          ),
 
           GoRoute(
             path: AppRoutes.profile,
@@ -235,7 +242,9 @@ int _selectedIndexForPath(String path) {
     _ when path.startsWith('/services/') => 3,
     _ when path.startsWith('/home/items/') => 0,
     _ when path.startsWith('/home/see-all/') => 0,
+    // Seats (influencers) and Offers (everyone else) share bottom-nav slot 1.
     _ when path.startsWith('/seats') => 1,
+    AppRoutes.offers => 1,
     AppRoutes.profile => 4,
     _ when path.startsWith('/profiles/') => 4,
     AppRoutes.search => 0,

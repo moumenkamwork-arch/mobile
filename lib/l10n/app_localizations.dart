@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Influencer'**
   String get tabInfluencer;
 
+  /// No description provided for @tabOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get tabOffers;
+
   /// No description provided for @tabPromoo.
   ///
   /// In en, this message translates to:
@@ -1520,11 +1526,17 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get profileEditSaveButton;
 
-  /// No description provided for @profileEditSaveComingSoon.
+  /// No description provided for @profileEditSaving.
   ///
   /// In en, this message translates to:
-  /// **'Profile changes will sync with your account in the next phase.'**
-  String get profileEditSaveComingSoon;
+  /// **'Saving...'**
+  String get profileEditSaving;
+
+  /// No description provided for @profileEditSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get profileEditSaveSuccess;
 
   /// No description provided for @profileFollowingEmptyTitle.
   ///

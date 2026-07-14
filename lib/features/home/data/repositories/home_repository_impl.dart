@@ -6,12 +6,12 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/home_content.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../datasources/home_data_source.dart';
-import '../datasources/home_fake_data_source.dart';
+import '../datasources/home_remote_data_source.dart';
 
 final homeRepositoryProvider = Provider<HomeRepository>((ref) {
   return HomeRepositoryImpl(
     config: ref.watch(appConfigProvider),
-    dataSource: ref.watch(homeFakeDataSourceProvider),
+    dataSource: ref.watch(homeRemoteDataSourceProvider),
   );
 });
 

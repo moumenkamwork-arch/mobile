@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabInfluencer => 'Influencer';
 
   @override
+  String get tabOffers => 'Offers';
+
+  @override
   String get tabPromoo => 'Promoo';
 
   @override
@@ -826,8 +829,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileEditSaveButton => 'Save';
 
   @override
-  String get profileEditSaveComingSoon =>
-      'Profile changes will sync with your account in the next phase.';
+  String get profileEditSaving => 'Saving...';
+
+  @override
+  String get profileEditSaveSuccess => 'Profile updated.';
 
   @override
   String get profileFollowingEmptyTitle => 'No follows yet';

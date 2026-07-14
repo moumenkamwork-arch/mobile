@@ -37,6 +37,7 @@ dependencies:
   flutter_riverpod: ^3.3.2
   flutter_svg: ^2.3.0
   go_router: ^17.3.0
+  dio: ^5.9.2
   flutter_secure_storage: any
   fpdart: any
   freezed_annotation: any

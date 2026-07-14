@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
+import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
@@ -15,6 +18,16 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            // Home now hits the real backend by default; keep this test on
+            // the fake so it doesn't need a live server.
+            homeRepositoryProvider.overrideWithValue(
+              HomeRepositoryImpl(
+                config: const AppConfig(),
+                dataSource: const HomeFakeDataSource(),
+              ),
+            ),
+          ],
           child: MaterialApp.router(
             theme: AppTheme.dark,
             locale: const Locale('ar'),
@@ -33,10 +46,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Bottom-nav tabs (L1: promoo_shell).
+      // Bottom-nav tabs (L1: promoo_shell). Slot 1 is role-dependent — a guest
+      // (not an influencer) sees "العروض" (Offers) there, not "المؤثرون".
       for (final tab in [
         'الرئيسية',
-        'المؤثرون',
+        'العروض',
         'بروموو',
         'الخدمات',
         'حسابي',

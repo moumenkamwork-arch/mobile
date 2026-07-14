@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/features/profile/data/datasources/profile_fake_data_source.dart';
+import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
@@ -15,6 +18,17 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          // The Profile tab now hits the real profile repository by
+          // default; keep this test on the fake so it doesn't need a live
+          // backend/session.
+          profileRepositoryProvider.overrideWithValue(
+            ProfileRepositoryImpl(
+              config: const AppConfig(),
+              dataSource: ProfileFakeDataSource(),
+            ),
+          ),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.dark,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -25,9 +39,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Footer order per owner request: the center P mark now leads to the Cup
-    // page and is labelled "Promoo"; Services is a normal tab.
-    for (final tab in ['Home', 'Influencer', 'Promoo', 'Services', 'Profile']) {
+    // Footer order per owner request: the center P mark leads to the Cup page
+    // ("Promoo"); Services is a normal tab. Slot 1 is role-dependent — a guest
+    // (no session, not an influencer) sees the "Offers" tab there, not
+    // "Influencer"/Seats (which is influencer-only).
+    for (final tab in ['Home', 'Offers', 'Promoo', 'Services', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
 

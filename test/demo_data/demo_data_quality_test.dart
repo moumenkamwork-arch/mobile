@@ -32,7 +32,7 @@ void main() {
     final services = (await const ServicesFakeDataSource().fetchServices())
         .toDomain(fallbackCurrency: 'AED');
     final profilePackages =
-        (await const ProfileFakeDataSource().fetchProfilePackages(
+        (await ProfileFakeDataSource().fetchProfilePackages(
           ProfileFakeDataSource.demoProfileId,
         )).toDomain(
           fallbackCurrency: 'AED',
@@ -75,7 +75,7 @@ void main() {
           .toDomain();
       final services = (await const ServicesFakeDataSource().fetchServices())
           .toDomain(fallbackCurrency: 'AED');
-      final profile = (await const ProfileFakeDataSource().fetchDemoProfile())
+      final profile = (await ProfileFakeDataSource().fetchMyProfile())
           .toDomain(fallbackId: 'profile-current');
       final search = (await const SearchFakeDataSource().search(
         query: 'saffron',
@@ -131,10 +131,10 @@ Future<List<String>> _collectVisibleDemoStrings() async {
       .toDomain();
   final services = (await const ServicesFakeDataSource().fetchServices())
       .toDomain(fallbackCurrency: 'AED');
-  final profile = (await const ProfileFakeDataSource().fetchDemoProfile())
+  final profile = (await ProfileFakeDataSource().fetchMyProfile())
       .toDomain(fallbackId: 'profile-current');
   final profilePackages =
-      (await const ProfileFakeDataSource().fetchProfilePackages(
+      (await ProfileFakeDataSource().fetchProfilePackages(
         ProfileFakeDataSource.demoProfileId,
       )).toDomain(
         fallbackCurrency: 'AED',

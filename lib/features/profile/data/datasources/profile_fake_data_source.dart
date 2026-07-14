@@ -1,14 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/entities/promoo_profile.dart';
 import '../dto/profile_dto.dart';
 import 'profile_data_source.dart';
 
 final profileFakeDataSourceProvider = Provider<ProfileFakeDataSource>((ref) {
-  return const ProfileFakeDataSource();
+  return ProfileFakeDataSource();
 });
 
 class ProfileFakeDataSource implements ProfileDataSource {
-  const ProfileFakeDataSource();
+  ProfileFakeDataSource();
+
+  /// The signed-in "my profile" fixture, mutable so [updateMyProfile] can
+  /// persist edits for the lifetime of this data source instance.
+  PromooProfileDto _myProfile = _demoProfile;
 
   static const demoProfileId = 'profile-saffron-social';
 
@@ -264,10 +269,6 @@ class ProfileFakeDataSource implements ProfileDataSource {
     ),
   ];
 
-  Future<PromooProfileDto> fetchDemoProfile() async {
-    return _demoProfile;
-  }
-
   @override
   Future<PromooProfileDto> fetchProfile(String idOrUsername) async {
     final normalized = idOrUsername.trim().toLowerCase();
@@ -348,7 +349,7 @@ class ProfileFakeDataSource implements ProfileDataSource {
 
   @override
   Future<PromooProfileDto> fetchMyProfile() async {
-    return _demoProfile;
+    return _myProfile;
   }
 
   @override
@@ -358,5 +359,27 @@ class ProfileFakeDataSource implements ProfileDataSource {
           .where((package) => package.profileId == profileId)
           .toList(growable: false),
     );
+  }
+
+  @override
+  Future<PromooProfileDto> updateMyProfile(ProfileUpdateDraft draft) async {
+    _myProfile = PromooProfileDto(
+      id: _myProfile.id,
+      displayName: draft.displayName ?? _myProfile.displayName,
+      username: draft.username ?? _myProfile.username,
+      bio: draft.bio ?? _myProfile.bio,
+      location: draft.location ?? _myProfile.location,
+      website: draft.website ?? _myProfile.website,
+      avatarUrl: _myProfile.avatarUrl,
+      coverUrl: _myProfile.coverUrl,
+      categoryName: _myProfile.categoryName,
+      accountType: _myProfile.accountType,
+      stats: _myProfile.stats,
+      socialLinks: _myProfile.socialLinks,
+      mediaUrls: _myProfile.mediaUrls,
+      isVerified: _myProfile.isVerified,
+      isFeatured: _myProfile.isFeatured,
+    );
+    return _myProfile;
   }
 }

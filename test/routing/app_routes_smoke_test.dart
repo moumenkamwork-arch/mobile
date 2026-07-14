@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
+import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
+import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
+import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:promoo_app/features/leaderboard/data/datasources/leaderboard_fake_data_source.dart';
+import 'package:promoo_app/features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
+import 'package:promoo_app/features/profile/data/datasources/profile_fake_data_source.dart';
+import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:promoo_app/features/services/data/datasources/services_fake_data_source.dart';
+import 'package:promoo_app/features/services/data/repositories/services_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
@@ -24,6 +33,8 @@ void main() {
     ),
     const _RouteSmokeCase(AppRoutes.cup, 'Cup'),
     const _RouteSmokeCase(AppRoutes.seats, 'Gold Seats'),
+    // The Offers tab (non-influencer slot 1) lists offers from the home feed.
+    _RouteSmokeCase(AppRoutes.offers, 'Cafe opening spotlight'),
     _RouteSmokeCase(
       AppRoutes.seatCheckout(
         seatId: 'seat-gold-2',
@@ -53,7 +64,43 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [appConfigProvider.overrideWithValue(mockConfig)],
+          overrides: [
+            appConfigProvider.overrideWithValue(mockConfig),
+            // Chat/Notifications read the session store for the access
+            // token; the real SecureAuthSessionStore's platform channel
+            // call never resolves under testWidgets.
+            authSessionStoreProvider.overrideWithValue(
+              InMemoryAuthSessionStore(),
+            ),
+            // Profile screens (Profile Management + public profile) now hit
+            // the real profile repository by default.
+            profileRepositoryProvider.overrideWithValue(
+              ProfileRepositoryImpl(
+                config: mockConfig,
+                dataSource: ProfileFakeDataSource(),
+              ),
+            ),
+            // Home now hits the real backend by default.
+            homeRepositoryProvider.overrideWithValue(
+              HomeRepositoryImpl(
+                config: mockConfig,
+                dataSource: const HomeFakeDataSource(),
+              ),
+            ),
+            // Services + Leaderboard (Cup) now hit the real backend by
+            // default.
+            servicesRepositoryProvider.overrideWithValue(
+              ServicesRepositoryImpl(
+                config: mockConfig,
+                dataSource: const ServicesFakeDataSource(),
+              ),
+            ),
+            leaderboardRepositoryProvider.overrideWithValue(
+              const LeaderboardRepositoryImpl(
+                dataSource: LeaderboardFakeDataSource(),
+              ),
+            ),
+          ],
           child: MaterialApp.router(
             theme: AppTheme.dark,
             localizationsDelegates: AppLocalizations.localizationsDelegates,

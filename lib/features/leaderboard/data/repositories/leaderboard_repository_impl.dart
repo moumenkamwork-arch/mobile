@@ -5,11 +5,11 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/leaderboard_profile.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 import '../datasources/leaderboard_data_source.dart';
-import '../datasources/leaderboard_fake_data_source.dart';
+import '../datasources/leaderboard_remote_data_source.dart';
 
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   return LeaderboardRepositoryImpl(
-    dataSource: ref.watch(leaderboardFakeDataSourceProvider),
+    dataSource: ref.watch(leaderboardRemoteDataSourceProvider),
   );
 });
 

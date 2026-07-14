@@ -5,10 +5,13 @@ import 'package:promoo_app/core/config/app_config.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
 import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 import 'package:promoo_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:promoo_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:promoo_app/features/auth/presentation/screens/register_screen.dart';
+import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
+import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:promoo_app/features/profile/domain/entities/promoo_profile.dart';
 import 'package:promoo_app/features/profile/domain/repositories/profile_repository.dart';
@@ -70,6 +73,14 @@ void main() {
         overrides: [
           appConfigProvider.overrideWithValue(_mockConfig),
           authRepositoryProvider.overrideWithValue(const _AuthRepository()),
+          // This test navigates on to Home, which now hits the real
+          // backend by default.
+          homeRepositoryProvider.overrideWithValue(
+            HomeRepositoryImpl(
+              config: _mockConfig,
+              dataSource: const HomeFakeDataSource(),
+            ),
+          ),
         ],
         child: MaterialApp.router(
           theme: AppTheme.dark,
@@ -150,6 +161,10 @@ void main() {
               packagesResult: Result.success([]),
             ),
           ),
+          // The chat room this test navigates into reads the session store
+          // for the access token; the real SecureAuthSessionStore's platform
+          // channel call never resolves under testWidgets.
+          authSessionStoreProvider.overrideWithValue(InMemoryAuthSessionStore()),
         ],
         child: MaterialApp.router(
           theme: AppTheme.dark,

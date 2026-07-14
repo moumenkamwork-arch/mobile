@@ -26,6 +26,7 @@
 
   "tabHome": "Home",
   "tabInfluencer": "Influencer",
+  "tabOffers": "Offers",
   "tabPromoo": "Promoo",
   "tabServices": "Services",
   "tabProfile": "Profile",
@@ -350,7 +351,8 @@
   "profileEditFieldCategory": "Category",
   "profileEditCategoryComingSoon": "Category selection will be enabled in the next phase.",
   "profileEditSaveButton": "Save",
-  "profileEditSaveComingSoon": "Profile changes will sync with your account in the next phase.",
+  "profileEditSaving": "Saving...",
+  "profileEditSaveSuccess": "Profile updated.",
 
   "profileFollowingEmptyTitle": "No follows yet",
   "profileFollowingEmptyMessage": "Profiles you follow will appear here.",

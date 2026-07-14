@@ -14,6 +14,7 @@ import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/promoo_profile.dart';
+import '../controllers/profile_controller.dart';
 import '../widgets/profile_media_section.dart';
 
 /// Loads the demo profile used to prefill the Edit Profile form.
@@ -30,7 +31,8 @@ final editProfileSourceProvider = FutureProvider<PromooProfile>((ref) async {
 /// fields, and the media grid with view counts.
 ///
 /// Fields map 1:1 to backend `PUT /profiles/me` (`updateProfileSchema`:
-/// full_name, bio, location, category_id). Phase A: local-only.
+/// full_name, bio, location, category_id) — Name/Bio/Location save for real;
+/// avatar/category stay "coming soon" until Upload (Phase 9) wires them.
 class EditProfileScreen extends ConsumerWidget {
   const EditProfileScreen({super.key});
 
@@ -57,19 +59,20 @@ class EditProfileScreen extends ConsumerWidget {
   }
 }
 
-class _EditProfileForm extends StatefulWidget {
+class _EditProfileForm extends ConsumerStatefulWidget {
   const _EditProfileForm({required this.profile});
 
   final PromooProfile profile;
 
   @override
-  State<_EditProfileForm> createState() => _EditProfileFormState();
+  ConsumerState<_EditProfileForm> createState() => _EditProfileFormState();
 }
 
-class _EditProfileFormState extends State<_EditProfileForm> {
+class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   late final TextEditingController _nameController;
   late final TextEditingController _bioController;
   late final TextEditingController _locationController;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -222,11 +225,38 @@ class _EditProfileFormState extends State<_EditProfileForm> {
         ),
         const SizedBox(height: AppSpacing.lg),
         PromooButton.primary(
-          label: l10n.profileEditSaveButton,
+          label: _isSaving ? l10n.profileEditSaving : l10n.profileEditSaveButton,
           fullWidth: true,
-          onPressed: () => _showNotice(l10n.profileEditSaveComingSoon),
+          onPressed: _isSaving ? null : () => _handleSave(l10n),
         ),
       ],
+    );
+  }
+
+  Future<void> _handleSave(AppLocalizations l10n) async {
+    setState(() => _isSaving = true);
+
+    final draft = ProfileUpdateDraft(
+      displayName: _nameController.text.trim(),
+      bio: _bioController.text.trim(),
+      location: _locationController.text.trim(),
+    );
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .updateMyProfile(draft);
+
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSaving = false);
+
+    result.when(
+      success: (_) {
+        ref.invalidate(editProfileSourceProvider);
+        ref.invalidate(profileControllerProvider);
+        _showNotice(l10n.profileEditSaveSuccess);
+      },
+      failure: (failure) => _showNotice(failure.message),
     );
   }
 

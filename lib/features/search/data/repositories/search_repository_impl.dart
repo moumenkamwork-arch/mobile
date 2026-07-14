@@ -6,12 +6,12 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/search_result.dart';
 import '../../domain/repositories/search_repository.dart';
 import '../datasources/search_data_source.dart';
-import '../datasources/search_fake_data_source.dart';
+import '../datasources/search_remote_data_source.dart';
 
 final searchRepositoryProvider = Provider<SearchRepository>((ref) {
   return SearchRepositoryImpl(
     config: ref.watch(appConfigProvider),
-    dataSource: ref.watch(searchFakeDataSourceProvider),
+    dataSource: ref.watch(searchRemoteDataSourceProvider),
   );
 });
 

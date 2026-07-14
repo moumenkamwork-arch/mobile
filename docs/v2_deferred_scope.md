@@ -10,6 +10,8 @@ Last updated: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid 
 > - **Safe placeholder** — a visible control that intentionally does nothing yet (e.g. a social icon, a bell badge) kept only for pixel-faithful parity with the MVP.
 >
 > **What stays in v1 (NOT deferred):** email **login** + email **register** only, token refresh + logout (wired in the integration phase), and all read/discovery surfaces (Home, Services, Seats grid UI, Cup/Leaderboard, Search, public Profiles, Chat). Follow/Unfollow, Saved, Add Offer, Add Ad, Profile edit, and Uploads are **backend-supported but wired later** — they are tracked in [build_plan.md](build_plan.md) Phase B, **not** here.
+>
+> **Companion doc — interim admin curation:** some of the paid/Stripe items below (featured offers = **Promoo of the Day** + **Top Offers**, featured profiles) are **operated manually from the dashboard in v1** as a stand-in until Stripe turns on. That mirror-image list lives in [`v1_interim_admin_curation.md`](v1_interim_admin_curation.md) — "what we run by hand" vs this doc's "what we hide."
 
 ---
 

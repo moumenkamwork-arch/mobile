@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-13
+> Last updated: 2026-07-14 (v1 interim curation: offer + profile featuring toggles, both live-verified end-to-end with one real bug found+fixed; Seats→Offers role-gated bottom-nav tab)
 
 ---
 
@@ -106,6 +106,178 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-14 — v1 interim curation fully live-verified end-to-end (both toggles); real
+  bug found + fixed in the featured-profile path.** Seeded 2 demo offers directly in
+  Supabase (owner pre-authorized) attached to the owner's own profile. Via the dashboard
+  preview (`localhost:5174`, owner's own authenticated session) and the mobile web preview
+  (`localhost:8765`): (1) clicked **Content → Offers → Feature** on "Launch Week Web Design
+  Special" → `PATCH /admin/content/offers/:id/feature` → reloaded mobile Home → offer
+  appeared as both the Top Offers hero card AND Promoo of the Day, confirming the Option-A
+  single-flag design works live. (2) Clicked **Users → Feature on home** on the owner's own
+  profile → dashboard badge never appeared and `GET /admin/users` kept returning
+  `is_featured: false` despite a 200 response. **Root cause:** `setProfileFeaturedHome` relied
+  entirely on the `on_featured_account_change` DB trigger
+  (`009_create_payments_and_featured.sql`), which only flips `profiles.is_featured` when
+  `now() between start_date and end_date` at write time — this silently no-opped in practice.
+  **Fix:** `admin/user.service.ts:setProfileFeaturedHome` now sets `profiles.is_featured`
+  directly in the same call (admin overrides don't need to wait on a payment window); the
+  `featured_accounts` insert/deactivate is kept for record-keeping, and the DB trigger is left
+  untouched for the real v2 Stripe webhook path. Re-verified after the fix: dashboard showed
+  the gold "Featured" badge, and `GET /home`'s `featured_profiles` array contained the
+  profile. Backend `type-check` clean. Full detail + rationale in
+  `v1_interim_admin_curation.md`.
+- **2026-07-14 — Seats/Influencer tab is now influencer-only; non-influencers get an
+  Offers tab (role-gated bottom nav).** Client request: the Influencer/Seats screen must not
+  show to anyone except influencers. Implemented as a **role-dependent bottom-nav slot 1**
+  (`promoo_shell.dart` `tabsFor({isInfluencer})`, driven by
+  `authControllerProvider.session?.user.accountType == influencer`): influencers see
+  Influencer/Seats (route `/seats`), everyone else (companies, providers, users, guests) see
+  a new **Offers** tab (route `/offers`, `offers_screen.dart`) in that same slot — same index
+  (1), so `_selectedIndexForPath` maps both `/seats` and `/offers` → 1. New `OffersScreen` is
+  a full-screen browsable offers list sourced from the same `homeControllerProvider` feed that
+  powers Home's Top Offers/For You (owner chose "Offers" over "Saved" for the replacement).
+  Added `tabOffers` l10n key. Fixed 2 shell tests (`promoo_shell_test`/`_l10n_test` expected
+  the "Influencer" tab; a guest now sees "Offers") + added an `/offers` smoke case.
+  **Live-verified:** as a guest the bottom nav shows Home·Offers·Promoo·Services·Profile, the
+  Offers tab opens and shows the correct empty state (DB has 0 offers). 182 tests pass,
+  analyze clean.
+- **2026-07-14 — v1 interim curation: featured-profiles toggle added (2nd stand-in).**
+  Backend `PATCH /admin/users/:id/feature-home` `{is_featured}`
+  (`admin/user.service.ts:setProfileFeaturedHome`) inserts/deactivates a `featured_accounts`
+  row (placement=home, ~100-year window, `amount_paid=0`) — the same row Stripe's `POST
+  /featured` webhook creates in v2; a DB trigger keeps `profiles.is_featured` in sync. Drives
+  the mobile Home "Featured profiles" row (zero mobile change). Dashboard `Users.tsx` got a
+  "Feature on home / Remove" dropdown item + a "Featured" status badge + i18n. Backend
+  `type-check` + dashboard `tsc` both clean; backend boots clean. Documented as §1 of
+  `v1_interim_admin_curation.md`. (Later live-verified — see the entry above this one; the
+  trigger-reliance described here was found to be buggy and replaced with a direct set.)
+- **2026-07-14 — v1 interim admin curation started: manual "feature offer" toggle
+  (Promoo of the Day + Top Offers).** Owner decision: the Stripe-gated "paid visibility"
+  features (which are deferred to v2) get a **manual dashboard stand-in** in v1 — the admin
+  flips the same flag Stripe would flip. New doc `docs/v1_interim_admin_curation.md` (the
+  mirror-image companion of `v2_deferred_scope.md`: "what we run by hand" vs "what we hide").
+  **Implemented (offer featuring):** backend `PATCH /admin/content/offers/:id/feature`
+  `{is_featured}` (`admin/content.service.ts:setOfferFeatured` + controller + validator +
+  route) sets `offers.is_featured` directly (admin, no Stripe/ownership). Dashboard
+  `Content.tsx` Offers tab got a "Feature / Remove from featured" dropdown item (star icon) +
+  a star indicator on featured rows + i18n keys. **Owner chose "Option A — coupled":** one
+  `is_featured` flag drives BOTH surfaces (offers sorted `is_featured DESC` → featured floats
+  into Top Offers; newest featured = Promoo of the Day), zero schema change. Independent
+  curation would be a 1-column migration (`is_top_offer`) — deliberately not done. **Mobile
+  side: zero changes** — `HomeContentDto` already reads these flags (proven in Phase 4 when
+  the ad appeared as Promoo of the Day via the same path). Verified: backend `type-check`
+  clean + boots clean with route registered; dashboard `tsc --noEmit` clean. (Live-verified
+  end-to-end in a later pass the same day — see the top entry in this timeline. All three
+  "still open" items noted here at the time — featured-profiles toggle, Seats role-gating —
+  are also done; see later entries.)
+- **2026-07-14 — Phase 5 (Services + Categories + Search + Leaderboard) done —
+  live-verified against the real backend.** Four new remote data sources
+  (`services_remote_data_source.dart`, `search_remote_data_source.dart`,
+  `leaderboard_remote_data_source.dart`, plus `GET /categories` via the services one),
+  each matching the pre-strip pattern restored from git history exactly. Fixed 4 tests
+  that started hitting the real backend by default (`home_screen_test.dart`'s service-card
+  navigation, `leaderboard_screen_test.dart`'s own screen load, and two
+  `app_routes_smoke_test.dart` cases) — same override pattern as every prior phase.
+  **Live-verified:** `GET /categories` and `GET /services` both returned real (empty)
+  data from the DB; `GET /leaderboard` returned real ranked profiles — rank 3 was the
+  owner's own account with the exact bio saved during Phase 3's live test
+  ("Building Promoo integrations, one phase at a time."), which incidentally also
+  reconfirmed Phase 3's save is genuinely durable across sessions. Search compiles
+  clean and follows the identical proven pattern as the other three, but a live
+  network trace wasn't captured this round — the in-app browser's semantics/screenshot
+  layer got flaky partway through this session (unrelated to the app; a hash-only
+  route change without a full reload silently failed to remount a tab once, and
+  screenshots intermittently timed out afterward — full page reloads recovered every
+  time). 181 tests pass, analyze clean. Next: Phase 6 (Seats — GET /seats live check)
+  or Phase 7+ depending on priority.
+- **2026-07-14 — Seats grid now pans in both directions** — owner reported the influencer
+  seat grid only scrolled one axis per drag (nested `SingleChildScrollView`s, vertical
+  outer + horizontal inner: Flutter's gesture arbitration locks a drag to one scrollable's
+  axis, so diagonal panning never worked smoothly). Replaced both with a single
+  `InteractiveViewer` (`constrained: false`, `scaleEnabled: false` — pan only, no
+  pinch-zoom, since that's what was asked). One gesture recognizer now, so a single
+  diagonal drag moves the grid on both axes at once — verified live via a diagonal
+  drag screenshot A/B. Tap-to-open-sheet still works (no regression). 181 tests pass.
+- **2026-07-14 — Phase 4 (Home) done — live-verified against the real backend.**
+  `home_remote_data_source.dart` (new) wires `GET /home` for the feed and
+  `GET /offers/:id` / `GET /ads/active` (filtered client-side) for detail — same
+  pattern as the pre-strip version restored from git history. `home_repository_impl.dart`
+  now defaults to it. Fixed 3 tests that started hitting the real backend by default
+  (`promoo_shell_l10n_test.dart` had zero overrides at all; `app_routes_smoke_test.dart`
+  and `auth_screen_test.dart`'s guest-to-Home case were each missing a
+  `homeRepositoryProvider` override) — same fake-repository-override pattern as the
+  Phase 1/3 fixes. **Live-verified with real (sparse) DB data:** categories resolved in
+  English via the Phase-0 `pickLocalized` fix (cross-validates two separate fixes
+  working together), `latest_offers`/`services` correctly rendered as empty (nothing in
+  the DB right now, not a bug), `promoo_of_the_day` was `null` so the feed correctly fell
+  back to the first ad ("Updated Banner Ad", badge "Promoted") for the highlight card,
+  and tapping into its detail screen correctly hit `GET /ads/active` and rendered real
+  data. 181 tests pass, analyze clean. Next: Phase 5 (Services + Categories).
+- **2026-07-13 — Phases 2 (Auth) + 3 (Profile me/edit) done — live-verified against the
+  real backend + real Supabase, analyze + 181 tests green.** Owner registered/logged in
+  with their real account through the live app; used that real session to verify both
+  phases end-to-end (not just analyze/test).
+  **Phase 2 — Auth:** `api_endpoints.dart` restored (endpoint constants; auth paths
+  spot-checked against `promo_backend/src/routes/auth.routes.ts`).
+  `auth_remote_data_source.dart` (new) implements login/register/refresh/logout via the
+  Phase-1 `ApiClient`; `auth_repository_impl.dart` now defaults to it instead of the fake.
+  Live-verified: a real register call reached the real backend (network log + backend log
+  both confirmed), CORS worked, and a deliberately-invalid test email came back as a
+  correctly-shaped `{success:false,...VALIDATION_ERROR}` that rendered as the UI's error
+  banner — proving the whole chain (client → interceptor → envelope parse → AppFailure →
+  UI) end-to-end. Real success case left for the owner to finish with a real email
+  (entering credentials is something I don't do myself, even given/authorized).
+  **Phase 3 — Profile (me + edit):** added `ApiClient.put`; `ProfileDataSource` gained
+  `updateMyProfile`; new `profile_remote_data_source.dart` (`fetchProfilePackages`
+  honestly returns empty — no real backend concept, see `v2_deferred_scope.md` §2).
+  `profile_repository_impl.dart`'s `dataSource` field is now the interface type (was
+  hard-typed to the fake); `getDemoProfile()` — kept as a name for interface/test
+  stability (6 test files override it) — now just means "the signed-in user's own
+  profile," same as `getMyProfile()`; `updateMyProfile()`'s hard stub (always failed, no
+  request) now really calls through. **Edit Profile's Save button had never been wired at
+  all** — it only showed a "coming soon" snackbar; wired it for real (Name/Bio/Location →
+  `PUT /profiles/me`, success/failure snackbar, refetches on save). Small backend
+  consistency fix: `updateProfile()` now also returns `withCounts()` (the PUT response was
+  missing `following_count`/`posts_count` that GET already had). Live-verified with the
+  owner's real account: Edit Profile loaded their real name/0 followers/empty fields (not
+  the old Saffron Social demo fixture), a real bio+location save round-tripped
+  (`PUT /profiles/me` → 200, counters included), and a fresh page load afterwards showed
+  the saved values — confirms real persistence, not just optimistic UI. Fixed 3 widget
+  tests that now hit the real profile repository by default (`app_routes_smoke_test.dart`,
+  `promoo_shell_test.dart`, `leaderboard_screen_test.dart`) with a fake-repository
+  override, same pattern as Phase 1's session-store fix. Also: added `run_backend.bat` +
+  a `promoo-backend` entry in the root `.claude/launch.json` (one-command local backend
+  boot alongside the existing `promoo-web`), added the Flutter web dev port to the
+  backend's `CORS_ORIGINS`, and dropped the now-inert `PROMOO_USE_MOCKS` define from
+  `run_web.bat`. Next: Phase 4 (Home).
+- **2026-07-13 — Phase 1 (mobile network plumbing) done — analyze + 181 tests green.**
+  Rebuilt `lib/core/network/` from scratch (git history of the pre-strip version was read
+  first to stay consistent with the original design): `api_response.dart` (envelope parse,
+  restored verbatim) + `api_client.dart` (Dio wrapper). Two deliberate upgrades over the old
+  pre-strip architecture, not a 1:1 restore: (1) the network layer now throws `AppFailure`
+  directly instead of a separate `ApiException` type — collapses a redundant dual-type/mapper
+  split, and means every existing repository's `on AppFailure catch` clause already works
+  unchanged once a feature's remote data source lands, no repo edits needed per phase; (2) a
+  new `QueuedInterceptorsWrapper` injects `Authorization: Bearer` (from `AuthSessionStore`) +
+  `Accept-Language` (from `localeProvider`) on every request, and auto-refreshes on 401 via a
+  bare second-`Dio` call to `/auth/refresh` (queued so concurrent 401s don't each fire their
+  own refresh). Re-added `dio: ^5.9.2` (pubspec) and `baseUrl`/`normalizedBaseUrl` to
+  `AppConfig` (`PROMOO_BASE_URL`, default `http://localhost:3000/api/v1`) — deliberately
+  dropped the old `environment`/`useMocks` fields since wiring now happens feature-by-feature,
+  not behind one global mock flag. Implemented `SecureAuthSessionStore` in
+  `auth_session_store.dart` (JSON round-trip via `flutter_secure_storage`, best-effort
+  try/catch mirroring `LocaleController`). **Regression found + fixed:** `SecureAuthSessionStore`
+  as the default `authSessionStoreProvider` broke 4 widget tests (chat/notifications routes +
+  one auth-screen test) — its real platform-channel `read()` never resolves inside
+  `testWidgets` (no device backing it), and unlike `LocaleController` (which fires its read
+  with `unawaited` and never blocks on it), the chat/notifications repositories correctly
+  `await` the session read before every call, so those specific screens hung on
+  `pumpAndSettle`. Fix: kept `InMemoryAuthSessionStore` as an explicit, documented test double
+  (was about to delete it as dead code — it isn't, it just needed a new job) and overrode
+  `authSessionStoreProvider` with it in the two affected test files, the standard Riverpod
+  pattern for this exact class of plugin. Next: Phase 2 (Auth wiring — first real
+  `*_remote_data_source.dart`, first live exercise of the refresh flow against the real
+  backend).
 - **2026-07-13 — Phase B STARTED: Phase 0 (compatibility hardening) done + verified
   against the live DB.** Approved wiring plan: reach 100% front↔back↔DB compat for the
   v1 slice, then wire feature-by-feature (~12 phases). Owner **authorized backend edits**

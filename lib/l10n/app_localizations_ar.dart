@@ -69,6 +69,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabInfluencer => 'المؤثرون';
 
   @override
+  String get tabOffers => 'العروض';
+
+  @override
   String get tabPromoo => 'بروموو';
 
   @override
@@ -830,8 +833,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileEditSaveButton => 'حفظ';
 
   @override
-  String get profileEditSaveComingSoon =>
-      'تغييرات الملف الشخصي ستُزامَن مع حسابك بالمرحلة القادمة.';
+  String get profileEditSaving => 'جارٍ الحفظ...';
+
+  @override
+  String get profileEditSaveSuccess => 'تم تحديث الملف الشخصي.';
 
   @override
   String get profileFollowingEmptyTitle => 'لا يوجد متابَعون بعد';

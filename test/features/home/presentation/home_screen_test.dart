@@ -12,6 +12,8 @@ import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
 import 'package:promoo_app/features/home/presentation/screens/home_screen.dart';
 import 'package:promoo_app/features/home/presentation/widgets/home_story_viewer.dart';
+import 'package:promoo_app/features/services/data/datasources/services_fake_data_source.dart';
+import 'package:promoo_app/features/services/data/repositories/services_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:promoo_app/routing/app_router.dart';
 import 'package:promoo_app/routing/route_names.dart';
@@ -282,6 +284,14 @@ void main() {
           homeRepositoryProvider.overrideWithValue(
             _HomeRepository(
               Result.success(HomeContentDto.fixture().toDomain()),
+            ),
+          ),
+          // The service card navigates into a service detail screen, which
+          // now hits the real services repository by default.
+          servicesRepositoryProvider.overrideWithValue(
+            ServicesRepositoryImpl(
+              config: mockConfig,
+              dataSource: const ServicesFakeDataSource(),
             ),
           ),
         ],

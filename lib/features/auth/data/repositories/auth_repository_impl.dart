@@ -5,13 +5,13 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_data_source.dart';
-import '../datasources/auth_fake_data_source.dart';
+import '../datasources/auth_remote_data_source.dart';
 import '../dto/auth_dto.dart';
 import '../session/auth_session_store.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    dataSource: ref.watch(authFakeDataSourceProvider),
+    dataSource: ref.watch(authRemoteDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });

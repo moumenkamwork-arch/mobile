@@ -21,6 +21,7 @@
 
   "tabHome": "الرئيسية",
   "tabInfluencer": "المؤثرون",
+  "tabOffers": "العروض",
   "tabPromoo": "بروموو",
   "tabServices": "الخدمات",
   "tabProfile": "حسابي",
@@ -275,7 +276,8 @@
   "profileEditFieldCategory": "الفئة",
   "profileEditCategoryComingSoon": "اختيار الفئة سيُفعّل بالمرحلة القادمة.",
   "profileEditSaveButton": "حفظ",
-  "profileEditSaveComingSoon": "تغييرات الملف الشخصي ستُزامَن مع حسابك بالمرحلة القادمة.",
+  "profileEditSaving": "جارٍ الحفظ...",
+  "profileEditSaveSuccess": "تم تحديث الملف الشخصي.",
 
   "profileFollowingEmptyTitle": "لا يوجد متابَعون بعد",
   "profileFollowingEmptyMessage": "ستظهر هنا الملفات التي تتابعها.",

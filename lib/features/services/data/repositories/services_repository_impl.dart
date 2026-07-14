@@ -6,12 +6,12 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/promoo_service.dart';
 import '../../domain/repositories/services_repository.dart';
 import '../datasources/services_data_source.dart';
-import '../datasources/services_fake_data_source.dart';
+import '../datasources/services_remote_data_source.dart';
 
 final servicesRepositoryProvider = Provider<ServicesRepository>((ref) {
   return ServicesRepositoryImpl(
     config: ref.watch(appConfigProvider),
-    dataSource: ref.watch(servicesFakeDataSourceProvider),
+    dataSource: ref.watch(servicesRemoteDataSourceProvider),
   );
 });
 

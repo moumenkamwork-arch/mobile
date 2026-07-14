@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/auth/domain/entities/auth_session.dart';
+import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
@@ -14,16 +16,17 @@ import '../shared/widgets/promoo_scaffold.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-enum PromooShellTabId { home, influencer, promoo, services, profile }
+enum PromooShellTabId { home, influencer, offers, promoo, services, profile }
 
 /// Resolves the localized label for a tab. A separate function (not a field on
-/// [PromooShellTab]) because the tab list below is `static const` and can't
+/// [PromooShellTab]) because the tab list is built at render time and can't
 /// depend on `BuildContext`.
 String promooShellTabLabel(BuildContext context, PromooShellTabId id) {
   final l10n = AppLocalizations.of(context);
   return switch (id) {
     PromooShellTabId.home => l10n.tabHome,
     PromooShellTabId.influencer => l10n.tabInfluencer,
+    PromooShellTabId.offers => l10n.tabOffers,
     PromooShellTabId.promoo => l10n.tabPromoo,
     PromooShellTabId.services => l10n.tabServices,
     PromooShellTabId.profile => l10n.tabProfile,
@@ -52,30 +55,41 @@ class PromooShell extends ConsumerStatefulWidget {
   final Widget child;
   final int selectedIndex;
 
-  static const tabs = [
-    PromooShellTab(
+  /// The five bottom-nav slots. Slot 1 is **role-dependent**: influencers see
+  /// the Influencer/Seats tab (the Seats screen is influencer-only per client
+  /// request), everyone else — companies, providers, regular users, guests —
+  /// sees the Offers tab in that slot instead. All other slots and their
+  /// indices are identical across roles (index 2 stays the center P mark).
+  static List<PromooShellTab> tabsFor({required bool isInfluencer}) => [
+    const PromooShellTab(
       id: PromooShellTabId.home,
       route: AppRoutes.home,
       icon: Icons.home_rounded,
     ),
-    PromooShellTab(
-      id: PromooShellTabId.influencer,
-      route: AppRoutes.seats,
-      icon: Icons.event_seat_rounded,
-    ),
-    // Center (index 2) is the elevated P mark. Per owner request it now leads
-    // to the Cup page and is labelled "Promoo"; Services moved to a normal tab.
-    PromooShellTab(
+    isInfluencer
+        ? const PromooShellTab(
+            id: PromooShellTabId.influencer,
+            route: AppRoutes.seats,
+            icon: Icons.event_seat_rounded,
+          )
+        : const PromooShellTab(
+            id: PromooShellTabId.offers,
+            route: AppRoutes.offers,
+            icon: Icons.local_offer_rounded,
+          ),
+    // Center (index 2) is the elevated P mark. Per owner request it leads to
+    // the Cup page and is labelled "Promoo"; Services is a normal tab.
+    const PromooShellTab(
       id: PromooShellTabId.promoo,
       route: AppRoutes.cup,
       icon: Icons.emoji_events_rounded,
     ),
-    PromooShellTab(
+    const PromooShellTab(
       id: PromooShellTabId.services,
       route: AppRoutes.services,
       icon: Icons.storefront_rounded,
     ),
-    PromooShellTab(
+    const PromooShellTab(
       id: PromooShellTabId.profile,
       route: AppRoutes.profile,
       icon: Icons.person_rounded,
@@ -108,6 +122,11 @@ class _PromooShellState extends ConsumerState<PromooShell> {
   Widget build(BuildContext context) {
     final canPop = context.canPop();
     final isScrolled = ref.watch(shellScrolledProvider);
+    // Slot 1 swaps by role; recomputes automatically on login/logout.
+    final isInfluencer =
+        ref.watch(authControllerProvider).session?.user.accountType ==
+        AuthAccountType.influencer;
+    final tabs = PromooShell.tabsFor(isInfluencer: isInfluencer);
 
     return PopScope(
       canPop: canPop,
@@ -185,13 +204,14 @@ class _PromooShellState extends ConsumerState<PromooShell> {
             child: widget.child,
           ),
           bottomNavigationBar: _PromooBottomNavigation(
+            tabs: tabs,
             selectedIndex: widget.selectedIndex,
             isScrolled: isScrolled,
             onDestinationSelected: (index) {
               if (index == widget.selectedIndex) {
                 return;
               }
-              context.go(PromooShell.tabs[index].route);
+              context.go(tabs[index].route);
             },
           ),
         ),
@@ -206,6 +226,7 @@ class _PromooShellState extends ConsumerState<PromooShell> {
 /// bar underneath it to be dark to stay legible.
 class _PromooBottomNavigation extends StatelessWidget {
   const _PromooBottomNavigation({
+    required this.tabs,
     required this.selectedIndex,
     required this.isScrolled,
     required this.onDestinationSelected,
@@ -217,6 +238,7 @@ class _PromooBottomNavigation extends StatelessWidget {
   static const double _pOverflow = 26;
   static const double _pSize = 54;
 
+  final List<PromooShellTab> tabs;
   final int selectedIndex;
   final bool isScrolled;
   final ValueChanged<int> onDestinationSelected;
@@ -263,20 +285,16 @@ class _PromooBottomNavigation extends StatelessWidget {
                       height: barHeight,
                       child: Row(
                         children: [
-                          for (
-                            var index = 0;
-                            index < PromooShell.tabs.length;
-                            index++
-                          )
+                          for (var index = 0; index < tabs.length; index++)
                             Expanded(
                               child: index == 2
                                   ? _CenterServicesLabel(
-                                      tab: PromooShell.tabs[index],
+                                      tab: tabs[index],
                                       selected: index == selectedIndex,
                                       onTap: () => onDestinationSelected(index),
                                     )
                                   : _PromooNavItem(
-                                      tab: PromooShell.tabs[index],
+                                      tab: tabs[index],
                                       selected: index == selectedIndex,
                                       onTap: () => onDestinationSelected(index),
                                     ),

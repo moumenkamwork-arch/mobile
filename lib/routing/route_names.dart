@@ -9,6 +9,7 @@ class RouteNames {
   static const serviceDetail = 'serviceDetail';
   static const cup = 'cup';
   static const seats = 'seats';
+  static const offers = 'offers';
   static const seatCheckoutPreview = 'seatCheckoutPreview';
   static const profile = 'profile';
   static const profileDetail = 'profileDetail';
@@ -41,6 +42,7 @@ class AppRoutes {
   static const serviceDetail = '/services/:id';
   static const cup = '/cup';
   static const seats = '/seats';
+  static const offers = '/offers';
   static const seatCheckoutPreview = '/seats/checkout';
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';

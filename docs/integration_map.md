@@ -10,21 +10,24 @@
 >
 > **القاعدة الذهبية:** لم نعدّل أي ملف بالباك.
 >
-> آخر تحديث: 2026-07-13 (إعادة توليد كاملة). التحديثات السابقة: 2026-07-09 (أصل)، 2026-07-12 (فجوات الـ DB).
+> آخر تحديث: 2026-07-13 (Phase 1 — السباكة — تمّت). التحديثات السابقة: 2026-07-13 (إعادة توليد كاملة + Phase 0)، 2026-07-09 (أصل)، 2026-07-12 (فجوات الـ DB).
 
 ---
 
 ## 0. الخلاصة التنفيذية (اقرأ هذا أولاً)
 
-**الحالة الحالية للتطبيق: frontend-only بالكامل.** لا توجد طبقة شبكة إطلاقاً — حُذفت `core/network/*` و`dio` وكل `*_remote_data_source.dart`. كل repository يخدم **مصدر بيانات محلي (fake) فقط**. لم يعد هناك عَلَم `PROMOO_USE_MOCKS` ولا `baseUrl` بالإعدادات (بقي `fallbackCurrency` فقط بـ `AppConfig`).
+**تحديث 2026-07-14 (Phase 1-5):** الربط بلّش فعلياً ومُتحقَّق حياً — مو مجرد "خطة". السباكة (شبكة+interceptor+تخزين آمن) جاهزة، Auth موصولة حقاً، Profile (me + تعديل) موصولة حقاً، Home موصولة حقاً، وCategories/Services/Search/Leaderboard موصولة حقاً. الباقي (§3.4، §3.7 وما بعده) لسا **fake محلي** كما كان — التفاصيل أدناه لكل قسم.
 
-**لماذا لا يزال هذا الملف صالحاً وحاسماً؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
+**لماذا لا يزال هذا الملف صالحاً وحاسماً لبقية الأقسام؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة لبقية الأقسام ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
 
-**الفجوة الحقيقية للربط = 4 أشياء (لا "بناء طبقة بيانات"):**
-1. **إعادة بناء السباكة:** طبقة شبكة جديدة (Dio أو client) + **interceptor** يحقن (أ) `Authorization: Bearer` من `AuthSessionStore` و(ب) **`Accept-Language`** من `localeProvider`، + auto-refresh على 401، + إعادة إدخال `baseUrl` للإعدادات.
-2. **تخزين التوكن الآمن:** `AuthSessionStore` الحالي `InMemoryAuthSessionStore` فقط (يضيع عند إعادة التشغيل). يلزم `SecureAuthSessionStore` عبر `flutter_secure_storage` — **والخبر الجيد: هذه الحزمة صارت مستخدمة فعلاً** (حفظ الثيم واللغة)، أي أنها مُثبتة وتعمل على الجهاز، فالمخاطرة أقل.
-3. **تدفق البروفايل الشخصي:** `updateMyProfile` **stub ثابت** (يرجّع فشل فوراً بلا طلب)، و`getMyProfile` يقرأ من الـ fake. يلزم ربطهما بـ `GET/PUT /profiles/me`.
-4. **أزرار مدعومة بالباك بلا توصيل:** حفظ التعديل، نشر الإعلان، رفع الأفاتار/الصور. (**Follow لم يعد ضمن هذه القائمة** — صار toggle محلي فعّال، يتبقّى استبداله بـ `POST/DELETE /follows/:id`.)
+**الفجوة المتبقية للربط الكامل:**
+1. ~~إعادة بناء السباكة~~ ✅ **تمّت (Phase 1).**
+2. ~~تخزين التوكن الآمن~~ ✅ **تمّت (Phase 1)** — `SecureAuthSessionStore` عبر `flutter_secure_storage`.
+3. ~~تدفق البروفايل الشخصي (me + تعديل)~~ ✅ **تمّت (Phase 3)** — `GET/PUT /profiles/me` موصولة وشغالة حياً. يتبقّى فقط: رفع الأفاتار/الصورة (Upload، Phase 8) وربط الفئة (category picker).
+4. ~~Home~~ ✅ **تمّت (Phase 4)** — `GET /home` + تفاصيل عرض/إعلان موصولة وشغالة حياً (بيانات DB حقيقية، معرّبة صح).
+5. ~~Categories + Services + Search + Leaderboard~~ ✅ **تمّت (Phase 5)** — موصولة؛ Categories/Services/Leaderboard مُتحقَّقة حياً ببيانات حقيقية، Search كود جاهز بانتظار أول استخدام حي.
+6. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** Follow (toggle محلي فعّال، يحتاج استبدال بالطلب الحقيقي)، نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور، Saved (يحتاج enrichment — أُنجز بالباك Phase 0، يحتاج ربط الشاشة).
+7. **الأقسام الأخرى (Seats/Chat/Notifications) لسا fake محلي بالكامل** — لم تُلمَس بعد.
 
 **الأرقام:**
 
@@ -35,10 +38,10 @@
 | endpoints مؤجلة v2 (Stripe/Notifications/Reports/Featured) | **~27** | القسم 6 |
 | endpoints للداشبورد فقط | **23** | كل `/admin/*` |
 | endpoints أخرى (Auth موسّع، Webhook، إدارة المالك) | **~11** | phone/oauth/otp، webhook، PUT/DELETE للمالك |
-| **حالة الربط الحالية** | **0 موصول** | frontend-only بالكامل — كله "الحالة المستهدفة" |
-| نسبة التوافق المتوقعة (حقول ↔ حقول) | **~89%** | ثابتة — الـ DTOs لم تُمَس منذ الفحص الأصلي |
+| **حالة الربط الحالية** | **✅ 11 موصولة حياً** | `auth/login/email` · `register/email` · `refresh` · `logout` · `GET/PUT /profiles/me` · `GET /home` (+ تفاصيل) · `GET /categories` · `GET /services(+:id)` · `GET /search` · `GET /leaderboard`. الباقي (~39) لسا fake. |
+| نسبة التوافق المتوقعة (حقول ↔ حقول) | **~89%** | ثابتة للأقسام غير الموصولة بعد — الـ DTOs لم تُمَس منذ الفحص الأصلي |
 | صفحات ناقصة بالموبايل | **صفر** | كل المسارات تفتح شاشة حقيقية (القسم 7) |
-| اختبارات تمرّ حالياً | **176** | `flutter analyze` نظيف |
+| اختبارات تمرّ حالياً | **181** | `flutter analyze` نظيف (176 + 5 اختبارات جديدة/مُستعادة بـ Phase 1) |
 
 ### 0.1 — ماذا تغيّر منذ النسخة الأصلية (2026-07-09 → 2026-07-13)؟
 
@@ -94,9 +97,9 @@
 
 | العنصر | الحالة الفعلية الآن | ما يحتاجه الربط |
 | --- | --- | --- |
-| **طبقة الشبكة (Dio/client)** | ❌ **محذوفة بالكامل.** لا `core/network`، لا `dio` بالـ pubspec. | إعادة بناء عميل HTTP + إعادة إدخال `baseUrl` للإعدادات (كان يُضبط بـ `--dart-define PROMOO_BASE_URL`). |
-| **interceptor للتوكن + اللغة** | ❌ غير موجود. | `InterceptorsWrapper` يحقن **`Authorization: Bearer <token>`** من `AuthSessionStore` + **`Accept-Language: <locale>`** من `localeProvider` على كل طلب، + auto-refresh عند 401. |
-| **تخزين التوكن** | ⚠️ `InMemoryAuthSessionStore` فقط ([auth_session_store.dart](../lib/features/auth/data/session/auth_session_store.dart)) — بالذاكرة، يضيع عند إعادة التشغيل. | تنفيذ `SecureAuthSessionStore` عبر `flutter_secure_storage`. **الحزمة مُثبتة وتعمل فعلاً** (ثيم/لغة) → منخفض المخاطرة. |
+| **طبقة الشبكة (Dio/client)** | ✅ **Phase 1 (2026-07-13):** أُعيد بناؤها بالكامل — [api_client.dart](../lib/core/network/api_client.dart) + [api_response.dart](../lib/core/network/api_response.dart)، `dio: ^5.9.2` بالـ pubspec، `baseUrl` بـ `AppConfig` (`--dart-define PROMOO_BASE_URL`). يرمي `AppFailure` مباشرة (لا `ApiException` منفصل). | جاهزة — أول مستهلك حقيقي (`auth_remote_data_source.dart`) بالـ Phase 2. |
+| **interceptor للتوكن + اللغة** | ✅ **Phase 1:** `QueuedInterceptorsWrapper` يحقن **`Authorization: Bearer <token>`** من `AuthSessionStore` + **`Accept-Language: <locale>`** من `localeProvider` على كل طلب، + auto-refresh عند 401 (عبر `Dio` ثانٍ بلا interceptors، لتفادي التكرار). | جاهزة — لم تُختبر بعد ضد باك حقيقي (لا يوجد مستهلك حتى Phase 2). |
+| **تخزين التوكن** | ✅ **Phase 1:** `SecureAuthSessionStore` عبر `flutter_secure_storage` ([auth_session_store.dart](../lib/features/auth/data/session/auth_session_store.dart)) — تسلسل JSON، best-effort مطابق لـ `LocaleController`. `InMemoryAuthSessionStore` بقي كـ test double صريح (اكتُشف أن قراءة الـ plugin الحقيقي لا تُحل أبداً داخل `testWidgets`). | جاهزة. |
 | **`Accept-Language`** | ✅ المصدر جاهز — `localeProvider` مصدر وحيد، والـ DTOs المرجعية تقرأ الحقل الموحّد `name`. | حقن الهيدر بالـ interceptor فقط. |
 | **الـ envelope** | ✅ منطق التحليل الدفاعي بالـ DTOs يفهم `{ success, data, message, meta? }` أو كائن/قائمة مجرّدة. | متوافق — يُعاد ربطه مع العميل الجديد. |
 | **`PROMOO_USE_MOCKS`** | ➖ **أُزيل** — لم يعد موجوداً. | لا حاجة له؛ الربط يستبدل الـ fake data source بـ remote مباشرةً feature بـ feature. |
@@ -111,13 +114,13 @@
 
 > **الحالة الحالية لكل الأقسام: غير مربوط، بيانات محلية (fake).** الأعمدة أدناه تصف **الهدف بعد الربط**: الـ endpoint · حالة الباك (من الاختبار الحيّ الأصلي) · التوافق المتوقّع (حقول، ثابت لأن الـ DTOs لم تتغيّر) · العمل المطلوب.
 
-### 3.1 — Auth (Login / Register)
-| Endpoint | Method | Backend | توافق | العمل المطلوب |
+### 3.1 — Auth (Login / Register) — ✅ موصول (Phase 2، 2026-07-13)
+| Endpoint | Method | Backend | توافق | الحالة |
 |---|---|---|---|---|
-| `/auth/login/email` | POST | ✅200 | 95% | ربط + **حفظ `session.access_token`+`refresh_token`** بـ secure storage. الـ DTO يقرأ `user_metadata.account_type/full_name` + `session.*` دفاعياً. |
-| `/auth/register/email` | POST | ✅(⚠️rate-limit بالتست) | 95% | الحقول مطابقة 100% (`email/password/full_name/account_type`). انتبه: قد يرجع `session:null` لو التحقق بالإيميل مطلوب → عالج الحالة. |
-| `/auth/refresh` | POST | ✅200 | 90% | يُربط داخل الـ 401-interceptor. |
-| `/auth/logout` | POST | ✅200 | 100% | يمسح الجلسة الآمنة. |
+| `/auth/login/email` | POST | ✅200 | 95% | ✅ موصول — `auth_remote_data_source.dart`. الجلسة تُحفظ بـ `SecureAuthSessionStore`. |
+| `/auth/register/email` | POST | ✅(⚠️rate-limit بالتست) | 95% | ✅ موصول. **تحقّق حي:** تسجيل حقيقي وصل للباك، وخطأ تحقّق (إيميل نطاق محجوز) رجع بالشكل الصحيح وظهر بالواجهة. |
+| `/auth/refresh` | POST | ✅200 | 90% | ✅ موصول داخل الـ 401-interceptor (`api_client.dart`) — لسا ما اختُبر حياً (لا حالة 401 حقيقية جربت بعد). |
+| `/auth/logout` | POST | ✅200 | 100% | ✅ موصول — يمسح الجلسة الآمنة. |
 | مؤجل v2 | — | — | — | phone login/register, oauth (google/apple), verify-otp, forgot/reset-password, delete-account. |
 
 ### 3.2 — Home (شاشة واحدة تجيب كل شي)
@@ -125,24 +128,26 @@
 
 | القسم | مصدره | توافق | ملاحظة حقول (مُتحقَّقة الآن) |
 |---|---|---|---|
-| Stories | `stories[]` | 80% | الباك: كل ستوري = `media_url`+`profile` واحد. `HomeStoryDto` يقرأ `items[]` متعددة → **كل ستوري ستظهر عنصراً واحداً** ما لم يرسل الباك `items`. تعديل بسيط. |
-| Services (مصغّرة) | `services[]` | 88% | `HomeServicePreviewDto` يقرأ `category` المتداخل. لا `location` للخدمة بالباك → يظهر فاضي (مقبول). |
-| Top Offers / For You | `latest_offers[]`+`ads[]` | 85% | **تنبيه قائم:** `HomeOfferPreviewDto` يقرأ `image_url/cover_url/thumbnail_url` (مفردة) فقط، **لا يقرأ `media_urls[]`**. لو الباك يرجّع الصورة كمصفوفة → **أضف `media_urls[0]`**. (ملاحظة: `HomeContentDetailDto` للتفاصيل **يقرأ `media_urls` ويأخذ الأول** — التفاصيل سليمة، المشكلة بالمعاينة فقط.) |
-| Categories | `categories[]` | 90% | `HomeCategoryDto` يقرأ `name` (+ `name_en/name_ar` fallback) — **متوافق مع نموذج `Accept-Language`**. |
-| Promoo of the Day | `promoo_of_the_day` | 85% | قد يكون `null` — الفرونت مجهّز. |
-| تفاصيل عرض/إعلان | `GET /offers/:id` أو `GET /ads/active` | 85% | لا `GET /ads/:id` عام — الفرونت يجيب `/ads/active` ويفلتر بالـ id محلياً. |
+| Stories | `stories[]` | 80% | ✅ الـ DTO أصلاً يقرأ `items[]` دفاعياً (وأيضاً عنصر مفرد) — لا شغل مطلوب. لسا ما شفنا ستوري حقيقية بالتست الحي (الباك رجّع `stories: []` — لا بيانات، مو خطأ). |
+| Services (مصغّرة) | `services[]` | 88% | ✅ **موصول (Phase 4)** — تحقّق حي رجّع `services: []` (لا خدمات فعالة بالـ DB حالياً — حالة فاضية صحيحة). |
+| Top Offers / For You | `latest_offers[]`+`ads[]` | 85% | ✅ **موصول (Phase 4)، `media_urls[0]` انحلّت (F0.1).** تحقّق حي: `latest_offers: []` (فاضي بصحة)، `ads` رجّعت إعلان حقيقي واحد وظهر صح بالواجهة. |
+| Categories | `categories[]` | 90% | ✅ **موصول (Phase 4) + مُتحقَّق حياً** — `name` رجعت "Marketing/Design/..." بالإنكليزي صح عبر `pickLocalized` (Phase 0). |
+| Promoo of the Day | `promoo_of_the_day` | 85% | ✅ **موصول (Phase 4)** — تحقّق حي: كانت `null`، والفرونت سقط صح لأول `ad` (badge "Promoted") تماماً كما مصمّم. |
+| تفاصيل عرض/إعلان | `GET /offers/:id` أو `GET /ads/active` | 85% | ✅ **موصول (Phase 4) + مُتحقَّق حياً** — فتح تفاصيل الإعلان الحقيقي نجح (`GET /ads/active` + فلترة محلية بالـ id). |
 
-**عمل مطلوب:** تعديلا DTO صغيران (`media_urls[0]` للمعاينة، ستوري = عنصر واحد). كله public (لا مصادقة) لكن **يستفيد من `Accept-Language`** للتصنيفات.
+**الحالة:** Phase 4 خلصت بالكامل (2026-07-14) — `home_remote_data_source.dart` + `home_repository_impl.dart` موصولة، 181 اختبار ✅.
 
-### 3.3 — Services Tab + Service Detail
+### 3.3 — Services Tab + Service Detail — ✅ موصول (Phase 5، 2026-07-14)
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /categories` | GET | ✅200 | 90% | `id/name(_ar/_en)/slug/icon_url` — متوافق مع `Accept-Language`. |
-| `GET /services?category_id=&q=` | GET | ✅200 | 88% | مع `profile`+`category` مضمّنين. |
-| `GET /services/:id` | GET | ✅200 | 88% | مطابق. لا `location` للخدمة (فاضي). |
+| `GET /categories` | GET | ✅200 | 90% | ✅ **موصول + مُتحقَّق حياً** — رجعت `name` محسومة صح. |
+| `GET /services?category_id=&q=` | GET | ✅200 | 88% | ✅ **موصول + مُتحقَّق حياً** — `[]` حالياً (لا خدمات فعالة بالـ DB، حالة صحيحة). |
+| `GET /services/:id` | GET | ✅200 | 88% | ✅ **موصول** (نفس `services_remote_data_source.dart`). مطابق. لا `location` للخدمة (فاضي). |
 | `GET /categories/:id/content` | GET | ✅200 | — | غير مستخدم؛ الفرونت يفلتر `/services` بدلاً منه. |
 
 ### 3.4 — Influencer / Seats
+> **تحديث 2026-07-14:** شاشة Seats صارت **للـ influencer فقط** (طلب العميل). سلوت التاب رقم 1 بالشريط السفلي role-gated: influencer يشوف Seats، الباقي يشوف تاب **Offers** جديد (`offers_screen.dart`). راجع `v1_interim_admin_curation.md`.
+
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
 | `GET /seats?tier=` | GET | ✅200 | 90% حقول | **الفجوة الحرجة (data):** الباك مزروع فيه ~مقعد واحد لكل tier (اختبار أصلي). الفرونت يرسم شبكة 144. الحقول متطابقة (`tier/price/status/position/profile`). **يُعاد التحقق من الـ seed عند الربط** (migrations 027/029/030/033 مسّت المقاعد لكن لا migration يزرع شبكة كاملة). |
@@ -150,21 +155,21 @@
 | `POST /seats/:id/book` | POST | ✅200 (Stripe) | — | يرجّع `checkoutUrl` — **مؤجل v2**. زر Book Now يفتح preview محلي فقط. |
 | `DELETE /seats/:id/cancel` | DELETE | ✅200 | — | مؤجل v2. |
 
-### 3.5 — Cup / Leaderboard
+### 3.5 — Cup / Leaderboard — ✅ موصول (Phase 5، 2026-07-14)
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /leaderboard?page=&limit=&type=` | GET | ✅200 | **98%** | أفضل توافق. الـ DTO يقرأ `rank/id/full_name/username/avatar_url/bio/account_type/followers_count/is_verified/is_featured` كلها. `type=all` يستثني `user`. جاهز فعلياً. |
+| `GET /leaderboard?page=&limit=&type=` | GET | ✅200 | **98%** | ✅ **موصول + مُتحقَّق حياً** — رجع ترتيب حقيقي بـ 3 بروفايلات حقيقية (رقم 3 كان حساب المالك نفسه، بنفس الـ bio المحفوظ بـ Phase 3 — تأكيد إضافي إنو الحفظ فعلاً دائم عبر الجلسات). |
 
-### 3.6 — Profile (بروفايلي + العام + التعديل)
-| Endpoint | Method | Backend | توافق | ملاحظة (مُتحقَّقة الآن) |
+### 3.6 — Profile (بروفايلي + العام + التعديل) — ✅ "أنا + تعديل" موصولة (Phase 3، 2026-07-13)
+| Endpoint | Method | Backend | توافق | الحالة |
 |---|---|---|---|---|
-| `GET /profiles/:idOrUsername` | GET | ✅200 | 88% | الفرونت يولّد **نسخة ديمو لكل id** حالياً؛ الربط يستبدلها بالطلب الحقيقي. |
-| `GET /profiles/me` | GET | ✅200 | 88% | `getMyProfile` يقرأ من الـ **fake** الآن ([profile_repository_impl.dart](../lib/features/profile/data/repositories/profile_repository_impl.dart)). استبدله بالطلب الحقيقي. |
-| `PUT /profiles/me` | PUT | ✅200 | 90% | **`updateMyProfile` stub ثابت مُؤكَّد — يرجّع فشل فوراً بلا طلب.** الحقول (`full_name/bio/location/website/category_id/social_links`) مطابقة `updateProfileSchema`. |
-| `POST /profiles/me/avatar` · `/cover` | POST | ✅200 | 85% | **ليست بواجهة `ProfileDataSource` الحالية** (حُذفت مع الطبقة البعيدة) — تُضاف عند الربط، وتعتمد على Upload أولاً. |
-| `GET /profiles/:id/media` | GET | ✅200 | — | غير مستخدم؛ الميديا تُقرأ من كائن البروفايل. يُربط لشبكة ميديا حقيقية. |
+| `GET /profiles/:idOrUsername` | GET | ✅200 | 88% | ❌ **لسا fake** — الفرونت يولّد **نسخة ديمو لكل id** (`getProfile`). لم يُربط بعد (البروفايل العام لأشخاص آخرين، غير "أنا"). |
+| `GET /profiles/me` | GET | ✅200 | 88% | ✅ **موصول** — `profile_remote_data_source.dart`. **تحقّق حي:** حساب حقيقي أظهر اسمه الحقيقي/0 متابع/حقول فاضية (مو بيانات Saffron Social الوهمية). |
+| `PUT /profiles/me` | PUT | ✅200 | 90% | ✅ **موصول** (كان stub ثابت يرجّع فشل فوراً — أُصلح). **تحقّق حي:** حفظ bio+location حقيقي رجع 200 مع العدّادات، وتحميل الصفحة من جديد أظهر القيم المحفوظة (استمرارية حقيقية، مو UI متفائل فقط). Name/Bio/Location فقط بالشاشة حالياً — لا category/website. |
+| `POST /profiles/me/avatar` · `/cover` | POST | ✅200 | 85% | ❌ **لسا غير موصول** — يعتمد على Upload (Phase 8) أولاً. زر "Change profile photo" لسا "coming soon". |
+| `GET /profiles/:id/media` | GET | ✅200 | — | ❌ غير مستخدم بعد؛ الميديا تُقرأ من كائن البروفايل حالياً. |
 
-**تنبيه حقول قائم — إحصائيات البروفايل:** كائن الباك يرجّع `followers_count` فقط. `ProfileStatsDto` يقرأ `following/posts/views_count` دفاعياً لكن **الباك لا يرسلها** → ستظهر Followers حقيقي والباقي صفر. (Likes محذوف — v2.) → قرار: الباك يضيف العدّادات، أو الفرونت يخفي غير المتوفر.
+**تحديث إحصائيات البروفايل (كان تنبيهاً، انحلّ جزئياً بـ Phase 0):** الباك صار يرجّع `followers_count` (موجود من قبل) + `following_count`+`posts_count` (أُضيفا Phase 0، `profile.service.ts withCounts`) على GET **و** PUT (كانت PUT ناقصة العدّادات — أُصلحت بـ Phase 3). **`views_count` يبقى مفقود** (لا مصدر بالـ DB — مؤجّل v2 نهائياً، قرار مالك موثّق بـ `v2_deferred_scope.md` §6). `ProfileStatsDto` يقرأ الكل دفاعياً فيرجع 0 لـ views تلقائياً — سلوك صحيح ومقصود.
 
 ### 3.7 — Follow / Unfollow
 | Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
@@ -209,10 +214,10 @@
 | `POST /upload/image` · video · file | POST | ✅201 (multipart) | يرجّع `file_url` → يُرسل للـ avatar/cover/ad. حقول الرفع "next phase". |
 | `DELETE /upload/:id` | DELETE | ✅200 | — |
 
-### 3.13 — Search
+### 3.13 — Search — ✅ الكود موصول (Phase 5، 2026-07-14)
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /search?q=&type=&…` | GET | ✅200 | 92% | يرجّع `{profiles[],offers[],ads[],services[]}` مجمّعة. `type` + `meta` (pagination) مدعومان. |
+| `GET /search?q=&type=&…` | GET | ✅200 | 92% | ✅ **موصول** (`search_remote_data_source.dart`، نفس نمط الباقي). يرجّع `{profiles[],offers[],ads[],services[]}` مجمّعة. `type` + `meta` (pagination) مدعومان. **لم يُختبر حياً بعد** (الشاشة ما بتطلق طلب إلا بعد كتابة نص — التفاعل الحي تعثّر بمشكلة تقنية بأداة المتصفح، مو بمشكلة كود؛ يُتحقّق أول ما يُستخدم فعلياً). |
 
 ---
 
@@ -226,14 +231,14 @@
 
 | القسم | Endpoints | توافق | أهم فجوة |
 | --- | --- | --- | --- |
-| Login / Register | 2 | **95%** | حفظ التوكن + interceptor |
-| Home (كامل) | 3 | **85%** | صور `media_urls[0]` بالمعاينة، ستوري = عنصر واحد |
-| Search | 1 | **92%** | — |
-| Services + Detail | 3 | **88%** | لا `location` للخدمة |
-| Leaderboard | 1 | **98%** | — (جاهز) |
-| Seats | 2 | **90% حقول / بيانات ناقصة** | **seed مقعد/tier** |
-| Profile (عام) | 2 | **88%** | — |
-| Profile (أنا + تعديل) | 3 | **60%** | `updateMyProfile` stub، my-profile fake، إحصائيات ناقصة |
+| ✅ Login / Register | 2 | **95%** | **موصول (Phase 2)** — refresh لسا ما اختُبر حياً |
+| ✅ Home (كامل) | 3 | **85%** | **موصول (Phase 4)** — تحقّق حي؛ لا ستوري/خدمات/عروض حالياً بالـ DB (حالة فاضية، مو خطأ) |
+| ✅ Search | 1 | **92%** | **موصول (Phase 5)** — الكود جاهز، لسا بلا تحقّق حي (يحتاج نص مكتوب لإطلاق الطلب) |
+| ✅ Services + Detail | 3 | **88%** | **موصول (Phase 5)** — تحقّق حي؛ لا `location` للخدمة |
+| ✅ Leaderboard | 1 | **98%** | **موصول (Phase 5) + مُتحقَّق حياً** — بيانات حقيقية |
+| Seats | 2 | **90% حقول / بيانات ناقصة** | **seed مقعد/tier** ✅ أُصلح Phase 0 — يحتاج ربط `GET /seats` فقط |
+| Profile (عام) | 2 | **88%** | ❌ لسا fake — `GET /profiles/:id` غير موصول |
+| ✅ Profile (أنا + تعديل) | 3 | **90%** | **موصول (Phase 3)** — يتبقّى الأفاتار (Upload) والفئة فقط |
 | Follow/Unfollow | 5 | **88%** | toggle محلي بدل الطلب الحقيقي |
 | Saved | 3 | **75%** | الباك يرجّع id فقط بلا تفاصيل |
 | Chat | 6 | **88%** | Realtime غير مضاف |
@@ -282,10 +287,11 @@
 
 **الأزرار المسدودة (dead-ends) المقصودة:**
 - **مؤجل v2:** social login, password reset, packages checkout, seat booking/payment, location map.
-- **مدعوم بالباك، يحتاج توصيل بالربط:** حفظ تعديل البروفايل، نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور.
+- **مدعوم بالباك، يحتاج توصيل بالربط:** نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور، الفئة (category picker).
 - **بلا endpoint بالباك:** رسائل الدعم (Support) — لا endpoint.
 
 **تغيّرات عن النسخة السابقة:**
+- **حفظ تعديل البروفايل لم يعد dead-end** — موصول فعلاً ومُتحقَّق حياً (Phase 3، 2026-07-13).
 - **Follow لم يعد dead-end** — صار toggle محلي فعّال (يتبقّى استبداله بالطلب الحقيقي).
 - **التعريب (Arabic) اكتمل** — لم يعد ضمن "المؤجل/بلا باك"؛ جانبه الخلفي الوحيد هو هيدر `Accept-Language`.
 - **See-All على الهوم** يعمل (كان مؤجلاً).
@@ -298,11 +304,11 @@
 
 | # | الخطوة | Endpoints | لماذا |
 | --- | --- | --- | --- |
-| 1️⃣ | **إعادة بناء السباكة** — عميل HTTP + interceptor (**Bearer + `Accept-Language`**) + `SecureAuthSessionStore` (`flutter_secure_storage`) + auto-refresh على 401 + إعادة `baseUrl` | (بنية تحتية) | **يفتح كل المحمي + المحتوى المُعرّب.** بدونه لا شيء يعمل. |
-| 2️⃣ | **Auth wiring** — ربط login/register بالتخزين الآمن | 4 | أساس الجلسة. |
-| 3️⃣ | **Profile الشخصي** — استبدال fake بـ `GET /profiles/me`، وتنفيذ `PUT /profiles/me` (إزالة الـ stub) | 2 | أكبر فجوة. |
-| 4️⃣ | **Home** — تعديلا DTO (`media_urls[0]`، ستوري واحدة) | 1 | الشاشة الأهم (public). |
-| 5️⃣ | **Categories + Services + Search + Leaderboard** — تأكيد (شبه جاهزة) + التحقق من `Accept-Language` بالتصنيفات | 5 | سريعة. |
+| ✅ 1️⃣ | **إعادة بناء السباكة** — عميل HTTP + interceptor (**Bearer + `Accept-Language`**) + `SecureAuthSessionStore` (`flutter_secure_storage`) + auto-refresh على 401 + إعادة `baseUrl` — **تمّت 2026-07-13**، analyze + 181 اختبار ✅ | (بنية تحتية) | **يفتح كل المحمي + المحتوى المُعرّب.** بدونه لا شيء يعمل. |
+| ✅ 2️⃣ | **Auth wiring** — ربط login/register بالتخزين الآمن — **تمّت 2026-07-13**، تحقّق حي (تسجيل حقيقي وصل للباك، أخطاء التحقق ظهرت صح بالواجهة) | 4 | أساس الجلسة. |
+| ✅ 3️⃣ | **Profile الشخصي** — استبدال fake بـ `GET /profiles/me`، وتنفيذ `PUT /profiles/me` (إزالة الـ stub) — **تمّت 2026-07-13**، تحقّق حي بحساب حقيقي (تحميل + حفظ + استمرارية) | 2 | أكبر فجوة. |
+| ✅ 4️⃣ | **Home** — `GET /home` + تفاصيل — **تمّت 2026-07-14**، تحقّق حي (تصنيفات معرّبة، إعلان حقيقي بالـ highlight، تفاصيله فتحت صح) | 1 | الشاشة الأهم (public). |
+| ✅ 5️⃣ | **Categories + Services + Search + Leaderboard** — **تمّت 2026-07-14**، تحقّق حي (Categories/Services/Leaderboard بيانات حقيقية؛ Search كود جاهز بلا تحقّق حي بعد) | 5 | سريعة. |
 | 6️⃣ | **Seats** — تأكيد الـ seed بالباك، ثم `GET /seats` | 2 | يحتاج تحقق بالباك. |
 | 7️⃣ | **Follow/Unfollow** — استبدال الـ toggle المحلي بالطلب + status | 5 | يحدّث `followers_count` → Cup. |
 | 8️⃣ | **Upload** — `/upload/image` ثم avatar/cover/ad-image | 4 | شرط للتعديل والإنشاء. |
@@ -327,7 +333,7 @@
 | 1 | **Seats seed** — ~مقعد/tier، الفرونت يريد شبكة كاملة | 🔴 حرجة (Influencer) | توسيع `seed.sql`. **يُعاد التحقق عند الربط** (migrations المقاعد الأخيرة لم تزرع شبكة). |
 | 2 | **`POST /subscriptions` = 500** (`client_secret`) | 🟠 (v2) | إصلاح flow الـ PaymentSheet. لا يؤثر v1. |
 | 3 | **`GET /saved` بلا تفاصيل** — id+type فقط | 🟡 | join يرجّع تفاصيل العنصر (مفضّل)، أو N+1 بالفرونت. |
-| 4 | **إحصائيات البروفايل** — لا `following/posts/views count` | 🟡 | الباك يضيف العدّادات، أو الفرونت يخفي غير المتوفر. |
+| 4 | ~~إحصائيات البروفايل~~ ✅ **`following`+`posts` أُضيفا (Phase 0) ومُتحقَّقان حياً (Phase 3).** `views_count` يبقى مفقود — لا مصدر بالـ DB، مؤجّل v2 نهائياً. | 🟢 (تمّ جزئياً) | — |
 | 5 | **لا endpoint للدعم (Support)** | 🟢 | mailto/رابط، أو Reports، أو تأجيل. |
 | 6 | **لا كيان Content Packages** (99/149/249) | 🟢 (v2) | جدول جديد أو ربط subscriptions أو إسقاط. display-only حالياً. |
 | 7 | **لا `location` بكائن Service** ولا `GET /ads/:id` عام | 🟢 | تجميلي — الفرونت يتعامل مع الغياب. |
