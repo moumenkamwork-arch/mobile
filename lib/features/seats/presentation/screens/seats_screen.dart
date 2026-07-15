@@ -11,6 +11,8 @@ import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
+import '../../../auth/domain/entities/auth_session.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/seat.dart';
 import '../controllers/seats_controller.dart';
 
@@ -364,7 +366,7 @@ class _SeatGrid extends StatelessWidget {
   }
 }
 
-class _SeatCell extends StatelessWidget {
+class _SeatCell extends ConsumerWidget {
   const _SeatCell({
     required this.tier,
     required this.seat,
@@ -384,14 +386,14 @@ class _SeatCell extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final tierColor = _getTierColor(context);
     final holder = seat?.holder;
     final isOccupied = seat != null && !seat!.isAvailable && holder != null;
 
     final cell = InkWell(
-      onTap: () => _onTap(context),
+      onTap: () => _onTap(context, ref),
       borderRadius: BorderRadius.circular(24),
       child: Container(
         width: _SeatGrid._cellWidth,
@@ -432,7 +434,7 @@ class _SeatCell extends StatelessWidget {
     return '$fallback AED';
   }
 
-  void _onTap(BuildContext context) {
+  void _onTap(BuildContext context, WidgetRef ref) {
     final currentSeat = seat;
     if (currentSeat == null) {
       ScaffoldMessenger.of(context)
@@ -448,7 +450,20 @@ class _SeatCell extends StatelessWidget {
     }
 
     if (currentSeat.isAvailable) {
-      _showSeatSheet(context, currentSeat);
+      final session = ref.read(authControllerProvider).session;
+      if (session?.user.accountType == AuthAccountType.influencer) {
+        _showSeatSheet(context, currentSeat);
+      } else {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context).seatsOnlyInfluencersCanBook,
+              ),
+            ),
+          );
+      }
     } else {
       _showInfluencerSheet(context, currentSeat);
     }

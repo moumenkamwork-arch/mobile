@@ -21,7 +21,7 @@ Last updated: 2026-07-13
 | Home | ✅ | Header, Stories, Services (compact), Top Offers (hero swiper ≥5), For You, Promoo of the Day; See All on all; story viewer (tap + swipe) |
 | Services (categories) | ✅ | Search box + image category grid + "No service found" |
 | Service detail | ✅ | Display/contact only; own Scaffold; hidden unsupported fields |
-| Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets |
+| Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets (Visible to Companies and Influencers, but only Influencers can book) |
 | Seat checkout preview | ✅ | Display-only, no payment |
 | Cup / Leaderboard | ✅ | Header + podium + ranked list |
 | Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated), Saved, My Packages, Following (above Support), Support, Language (functional toggle → ar/en), Theme Mode (Black/Light, persisted), Logout, legal links. **Fully localized.** |

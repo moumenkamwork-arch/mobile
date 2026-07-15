@@ -7,7 +7,6 @@ import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
-import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_form_field.dart';
@@ -96,7 +95,6 @@ class _LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final message = resolveAuthMessage(l10n, state);
-    final colors = context.colors;
 
     return PromooCard(
       elevated: true,
@@ -109,7 +107,7 @@ class _LoginForm extends StatelessWidget {
               isError: message.isError,
               onDismiss: onClearMessage,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
           ],
           AuthFieldLabel(l10n.authFieldEmail),
           const SizedBox(height: AppSpacing.xs),
@@ -133,22 +131,6 @@ class _LoginForm extends StatelessWidget {
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: AlignmentDirectional.center,
-            child: TextButton(
-              onPressed: state.isBusy
-                  ? null
-                  : () => _showComingSoon(context, l10n, 'Password reset'),
-              child: Text(
-                l10n.authForgetPassword,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
           const AuthSocialLoginPreview(),
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
@@ -169,16 +151,4 @@ class _LoginForm extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showComingSoon(
-  BuildContext context,
-  AppLocalizations l10n,
-  String feature,
-) {
-  final messenger = ScaffoldMessenger.of(context);
-  messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(
-    SnackBar(content: Text(l10n.commonComingSoon(feature))),
-  );
 }

@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-14 (v1 interim curation: offer + profile featuring toggles, both live-verified end-to-end with one real bug found+fixed; Seats→Offers role-gated bottom-nav tab)
+> Last updated: 2026-07-15 (Auth v1 finalized: email confirmation + forgot/reset password fully disabled — register + login only, see §5 entry)
 
 ---
 
@@ -106,6 +106,49 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-15 — Auth v1 finalized as register+login only; email confirmation and
+  forgot/reset password fully disabled (not "coming soon" — removed).** While trying
+  to create an influencer test account (to test the role-gated Seats tab from
+  Phase 6), discovered Supabase's built-in auth-email sender is unreliable on this
+  project: confirmation emails never arrived, even after calling Supabase's official
+  `resend()` API (added as `POST /auth/resend-confirmation`, verified 200 OK but no
+  email ever landed in the inbox — checked directly). Root-caused a **second, separate**
+  bug along the way: registering with an email that already has an unconfirmed
+  Supabase Auth user (from earlier Phase 2 testing weeks prior) silently no-ops
+  (`identities: []` in the response — Supabase's anti-enumeration behavior) instead of
+  erroring or resending, which is why repeated registration attempts on the same stuck
+  email never worked. Deleted that stuck auth user via a one-off script
+  (`promo_backend/scripts/delete-test-auth-user.ts`, looks up by email via
+  `admin.auth.admin.listUsers` + `deleteUser` — kept in `scripts/` as a reusable dev
+  tool) to unblock testing, but the underlying "email delivery isn't reliable in dev"
+  problem remained. Owner's decision: **for v1, drop the whole email-confirmation
+  dependency** rather than depend on infrastructure (Custom SMTP) that isn't set up —
+  v1 auth is register + login, full stop.
+  **What was built then fully reverted same day:** a `PATCH`-style detection in
+  `loginWithEmail` for "right password, unconfirmed account" (backend `ErrorCode.
+  EMAIL_NOT_CONFIRMED` + `ApiError.emailNotConfirmed`), a `resendConfirmationEmail`
+  path through the whole stack (repository → data source → controller → a "Resend
+  confirmation email" button on Login), and `AuthState.unconfirmedEmail`. All removed
+  once the decision was made — kept half-wired dead code would have been worse than
+  either finishing it or reverting it, and the decision made finishing it pointless.
+  **What's actually disabled now:**
+  - Backend: `/auth/forgot-password`, `/auth/reset-password`, `/auth/resend-
+    confirmation` routes commented out in `auth.routes.ts` (methods/controllers/
+    validators kept, dormant — same treatment as other v2-deferred backend code, see
+    `v1_interim_admin_curation.md` philosophy). `loginWithEmail` back to plain
+    unauthorized-on-error, no special-casing.
+  - Mobile: the "forget password?" link is **removed** from `login_screen.dart`
+    entirely (was previously a "coming soon" placeholder — now gone, along with the
+    now-unused `_showComingSoon` helper and `authForgetPassword` l10n key). No resend
+    button, no unconfirmed-email banner logic.
+  - **Still relies on the owner to flip "Confirm email" OFF in Supabase's dashboard**
+    (Authentication → Providers → Email) — that's the actual mechanism that makes
+    `register` always return a session immediately; not something touchable via code
+    (security/account setting, outside what Claude will change directly).
+  Updated `v2_deferred_scope.md` §1 with a note marking this "confirmed final for v1,"
+  not just deferred, plus what v2 needs to bring it back (Custom SMTP + re-enable
+  routes + re-enable Confirm Email + rebuild the forgot-password UI).
+- **2026-07-15 — Seats/Influencer tab visibility fix for Companies.** The `Seats` tab is now visible to both `influencer` and `company` accounts in the bottom navigation shell (`promoo_shell.dart`). However, when a Company taps an available seat, they are prevented from booking it (they see a snackbar: "This seat is available for influencers to book") since companies buy ads, not seats. This aligns the frontend logic with the backend's commercial design. Also synced all documentation files across both repos per owner's process request.
 - **2026-07-14 — v1 interim curation fully live-verified end-to-end (both toggles); real
   bug found + fixed in the featured-profile path.** Seeded 2 demo offers directly in
   Supabase (owner pre-authorized) attached to the owner's own profile. Via the dashboard

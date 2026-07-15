@@ -211,9 +211,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authContinueAsGuest => 'Continue as Guest';
 
   @override
-  String get authForgetPassword => 'forget password?';
-
-  @override
   String get authSignedInTitle => 'Signed in';
 
   @override
@@ -524,6 +521,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seatsBookNow => 'Book Now';
+
+  @override
+  String get seatsOnlyInfluencersCanBook =>
+      'This seat is available for influencers to book.';
 
   @override
   String seatsLegendLabel(String tier) {

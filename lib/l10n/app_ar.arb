@@ -76,7 +76,6 @@
   "authCreatingAccount": "جارِ إنشاء الحساب...",
   "authAlreadyHaveAccount": "لدي حساب بالفعل",
   "authContinueAsGuest": "المتابعة كضيف",
-  "authForgetPassword": "نسيت كلمة المرور؟",
 
   "authSignedInTitle": "تم تسجيل الدخول",
   "authContinue": "متابعة",
@@ -180,6 +179,7 @@
   "seatsFollowComingSoon": "ميزة المتابعة قريباً.",
   "seatsViewProfile": "عرض الملف الشخصي",
   "seatsBookNow": "احجز الآن",
+  "seatsOnlyInfluencersCanBook": "هذا المقعد متاح للمؤثرين للحجز.",
 
   "seatsLegendLabel": "{tier, select, gold{مقاعد ذهبية} silver{مقاعد فضية} bronze{مقاعد برونزية} other{مقاعد}}",
   "seatsSingularLabel": "{tier, select, gold{مقعد ذهبي} silver{مقعد فضي} bronze{مقعد برونزي} other{مقعد}}",

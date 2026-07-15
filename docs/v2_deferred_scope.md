@@ -1,6 +1,6 @@
 # Promoo Mobile — v2 Deferred Scope
 
-Last updated: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid seed took migration `035`, so the RLS pass is now `036`)
+Last updated: 2026-07-15 (§1 Auth — confirmed final for v1: forgot/reset password and email confirmation are fully disabled, not just "coming soon"; see note below §1). Previously: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid seed took migration `035`, so the RLS pass is now `036`)
 
 > **Purpose.** This is the single, authoritative list of everything we are **deferring to v2** and everything we are **hiding in v1**. Rule of the project: **the backend is the single source of truth; the app must match it 100%.** For each item below we record: (a) the backend endpoint / entity it will map to when we build it later, and (b) the exact **v1 behaviour** in the app right now.
 >
@@ -17,10 +17,25 @@ Last updated: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid 
 
 ## 1. Auth (defer everything except email login + email register)
 
+> **2026-07-15 — confirmed final for v1 (not just "coming soon").** Live testing this
+> day proved Supabase's built-in auth-email sender is unreliable/rate-limited on this
+> project (confirmation emails silently didn't arrive, even via the official `resend()`
+> API — see `MEMORY_BANK.md`). Rather than chase a broken mailer, the owner decided v1
+> auth is **register + login only** — no email confirmation gate, no forgot/reset
+> password, full stop. Concretely: the **"forget password?" link is now removed
+> entirely** from the Login screen (not a "coming soon" placeholder anymore); a
+> short-lived attempt to detect "registered but unconfirmed" at login (with a resend
+> button) was built, tested, and then **fully reverted** once this decision was made,
+> to avoid leaving half-wired dead code. Backend routes for
+> `forgot-password`/`reset-password`/`resend-confirmation` are commented out (not
+> deleted) in `auth.routes.ts` so v2 can re-enable them once Custom SMTP is set up.
+> v2 will need: (1) Custom SMTP configured in Supabase, (2) "Confirm email" turned back
+> on, (3) these routes uncommented, (4) the Login "forget password" UI rebuilt.
+
 | Item | Backend endpoint (for later) | v1 behaviour |
 | --- | --- | --- |
-| Forgot / reset password | `POST /api/v1/auth/forgot-password` (confirm exact path in integration) | **Display-only** — `forget password?` link on Login matches MVP but shows a "coming soon" notice. No reset flow. |
-| Email confirmation / verify | Supabase email verify; registration may return `session: null` when verification is required | **Display-only** — after register we treat the account as usable in mock/demo; no verification gate, no resend screen. |
+| Forgot / reset password | `POST /api/v1/auth/forgot-password`, `POST /api/v1/auth/reset-password` (routes commented out in `auth.routes.ts`) | **Hidden** — no "forget password?" link on Login at all. No reset flow. |
+| Email confirmation / verify | Supabase email verify; registration may return `session: null` when verification is required | **Hidden** — "Confirm email" is to be turned OFF in Supabase for v1 (owner action), so register always returns a session immediately. No verification gate, no resend screen. |
 | OTP send / verify | `POST /api/v1/auth/otp/send`, `POST /api/v1/auth/otp/verify` | **Hidden** — no OTP screens. |
 | Phone login / phone register | `POST /api/v1/auth/login/phone`, `POST /api/v1/auth/register/phone` | **Hidden** — email-only auth in v1. |
 | Google login | `POST /api/v1/auth/login/oauth` + `POST /api/v1/auth/verify` (Google configured in Supabase) | **Safe placeholder** — Google icon shown on Login/Register for MVP parity; tap = "coming soon". No SDK. |

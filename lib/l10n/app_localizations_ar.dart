@@ -211,9 +211,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authContinueAsGuest => 'المتابعة كضيف';
 
   @override
-  String get authForgetPassword => 'نسيت كلمة المرور؟';
-
-  @override
   String get authSignedInTitle => 'تم تسجيل الدخول';
 
   @override
@@ -530,6 +527,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get seatsBookNow => 'احجز الآن';
+
+  @override
+  String get seatsOnlyInfluencersCanBook => 'هذا المقعد متاح للمؤثرين للحجز.';
 
   @override
   String seatsLegendLabel(String tier) {

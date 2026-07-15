@@ -91,7 +91,6 @@
   "authCreatingAccount": "Creating account...",
   "authAlreadyHaveAccount": "Already have an account",
   "authContinueAsGuest": "Continue as Guest",
-  "authForgetPassword": "forget password?",
 
   "authSignedInTitle": "Signed in",
   "authContinue": "Continue",
@@ -220,6 +219,7 @@
   "seatsFollowComingSoon": "Follow is coming soon.",
   "seatsViewProfile": "View profile",
   "seatsBookNow": "Book Now",
+  "seatsOnlyInfluencersCanBook": "This seat is available for influencers to book.",
 
   "seatsLegendLabel": "{tier, select, gold{Gold Seats} silver{Silver Seats} bronze{Bronze Seats} other{Seats}}",
   "@seatsLegendLabel": {

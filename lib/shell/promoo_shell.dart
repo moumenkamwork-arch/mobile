@@ -60,13 +60,13 @@ class PromooShell extends ConsumerStatefulWidget {
   /// request), everyone else — companies, providers, regular users, guests —
   /// sees the Offers tab in that slot instead. All other slots and their
   /// indices are identical across roles (index 2 stays the center P mark).
-  static List<PromooShellTab> tabsFor({required bool isInfluencer}) => [
+  static List<PromooShellTab> tabsFor({required bool canViewSeats}) => [
     const PromooShellTab(
       id: PromooShellTabId.home,
       route: AppRoutes.home,
       icon: Icons.home_rounded,
     ),
-    isInfluencer
+    canViewSeats
         ? const PromooShellTab(
             id: PromooShellTabId.influencer,
             route: AppRoutes.seats,
@@ -123,10 +123,10 @@ class _PromooShellState extends ConsumerState<PromooShell> {
     final canPop = context.canPop();
     final isScrolled = ref.watch(shellScrolledProvider);
     // Slot 1 swaps by role; recomputes automatically on login/logout.
-    final isInfluencer =
-        ref.watch(authControllerProvider).session?.user.accountType ==
-        AuthAccountType.influencer;
-    final tabs = PromooShell.tabsFor(isInfluencer: isInfluencer);
+    final session = ref.watch(authControllerProvider).session;
+    final canViewSeats = session?.user.accountType == AuthAccountType.influencer ||
+                         session?.user.accountType == AuthAccountType.company;
+    final tabs = PromooShell.tabsFor(canViewSeats: canViewSeats);
 
     return PopScope(
       canPop: canPop,

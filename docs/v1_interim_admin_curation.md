@@ -88,7 +88,7 @@ stand-in would add risk for no v1 benefit. Full detail in `v2_deferred_scope.md`
 | --- | --- | --- |
 | **Subscriptions** (Basic / Premium recurring billing) | No point faking recurring payment; the only user-visible perk (verified badge) is already covered by §2 | Hidden |
 | **Content Packages** (99 / 149 / 249) | No backend entity at all | Display-only |
-| **Seat booking** (influencer pays to occupy a Cup seat) | Tied to the deferred dynamic-seat logic; the fixed 144 grid stays display-only; **the whole Influencer/Seats screen is now role-gated to influencers only** (client request 2026-07-14 — ✅ done: bottom-nav slot 1 shows Seats for influencers, an **Offers** tab for everyone else) | Display-only + influencer-only visibility |
+| **Seat booking** (influencer pays to occupy a Cup seat) | Tied to the deferred dynamic-seat logic; the fixed 144 grid stays display-only; **the Influencer/Seats screen is visible to influencers and companies, but only influencers can book** (✅ done: bottom-nav slot 1 shows Seats for influencers/companies, an **Offers** tab for everyone else) | Display-only + influencer/company visibility |
 | **Payment history** | Nothing to show | Hidden |
 
 ---

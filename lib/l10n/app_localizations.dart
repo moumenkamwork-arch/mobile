@@ -488,12 +488,6 @@ abstract class AppLocalizations {
   /// **'Continue as Guest'**
   String get authContinueAsGuest;
 
-  /// No description provided for @authForgetPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'forget password?'**
-  String get authForgetPassword;
-
   /// No description provided for @authSignedInTitle.
   ///
   /// In en, this message translates to:
@@ -1033,6 +1027,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Book Now'**
   String get seatsBookNow;
+
+  /// No description provided for @seatsOnlyInfluencersCanBook.
+  ///
+  /// In en, this message translates to:
+  /// **'This seat is available for influencers to book.'**
+  String get seatsOnlyInfluencersCanBook;
 
   /// No description provided for @seatsLegendLabel.
   ///

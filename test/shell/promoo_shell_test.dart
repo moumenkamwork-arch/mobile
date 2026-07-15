@@ -41,8 +41,8 @@ void main() {
 
     // Footer order per owner request: the center P mark leads to the Cup page
     // ("Promoo"); Services is a normal tab. Slot 1 is role-dependent — a guest
-    // (no session, not an influencer) sees the "Offers" tab there, not
-    // "Influencer"/Seats (which is influencer-only).
+    // (no session, not an influencer or company) sees the "Offers" tab there, not
+    // "Influencer"/Seats (which is influencer and company only).
     for (final tab in ['Home', 'Offers', 'Promoo', 'Services', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }

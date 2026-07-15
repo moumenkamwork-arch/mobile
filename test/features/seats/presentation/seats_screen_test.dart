@@ -16,6 +16,8 @@ import 'package:promoo_app/routing/route_names.dart';
 import 'package:promoo_app/shared/widgets/promoo_error_state.dart';
 import 'package:promoo_app/shared/widgets/promoo_loading_indicator.dart';
 import 'package:promoo_app/theme/app_theme.dart';
+import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
+import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 
 void main() {
   testWidgets('renders loading state', (tester) async {
@@ -122,6 +124,20 @@ Widget _buildSeatsApp(SeatsRepository repository) {
     overrides: [
       appConfigProvider.overrideWithValue(_mockConfig),
       seatsRepositoryProvider.overrideWithValue(repository),
+      authSessionStoreProvider.overrideWithValue(
+        InMemoryAuthSessionStore()
+          ..write(
+            const AuthSession(
+              user: AuthUser(
+                id: '123',
+                email: 'test@test.com',
+                fullName: 'Test',
+                accountType: AuthAccountType.influencer,
+              ),
+              tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
+            ),
+          ),
+      ),
     ],
     child: MaterialApp.router(
       theme: AppTheme.dark,
