@@ -60,41 +60,51 @@ class PromooShell extends ConsumerStatefulWidget {
   /// request), everyone else — companies, providers, regular users, guests —
   /// sees the Offers tab in that slot instead. All other slots and their
   /// indices are identical across roles (index 2 stays the center P mark).
-  static List<PromooShellTab> tabsFor({required bool canViewSeats}) => [
-    const PromooShellTab(
-      id: PromooShellTabId.home,
-      route: AppRoutes.home,
-      icon: Icons.home_rounded,
-    ),
-    canViewSeats
-        ? const PromooShellTab(
-            id: PromooShellTabId.influencer,
-            route: AppRoutes.seats,
-            icon: Icons.event_seat_rounded,
-          )
-        : const PromooShellTab(
-            id: PromooShellTabId.offers,
-            route: AppRoutes.offers,
-            icon: Icons.local_offer_rounded,
-          ),
-    // Center (index 2) is the elevated P mark. Per owner request it leads to
-    // the Cup page and is labelled "Promoo"; Services is a normal tab.
-    const PromooShellTab(
-      id: PromooShellTabId.promoo,
-      route: AppRoutes.cup,
-      icon: Icons.emoji_events_rounded,
-    ),
-    const PromooShellTab(
-      id: PromooShellTabId.services,
-      route: AppRoutes.services,
-      icon: Icons.storefront_rounded,
-    ),
-    const PromooShellTab(
-      id: PromooShellTabId.profile,
-      route: AppRoutes.profile,
-      icon: Icons.person_rounded,
-    ),
-  ];
+  static List<PromooShellTab> tabsFor({required bool canViewSeats}) {
+    final list = <PromooShellTab>[
+      const PromooShellTab(
+        id: PromooShellTabId.home,
+        route: AppRoutes.home,
+        icon: Icons.home_rounded,
+      ),
+      const PromooShellTab(
+        id: PromooShellTabId.offers,
+        route: AppRoutes.offers,
+        icon: Icons.local_offer_rounded,
+      ),
+    ];
+
+    if (canViewSeats) {
+      list.add(
+        const PromooShellTab(
+          id: PromooShellTabId.influencer,
+          route: AppRoutes.seats,
+          icon: Icons.event_seat_rounded,
+        ),
+      );
+    }
+
+    list.addAll(const [
+      // The elevated P mark. Leads to the Cup page and is labelled "Promoo".
+      PromooShellTab(
+        id: PromooShellTabId.promoo,
+        route: AppRoutes.cup,
+        icon: Icons.emoji_events_rounded,
+      ),
+      PromooShellTab(
+        id: PromooShellTabId.services,
+        route: AppRoutes.services,
+        icon: Icons.storefront_rounded,
+      ),
+      PromooShellTab(
+        id: PromooShellTabId.profile,
+        route: AppRoutes.profile,
+        icon: Icons.person_rounded,
+      ),
+    ]);
+
+    return list;
+  }
 
   @override
   ConsumerState<PromooShell> createState() => _PromooShellState();
@@ -250,6 +260,7 @@ class _PromooBottomNavigation extends StatelessWidget {
         ? colors.navBackground.withValues(alpha: 0.78)
         : colors.navBackground;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final promooIndex = tabs.indexWhere((t) => t.id == PromooShellTabId.promoo);
 
     return SizedBox(
       // Room for the overflowing P above the full-width bar.
@@ -287,7 +298,7 @@ class _PromooBottomNavigation extends StatelessWidget {
                         children: [
                           for (var index = 0; index < tabs.length; index++)
                             Expanded(
-                              child: index == 2
+                              child: index == promooIndex
                                   ? _CenterServicesLabel(
                                       tab: tabs[index],
                                       selected: index == selectedIndex,
@@ -307,16 +318,20 @@ class _PromooBottomNavigation extends StatelessWidget {
               ),
             ),
           ),
-          // The Services P mark, half overflowing above the bar, centered.
+          // The Services P mark, half overflowing above the bar.
           PositionedDirectional(
             start: 0,
             end: 0,
             top: 0,
-            child: Center(
+            child: Align(
+              alignment: AlignmentDirectional(
+                -1.0 + (2.0 * promooIndex + 1.0) / tabs.length,
+                -1.0,
+              ),
               child: _CenterPMark(
                 size: _pSize,
-                selected: selectedIndex == 2,
-                onTap: () => onDestinationSelected(2),
+                selected: selectedIndex == promooIndex,
+                onTap: () => onDestinationSelected(promooIndex),
               ),
             ),
           ),

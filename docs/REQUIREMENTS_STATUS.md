@@ -75,6 +75,8 @@ a date picker stuck in placeholder styling, an un-translated "Back" tooltip) ·
 references anywhere + checked against the backend before deleting) · `README.md`
 rewritten for GitHub.
 
+**Recent (2026-07-15):** Phase 1-5 Final Verifications. Successfully tested and audited roles logic (Admin Dashboard + Mobile UI). Fixed a critical UX bug in Mobile Bottom Navigation: Influencers and Companies now get a dynamic 6-tab layout (showing both Offers and Seats) instead of 5, without breaking the custom floating "P" cup design. Backend permissions tested via seeding test accounts.
+
 **Recent (2026-07-10→11):** client-edit fixes (footer P→Cup, See-All, glass
 header) · UX-audit fixes (live header badges, distinct per-id profiles, profile
 Follow/Message/Edit working, chat send fixed via family provider, profile back
