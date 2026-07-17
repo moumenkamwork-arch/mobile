@@ -103,4 +103,39 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return const Result.failure(AppFailure.unknown());
     }
   }
+
+  @override
+  Future<Result<bool>> getFollowStatus(String profileId) async {
+    try {
+      return Result.success(await dataSource.fetchFollowStatus(profileId));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> followProfile(String profileId) async {
+    try {
+      await dataSource.followProfile(profileId);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> unfollowProfile(String profileId) async {
+    try {
+      await dataSource.unfollowProfile(profileId);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
 }

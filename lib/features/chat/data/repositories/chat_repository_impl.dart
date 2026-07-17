@@ -6,11 +6,11 @@ import '../../../auth/data/session/auth_session_store.dart';
 import '../../domain/entities/chat.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_data_source.dart';
-import '../datasources/chat_fake_data_source.dart';
+import '../datasources/chat_remote_data_source.dart';
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return ChatRepositoryImpl(
-    dataSource: ref.watch(chatFakeDataSourceProvider),
+    dataSource: ref.watch(chatRemoteDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });

@@ -11,4 +11,10 @@ abstract interface class ProfileRepository {
   Future<Result<List<ProfilePackage>>> getProfilePackages(String profileId);
 
   Future<Result<PromooProfile>> updateMyProfile(ProfileUpdateDraft draft);
+
+  Future<Result<bool>> getFollowStatus(String profileId);
+
+  Future<Result<void>> followProfile(String profileId);
+
+  Future<Result<void>> unfollowProfile(String profileId);
 }

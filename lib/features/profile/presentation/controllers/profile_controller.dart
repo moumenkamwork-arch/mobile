@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_failure.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/promoo_profile.dart';
 
@@ -70,8 +71,9 @@ class ProfileState {
   final List<ProfilePackage> packages;
   final AppFailure? failure;
 
-  /// Local follow state (Phase A). Backend wiring will replace this with the
-  /// real `is_following` flag and POST/DELETE `/follows`.
+  /// Whether the signed-in user follows this profile. Seeded on load from
+  /// `GET /follows/:id/status` and driven by `toggleFollow` (POST/DELETE
+  /// `/follows/:id`). Always false for a guest or one's own profile.
   final bool isFollowing;
 
   bool get isRefreshing => status == ProfileStatus.refreshing;
@@ -101,16 +103,42 @@ class ProfileController extends Notifier<ProfileState> {
     return _load(refreshing: true);
   }
 
-  /// Toggles the local follow state (Phase A). No-op until the profile loads.
-  void toggleFollow() {
+  /// Optimistically toggles follow, then calls the backend
+  /// (`POST`/`DELETE /follows/:id`). Reverts if the request fails (e.g. a guest
+  /// gets 401). No-op until the profile has loaded.
+  Future<void> toggleFollow() async {
     final profile = state.profile;
     if (state.status != ProfileStatus.success || profile == null) {
       return;
     }
+
+    final wasFollowing = state.isFollowing;
     state = ProfileState.success(
       profile: profile,
       packages: state.packages,
-      isFollowing: !state.isFollowing,
+      isFollowing: !wasFollowing,
+    );
+
+    final repository = ref.read(profileRepositoryProvider);
+    final result = wasFollowing
+        ? await repository.unfollowProfile(profile.id)
+        : await repository.followProfile(profile.id);
+    if (_disposed) {
+      return;
+    }
+
+    result.when(
+      success: (_) {},
+      failure: (_) {
+        // Revert to the pre-tap state on failure.
+        if (state.status == ProfileStatus.success && state.profile != null) {
+          state = ProfileState.success(
+            profile: state.profile!,
+            packages: state.packages,
+            isFollowing: wasFollowing,
+          );
+        }
+      },
     );
   }
 
@@ -139,6 +167,9 @@ class ProfileController extends Notifier<ProfileState> {
       return;
     }
 
+    final isOwner = target == null || target.trim().isEmpty;
+    final isSignedIn = ref.read(authControllerProvider).session != null;
+
     await profileResult.when(
       success: (profile) async {
         final packagesResult = await repository.getProfilePackages(profile.id);
@@ -151,10 +182,25 @@ class ProfileController extends Notifier<ProfileState> {
           failure: (_) => const <ProfilePackage>[],
         );
 
+        // Follow status only applies to *other* people's profiles and needs a
+        // signed-in caller (the endpoint is auth-only). Guests / own profile
+        // keep isFollowing = false.
+        var isFollowing = false;
+        if (!isOwner && isSignedIn) {
+          final statusResult = await repository.getFollowStatus(profile.id);
+          if (_disposed) {
+            return;
+          }
+          isFollowing = statusResult.when(
+            success: (value) => value,
+            failure: (_) => false,
+          );
+        }
+
         state = ProfileState.success(
           profile: profile,
           packages: packages,
-          isFollowing: state.isFollowing,
+          isFollowing: isFollowing,
         );
       },
       failure: (failure) async {

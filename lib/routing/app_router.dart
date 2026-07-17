@@ -188,10 +188,10 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
       ),
       ShellRoute(
         builder: (context, state, child) {
-          return PromooShell(
-            selectedIndex: _selectedIndexForPath(state.uri.path),
-            child: child,
-          );
+          // Pass the raw path; the shell resolves the selected tab against its
+          // own role-aware tab list (5 or 6 tabs), so the highlight stays
+          // correct for every account type.
+          return PromooShell(currentPath: state.uri.path, child: child);
         },
         routes: [
           GoRoute(
@@ -234,20 +234,3 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
   );
 }
 
-int _selectedIndexForPath(String path) {
-  return switch (path) {
-    // Center P (index 2) → Cup; Services is now the tab at index 3.
-    AppRoutes.cup => 2,
-    AppRoutes.services => 3,
-    _ when path.startsWith('/services/') => 3,
-    _ when path.startsWith('/home/items/') => 0,
-    _ when path.startsWith('/home/see-all/') => 0,
-    // Seats (influencers) and Offers (everyone else) share bottom-nav slot 1.
-    _ when path.startsWith('/seats') => 1,
-    AppRoutes.offers => 1,
-    AppRoutes.profile => 4,
-    _ when path.startsWith('/profiles/') => 4,
-    AppRoutes.search => 0,
-    _ => 0,
-  };
-}

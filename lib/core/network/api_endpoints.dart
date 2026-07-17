@@ -16,6 +16,7 @@ class ApiEndpoints {
   static const profiles = '/profiles';
   static const myProfile = '/profiles/me';
   static const search = '/search';
+  static const saved = '/saved';
   static const subscriptionPlans = '/subscriptions/plans';
   static const subscriptions = '/subscriptions';
   static const chats = '/chats';
@@ -32,6 +33,13 @@ class ApiEndpoints {
   static String profileByIdOrUsername(String idOrUsername) {
     return '/profiles/$idOrUsername';
   }
+
+  // Follow (POST to follow, DELETE to unfollow, both on the same path).
+  static String savedById(String savedId) => '/saved/$savedId';
+
+  static String follow(String profileId) => '/follows/$profileId';
+
+  static String followStatus(String profileId) => '/follows/$profileId/status';
 
   static String chatMessages(String roomId) => '/chats/$roomId/messages';
 

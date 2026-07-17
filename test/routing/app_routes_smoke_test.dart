@@ -3,12 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
 import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
+import 'package:promoo_app/features/chat/data/datasources/chat_fake_data_source.dart';
+import 'package:promoo_app/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
 import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/features/leaderboard/data/datasources/leaderboard_fake_data_source.dart';
 import 'package:promoo_app/features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
 import 'package:promoo_app/features/profile/data/datasources/profile_fake_data_source.dart';
 import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:promoo_app/features/seats/data/datasources/seats_fake_data_source.dart';
+import 'package:promoo_app/features/seats/data/repositories/seats_repository_impl.dart';
 import 'package:promoo_app/features/services/data/datasources/services_fake_data_source.dart';
 import 'package:promoo_app/features/services/data/repositories/services_repository_impl.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
@@ -98,6 +102,20 @@ void main() {
             leaderboardRepositoryProvider.overrideWithValue(
               const LeaderboardRepositoryImpl(
                 dataSource: LeaderboardFakeDataSource(),
+              ),
+            ),
+            // Seats now hits the real backend by default (Phase 6).
+            seatsRepositoryProvider.overrideWithValue(
+              SeatsRepositoryImpl(
+                config: mockConfig,
+                dataSource: const SeatsFakeDataSource(),
+              ),
+            ),
+            // Chat now hits the real backend by default (Phase 9).
+            chatRepositoryProvider.overrideWithValue(
+              ChatRepositoryImpl(
+                dataSource: ChatFakeDataSource(),
+                sessionStore: InMemoryAuthSessionStore(),
               ),
             ),
           ],

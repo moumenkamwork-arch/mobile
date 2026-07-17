@@ -6,12 +6,12 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/seat.dart';
 import '../../domain/repositories/seats_repository.dart';
 import '../datasources/seats_data_source.dart';
-import '../datasources/seats_fake_data_source.dart';
+import '../datasources/seats_remote_data_source.dart';
 
 final seatsRepositoryProvider = Provider<SeatsRepository>((ref) {
   return SeatsRepositoryImpl(
     config: ref.watch(appConfigProvider),
-    dataSource: ref.watch(seatsFakeDataSourceProvider),
+    dataSource: ref.watch(seatsRemoteDataSourceProvider),
   );
 });
 

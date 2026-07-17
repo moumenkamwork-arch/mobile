@@ -45,15 +45,40 @@ class PromooShellTab {
   final IconData icon;
 }
 
+/// Maps the current shell route to the *logical* tab it belongs to, independent
+/// of how many tabs the current role sees. The shell resolves this to an actual
+/// index against its role-aware [PromooShell.tabsFor] list — so the highlight and
+/// the floating P mark stay correct whether the bar has 5 tabs (user / provider /
+/// guest) or 6 (influencer / company, who also get the Seats tab).
+PromooShellTabId selectedShellTabForPath(String path) {
+  if (path == AppRoutes.cup) return PromooShellTabId.promoo;
+  if (path == AppRoutes.services || path.startsWith('/services/')) {
+    return PromooShellTabId.services;
+  }
+  if (path.startsWith('/home/items/') || path.startsWith('/home/see-all/')) {
+    return PromooShellTabId.home;
+  }
+  if (path.startsWith('/seats')) return PromooShellTabId.influencer;
+  if (path == AppRoutes.offers) return PromooShellTabId.offers;
+  if (path == AppRoutes.profile || path.startsWith('/profiles/')) {
+    return PromooShellTabId.profile;
+  }
+  return PromooShellTabId.home;
+}
+
 class PromooShell extends ConsumerStatefulWidget {
   const PromooShell({
     super.key,
     required this.child,
-    required this.selectedIndex,
+    required this.currentPath,
   });
 
   final Widget child;
-  final int selectedIndex;
+
+  /// The current shell location (`state.uri.path`). The shell derives the
+  /// selected tab index from this against its role-aware tab list, so the
+  /// index is always correct for a 5- or 6-tab bar.
+  final String currentPath;
 
   /// The five bottom-nav slots. Slot 1 is **role-dependent**: influencers see
   /// the Influencer/Seats tab (the Seats screen is influencer-only per client
@@ -119,7 +144,7 @@ class _PromooShellState extends ConsumerState<PromooShell> {
     // Each tab opens at the top, so clear any leftover "scrolled" glass state
     // carried over from the previous tab (the new body hasn't emitted a scroll
     // notification yet). Deferred to avoid mutating the provider mid-build.
-    if (oldWidget.selectedIndex != widget.selectedIndex) {
+    if (oldWidget.currentPath != widget.currentPath) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           ref.read(shellScrolledProvider.notifier).set(false);
@@ -132,11 +157,21 @@ class _PromooShellState extends ConsumerState<PromooShell> {
   Widget build(BuildContext context) {
     final canPop = context.canPop();
     final isScrolled = ref.watch(shellScrolledProvider);
-    // Slot 1 swaps by role; recomputes automatically on login/logout.
+    // The Seats tab is shown to influencers AND companies (companies browse the
+    // seat map to find and contract influencers; only influencers can book —
+    // enforced separately in the Seats screen). Recomputes on login/logout.
     final session = ref.watch(authControllerProvider).session;
-    final canViewSeats = session?.user.accountType == AuthAccountType.influencer ||
-                         session?.user.accountType == AuthAccountType.company;
+    final canViewSeats =
+        session?.user.accountType == AuthAccountType.influencer ||
+        session?.user.accountType == AuthAccountType.company;
     final tabs = PromooShell.tabsFor(canViewSeats: canViewSeats);
+
+    // Resolve the selected index against THIS role's tab list, so the highlight
+    // and the P mark are correct for a 5- or 6-tab bar (was a static path→index
+    // map that broke once the bar could hold 6 tabs).
+    final selectedTabId = selectedShellTabForPath(widget.currentPath);
+    final resolvedIndex = tabs.indexWhere((tab) => tab.id == selectedTabId);
+    final selectedIndex = resolvedIndex < 0 ? 0 : resolvedIndex;
 
     return PopScope(
       canPop: canPop,
@@ -151,7 +186,7 @@ class _PromooShellState extends ConsumerState<PromooShell> {
 
         // Step-wise back at the tab level: any non-Home tab first returns
         // to Home, and only Home itself exits (with double-press confirm).
-        if (widget.selectedIndex != 0) {
+        if (selectedIndex != 0) {
           context.go(AppRoutes.home);
           return;
         }
@@ -215,10 +250,10 @@ class _PromooShellState extends ConsumerState<PromooShell> {
           ),
           bottomNavigationBar: _PromooBottomNavigation(
             tabs: tabs,
-            selectedIndex: widget.selectedIndex,
+            selectedIndex: selectedIndex,
             isScrolled: isScrolled,
             onDestinationSelected: (index) {
-              if (index == widget.selectedIndex) {
+              if (index == selectedIndex) {
                 return;
               }
               context.go(tabs[index].route);

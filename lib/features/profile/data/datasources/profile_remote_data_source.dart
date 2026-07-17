@@ -59,4 +59,32 @@ class ProfileRemoteDataSource implements ProfileDataSource {
     );
     return response.data ?? const PromooProfileDto();
   }
+
+  @override
+  Future<bool> fetchFollowStatus(String profileId) async {
+    final response = await _apiClient.get<bool>(
+      ApiEndpoints.followStatus(profileId),
+      decode: (data) {
+        final map = data is Map ? Map<String, Object?>.from(data) : null;
+        return map?['isFollowing'] == true || map?['is_following'] == true;
+      },
+    );
+    return response.data ?? false;
+  }
+
+  @override
+  Future<void> followProfile(String profileId) async {
+    await _apiClient.post<void>(
+      ApiEndpoints.follow(profileId),
+      decode: (_) {},
+    );
+  }
+
+  @override
+  Future<void> unfollowProfile(String profileId) async {
+    await _apiClient.delete<void>(
+      ApiEndpoints.follow(profileId),
+      decode: (_) {},
+    );
+  }
 }

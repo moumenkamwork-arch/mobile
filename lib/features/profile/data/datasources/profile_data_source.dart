@@ -9,4 +9,10 @@ abstract interface class ProfileDataSource {
   Future<ProfilePackagesDto> fetchProfilePackages(String profileId);
 
   Future<PromooProfileDto> updateMyProfile(ProfileUpdateDraft draft);
+
+  Future<bool> fetchFollowStatus(String profileId);
+
+  Future<void> followProfile(String profileId);
+
+  Future<void> unfollowProfile(String profileId);
 }

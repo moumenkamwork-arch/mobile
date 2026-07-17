@@ -382,4 +382,20 @@ class ProfileFakeDataSource implements ProfileDataSource {
     );
     return _myProfile;
   }
+
+  final Set<String> _following = {};
+
+  @override
+  Future<bool> fetchFollowStatus(String profileId) async =>
+      _following.contains(profileId);
+
+  @override
+  Future<void> followProfile(String profileId) async {
+    _following.add(profileId);
+  }
+
+  @override
+  Future<void> unfollowProfile(String profileId) async {
+    _following.remove(profileId);
+  }
 }

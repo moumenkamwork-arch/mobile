@@ -11,8 +11,7 @@ import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
-import '../../../auth/domain/entities/auth_session.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../profile/presentation/controllers/account_capabilities.dart';
 import '../../domain/entities/seat.dart';
 import '../controllers/seats_controller.dart';
 
@@ -450,8 +449,10 @@ class _SeatCell extends ConsumerWidget {
     }
 
     if (currentSeat.isAvailable) {
-      final session = ref.read(authControllerProvider).session;
-      if (session?.user.accountType == AuthAccountType.influencer) {
+      // Only influencers may book (guide: seats are for individual influencers;
+      // companies view to contract, not book). Same gate as the backend's
+      // requireAccountType(['influencer']) on POST /seats/:id/book.
+      if (ref.read(accountCapabilitiesProvider).canBookSeat) {
         _showSeatSheet(context, currentSeat);
       } else {
         ScaffoldMessenger.of(context)

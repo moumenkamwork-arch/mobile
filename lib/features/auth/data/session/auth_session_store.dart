@@ -24,7 +24,7 @@ abstract interface class AuthSessionStore {
 class SecureAuthSessionStore implements AuthSessionStore {
   const SecureAuthSessionStore();
 
-  static const _key = 'promoo_auth_session';
+  static const _key = 'promoo_auth_session';//! should be in env
   static const _storage = FlutterSecureStorage();
 
   @override

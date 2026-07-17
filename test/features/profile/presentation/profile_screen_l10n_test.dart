@@ -120,4 +120,16 @@ class _ProfileRepository implements ProfileRepository {
   ) async {
     return const Result.success(_profile);
   }
+
+  @override
+  Future<Result<bool>> getFollowStatus(String profileId) async =>
+      const Result.success(false);
+
+  @override
+  Future<Result<void>> followProfile(String profileId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> unfollowProfile(String profileId) async =>
+      const Result.success(null);
 }

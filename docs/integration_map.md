@@ -10,13 +10,13 @@
 >
 > **القاعدة الذهبية:** لم نعدّل أي ملف بالباك.
 >
-> آخر تحديث: 2026-07-13 (Phase 1 — السباكة — تمّت). التحديثات السابقة: 2026-07-13 (إعادة توليد كاملة + Phase 0)، 2026-07-09 (أصل)، 2026-07-12 (فجوات الـ DB).
+> آخر تحديث: 2026-07-15 (**Phase 8 — Saved — تمّت**). قبلها: Phase 7 (Follow)، Phase 6 (Seats قراءة)، Phase 5 (Services/Categories/Search/Leaderboard)، Phase 4 (Home)، Phase 3 (Profile)، Phase 2 (Auth)، Phase 1 (السباكة)، Phase 0 (تصليب التوافق).
 
 ---
 
 ## 0. الخلاصة التنفيذية (اقرأ هذا أولاً)
 
-**تحديث 2026-07-14 (Phase 1-5):** الربط بلّش فعلياً ومُتحقَّق حياً — مو مجرد "خطة". السباكة (شبكة+interceptor+تخزين آمن) جاهزة، Auth موصولة حقاً، Profile (me + تعديل) موصولة حقاً، Home موصولة حقاً، وCategories/Services/Search/Leaderboard موصولة حقاً. الباقي (§3.4، §3.7 وما بعده) لسا **fake محلي** كما كان — التفاصيل أدناه لكل قسم.
+**تحديث 2026-07-15 (Phase 1-8):** الربط ماشي ومُتحقَّق حياً — مو مجرد "خطة". جاهز حياً: السباكة (شبكة+interceptor+تخزين آمن)، Auth، Profile (me + تعديل **+ البروفايل العام**)، Home، Categories/Services/Search/Leaderboard، **Seats (قراءة — Phase 6)**، **Follow/Unfollow (Phase 7)**، **Saved (قائمة + إزالة — Phase 8)**. الباقي (نشر الإعلان/العرض/الخدمة، Upload، زر حفظ من الكروت، قوائم المتابعة، Chat/Notifications) لسا **fake محلي** — التفاصيل أدناه لكل قسم.
 
 **لماذا لا يزال هذا الملف صالحاً وحاسماً لبقية الأقسام؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة لبقية الأقسام ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
 
@@ -26,8 +26,11 @@
 3. ~~تدفق البروفايل الشخصي (me + تعديل)~~ ✅ **تمّت (Phase 3)** — `GET/PUT /profiles/me` موصولة وشغالة حياً. يتبقّى فقط: رفع الأفاتار/الصورة (Upload، Phase 8) وربط الفئة (category picker).
 4. ~~Home~~ ✅ **تمّت (Phase 4)** — `GET /home` + تفاصيل عرض/إعلان موصولة وشغالة حياً (بيانات DB حقيقية، معرّبة صح).
 5. ~~Categories + Services + Search + Leaderboard~~ ✅ **تمّت (Phase 5)** — موصولة؛ Categories/Services/Leaderboard مُتحقَّقة حياً ببيانات حقيقية، Search كود جاهز بانتظار أول استخدام حي.
-6. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** Follow (toggle محلي فعّال، يحتاج استبدال بالطلب الحقيقي)، نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور، Saved (يحتاج enrichment — أُنجز بالباك Phase 0، يحتاج ربط الشاشة).
-7. **الأقسام الأخرى (Seats/Chat/Notifications) لسا fake محلي بالكامل** — لم تُلمَس بعد.
+6. ~~Seats (قراءة)~~ ✅ **تمّت (Phase 6)** — `GET /seats` + `/seats/me` موصولة، 144 مقعد حقيقي. الحجز (Stripe) مؤجل v2.
+7. ~~البروفايل العام + Follow/Unfollow~~ ✅ **تمّت (Phase 7)** — `GET /profiles/:id` (كان موصول من Phase 3)، و `POST/DELETE /follows/:id` + `GET /follows/:id/status` موصولة حياً.
+8. ~~Saved (قائمة + إزالة)~~ ✅ **تمّت (Phase 8)** — `GET /saved` (مع hydrate) + `DELETE /saved/:id` موصولة. زر الحفظ من الكروت (`POST /saved`) لسا.
+9. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور (Upload)، زر حفظ من الكروت، قوائم المتابِعين/المتابَعين.
+10. **الأقسام الأخرى (Chat/Notifications) لسا fake محلي بالكامل** — لم تُلمَس بعد.
 
 **الأرقام:**
 
@@ -38,10 +41,10 @@
 | endpoints مؤجلة v2 (Stripe/Notifications/Reports/Featured) | **~27** | القسم 6 |
 | endpoints للداشبورد فقط | **23** | كل `/admin/*` |
 | endpoints أخرى (Auth موسّع، Webhook، إدارة المالك) | **~11** | phone/oauth/otp، webhook، PUT/DELETE للمالك |
-| **حالة الربط الحالية** | **✅ 11 موصولة حياً** | `auth/login/email` · `register/email` · `refresh` · `logout` · `GET/PUT /profiles/me` · `GET /home` (+ تفاصيل) · `GET /categories` · `GET /services(+:id)` · `GET /search` · `GET /leaderboard`. الباقي (~39) لسا fake. |
+| **حالة الربط الحالية** | **✅ ~20 موصولة حياً** | `auth/login/email` · `register/email` · `refresh` · `logout` · `GET/PUT /profiles/me` · `GET /profiles/:id` · `GET /home` (+ تفاصيل) · `GET /categories` · `GET /services(+:id)` · `GET /search` · `GET /leaderboard` · `GET /seats(+/me)` · `POST/DELETE /follows/:id` · `GET /follows/:id/status` · `GET /saved` · `DELETE /saved/:id`. الباقي (~30) لسا fake. |
 | نسبة التوافق المتوقعة (حقول ↔ حقول) | **~89%** | ثابتة للأقسام غير الموصولة بعد — الـ DTOs لم تُمَس منذ الفحص الأصلي |
 | صفحات ناقصة بالموبايل | **صفر** | كل المسارات تفتح شاشة حقيقية (القسم 7) |
-| اختبارات تمرّ حالياً | **181** | `flutter analyze` نظيف (176 + 5 اختبارات جديدة/مُستعادة بـ Phase 1) |
+| اختبارات تمرّ حالياً | **190** | `flutter analyze` نظيف (Phase 1-8؛ +4 شريط 6 أزرار، +4 Saved DTO) |
 
 ### 0.1 — ماذا تغيّر منذ النسخة الأصلية (2026-07-09 → 2026-07-13)؟
 
@@ -145,14 +148,16 @@
 | `GET /services/:id` | GET | ✅200 | 88% | ✅ **موصول** (نفس `services_remote_data_source.dart`). مطابق. لا `location` للخدمة (فاضي). |
 | `GET /categories/:id/content` | GET | ✅200 | — | غير مستخدم؛ الفرونت يفلتر `/services` بدلاً منه. |
 
-### 3.4 — Influencer / Seats
-> **تحديث 2026-07-14:** شاشة Seats صارت **للـ influencer فقط** (طلب العميل). سلوت التاب رقم 1 بالشريط السفلي role-gated: influencer يشوف Seats، الباقي يشوف تاب **Offers** جديد (`offers_screen.dart`). راجع `v1_interim_admin_curation.md`.
+### 3.4 — Influencer / Seats — ✅ القراءة موصولة (Phase 6، 2026-07-15)
+> **تصحيح منطقي (2026-07-15):** شاشة Seats تظهر للـ **influencer + company** (لا influencer فقط — راجع `promoo_business_logic_guide.md`: الشركة تتصفّح المقاعد لتختار مؤثرين وتتعاقد معهم؛ **الحجز** للـ influencer فقط). الشريط السفلي role-aware: user/service_provider/guest يشوفوا 5 أزرار (Offers بلا Seats)؛ influencer/company يشوفوا 6 أزرار (Offers **و** Seats). الـ index يُحسب ديناميكياً من قائمة التابات (`selectedShellTabForPath` في `promoo_shell.dart`).
+>
+> **تحديث Phase 6 (2026-07-15):** القراءة موصولة فعلياً (`seats_remote_data_source.dart` + ربط `seatsRepositoryProvider`)، الحجز (Stripe) يبقى مؤجل v2 — قرار المالك. راجع [phase_6_seats_integration.md](phase_6_seats_integration.md). **تصحيح فجوة قديمة:** الملاحظة السابقة كانت تقول "الباك مزروع ~مقعد واحد لكل tier" — **هذا صار غلط/قديم**؛ فحص مباشر للـ DB (2026-07-15) أظهر الشبكة الكاملة **144 مقعد مزروعة فعلاً** (16 ذهبي + 48 فضي + 80 برونزي)، كلها `available` حالياً، بنفس بنية شبكة الموبايل بالضبط. `GET /seats` الحي رجّع 144 مقعد بالحقول المتوقعة (`tier/price/status/position/profile`).
 
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /seats?tier=` | GET | ✅200 | 90% حقول | **الفجوة الحرجة (data):** الباك مزروع فيه ~مقعد واحد لكل tier (اختبار أصلي). الفرونت يرسم شبكة 144. الحقول متطابقة (`tier/price/status/position/profile`). **يُعاد التحقق من الـ seed عند الربط** (migrations 027/029/030/033 مسّت المقاعد لكن لا migration يزرع شبكة كاملة). |
-| `GET /seats/me` | GET | ✅200 | 90% | يحتاج Bearer. |
-| `POST /seats/:id/book` | POST | ✅200 (Stripe) | — | يرجّع `checkoutUrl` — **مؤجل v2**. زر Book Now يفتح preview محلي فقط. |
+| `GET /seats?tier=` | GET | ✅200 | 90% حقول | ✅ **موصول + مُتحقَّق حياً (Phase 6)** — رجّع 144 مقعد حقيقي، كلها متاحة (لا مؤثرين محجوزين بعد — حالة صحيحة، لا بيانات وهمية). الحقول متطابقة. |
+| `GET /seats/me` | GET | ✅200 | 90% | ✅ **موصول (Phase 6)** — يحتاج Bearer (الـ interceptor يحقنه تلقائياً). يرجّع مقاعد المستخدم المحجوزة (فاضي بالـ v1، لا حجز). |
+| `POST /seats/:id/book` | POST | ✅200 (Stripe) | — | **مؤجل v2** — الـ remote source يرمي failure واضح بدل ما يطلق Stripe (غير مستدعى بالـ v1 أصلاً؛ زر Book Now يفتح preview محلي فقط). |
 | `DELETE /seats/:id/cancel` | DELETE | ✅200 | — | مؤجل v2. |
 
 ### 3.5 — Cup / Leaderboard — ✅ موصول (Phase 5، 2026-07-14)
@@ -163,7 +168,7 @@
 ### 3.6 — Profile (بروفايلي + العام + التعديل) — ✅ "أنا + تعديل" موصولة (Phase 3، 2026-07-13)
 | Endpoint | Method | Backend | توافق | الحالة |
 |---|---|---|---|---|
-| `GET /profiles/:idOrUsername` | GET | ✅200 | 88% | ❌ **لسا fake** — الفرونت يولّد **نسخة ديمو لكل id** (`getProfile`). لم يُربط بعد (البروفايل العام لأشخاص آخرين، غير "أنا"). |
+| `GET /profiles/:idOrUsername` | GET | ✅200 | 88% | ✅ **موصول + مُتحقَّق حياً (تصحيح 2026-07-15).** الملاحظة القديمة "لسا fake" **صارت غلط** — `getProfile` مربوط على remote من Phase 3 (`profile_remote_data_source.dart:fetchProfile`). تحقّق حي: `GET /profiles/<owner id>` رجّع 200 والاسم الحقيقي "Moumen Alkamsheh". |
 | `GET /profiles/me` | GET | ✅200 | 88% | ✅ **موصول** — `profile_remote_data_source.dart`. **تحقّق حي:** حساب حقيقي أظهر اسمه الحقيقي/0 متابع/حقول فاضية (مو بيانات Saffron Social الوهمية). |
 | `PUT /profiles/me` | PUT | ✅200 | 90% | ✅ **موصول** (كان stub ثابت يرجّع فشل فوراً — أُصلح). **تحقّق حي:** حفظ bio+location حقيقي رجع 200 مع العدّادات، وتحميل الصفحة من جديد أظهر القيم المحفوظة (استمرارية حقيقية، مو UI متفائل فقط). Name/Bio/Location فقط بالشاشة حالياً — لا category/website. |
 | `POST /profiles/me/avatar` · `/cover` | POST | ✅200 | 85% | ❌ **لسا غير موصول** — يعتمد على Upload (Phase 8) أولاً. زر "Change profile photo" لسا "coming soon". |
@@ -171,19 +176,20 @@
 
 **تحديث إحصائيات البروفايل (كان تنبيهاً، انحلّ جزئياً بـ Phase 0):** الباك صار يرجّع `followers_count` (موجود من قبل) + `following_count`+`posts_count` (أُضيفا Phase 0، `profile.service.ts withCounts`) على GET **و** PUT (كانت PUT ناقصة العدّادات — أُصلحت بـ Phase 3). **`views_count` يبقى مفقود** (لا مصدر بالـ DB — مؤجّل v2 نهائياً، قرار مالك موثّق بـ `v2_deferred_scope.md` §6). `ProfileStatsDto` يقرأ الكل دفاعياً فيرجع 0 لـ views تلقائياً — سلوك صحيح ومقصود.
 
-### 3.7 — Follow / Unfollow
-| Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
-|---|---|---|---|---|
-| `POST /follows/:profileId` | POST | ✅200 | 90% | **Follow صار toggle محلي متفائل فعّال** (لم يعد "coming soon"). العمل: استبداله بالطلب الحقيقي + Bearer. |
-| `DELETE /follows/:profileId` | DELETE | ✅200 | 90% | نفس الشي. |
-| `GET /follows/:profileId/status` | GET | ✅200 | 90% | لتهيئة حالة الزر عند فتح البروفايل. |
-| `GET /follows/followers/:id` · `following/:id` | GET | ✅200 | 85% | شاشة Following تستخدم بيانات ديمو محلية الآن؛ تُربط بـ `following`. |
-
-### 3.8 — Saved Items
+### 3.7 — Follow / Unfollow — ✅ موصول (Phase 7، 2026-07-15)
 | Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /saved` | GET | ✅200 | **75%** | **فجوة باك:** يرجّع `item_id`+`item_type` فقط بلا تفاصيل. الفرونت يحتاج التفاصيل → join بالباك (مفضّل) أو N+1 بالفرونت. الشاشة الآن ديمو محلي. |
-| `POST /saved` · `DELETE /saved/:id` | POST/DELETE | ✅ | 90% | توصيل زر الحفظ. |
+| `POST /follows/:profileId` | POST | ✅200 | 90% | ✅ **موصول** — زر Follow صار طلب حقيقي (optimistic + revert عند الفشل). أُضيف للـ `ProfileDataSource/Repository` + `profile_controller.toggleFollow`. |
+| `DELETE /follows/:profileId` | DELETE | ✅200 | 90% | ✅ **موصول** — Unfollow. |
+| `GET /follows/:profileId/status` | GET | ✅200 | 90% | ✅ **موصول** — يُجلب عند فتح بروفايل شخص آخر (إذا مسجّل دخول) لتهيئة حالة الزر. تحقّق حي: بدون توكن رجّع 401 (auth-gated صح). البارس يقرأ `data.isFollowing`. |
+| `GET /follows/followers/:id` · `following/:id` | GET | ✅200 | 85% | ⏳ قوائم المتابعين/المتابَعين لسا ديمو محلي — تُربط لاحقاً (Following screen). |
+
+### 3.8 — Saved Items — ✅ موصول (Phase 8، 2026-07-15)
+| Endpoint | Method | Backend | توافق | ملاحظة |
+|---|---|---|---|---|
+| `GET /saved` | GET | ✅200 | 90% | ✅ **موصول** — **الفجوة القديمة (بلا تفاصيل) انحلّت بالباك Phase 0:** الباك صار يعمل hydrate ويرجّع `item` الكامل (offer/service/ad/profile) لكل صف — لا N+1. شريحة جديدة `lib/features/saved/` (DTO polymorphic + controller). تحقّق حي: بدون توكن 401 (auth-gated صح). زُرع صف saved للمالك للعرض. الضيف → حالة فاضية (بلا استدعاء). |
+| `DELETE /saved/:id` | DELETE | ✅200 | 90% | ✅ **موصول** — إزالة من شاشة Saved (optimistic + revert). ياخد **saved-row id** مو item_id. |
+| `POST /saved` | POST | ✅201 | 90% | ⏳ زر الحفظ من كروت العروض/الخدمات لسا غير مربوط (يحتاج bookmark buttons عبر التطبيق) — لاحقاً. |
 
 ### 3.9 — Chat (ميزة v1)
 | Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
@@ -236,7 +242,7 @@
 | ✅ Search | 1 | **92%** | **موصول (Phase 5)** — الكود جاهز، لسا بلا تحقّق حي (يحتاج نص مكتوب لإطلاق الطلب) |
 | ✅ Services + Detail | 3 | **88%** | **موصول (Phase 5)** — تحقّق حي؛ لا `location` للخدمة |
 | ✅ Leaderboard | 1 | **98%** | **موصول (Phase 5) + مُتحقَّق حياً** — بيانات حقيقية |
-| Seats | 2 | **90% حقول / بيانات ناقصة** | **seed مقعد/tier** ✅ أُصلح Phase 0 — يحتاج ربط `GET /seats` فقط |
+| ✅ Seats (قراءة) | 2 | **90%** | **موصول (Phase 6)** — `GET /seats`+`/seats/me` حي، 144 مقعد حقيقي؛ الحجز (Stripe) مؤجل v2 |
 | Profile (عام) | 2 | **88%** | ❌ لسا fake — `GET /profiles/:id` غير موصول |
 | ✅ Profile (أنا + تعديل) | 3 | **90%** | **موصول (Phase 3)** — يتبقّى الأفاتار (Upload) والفئة فقط |
 | Follow/Unfollow | 5 | **88%** | toggle محلي بدل الطلب الحقيقي |

@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-15 (Auth v1 finalized: email confirmation + forgot/reset password fully disabled — register + login only, see §5 entry)
+> Last updated: 2026-07-15 (Phase 8 — Saved list+remove wired. Earlier same day: Phase 7 Follow; Seats visibility corrected + 6-tab nav bug fixed; Phase 6 Seats reads; Auth v1 finalized)
 
 ---
 
@@ -106,6 +106,89 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-15 — Phase 8 (Saved) wired — list + remove.** New feature slice
+  `lib/features/saved/` (entity + polymorphic DTO + data source/remote/fake + repository +
+  controller); the Saved screen (`profile/presentation/screens/saved_items_screen.dart`) was a
+  static hardcoded demo — rewritten as a `ConsumerWidget` on `savedControllerProvider`.
+  `GET /saved` returns rows **already hydrated** with the full `item` (offer/service/ad/
+  profile) — the old "backend returns id-only, N+1 gap" note is stale (Phase 0 added the
+  hydration in `saved.service.ts`). DTO reads all four item shapes defensively (title ←
+  title/full_name; subtitle ← @username / price / description; image ← media_urls[0] /
+  media_url / avatar_url). `DELETE /saved/:id` takes the **saved-row id** (not item_id) —
+  remove is optimistic + revert-on-failure. Guest → empty state (no call; endpoint is
+  auth-only). `POST /saved` (save-from-card) intentionally NOT wired yet — needs bookmark
+  buttons on offer/service cards across the app (next). Added `saved` + `savedById` to
+  `ApiEndpoints`; added `saved_dto_test.dart` (4 pure mapping tests). **Live:** `GET /saved`
+  no-token → 401 (auth-gated); seeded one `saved_items` row for the owner (offer "Launch Week
+  Web Design") so the list shows populated when they open it in-app. **190/190 tests pass,
+  analyze clean.** Full authed view needs owner login (same constraint as Seats/Follow).
+  integration_map §3.8 + top summary synced.
+- **2026-07-15 — Phase 7 (Follow / Unfollow) wired live.** Discovered first that public
+  profile (`GET /profiles/:idOrUsername`) was **already wired** since Phase 3 (repository →
+  `profile_remote_data_source.fetchProfile`); the integration_map "still fake" note was stale
+  (same pattern as the seats seed note). Live-confirmed: `GET /profiles/<owner id>` → 200,
+  real name "Moumen Alkamsheh". So Phase 7 = the real next-unwired thing: **Follow**. Added
+  follow ops to the profile data layer (button lives on the profile): `ProfileDataSource` +
+  remote (`GET /follows/:id/status` parsing `data.isFollowing`, `POST`/`DELETE /follows/:id`)
+  + fake (in-memory set) + `ProfileRepository`. `profile_controller`: on load of *another*
+  user's profile **and** signed in, seeds `isFollowing` from status; `toggleFollow` is now
+  optimistic + real request + revert-on-failure (was a pure local flip). Guests / own profile
+  stay false (status endpoint is auth-only). Added `follow`/`followStatus` to `ApiEndpoints`.
+  Updated 6 `ProfileRepository` test doubles (+3 stub methods each). **Live:** `GET
+  /follows/:id/status` without a token → 401 (endpoint exists, auth-gated correctly; the
+  interceptor supplies the Bearer in-app). Full authenticated tap needs the owner's login
+  (same constraint as the Seats visual). **186/186 tests pass, analyze clean.** Followers/
+  following LIST screens stay demo for now (next). Docs: integration_map §3.6 (profile note
+  corrected) + §3.7 (follow wired).
+- **2026-07-15 — Seats visibility corrected (influencer + company) + a 6-tab bottom-nav
+  index bug fixed. Full project review after a parallel agent (Antigravity) made changes.**
+  While this session was rate-limited, another agent (Antigravity, via its own IDE) reviewed
+  roles and **committed** `9349e37 "company now can see influencer seat"`: it changed the
+  bottom nav from "5 tabs, Seats XOR Offers" to "6 tabs for influencer + company" (Offers
+  always visible + Seats added), so companies now see the Seats tab. **This is business-
+  logically CORRECT** and supersedes the earlier "Seats = influencer-only" rule, which was a
+  logic error: per `promoo_business_logic_guide.md` (the owner's authoritative business-logic
+  doc), companies MUST see the seat map to browse and contract influencers; **booking stays
+  influencer-only** (already enforced in `account_capabilities:canBookSeat` +
+  `seats_screen._onTap`). Owner instruction was explicit: **follow the logic, not stale files
+  or prior instructions.** So the 6-tab design is kept.
+  **Bug Antigravity left (now fixed by us):** it did NOT update `_selectedIndexForPath` in
+  `app_router.dart` — it stayed a static 5-tab path→index map, so on a 6-tab bar the wrong tab
+  highlighted (e.g. `/services` → 3 = Cup instead of 4 = Services) and the floating P mark
+  misaligned; broken for exactly the influencer/company accounts it targeted. Its "verified
+  visually" claim only covered the guest 5-tab case. **Fix:** `PromooShell` now resolves the
+  selected index against its own role-aware tab list — extracted `selectedShellTabForPath(path)`
+  (path → logical `PromooShellTabId`) and does `tabs.indexWhere(...)`; the shell takes
+  `currentPath` instead of a precomputed `selectedIndex`. Added `test/shell/promoo_shell_tabs_test.dart`
+  (pure logic, both 5- and 6-tab bars, asserts `/services`→4 in 6-tab) — the missing coverage
+  that let the bug through. **186/186 tests pass, analyze clean.** Corrected the stale
+  "influencer-only" wording in integration_map §3.4, v1_interim_admin_curation §3, and the
+  phase_6 doc. `account_capabilities.dart` (Add Offer/Service/Ad + book gates) was already
+  correct vs the guide — no change. **Flagged for owner (not changed):** Antigravity claims it
+  upgraded `test.user@promoo.com` to a DB admin — an extra admin account to review/clean up;
+  and left a trivial uncommitted comment in `auth_session_store.dart`.
+- **2026-07-15 — Phase 6 (Seats) done — read path wired live; booking stays deferred to
+  v2 (owner decision).** Same split logic as every prior phase + the v1 interim curation
+  philosophy: the **read** endpoints (Stripe-free) get wired for real now; the **booking**
+  endpoints (Stripe-gated) stay v2. Built `seats_remote_data_source.dart`
+  (`GET /seats?tier=` + `GET /seats/me`, Bearer auto-injected by the interceptor) following
+  the exact Home/Services/Leaderboard pattern; switched `seatsRepositoryProvider` from the
+  fake to the remote source. **`bookSeat` in the remote source deliberately throws a clear
+  AppFailure** instead of calling the real `POST /seats/:id/book` — booking is Stripe/v2 and
+  the v1 UI never calls it anyway (the "Book Now" button opens a fully-local checkout
+  preview screen; the controller's `requestBooking`/`bookSeatAfterAuth` are dead in v1). This
+  keeps the v1 boundary explicit and prevents any accidental real Stripe checkout + seat
+  reservation. **Key fact corrected:** the old integration_map note ("backend seeds ~1 seat
+  per tier") was stale — a direct DB check showed the **full 144-seat grid is already seeded**
+  (16 gold + 48 silver + 80 bronze), all `available`, matching the mobile grid exactly.
+  `GET /seats` live-returned 144 real seats with the expected DTO fields. So the grid now
+  shows the real backend seats (all available = a clean, truthful, bookable grid — no fake
+  influencer occupancy, consistent with the earlier "don't fill the seats" decision). Owner
+  explicitly chose "clean grid, booking deferred" over building an admin seat-assignment
+  stand-in. Fixed only 1 test (`app_routes_smoke_test.dart` — added a `seatsRepositoryProvider`
+  fake override so its `/seats` case doesn't hit the real network); the 3 seats tests already
+  override the provider. 182/182 tests pass, analyze clean. Docs: integration_map §3.4 +
+  summary table updated, stale seed-gap note corrected.
 - **2026-07-15 — Auth v1 finalized as register+login only; email confirmation and
   forgot/reset password fully disabled (not "coming soon" — removed).** While trying
   to create an influencer test account (to test the role-gated Seats tab from
