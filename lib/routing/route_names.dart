@@ -93,4 +93,11 @@ class AppRoutes {
   }
 
   static String chatRoom(String roomId) => '/chats/$roomId';
+
+  /// A `roomId` of `new` is a sentinel the chat room route recognizes to mean
+  /// "no room yet — resolve one for `participant` in the background" (see
+  /// [ChatRoomScreen.newChat]), so the Message button can navigate instantly
+  /// instead of waiting on the `startChat` network round-trip first.
+  static String chatWithParticipant(String participantId) =>
+      '/chats/new?participant=$participantId';
 }

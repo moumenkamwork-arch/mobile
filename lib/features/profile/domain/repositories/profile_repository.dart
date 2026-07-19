@@ -1,7 +1,10 @@
 import '../../../../core/utils/result.dart';
+import '../entities/follow_user.dart';
 import '../entities/promoo_profile.dart';
 
 abstract interface class ProfileRepository {
+  Future<Result<List<FollowUser>>> getFollowing(String profileId);
+
   Future<Result<PromooProfile>> getDemoProfile();
 
   Future<Result<PromooProfile>> getProfile(String idOrUsername);

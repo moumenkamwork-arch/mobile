@@ -80,6 +80,23 @@ class ChatMessage {
   final ChatMessageStatus status;
 
   bool get hasMedia => mediaUrl != null && mediaUrl!.trim().isNotEmpty;
+
+  /// Only `status` ever needs to change post-creation (optimistic send →
+  /// sent/failed), so that's the only override this supports.
+  ChatMessage copyWith({ChatMessageStatus? status}) {
+    return ChatMessage(
+      id: id,
+      roomId: roomId,
+      senderId: senderId,
+      content: content,
+      createdAt: createdAt,
+      sender: sender,
+      type: type,
+      mediaUrl: mediaUrl,
+      isMine: isMine,
+      status: status ?? this.status,
+    );
+  }
 }
 
 class ChatRoom {

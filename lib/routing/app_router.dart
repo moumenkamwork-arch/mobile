@@ -76,7 +76,12 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         path: AppRoutes.chatRoomPath,
         name: RouteNames.chatRoom,
         builder: (context, state) {
-          return ChatRoomScreen(roomId: state.pathParameters['roomId'] ?? '');
+          final roomId = state.pathParameters['roomId'] ?? '';
+          if (roomId == 'new') {
+            final participantId = state.uri.queryParameters['participant'] ?? '';
+            return ChatRoomScreen.newChat(participantId: participantId);
+          }
+          return ChatRoomScreen(roomId: roomId);
         },
       ),
       GoRoute(

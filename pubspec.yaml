@@ -38,6 +38,11 @@ dependencies:
   flutter_svg: ^2.3.0
   go_router: ^17.3.0
   dio: ^5.9.2
+  supabase_flutter: ^2.16.0
+  # Talks to the Realtime websocket directly (no GoTrue/Postgrest overhead —
+  # auth is our own backend's). Already pulled in transitively by
+  # supabase_flutter; declared explicitly since we import it directly.
+  realtime_client: any
   flutter_secure_storage: any
   fpdart: any
   freezed_annotation: any

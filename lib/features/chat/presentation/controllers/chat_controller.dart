@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_failure.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../data/realtime/chat_realtime_service.dart';
 import '../../data/repositories/chat_repository_impl.dart';
 import '../../domain/entities/chat.dart';
 
@@ -52,10 +54,34 @@ class ChatState {
 
 class ChatController extends Notifier<ChatState> {
   var _disposed = false;
+  StreamSubscription<ChatMessage>? _realtimeSub;
 
   @override
   ChatState build() {
-    ref.onDispose(() => _disposed = true);
+    ref.onDispose(() {
+      _disposed = true;
+      _realtimeSub?.cancel();
+    });
+
+    // The list is fetched once at first build, which for most sessions
+    // happens while still a guest (the header mounts before login) — without
+    // this, the room list (and the header's unread badge, which derives from
+    // it) would stay empty/stale forever after signing in.
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      final wasAuthed = previous?.isAuthenticated ?? false;
+      if (next.isAuthenticated != wasAuthed) {
+        unawaited(load());
+      }
+    });
+
+    // Any new message anywhere (mine or theirs) can change unread counts,
+    // ordering, or the last-message preview — a silent refresh keeps the
+    // list and header badge live instead of only updating on manual pull.
+    _realtimeSub = ref
+        .read(chatRealtimeServiceProvider)
+        .messages
+        .listen((_) => unawaited(refresh()));
+
     unawaited(Future<void>.microtask(load));
     return const ChatState.loading();
   }

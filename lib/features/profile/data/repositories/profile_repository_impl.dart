@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/errors/app_failure.dart';
 import '../../../../core/utils/result.dart';
+import '../../domain/entities/follow_user.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/profile_data_source.dart';
@@ -134,6 +135,19 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return const Result.success(null);
     } on AppFailure catch (failure) {
       return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowing(String profileId) async {
+    try {
+      return Result.success(await dataSource.fetchFollowing(profileId));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
     } catch (_) {
       return const Result.failure(AppFailure.unknown());
     }

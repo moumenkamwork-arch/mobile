@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
+import 'package:promoo_app/features/profile/domain/entities/follow_user.dart';
 import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
@@ -412,6 +413,10 @@ class _ProfileRepository implements ProfileRepository {
   @override
   Future<Result<void>> unfollowProfile(String profileId) async =>
       const Result.success(null);
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowing(String profileId) async =>
+      const Result.success(<FollowUser>[]);
 }
 
 class _ServicesRepository implements ServicesRepository {

@@ -41,6 +41,10 @@ class ApiEndpoints {
 
   static String followStatus(String profileId) => '/follows/$profileId/status';
 
+  static String followingList(String profileId) => '/follows/following/$profileId';
+
+  static String followersList(String profileId) => '/follows/followers/$profileId';
+
   static String chatMessages(String roomId) => '/chats/$roomId/messages';
 
   static String markChatRead(String roomId) => '/chats/$roomId/read';

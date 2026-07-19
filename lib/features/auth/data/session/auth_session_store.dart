@@ -27,15 +27,32 @@ class SecureAuthSessionStore implements AuthSessionStore {
   static const _key = 'promoo_auth_session';//! should be in env
   static const _storage = FlutterSecureStorage();
 
+  /// In-memory mirror of the current session. `flutter_secure_storage` is
+  /// unreliable on some platforms — notably **Flutter web**, where `write`/`read`
+  /// can silently no-op. That left the auth interceptor reading `null` right
+  /// after a successful login (session lived only in the auth controller's
+  /// in-memory state), so every authenticated request went out with **no
+  /// `Authorization` header** → 401 "Missing or invalid authorization header"
+  /// (Chat/Follow/Saved all broke while logged in). This process-wide cache
+  /// guarantees the current session's token is always available in-process,
+  /// independent of whether the on-device secure store actually persisted it.
+  /// Persisting to `_storage` remains best-effort (for surviving app restarts).
+  static AuthSession? _cache;
+
   @override
   Future<AuthSession?> read() async {
+    if (_cache != null) {
+      return _cache;
+    }
     try {
       final raw = await _storage.read(key: _key);
       if (raw == null || raw.isEmpty) {
         return null;
       }
       final json = _mapFrom(jsonDecode(raw));
-      return json == null ? null : _sessionFromJson(json);
+      final session = json == null ? null : _sessionFromJson(json);
+      _cache = session;
+      return session;
     } catch (_) {
       return null;
     }
@@ -43,18 +60,20 @@ class SecureAuthSessionStore implements AuthSessionStore {
 
   @override
   Future<void> write(AuthSession session) async {
+    _cache = session;
     try {
       await _storage.write(
         key: _key,
         value: jsonEncode(_sessionToJson(session)),
       );
     } catch (_) {
-      // Best effort — nothing more we can do if the secure store is unavailable.
+      // Best effort — the in-memory cache above still holds the session.
     }
   }
 
   @override
   Future<void> clear() async {
+    _cache = null;
     try {
       await _storage.delete(key: _key);
     } catch (_) {

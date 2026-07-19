@@ -4,12 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
+import 'package:promoo_app/features/profile/domain/entities/follow_user.dart';
 import 'package:promoo_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
 import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 import 'package:promoo_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:promoo_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:promoo_app/features/auth/presentation/screens/register_screen.dart';
+import 'package:promoo_app/features/chat/data/datasources/chat_fake_data_source.dart';
+import 'package:promoo_app/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
 import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
@@ -165,6 +168,14 @@ void main() {
           // for the access token; the real SecureAuthSessionStore's platform
           // channel call never resolves under testWidgets.
           authSessionStoreProvider.overrideWithValue(InMemoryAuthSessionStore()),
+          // Chat now hits the real backend by default (Phase 9) — keep this
+          // navigation test on the fake.
+          chatRepositoryProvider.overrideWithValue(
+            ChatRepositoryImpl(
+              dataSource: ChatFakeDataSource(),
+              sessionStore: InMemoryAuthSessionStore(),
+            ),
+          ),
         ],
         child: MaterialApp.router(
           theme: AppTheme.dark,
@@ -315,4 +326,8 @@ class _ProfileRepository implements ProfileRepository {
   @override
   Future<Result<void>> unfollowProfile(String profileId) async =>
       const Result.success(null);
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowing(String profileId) async =>
+      const Result.success(<FollowUser>[]);
 }

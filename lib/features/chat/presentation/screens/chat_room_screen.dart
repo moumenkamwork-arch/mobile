@@ -15,24 +15,32 @@ import '../widgets/chat_message_bubble.dart';
 import '../widgets/chat_message_input.dart';
 
 class ChatRoomScreen extends StatelessWidget {
-  const ChatRoomScreen({super.key, required this.roomId});
+  const ChatRoomScreen({super.key, required String roomId})
+    : arg = (roomId: roomId, participantId: null);
 
-  final String roomId;
+  /// No room exists yet — [ChatRoomController] resolves (or creates) one via
+  /// `startChat` in the background while this shows an immediately-usable
+  /// empty conversation, instead of the caller waiting on that network call
+  /// before navigating at all.
+  const ChatRoomScreen.newChat({super.key, required String participantId})
+    : arg = (roomId: null, participantId: participantId);
+
+  final ChatRoomArg arg;
 
   @override
   Widget build(BuildContext context) {
-    return _ChatRoomBody(roomId: roomId);
+    return _ChatRoomBody(arg: arg);
   }
 }
 
 class _ChatRoomBody extends ConsumerWidget {
-  const _ChatRoomBody({required this.roomId});
+  const _ChatRoomBody({required this.arg});
 
-  final String roomId;
+  final ChatRoomArg arg;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(chatRoomControllerProvider(roomId));
+    final state = ref.watch(chatRoomControllerProvider(arg));
     final viewInsets = MediaQuery.viewInsetsOf(context);
     final inputBottomPadding = viewInsets.bottom > 0
         ? viewInsets.bottom + AppSpacing.lg
@@ -52,12 +60,12 @@ class _ChatRoomBody extends ConsumerWidget {
                     color: context.colors.accent,
                     backgroundColor: context.colors.elevatedSurface,
                     onRefresh: () => ref
-                        .read(chatRoomControllerProvider(roomId).notifier)
+                        .read(chatRoomControllerProvider(arg).notifier)
                         .refresh(),
                     child: _ConversationBody(
                       state: state,
                       onRetry: () => ref
-                          .read(chatRoomControllerProvider(roomId).notifier)
+                          .read(chatRoomControllerProvider(arg).notifier)
                           .retry(),
                       onLogin: () => context.go(AppRoutes.login),
                     ),
@@ -82,19 +90,10 @@ class _ChatRoomBody extends ConsumerWidget {
                   AppSpacing.screenHorizontal,
                   inputBottomPadding,
                 ),
-                child: Column(
-                  children: [
-                    if (state.sendFailure != null) ...[
-                      _SendFailureBanner(message: state.sendFailure!.message),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                    ChatMessageInput(
-                      isSending: state.isSending,
-                      onSend: (text) => ref
-                          .read(chatRoomControllerProvider(roomId).notifier)
-                          .sendText(text),
-                    ),
-                  ],
+                child: ChatMessageInput(
+                  onSend: (text) => ref
+                      .read(chatRoomControllerProvider(arg).notifier)
+                      .sendText(text),
                 ),
               ),
           ],
@@ -182,8 +181,7 @@ class _ConversationBody extends StatelessWidget {
                 onRetry: onRetry,
               ),
       ChatRoomStatus.success ||
-      ChatRoomStatus.refreshing ||
-      ChatRoomStatus.sending => ListView.separated(
+      ChatRoomStatus.refreshing => ListView.separated(
         padding: const EdgeInsetsDirectional.fromSTEB(
           AppSpacing.screenHorizontal,
           AppSpacing.md,
@@ -200,36 +198,9 @@ class _ConversationBody extends StatelessWidget {
   }
 }
 
-class _SendFailureBanner extends StatelessWidget {
-  const _SendFailureBanner({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.elevatedSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.error),
-      ),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
-    );
-  }
-}
-
 bool _canShowInput(ChatRoomState state) {
   return switch (state.status) {
-    ChatRoomStatus.success ||
-    ChatRoomStatus.empty ||
-    ChatRoomStatus.sending => true,
+    ChatRoomStatus.success || ChatRoomStatus.empty => true,
     ChatRoomStatus.loading ||
     ChatRoomStatus.error ||
     ChatRoomStatus.refreshing => state.hasContent,

@@ -10,13 +10,13 @@
 >
 > **القاعدة الذهبية:** لم نعدّل أي ملف بالباك.
 >
-> آخر تحديث: 2026-07-15 (**Phase 8 — Saved — تمّت**). قبلها: Phase 7 (Follow)، Phase 6 (Seats قراءة)، Phase 5 (Services/Categories/Search/Leaderboard)، Phase 4 (Home)، Phase 3 (Profile)، Phase 2 (Auth)، Phase 1 (السباكة)، Phase 0 (تصليب التوافق).
+> آخر تحديث: 2026-07-19 (**Chat Realtime — تمّت** عبر Supabase، بعد ما كانت مؤجلة بـ Phase 9؛ + UX تفاؤلي لفتح محادثة جديدة وإرسال رسالة). قبلها: Phase 9 (Chat REST)، Phase 8 (Saved)، Phase 7 (Follow)، Phase 6 (Seats قراءة)، Phase 5 (Services/Categories/Search/Leaderboard)، Phase 4 (Home)، Phase 3 (Profile)، Phase 2 (Auth)، Phase 1 (السباكة)، Phase 0 (تصليب التوافق).
 
 ---
 
 ## 0. الخلاصة التنفيذية (اقرأ هذا أولاً)
 
-**تحديث 2026-07-15 (Phase 1-8):** الربط ماشي ومُتحقَّق حياً — مو مجرد "خطة". جاهز حياً: السباكة (شبكة+interceptor+تخزين آمن)، Auth، Profile (me + تعديل **+ البروفايل العام**)، Home، Categories/Services/Search/Leaderboard، **Seats (قراءة — Phase 6)**، **Follow/Unfollow (Phase 7)**، **Saved (قائمة + إزالة — Phase 8)**. الباقي (نشر الإعلان/العرض/الخدمة، Upload، زر حفظ من الكروت، قوائم المتابعة، Chat/Notifications) لسا **fake محلي** — التفاصيل أدناه لكل قسم.
+**تحديث 2026-07-19:** الربط ماشي ومُتحقَّق حياً — مو مجرد "خطة". جاهز حياً: السباكة (شبكة+interceptor+تخزين آمن)، Auth، Profile (me + تعديل **+ البروفايل العام**)، Home، Categories/Services/Search/Leaderboard، **Seats (قراءة — Phase 6)**، **Follow/Unfollow (Phase 7)**، **Saved (قائمة + إزالة — Phase 8)**، **Chat (Phase 9 REST + Realtime — قائمة/غرفة/إرسال/مقروء + رسائل حيّة عبر Supabase + فتح/إرسال تفاؤلي)**. الباقي (نشر الإعلان/العرض/الخدمة، Upload، زر حفظ من الكروت، قوائم المتابعة، Notifications) لسا **fake محلي** — التفاصيل أدناه.
 
 **لماذا لا يزال هذا الملف صالحاً وحاسماً لبقية الأقسام؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة لبقية الأقسام ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
 
@@ -29,8 +29,9 @@
 6. ~~Seats (قراءة)~~ ✅ **تمّت (Phase 6)** — `GET /seats` + `/seats/me` موصولة، 144 مقعد حقيقي. الحجز (Stripe) مؤجل v2.
 7. ~~البروفايل العام + Follow/Unfollow~~ ✅ **تمّت (Phase 7)** — `GET /profiles/:id` (كان موصول من Phase 3)، و `POST/DELETE /follows/:id` + `GET /follows/:id/status` موصولة حياً.
 8. ~~Saved (قائمة + إزالة)~~ ✅ **تمّت (Phase 8)** — `GET /saved` (مع hydrate) + `DELETE /saved/:id` موصولة. زر الحفظ من الكروت (`POST /saved`) لسا.
-9. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور (Upload)، زر حفظ من الكروت، قوائم المتابِعين/المتابَعين.
-10. **الأقسام الأخرى (Chat/Notifications) لسا fake محلي بالكامل** — لم تُلمَس بعد.
+9. ~~Chat (REST + Realtime)~~ ✅ **تمّت (Phase 9 + 2026-07-19)** — قائمة/بدء غرفة/رسائل/إرسال/مقروء موصولة، بالإضافة لـ **Realtime حي عبر Supabase** (رسائل جديدة تظهر فوراً بدون refresh، بادج الأيقونة يتحدث حي) وفتح/إرسال تفاؤلي (UI فوري، الشبكة بالخلفية).
+10. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** نشر الإعلان/العرض/الخدمة، رفع الأفاتار/الصور (Upload)، زر حفظ من الكروت، قوائم المتابِعين/المتابَعين.
+11. **Notifications** مؤجل v2 (fake محلي).
 
 **الأرقام:**
 
@@ -41,10 +42,10 @@
 | endpoints مؤجلة v2 (Stripe/Notifications/Reports/Featured) | **~27** | القسم 6 |
 | endpoints للداشبورد فقط | **23** | كل `/admin/*` |
 | endpoints أخرى (Auth موسّع، Webhook، إدارة المالك) | **~11** | phone/oauth/otp، webhook، PUT/DELETE للمالك |
-| **حالة الربط الحالية** | **✅ ~20 موصولة حياً** | `auth/login/email` · `register/email` · `refresh` · `logout` · `GET/PUT /profiles/me` · `GET /profiles/:id` · `GET /home` (+ تفاصيل) · `GET /categories` · `GET /services(+:id)` · `GET /search` · `GET /leaderboard` · `GET /seats(+/me)` · `POST/DELETE /follows/:id` · `GET /follows/:id/status` · `GET /saved` · `DELETE /saved/:id`. الباقي (~30) لسا fake. |
+| **حالة الربط الحالية** | **✅ ~25 موصولة حياً + Chat Realtime** | ...السابقة + `GET /saved` · `DELETE /saved/:id` · `GET/POST /chats` · `GET/POST /chats/:id/messages` · `PATCH /chats/:id/read` · اشتراك Supabase Realtime على `messages`. الباقي (~25) لسا fake (أبرزه: Upload، نشر المحتوى، Notifications). |
 | نسبة التوافق المتوقعة (حقول ↔ حقول) | **~89%** | ثابتة للأقسام غير الموصولة بعد — الـ DTOs لم تُمَس منذ الفحص الأصلي |
 | صفحات ناقصة بالموبايل | **صفر** | كل المسارات تفتح شاشة حقيقية (القسم 7) |
-| اختبارات تمرّ حالياً | **190** | `flutter analyze` نظيف (Phase 1-8؛ +4 شريط 6 أزرار، +4 Saved DTO) |
+| اختبارات تمرّ حالياً | **192** | `flutter analyze` نظيف |
 
 ### 0.1 — ماذا تغيّر منذ النسخة الأصلية (2026-07-09 → 2026-07-13)؟
 
@@ -191,14 +192,17 @@
 | `DELETE /saved/:id` | DELETE | ✅200 | 90% | ✅ **موصول** — إزالة من شاشة Saved (optimistic + revert). ياخد **saved-row id** مو item_id. |
 | `POST /saved` | POST | ✅201 | 90% | ⏳ زر الحفظ من كروت العروض/الخدمات لسا غير مربوط (يحتاج bookmark buttons عبر التطبيق) — لاحقاً. |
 
-### 3.9 — Chat (ميزة v1)
-| Endpoint | Method | Backend | توافق | ملاحظة (مُحدَّثة) |
+### 3.9 — Chat (ميزة v1) — ✅ موصول REST + Realtime (Phase 9 يوم 2026-07-15، Realtime يوم 2026-07-19)
+> **Phase 9:** الـ REST موصول عبر `chat_remote_data_source.dart` + ربط `chatRepositoryProvider`. الـ Bearer يُحقن تلقائياً بالـ interceptor.
+> **2026-07-19:** أضيف Supabase Realtime — `chat_realtime_service.dart` (`RealtimeClient` مباشر، بدون `SupabaseClient`/`GoTrueClient` الكاملة لتفادي auto-refresh timer غير المستخدم) يشترك بـ `postgres_changes` INSERT على جدول `messages`؛ RLS (مُتحقَّق سابقاً أنها تحصر كل مستخدم بغرفه فقط) تكفي فلترة الاشتراك بلا حاجة لفلتر إضافي. `ChatController` يعيد التحميل عند تغيّر حالة الدخول (كان السبب وراء اختفاء بادج الأيقونة دائماً) ويحدّث القائمة عند أي رسالة حيّة؛ `ChatRoomController` يلحق الرسائل الحيّة مباشرة بالغرفة المفتوحة. بالإضافة: **فتح محادثة جديدة وإرسال رسالة صارا تفاؤليين (optimistic)** — الفتح ينتقل فوراً (`/chats/new?participant=`) والحل الفعلي لل room id يصير بالخلفية، والإرسال يظهر فوراً بحالة "Sending" ثم يتحول لحالة نهائية. تحقّق حي بحسابين حقيقيين وتابين: رسالة أُرسلت من حساب عبر API مباشر ظهرت بالتاب التاني بدون أي تفاعل (تأكيد بصري + شبكي: `PATCH .../read` انطلق تلقائياً بدون `GET messages` مرافق)، وبادج الأيقونة بالهيدر تحول من بلا بادج لـ "1" حي.
+
+| Endpoint | Method | Backend | توافق | ملاحظة |
 |---|---|---|---|---|
-| `GET /chats` | GET | ✅200 | 88% | fake الآن؛ الـ DTO يقرأ `{room, otherParticipant, lastMessage, unreadCount}`. |
-| `POST /chats` | POST | ✅201 | 85% | `{participant_id}` → `{room, participant, isNew}`. |
-| `GET/POST /chats/:roomId/messages` | GET/POST | ✅ | 88% | الرسائل مع `sender`. الـ controller صار **`family` بـ roomId** (بنية صحيحة للربط). |
-| `PATCH /chats/:roomId/read` | PATCH | ✅200 | 90% | — |
-| **Realtime** | Supabase Realtime | — | — | الباك جاهز؛ الفرونت يتصل بـ Supabase SDK (غير مضاف — دليل `Realtime-Chat-Flutter-Guide.md`). |
+| `GET /chats` | GET | ✅200 | 88% | ✅ **موصول** — قائمة الغرف `{room, otherParticipant, lastMessage, unreadCount}`. يُعاد تحميلها عند الدخول وعند أي رسالة حيّة. |
+| `POST /chats` | POST | ✅201 | 85% | ✅ **موصول** — `{participant_id}` → `{room, participant, isNew}`. يُستدعى بالخلفية عند فتح محادثة جديدة (UI فوري قبله). |
+| `GET/POST /chats/:roomId/messages` | GET/POST | ✅ | 88% | ✅ **موصول** — قراءة/إرسال الرسائل (`family` بـ `{roomId, participantId}`). الإرسال تفاؤلي محلياً. |
+| `PATCH /chats/:roomId/read` | PATCH | ✅200 | 90% | ✅ **موصول** — تعليم الغرفة مقروءة، يُستدعى تلقائياً أيضاً عند وصول رسالة حيّة والغرفة مفتوحة. |
+| **Realtime** | Supabase Realtime | — | — | ✅ **تمّت (2026-07-19)** — `postgres_changes` INSERT على `messages` عبر `RealtimeClient` مباشر؛ RLS موجودة مسبقاً وتكفي. |
 
 ### 3.10 — Notifications (مؤجل v2)
 | Endpoint | Method | Backend | ملاحظة |
@@ -247,7 +251,7 @@
 | ✅ Profile (أنا + تعديل) | 3 | **90%** | **موصول (Phase 3)** — يتبقّى الأفاتار (Upload) والفئة فقط |
 | Follow/Unfollow | 5 | **88%** | toggle محلي بدل الطلب الحقيقي |
 | Saved | 3 | **75%** | الباك يرجّع id فقط بلا تفاصيل |
-| Chat | 6 | **88%** | Realtime غير مضاف |
+| ✅ Chat | 6 | **88%** | **موصول REST + Realtime (2026-07-19)** |
 | Upload | 4 | **80%** | حقول الرفع "next phase" |
 | Add Ad/Offer/Service | 3 | **85%** | defaults لـ ad_type/budget؛ التوصيل الفعلي |
 | **الإجمالي المرجّح** | **~50** | **≈89%** | |
@@ -320,7 +324,7 @@
 | 8️⃣ | **Upload** — `/upload/image` ثم avatar/cover/ad-image | 4 | شرط للتعديل والإنشاء. |
 | 9️⃣ | **Add Ad/Offer/Service publish** — `POST` + role-gating | 3 | يعتمد على Upload + Auth. |
 | 🔟 | **Saved** — حل الـ join، ثم ربط الشاشة | 3 | يحتاج قرار الباك. |
-| 1️⃣1️⃣ | **Chat** — تأكيد + Supabase Realtime | 6 | الأكثر تعقيداً. |
+| ✅ 1️⃣1️⃣ | **Chat** — REST + Supabase Realtime — **تمّت 2026-07-19** | 6 | الأكثر تعقيداً. |
 | 1️⃣2️⃣ | **Role-gating حيّ** — أزرار الإنشاء حسب `account_type` الحقيقي | — | يمنع 403. |
 
 ---

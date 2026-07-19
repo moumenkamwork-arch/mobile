@@ -15,8 +15,23 @@ import '../../../saved/presentation/controllers/saved_controller.dart';
 
 /// "Saved" page: bookmarked offers / services / ads / profiles, from
 /// `GET /saved` (backend hydrates each row's full item). Wired in Phase 8.
-class SavedItemsScreen extends ConsumerWidget {
+class SavedItemsScreen extends StatelessWidget {
   const SavedItemsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Fresh ProviderScope per visit — see following_screen.dart for why
+    // (root-scoped Notifier only loads once; without this, re-opening the
+    // page after saving/removing something elsewhere shows stale data).
+    return ProviderScope(
+      overrides: [savedControllerProvider.overrideWith(SavedController.new)],
+      child: const _SavedItemsScreenBody(),
+    );
+  }
+}
+
+class _SavedItemsScreenBody extends ConsumerWidget {
+  const _SavedItemsScreenBody();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

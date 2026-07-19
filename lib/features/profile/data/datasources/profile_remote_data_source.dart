@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../../domain/entities/follow_user.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../dto/profile_dto.dart';
 import 'profile_data_source.dart';
@@ -86,5 +87,46 @@ class ProfileRemoteDataSource implements ProfileDataSource {
       ApiEndpoints.follow(profileId),
       decode: (_) {},
     );
+  }
+
+  @override
+  Future<List<FollowUser>> fetchFollowing(String profileId) async {
+    final response = await _apiClient.get<List<FollowUser>>(
+      ApiEndpoints.followingList(profileId),
+      decode: _parseFollowUsers,
+    );
+    return response.data ?? const [];
+  }
+
+  /// Each `GET /follows/following/:id` row is `{created_at, following:{...}}`
+  /// (followers use `follower`) — pull the nested profile defensively.
+  static List<FollowUser> _parseFollowUsers(Object? data) {
+    final list = data is List
+        ? data
+        : (data is Map ? data['data'] : null);
+    if (list is! List) return const [];
+
+    final users = <FollowUser>[];
+    for (final row in list) {
+      final map = row is Map ? Map<String, Object?>.from(row) : null;
+      if (map == null) continue;
+      final nested =
+          map['following'] ?? map['follower'] ?? map['profile'] ?? map['user'] ?? map;
+      final profile = nested is Map ? Map<String, Object?>.from(nested) : null;
+      final id = profile?['id'];
+      if (profile == null || id is! String || id.isEmpty) continue;
+
+      users.add(
+        FollowUser(
+          id: id,
+          name: (profile['full_name'] ?? profile['username'] ?? 'Promoo user')
+              as String,
+          username: profile['username'] as String?,
+          avatarUrl: profile['avatar_url'] as String?,
+          accountType: profile['account_type'] as String?,
+        ),
+      );
+    }
+    return users;
   }
 }

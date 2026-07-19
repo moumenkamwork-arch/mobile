@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-15 (Phase 8 — Saved list+remove wired. Earlier same day: Phase 7 Follow; Seats visibility corrected + 6-tab nav bug fixed; Phase 6 Seats reads; Auth v1 finalized)
+> Last updated: 2026-07-19 (Chat: added Supabase Realtime — was deferred on 2026-07-15 — plus optimistic UX for sending a message and opening a new conversation, fixing four real issues the owner hit live-testing across two accounts. Live-verified with two real accounts and two tabs, including a message arriving with zero interaction and the header badge updating live. Also: full-DB demo seeding, and re-investigated (could not reproduce) the earlier seat-checkout theming report.)
 
 ---
 
@@ -106,6 +106,219 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-19 — Chat: added Supabase Realtime (was explicitly deferred on
+  2026-07-15) + optimistic UX for send and "start a new chat"; full-DB demo
+  seeding.** Owner live-tested chat across two of their own accounts and
+  reported four real problems: no live delivery (had to manually refresh to
+  see incoming messages, including the header badge never updating), and both
+  "open a new conversation" and "send a message" blocking the whole UI on the
+  network round-trip instead of feeling instant like a real messaging app.
+  **Realtime:** added `supabase_flutter`/`realtime_client` (talks to the
+  Realtime websocket via a bare `RealtimeClient`, not the full
+  `SupabaseClient` — that would also spin up an unused `GoTrueClient` and its
+  10s auto-refresh timer, which broke `seats_screen_test.dart` with a
+  "Timer is still pending" teardown failure until switched to the bare
+  client). RLS on `messages`/`chat_rooms`/`chat_participants` was already
+  correctly scoped to participants (verified via `pg_policies`), and both
+  tables were already in the `supabase_realtime` publication — the DB side
+  was ready, the app just never subscribed. New
+  `lib/features/chat/data/realtime/chat_realtime_service.dart`
+  (`chatRealtimeServiceProvider`, app-wide singleton) connects on auth,
+  authenticates the socket with the same Supabase JWT the backend already
+  issues (`RealtimeClient.setAuth`), and streams `postgres_changes` INSERTs
+  on `messages` — RLS means a single unfiltered subscription is safe per
+  user. `ChatController` now also reloads on auth-state transitions (root
+  cause of the badge never appearing: it fetched once, while still a guest,
+  and never refetched after login) and refreshes on any realtime message;
+  `ChatRoomController` appends realtime messages straight into the open
+  room's state and marks them read.
+  **Optimistic send:** `ChatMessage.status`/`ChatMessageStatus.sending`/
+  `chat_message_bubble.dart`'s status label already existed but were never
+  wired — `sendText` now appends a local `sending`-status message
+  immediately, replaces it with the real one on success (dedup by real id,
+  so the realtime echo of the same insert collapses into the same row) or
+  marks it `failed` in place. Dropped the now-dead global `sending` status,
+  the send-failure banner, and `ChatMessageInput.isSending` (all superseded
+  by the per-message status label).
+  **Optimistic open:** `ChatRoomController`'s family key changed from
+  `String roomId` to a `({String? roomId, String? participantId})` record so
+  it can represent "no room yet." `profile_screen.dart`'s Message button now
+  pushes `/chats/new?participant=<id>` immediately (no `await` before
+  navigating); the screen shows an instantly-usable empty conversation while
+  `startChat` resolves (or creates) the real room in the background —
+  `sendText` awaits that resolution internally if the user types faster than
+  the round-trip.
+  **Fallout fixed:** the project's own `pubspec.yaml` had drifted from what
+  this machine's installed Flutter SDK could resolve — `flutter pub get`
+  hadn't been run fresh in a while and several constraints (`go_router
+  ^17.3.0`, `flutter_riverpod ^3.3.2`, `flutter_svg ^2.3.0`, `intl ^0.20.2`,
+  `flutter_lints ^6.0.0`, the project's own `sdk: ^3.12.1`) all needed a
+  newer Dart than the `flutter` on PATH. Root cause: **two separate Flutter
+  installs exist on this machine** — `C:\Users\MO2MIN\flutter` (stale, Dart
+  3.5.3, shadows `flutter` on PATH by default) and `C:\flutter_sdk\flutter`
+  (the one `run_web.bat`/`run_web_alt.bat` actually use, but was 3 commits
+  behind `origin/stable` and its cached `flutter --version` output was
+  stale — the bundled `dart` binary was already on Dart 3.12.2 once
+  `git pull`ed). Use `C:\flutter_sdk\flutter\bin\flutter.bat` (full path, not
+  bare `flutter`) for this project going forward.
+  **Verified:** `flutter analyze` clean, **192/192 tests** (fixed the one
+  test still constructing `chatRoomControllerProvider` with a raw string).
+  Live, with two real accounts (a registered throwaway + the signed-in Test
+  Company session) and two browser tabs: pressed Message → instant
+  navigation to an empty conversation → `POST /chats` (200) resolved a real
+  room in the background, no fabricated id. Sent a message → appeared
+  immediately, then settled. Sent a message **from the other account via a
+  direct API call** while the first tab sat idle on the open conversation —
+  it appeared with zero interaction (confirmed both visually and via network
+  log: an unprompted `PATCH .../read` fired with no matching `GET messages`,
+  the signature of the realtime handler, not a poll). Sent another message
+  while that tab was on Home instead — the header chat badge went from no
+  badge to **"1"** live. Throwaway account deleted after
+  (`scripts/delete-test-auth-user.ts`, cascades its room/messages via FK).
+  **Also this session:** re-investigated the seat-checkout screen light/dark
+  bug reported earlier — could not reproduce it through the real
+  `themeModeProvider` toggle, a fresh boot, or the real in-app "Book Seat"
+  tap (all rendered correctly in both themes); concluded the original
+  observation was a `resize_window` browser-emulation artifact (this app
+  hardcodes `ThemeMode.dark` by default and never reads platform
+  brightness, so browser-level OS-theme emulation can desync from the app's
+  actual state in a way no real user path can trigger) — no code changed.
+  Also seeded demo data across every section per owner request (offers,
+  services — previously empty, ads, 17 seats occupied across 3 real
+  influencer accounts, follows, saved items, chat threads, subscriptions,
+  payments, stories, featured placements) directly via the Supabase MCP;
+  found and fixed one dead Unsplash image URL along the way.
+- **2026-07-15 — Fixed chat rooms never actually opening: `profile_screen.dart`'s
+  "Message" button pushed a locally-fabricated id (`'chat-${profile.id}'`) directly into
+  the chat room screen, instead of calling the real start-chat endpoint first.** That id
+  was never a real `chat_rooms.id` (not even a UUID), so `GET /chats/:roomId/messages`
+  400'd ("Validation failed") the instant the room screen tried to load — this is exactly
+  the "Missing/invalid" and "Validation failed" errors the owner hit trying to message
+  someone. Root-caused via a leftover-from-Phase-A code smell: this was the one call site
+  never updated when Chat got wired to the real backend in Phase 9 (`chat_list_screen.dart`
+  correctly used `state.rooms[i].id`, real ids from `GET /chats` — only the profile
+  Message button skipped `startChat` entirely).
+  **Fix:** added `_openChatWith(context, ref, participantId)` in `profile_screen.dart` —
+  calls `chatRepository.startChat(participantId)` (the same `POST /chats` used everywhere
+  else), then navigates with the **real** `room.id` from the response; shows a snackbar on
+  failure instead of navigating into a broken room. `onMessagePressed` is now async.
+  **Definitive proof — two real, independent accounts messaging each other over the actual
+  live backend** (registered fresh, deleted after): User A called the real `startChat`
+  against User B → got back a real UUID room (not `chat-...`) → sent a message (`201`) →
+  User B's own `GET /chats` listed that room (`bSeesRoom: true`) → User B's `GET
+  .../messages` showed A's text (`bSeesAMessage: true`) → B replied (`201`) → User A's own
+  `GET .../messages` showed B's reply (`aSeesBReply: true`) → 2 messages persisted in the
+  room. This is the same round-trip the owner asked to see driven through two browser tabs;
+  actual UI clicking was blocked today by an unrelated tool malfunction (Flutter web text
+  fields wouldn't accept focus from the automation layer — confirmed via
+  `document.activeElement` staying on `<flutter-view>` across multiple fresh tabs and click
+  strategies, not an app bug — real UI screenshots from earlier the same session already
+  proved Chat/Follow/Saved/Seats render and network correctly), so the round-trip was driven
+  through the identical code path via two real registered sessions instead. **192/192 tests
+  still pass, analyze clean** (existing `auth_screen_test.dart` "Message action" test already
+  covers the async flow via `pumpAndSettle`).
+- **2026-07-15 — Owner audit of Phases 6-9: two more real bugs found + fixed, then
+  everything re-verified through the actual live UI (not curl/API calls).** Owner
+  pushed back hard on the earlier "verified" claim (rightly) and asked for a real
+  re-check driven through the running app. Findings:
+  1. **Following/Saved showed stale data on every repeat visit.** Root cause:
+     `followingControllerProvider`/`savedControllerProvider` are root-scoped
+     `Notifier`s whose `build()` (which triggers the initial `load()`) only ever runs
+     **once**, the first time the provider is created — it is never disposed just
+     because the screen was popped. So following someone from a profile page, then
+     opening "Following" from the menu, still showed the pre-follow cached list.
+     **Fix:** `FollowingScreen`/`SavedItemsScreen` now wrap their body in a fresh
+     `ProviderScope` that overrides the controller with `.overrideWith(Controller.new)`
+     per visit — the exact same pattern `ProfileScreen` already used for
+     `profileControllerProvider` (re-read the existing convention instead of inventing
+     a new one, e.g. `.autoDispose`, which had zero precedent in this codebase).
+  2. **Backend: `PUT /admin/categories/:id` 500'd editing a category image** (dashboard
+     report). Root cause in `validate.middleware.ts`: Zod's `parseAsync` correctly
+     **strips** unknown fields (e.g. the computed `name` field the public `GET
+     /categories` response adds isn't a real DB column), but the middleware then did
+     `Object.assign(req.body, validated.body)` — which only **adds** keys from the
+     clean result onto the original `req.body`, never **removes** the ones Zod
+     stripped. So `name` survived into `admin/category.service.ts`'s blind
+     `.update(payload)`, and Postgres rejected the unknown column → 500. This is a
+     **systemic** bug (affects every validated body route, not just categories) —
+     fixed by replacing (`req.body = validated.body`) instead of merging. Left
+     `query`/`params` as merge (lower risk, not the vector that broke). Could not
+     click-through the dashboard fix visually (needs the owner's own admin login,
+     same boundary as always) — verified by root-cause + `tsc --noEmit` clean +
+     confirmed no regression (register's own body validation kept working through
+     every live test below).
+  **Also (environment, not code):** the OS had force-excluded port 8765 (Windows
+  dynamic port range), so the usual mobile-web preview couldn't bind. Added a
+  same-purpose `promoo-web-alt` launch config on 8766 (`run_web_alt.bat`) purely for
+  today's testing, and added `http://localhost:8766` to the backend's dev-only
+  `CORS_ORIGINS` in `.env`. Neither is a real app fix — both exist only because the
+  normal port was unavailable in this session; safe to ignore/remove once 8765 frees
+  up again.
+  **Live re-verification, this time actually driving the UI** (typed into real form
+  fields, tapped real buttons, read real screenshots — registered a fresh throwaway
+  Company account through the real Register screen, deleted after):
+  - Chat: opened via the header icon → real "No chats yet" empty state (the exact
+    screen that used to show "Missing or invalid authorization header"). Network:
+    `GET /chats` → 200.
+  - Saved: Profile → Saved → real "Nothing saved yet". `GET /saved` → 200.
+  - Following: Profile → Following → real "No follows yet" (not the old fake 4-person
+    demo list). `GET /follows/following/:myId` → 200.
+  - Followed a real profile (Moumen Alkamsheh) from its live public page — button
+    flipped Follow → Following instantly; `POST /follows/:id` → 200. Re-opened
+    Following from the menu: **now shows the real followed profile** (proves fix #1).
+    Tapped its "Following" button to unfollow: row vanished, back to "No follows yet";
+    `DELETE /follows/:id` → 200.
+  - Seats (Company account, 6-tab bar): opened Influencer tab → real "0 Influencers /
+    144 Available seats" stat strip, full 144-cell grid with correct tier prices
+    (Gold 499 / Silver 299 / Bronze 149 AED) — matches the DB exactly.
+  **192/192 tests pass, analyze clean** (2 more than the last count — no new tests
+  added this pass, count reflects the earlier `promoo_shell_tabs_test.dart` addition
+  properly landing). MEMORY_BANK updated with full detail per owner's explicit "test
+  everything with live testing" instruction.
+- **2026-07-15 — CRITICAL: fixed the auth-token bug that broke Chat/Follow/Saved while
+  logged in; wired the Following list. (Found by owner QA — my earlier "verification" only
+  hit PUBLIC endpoints + no-auth 401s, never the authenticated path. Lesson: verify the
+  authenticated flow, not just that an endpoint 401s without a token.)**
+  **Root cause:** `SecureAuthSessionStore` (flutter_secure_storage) silently no-ops on
+  Flutter **web** — `write` didn't persist, so `read()` returned `null` right after login.
+  The session lived only in the auth controller's in-memory state (app showed "logged in"),
+  but the API-client interceptor reads the token from the *store* → got null → every
+  authenticated request went out with **no `Authorization` header** → backend 401 "Missing or
+  invalid authorization header". So Chat wouldn't open, Follow/Saved silently failed — exactly
+  what the owner reported.
+  **Fix:** `SecureAuthSessionStore` now keeps a process-wide in-memory mirror (`static
+  AuthSession? _cache`): `write` sets it, `read` returns it if present (falls back to secure
+  storage only when cache is empty, e.g. after a restart). Guarantees the current session's
+  token is always available to the interceptor regardless of the web secure-storage quirk.
+  Added `test/features/auth/data/secure_auth_session_store_test.dart` (write→read returns the
+  token; clear resets). **Verified LIVE at the API level** (real token via register): `GET
+  /chats` 200, `GET /saved` 200, `POST /follows/:id` flips status false→true, `POST /chats`
+  201 — proving backend + all Phase 7/8/9 remote sources are correct and the ONLY defect was
+  the missing token. **Honest caveat:** the in-app *visual* was NOT re-confirmed — the browser
+  preview's screenshot tool was timing out; owner should hot-restart/rebuild their app and log
+  in to see Chat/Follow/Saved now work.
+  **Also wired the Following list** (was a static demo screen the owner caught): new
+  `FollowUser` entity + `ProfileDataSource.fetchFollowing` (remote parses `GET
+  /follows/following/:id` rows `{created_at, following:{...}}`) + `ProfileRepository.getFollowing`
+  + `FollowingController` (loads the signed-in user's following; real unfollow = optimistic +
+  `DELETE /follows/:id` + revert); `following_screen.dart` rewritten as a `ConsumerWidget`.
+  Live-verified: `GET /follows/following/:myId` returned the followed profile. Updated the 6
+  `ProfileRepository` test doubles. **192/192 tests pass, analyze clean.**
+- **2026-07-15 — Phase 9 (Chat) wired over REST; Realtime deferred.** Chat slice was already
+  fully scaffolded (DTOs with defensive parse, data-source interface + fake, repo+impl, two
+  controllers `chat_controller`/`chat_room_controller`, screens) — same shape as seats before
+  wiring. Built `chat_remote_data_source.dart` implementing all 5 methods over the API client:
+  `GET /chats` (list), `POST /chats` `{participant_id}` (start room), `GET/POST
+  /chats/:roomId/messages` (read/send), `PATCH /chats/:roomId/read`. Bearer is injected by the
+  interceptor, so the `accessToken` the repo passes is unused in the remote path (kept for the
+  fake). Switched `chatRepositoryProvider` from fake to remote. **Realtime (live message push)
+  is deferred** — v1 loads messages on room open + after send; no Supabase Realtime SDK (see
+  Realtime-Chat-Flutter-Guide.md). Fixed 2 tests that started hitting the network by default
+  (`app_routes_smoke_test` chat routes + `auth_screen_test` "Message opens a chat room") with
+  the standard fake override; the 3 chat feature tests already override the provider. **Live:**
+  `GET /chats` and `/chats/:id/messages` without a token → 401 (endpoints exist, auth-gated).
+  Full chat flow needs owner login (same constraint as Seats/Follow/Saved). **190/190 tests
+  pass, analyze clean.** Docs: integration_map §3.9 + top summary synced.
 - **2026-07-15 — Phase 8 (Saved) wired — list + remove.** New feature slice
   `lib/features/saved/` (entity + polymorphic DTO + data source/remote/fake + repository +
   controller); the Saved screen (`profile/presentation/screens/saved_items_screen.dart`) was a

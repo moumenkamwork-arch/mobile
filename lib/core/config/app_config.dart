@@ -15,13 +15,23 @@ class AppConfig {
   const AppConfig({
     this.baseUrl = defaultBaseUrl,
     this.fallbackCurrency = defaultFallbackCurrency,
+    this.supabaseUrl = defaultSupabaseUrl,
+    this.supabaseAnonKey = defaultSupabaseAnonKey,
   });
 
   static const defaultBaseUrl = 'http://localhost:3000/api/v1';
   static const defaultFallbackCurrency = 'AED';
+  // The anon key is meant to be public/client-embeddable — Row Level
+  // Security on the underlying tables is the real access boundary (already
+  // scoped correctly for `messages`/`chat_rooms`/`chat_participants`).
+  static const defaultSupabaseUrl = 'https://mqklargyjispbcyxzdjo.supabase.co';
+  static const defaultSupabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xa2xhcmd5amlzcGJjeXh6ZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MjQ3NzUsImV4cCI6MjA5NzIwMDc3NX0.fJOsJy5AK5Uvn8SR-P6ajqtd1h4osNE8vlJ1XrFWXFI';
 
   final String baseUrl;
   final String fallbackCurrency;
+  final String supabaseUrl;
+  final String supabaseAnonKey;
 
   String get normalizedBaseUrl {
     if (baseUrl.endsWith('/')) {
@@ -39,6 +49,19 @@ class AppConfig {
       'PROMOO_FALLBACK_CURRENCY',
       defaultValue: defaultFallbackCurrency,
     );
-    return const AppConfig(baseUrl: baseUrl, fallbackCurrency: fallbackCurrency);
+    const supabaseUrl = String.fromEnvironment(
+      'PROMOO_SUPABASE_URL',
+      defaultValue: defaultSupabaseUrl,
+    );
+    const supabaseAnonKey = String.fromEnvironment(
+      'PROMOO_SUPABASE_ANON_KEY',
+      defaultValue: defaultSupabaseAnonKey,
+    );
+    return const AppConfig(
+      baseUrl: baseUrl,
+      fallbackCurrency: fallbackCurrency,
+      supabaseUrl: supabaseUrl,
+      supabaseAnonKey: supabaseAnonKey,
+    );
   }
 }

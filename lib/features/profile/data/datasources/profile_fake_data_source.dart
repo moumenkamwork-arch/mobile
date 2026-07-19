@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/entities/follow_user.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../dto/profile_dto.dart';
 import 'profile_data_source.dart';
@@ -384,6 +385,18 @@ class ProfileFakeDataSource implements ProfileDataSource {
   }
 
   final Set<String> _following = {};
+
+  @override
+  Future<List<FollowUser>> fetchFollowing(String profileId) async {
+    return const [
+      FollowUser(
+        id: 'profile-saffron-social',
+        name: 'Saffron Social Studio',
+        username: 'saffron.social',
+        accountType: 'company',
+      ),
+    ];
+  }
 
   @override
   Future<bool> fetchFollowStatus(String profileId) async =>

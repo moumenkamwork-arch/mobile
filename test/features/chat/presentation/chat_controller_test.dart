@@ -64,15 +64,16 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    container.read(chatRoomControllerProvider('room-1'));
+    const ChatRoomArg arg = (roomId: 'room-1', participantId: null);
+    container.read(chatRoomControllerProvider(arg));
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
-    await container
-        .read(chatRoomControllerProvider('room-1').notifier)
-        .sendText('Thanks');
+    await container.read(chatRoomControllerProvider(arg).notifier).sendText(
+      'Thanks',
+    );
 
-    final state = container.read(chatRoomControllerProvider('room-1'));
+    final state = container.read(chatRoomControllerProvider(arg));
     expect(state.status, ChatRoomStatus.success);
     expect(state.messages.last.content, 'Thanks');
   });

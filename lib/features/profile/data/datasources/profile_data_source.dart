@@ -1,7 +1,10 @@
+import '../../domain/entities/follow_user.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../dto/profile_dto.dart';
 
 abstract interface class ProfileDataSource {
+  Future<List<FollowUser>> fetchFollowing(String profileId);
+
   Future<PromooProfileDto> fetchProfile(String idOrUsername);
 
   Future<PromooProfileDto> fetchMyProfile();
