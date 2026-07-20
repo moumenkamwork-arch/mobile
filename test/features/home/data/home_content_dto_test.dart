@@ -62,6 +62,39 @@ void main() {
     expect(content.profiles.single.isVerified, isTrue);
   });
 
+  test(
+    'promoo-of-the-day highlight and service preview fall back to media_urls[0]',
+    () {
+      // Offers/ads/services all store their image as a `media_urls[]`
+      // array — regression test for the bug where HomeHighlightDto and
+      // HomeServicePreviewDto only checked singular `image_url`/`media_url`
+      // fields and never found the array, so both cards silently rendered
+      // the placeholder even though the backend sent a real image.
+      final dto = HomeContentDto.fromJsonFlexible({
+        'success': true,
+        'data': {
+          'services': [
+            {
+              'id': 'service-1',
+              'title': 'Logo design',
+              'media_urls': ['https://example.com/service.jpg'],
+            },
+          ],
+          'promoo_of_the_day': {
+            'id': 'offer-1',
+            'title': 'Premium Branding Package',
+            'media_urls': ['https://example.com/highlight.jpg'],
+          },
+        },
+      });
+
+      final content = dto.toDomain();
+
+      expect(content.highlight?.imageUrl, 'https://example.com/highlight.jpg');
+      expect(content.services.single.imageUrl, 'https://example.com/service.jpg');
+    },
+  );
+
   test('parses wrapped offer detail with nested profile and category', () {
     final dto = HomeContentDetailDto.fromJsonFlexible({
       'success': true,

@@ -61,7 +61,6 @@ class _LeaderboardErrorView extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: context.colors.elevatedSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.colors.error),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -69,7 +68,9 @@ class _LeaderboardErrorView extends ConsumerWidget {
                   state.failure?.message ??
                       l10n.leaderboardRefreshErrorFallback,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: context.colors.error),
                 ),
               ),
             ),
@@ -123,16 +124,29 @@ class _LeaderboardContentView extends StatelessWidget {
                 ),
                 sliver: SliverList.list(
                   children: [
-                    Text(
-                      l10n.leaderboardScreenTitle,
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.emoji_events_rounded,
+                          color: context.colors.accent,
+                          size: 32,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          l10n.leaderboardScreenTitle,
+                          style: Theme.of(context).textTheme.displayLarge,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       l10n.leaderboardScreenSubtitle,
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.xl),
                     if (state.profiles.isEmpty)
                       PromooEmptyState(
                         title: l10n.leaderboardEmptyTitle,
@@ -145,7 +159,7 @@ class _LeaderboardContentView extends StatelessWidget {
                         onProfileSelected: (profile) =>
                             context.push(AppRoutes.profileById(profile.id)),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.xxl),
                       LeaderboardRankedList(
                         profiles: state.profiles,
                         onProfileSelected: (profile) =>

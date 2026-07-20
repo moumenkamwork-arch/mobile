@@ -48,6 +48,7 @@ dependencies:
   freezed_annotation: any
   json_annotation: any
   intl: ^0.20.2
+  flutter_dotenv: ^6.0.1
   flutter_localizations:
     sdk: flutter
 
@@ -83,6 +84,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/brand/
     - assets/brand/icons/
     - assets/brand/social/

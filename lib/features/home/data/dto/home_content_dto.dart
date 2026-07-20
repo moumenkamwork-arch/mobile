@@ -431,6 +431,17 @@ class HomeHighlightDto {
     String? fallbackBadge,
     HomeContentDetailType fallbackType = HomeContentDetailType.offer,
   }) {
+    // The backend returns offer/ad images as a `media_urls[]` array (see
+    // HomeOfferPreviewDto) — fall back to its first element when no singular
+    // image field is present. Without this, "Promoo of the day" rendered
+    // the image placeholder even though the backend sent a real image.
+    final mediaUrls = _readStringList(json, const [
+      'media_urls',
+      'mediaUrls',
+      'image_urls',
+      'imageUrls',
+      'images',
+    ]);
     return HomeHighlightDto(
       id: _readString(json, const ['id', 'offer_id', 'ad_id']),
       title: _readString(json, const ['title', 'name', 'headline']),
@@ -444,13 +455,15 @@ class HomeHighlightDto {
         'summary',
         'body',
       ]),
-      imageUrl: _readString(json, const [
-        'image_url',
-        'imageUrl',
-        'banner_url',
-        'media_url',
-        'cover_url',
-      ]),
+      imageUrl:
+          _readString(json, const [
+            'image_url',
+            'imageUrl',
+            'banner_url',
+            'media_url',
+            'cover_url',
+          ]) ??
+          (mediaUrls.isEmpty ? null : mediaUrls.first),
       badge:
           _readString(json, const ['badge', 'label', 'placement']) ??
           fallbackBadge,
@@ -514,6 +527,16 @@ class HomeServicePreviewDto {
 
   factory HomeServicePreviewDto.fromJson(Map<String, Object?> json) {
     final category = _mapFrom(json['category']);
+    // The backend returns service images as a `media_urls[]` array (see
+    // HomeOfferPreviewDto) — fall back to its first element when no
+    // singular image field is present.
+    final mediaUrls = _readStringList(json, const [
+      'media_urls',
+      'mediaUrls',
+      'image_urls',
+      'imageUrls',
+      'images',
+    ]);
 
     return HomeServicePreviewDto(
       id: _readString(json, const ['id', 'service_id']),
@@ -524,12 +547,14 @@ class HomeServicePreviewDto {
         'short_description',
         'summary',
       ]),
-      imageUrl: _readString(json, const [
-        'image_url',
-        'imageUrl',
-        'cover_url',
-        'thumbnail_url',
-      ]),
+      imageUrl:
+          _readString(json, const [
+            'image_url',
+            'imageUrl',
+            'cover_url',
+            'thumbnail_url',
+          ]) ??
+          (mediaUrls.isEmpty ? null : mediaUrls.first),
       categoryName:
           _readString(json, const ['category_name', 'categoryName']) ??
           (category == null

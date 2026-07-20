@@ -4,7 +4,7 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-19 (Chat: added Supabase Realtime — was deferred on 2026-07-15 — plus optimistic UX for sending a message and opening a new conversation, fixing four real issues the owner hit live-testing across two accounts. Live-verified with two real accounts and two tabs, including a message arriving with zero interaction and the header badge updating live. Also: full-DB demo seeding, and re-investigated (could not reproduce) the earlier seat-checkout theming report.)
+> Last updated: 2026-07-19 (**Real-time polish**: fixed chat send duplicating/flickering — now WhatsApp-style in-place reconciliation, one bubble sending→sent→read; notification taps act like Instagram — message→conversation, follow→profile; and notifications are now **real-time** via a Supabase subscription on the `notifications` table. Earlier same day: **Phase 10 — Notifications wired** to the real backend (fixing the `chat-room-1` 400); Cup/leaderboard redesign; Chat Supabase Realtime + optimistic UX; live read-receipt fix; real `.env` support; Home image-placeholder fix; full-DB demo seeding.)
 
 ---
 
@@ -106,6 +106,215 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-20 — Follow notifications now name the follower + two small
+  fixes.** Owner: follow notifications said the generic "Someone started
+  following you." while chat notifications already carry the sender's name.
+  Made follow consistent — **backend** `follow.service.ts` now fetches the
+  follower's `full_name`/`username` and writes `"{name} started following
+  you."` plus `data.follower_name` (mirrors how `chat.service` passes
+  `senderName`). Backend runs on nodemon (watches `src/**/*.ts`) so it
+  auto-reloaded; `tsc --noEmit` clean; live-verified a fresh follow →
+  "Brightwave Agency started following you." Backfilled all existing follow
+  notification rows in the DB with the real names (join `data.follower_id` →
+  `profiles`). Note: notification title/body are still English-from-backend
+  (the whole notification text is authored server-side, not localized
+  client-side yet); `data.follower_name` is there for a future localized
+  render if wanted. Also this session: (a) **Profile Management menu avatar**
+  was blank — the welcome card read the avatar from the auth session, but the
+  login response is Supabase's raw auth user which carries no avatar (it lives
+  in `profiles`); now sources it from the loaded owner profile
+  (`profileControllerProvider.select((s) => s.profile?.avatarUrl)`), same as
+  Edit Profile. (b) **Services demo images** re-matched to content (Logo Design
+  had a meeting photo, E-commerce an office building, one URL reused 3×) — all
+  URLs verified 200. `flutter analyze` clean, **198/198 tests**.
+- **2026-07-19 — Real-time polish round (chat send + notification actions +
+  live notifications).** Owner asked for "world-class, everything realtime and
+  interconnected" and reported three concrete things:
+  1. **Chat send duplicated / flickered.** Sending "مرحبا" showed *two*
+     bubbles — the optimistic one (status "Sending") plus a second — and when
+     the send confirmed, the "Sending" bubble was removed and a fresh one
+     inserted (a visible swap). Root cause: the optimistic bubble has a
+     `pending-…` temp id while the Realtime echo of my own message arrives with
+     the *real* id, so dedup-by-id never matched them → both showed; then the
+     send-API response did a remove-temp + insert-real (the flicker). Fix =
+     WhatsApp-style in-place reconciliation: extracted pure top-level
+     `reconcileConfirmedMessage(messages, confirmed, {tempId})` (in
+     `chat_room_controller.dart`) that folds a confirmed message onto exactly
+     one row — by real id, else by the send's temp id, else (for a Realtime
+     echo of my own still-pending send) by matching the oldest `pending-…` row
+     with the same text — **updating in place**, never remove+insert. Both
+     arrival orders (echo-first or response-first) converge on one bubble;
+     status climbs sending → sent → read and a duplicate INSERT can't downgrade
+     a read bubble (`_mergeStatus` rank guard). Proven by
+     `test/features/chat/presentation/chat_reconcile_test.dart` (5 pure tests).
+  2. **Notification taps now act like Instagram** (`notifications_screen.dart`
+     → `_openNotification`): message → opens the conversation
+     (`data.room_id`), a new follower → opens that follower's profile
+     (`data.follower_id`, via new `AppNotification.profileId`); other types
+     just mark-read. Every tap marks read first.
+  3. **Notifications are now real-time.** Added
+     `notifications_realtime_service.dart` (same bare-`RealtimeClient` pattern
+     as chat) subscribing to `notifications` INSERTs; the controller prepends
+     the new row live and also reloads on auth transitions (fixes the badge
+     staying empty after login). **DB change (via Supabase MCP):**
+     `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;` —
+     the table already had per-user RLS (`auth.uid() = profile_id`) so the
+     subscription is scoped server-side to the signed-in user. (This is a DB
+     publication change, not a backend-code change — the "don't touch the
+     backend" rule is about app code.)
+  `flutter analyze` clean, **198/198 tests**. Note: mobile web instances must
+  be restarted to pick up these source changes (web-server device needs a
+  rebuild); the DB publication change is already live.
+- **2026-07-19 — Phase 10: Notifications wired to the real backend.** Owner
+  reported clicking a message notification 400'd
+  (`GET /chats/chat-room-1/messages 400`) and nothing opened. Root cause: the
+  Notifications feature was still on its **fake** data source (it was the last
+  consumer-facing read feature left deferred), and the fake's demo message
+  notification carried a hardcoded fake room id `'chat-room-1'` — not a real
+  UUID — so opening it 400'd on the messages endpoint. The chat itself was
+  fine; the notifications were fake. Fix = the standard remote-data-source
+  wiring: new `notifications_remote_data_source.dart` implementing the
+  existing `NotificationsDataSource` interface against the real endpoints
+  (`GET /notifications`, `PATCH /notifications/:id/read`,
+  `PATCH /notifications/read-all`, `DELETE /notifications/:id`,
+  `POST /notifications/token` — all already in `ApiEndpoints`), and pointed
+  `notificationsRepositoryProvider` at it instead of the fake. The DTO was
+  already defensive and already reads `data.room_id`, so no DTO/entity change
+  needed. **Tests:** the notifications feature tests already override the
+  repository, so they were unaffected; but the app header's unread badge reads
+  `notificationsControllerProvider` on every route, so the two header-bearing
+  tests that already override chat for the same reason
+  (`app_routes_smoke_test.dart`, `auth_screen_test.dart`) got a matching
+  notifications fake override to stay offline. `flutter analyze` clean,
+  **193/193 tests**. **Verified** at the exact point of the bug via the real
+  backend: the real "New Message" notification carries a real room id
+  (`74bfaa8d-…`) → `GET /chats/74bfaa8d-…/messages` = **200**, while the old
+  fake `chat-room-1` = **400**; `PATCH /:id/read` and `/read-all` both 200.
+  (UI click-through wasn't captured this pass — the intermittent Flutter-web
+  TextField-focus tooling issue blocked logging in via the browser — so the
+  end-to-end chain was proven at the data level instead, same as prior
+  sessions when that tooling was down.) Note: the app's `NotificationType`
+  enum only covers follow/message/offer/system/payment; the backend's other
+  types (`seat_booking`, `service_update`, `verification_update`,
+  `story_update`) fall through to `unknown` → generic label, which is fine
+  (defensive) but a future polish could add them. Push/FCM delivery stays
+  deferred; v1 fetches on open + after each mutation.
+- **2026-07-19 — Cup (`/cup`, the `LeaderboardScreen`) full visual redesign.**
+  Owner called the old page "مقرف" (ugly): it was deliberately flat —
+  floating circles, hairline-divided rows, everything the same yellow —
+  which stripped out the one thing a page literally called "Cup" needs, the
+  language of a competition. Rebuilt it as an actual **medal ceremony**
+  (`frontend-design` skill): a three-place podium where 1st (gold, centre,
+  raised, crown + soft glow) / 2nd (silver, left) / 3rd (bronze, right)
+  stand on blocks whose *heights encode rank*, each block carrying its rank
+  numeral embossed into the face; avatars wear metallic rings with a struck
+  medal disc. New file `leaderboard_medal.dart` holds the gold/silver/bronze
+  metal palette (deliberately theme-independent — metal is metal in both
+  themes; the emboss numeral is the one theme-aware bit, sheen on dark /
+  shade on light so it never washes out). The standings list below became a
+  clean table: fixed rank lane (medal-coloured for the top 3), identity in
+  the middle, follower **reach** as the right-aligned metric, and a metallic
+  leading edge + ring echoing the podium for the top three. Brand stays
+  locked (black + `#FFE604` + Tajawal) — the distinctiveness is all
+  structure + the metal hierarchy, not a new palette. A restrained one-time
+  entrance (blocks rise + fade, staggered so the eye lands on the champion)
+  respects reduced motion. Files: rewrote `leaderboard_podium.dart`,
+  `leaderboard_profile_card.dart`, trimmed `leaderboard_ranked_list.dart`
+  (dropped dividers for spaced tiles), reworked the screen's title block
+  (trophy + `displayLarge` "Cup"). Two widget tests updated for the
+  intentional changes (uppercase eyebrow "TOP OF THE CUP"; the follower
+  reach now shows in both the podium and the row, so the runner-up count
+  assertion is `findsWidgets`). `flutter analyze` clean, **193/193 tests**.
+  Live-verified in the browser (dark, the app's default — its
+  ThemeModeController hard-defaults to dark and ignores OS scheme, so light
+  was verified at the token level). Follow-up on owner feedback: the medal
+  three in the standings are now one **attached** panel (`LeaderboardMedalGroup`)
+  — rows flush with no gaps, internal hairline dividers, and the per-row
+  metallic edges lining up into a single continuous gold→silver→bronze rail
+  down the left — instead of three separate floating tiles; ranks 4+ stay as
+  individual spaced rows. `LeaderboardProfileCard` was slimmed to the
+  standalone-row form and the shared row content extracted to `_LeaderboardRow`.
+  Also removed the podium's own eyebrow/subtitle ("TOP OF THE CUP" /
+  "Followers-based Promoo standings") — it just repeated the screen's title +
+  subtitle — and centred the screen's "Cup" title block. (The now-unused
+  `leaderboardPodiumTitle`/`leaderboardPodiumSubtitle` l10n keys are left in
+  place, harmless.)
+- **2026-07-19 — Home: "Promoo of the Day" and "Services" cards showed the
+  image placeholder despite the backend sending real images.** Root cause:
+  `HomeHighlightDto` (Promoo of the day) and `HomeServicePreviewDto`
+  (services preview) only checked singular image fields
+  (`image_url`/`media_url`/`cover_url`/...) — but offers/services actually
+  return their image as a `media_urls[]` **array**, exactly like
+  `HomeOfferPreviewDto` already correctly handles a few lines below in the
+  same file (comment: "mirrors HomeContentDetailDto"). Confirmed via a live
+  `GET /home` call that the backend genuinely sends a working
+  `media_urls[0]` for both sections — this was a pure client-side parsing
+  gap, not a data/seeding problem. Fixed both DTOs to fall back to
+  `media_urls[0]` the same way `HomeOfferPreviewDto` does. Added a
+  regression test (`home_content_dto_test.dart`) covering both. Live-
+  verified: both sections now render real photos on Home.
+- **2026-07-19 — Follow-up round: fixed a live read-receipt gap, cleaned up
+  an orphaned chat room, added real `.env` support, re-verified Phases 1-9.**
+  Owner reported the Realtime work above mostly landed ("زبطت يا وحش") but
+  flagged three more things.
+  1. **A message's own sender never saw it flip to "Read" live** — only
+     after something else happened to reload the room. Root cause: the
+     realtime subscription only listened for `INSERT` on `messages`, never
+     `UPDATE` — so the `is_read` flip `markRoomRead` writes server-side
+     never reached an already-open room. Fixed by also subscribing to
+     `PostgresChangeEvent.update` on the same channel/callback in
+     `chat_realtime_service.dart`; the existing dedup-by-id merge in
+     `ChatRoomController` means an UPDATE for an already-known message just
+     replaces it in place — the sender's own bubble picks up `status: read`
+     with no new code needed there.
+  2. **A `GET /chats/chat-room-1/messages 400` report** — traced to
+     `ChatRoomDto.toDomain()`'s per-room fallback id (`'chat-room-$i'`),
+     used only when a room's `otherParticipant` can't be resolved (e.g. the
+     other side's account was deleted). Confirmed via code + a live `GET
+     /chats` check that this path actually **filters the room out of the
+     list entirely** (`toDomain` returns `null`, the caller skips it) rather
+     than exposing a broken navigable entry — so it isn't reachable through
+     the current list UI. Found and deleted exactly one such orphaned room
+     in the DB (`b60d3965...`, left over from this same day's realtime
+     proof — I'd deleted the throwaway account but not the room its
+     real counterpart was still sitting in); a DB-wide sweep found no
+     others. Most likely explanation for what the owner saw: a browser tab
+     still running the JS bundle from before today's fixes — flagged to the
+     owner as a genuine open question since it couldn't be reproduced
+     against the current code with the two accounts checked.
+  3. **No `.env` file existed for the mobile app** — the Supabase URL/anon
+     key and API base URL were hardcoded `String.fromEnvironment` defaults
+     in `app_config.dart`, unlike the backend's real `.env`. Added
+     `flutter_dotenv`, `.env`/`.env.example` (`.env` gitignored), registered
+     `.env` as a pubspec asset, and `main()` now does
+     `await dotenv.load()` (best-effort — falls back cleanly if missing) before
+     `runApp`. `AppConfig.fromEnvironment()` priority is now `.env` >
+     `--dart-define` > hardcoded default. **Regression caught by the test
+     suite immediately**: `dotenv.maybeGet` throws `NotInitializedError`
+     when `.load()` was never called — true for every test, since none of
+     them boot through `main()` — which broke 46 tests. Fixed by wrapping
+     the dotenv reads in a try/catch that falls through to the next source
+     on any failure (`AppConfig._dotenvGet`), same as "key not present."
+  4. **Also discovered while chasing the Dart-SDK-constraint dependency
+     resolution problem while adding Realtime**: two separate Flutter SDK
+     installs exist on this machine, and the wrong one — the stale one at
+     `C:\Users\MO2MIN\flutter` (Dart 3.5.3) — shadows `flutter` on PATH by
+     default ahead of the real one at `C:\flutter_sdk\flutter` (kept current,
+     Dart 3.12.2, the one both launch scripts actually invoke by full path).
+     Noted so this doesn't cost investigation time again.
+  **Re-verified Phases 1-9 live** (per the owner's explicit "check phases
+  1-9 top to bottom" ask): browser-automation screenshot capture was down
+  for this whole pass (the same intermittent tooling issue noted earlier
+  this session), so verification here is via direct authenticated calls
+  against the real running backend — `GET /profiles/me`, `GET
+  /profiles/:username`, `GET /home`, `GET /categories`, `GET /services`,
+  `GET /search?q=`, `GET /leaderboard`, `GET /seats`, `GET /seats/me`, `GET
+  /follows/:id/status`, `GET /saved`, `GET /chats` — all **200**; a real
+  follow→unfollow round-trip flipped `isFollowing` true then back to false
+  correctly. Combined with the full UI-driven, two-account, two-tab chat
+  verification done earlier the same day (screenshots + network logs, see
+  above), this covers every phase's core path. `flutter analyze` clean,
+  **192/192 tests** after each of the fixes above.
 - **2026-07-19 — Chat: added Supabase Realtime (was explicitly deferred on
   2026-07-15) + optimistic UX for send and "start a new chat"; full-DB demo
   seeding.** Owner live-tested chat across two of their own accounts and

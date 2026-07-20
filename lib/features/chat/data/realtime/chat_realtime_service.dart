@@ -20,7 +20,14 @@ import '../dto/chat_dto.dart';
 /// already hands us on login — set via `setAuth`. Row Level Security on
 /// `messages` (participant-only, already verified) scopes each subscription
 /// server-side, so a single unfiltered subscription is safe: every
-/// signed-in user only ever receives INSERTs for rooms they're actually in.
+/// signed-in user only ever receives events for rooms they're actually in.
+///
+/// Listens to both INSERT (new messages) and UPDATE (read-receipt flips from
+/// `markRoomRead`) — the latter is what lets a sender see their own message
+/// flip to "Read" live, instead of only after the room is reloaded some
+/// other way. Both funnel into the same stream: consumers dedup/replace by
+/// the message's real id, so an UPDATE for an already-known message simply
+/// replaces it in place.
 final chatRealtimeServiceProvider = Provider<ChatRealtimeService>((ref) {
   final service = ChatRealtimeService(ref);
   ref.onDispose(service.dispose);
@@ -75,22 +82,30 @@ class ChatRealtimeService {
     );
     await client.setAuth(token);
 
+    void handlePayload(realtime.PostgresChangePayload payload) {
+      final dto = ChatMessageDto.fromJson(payload.newRecord);
+      final message = dto.toDomain(
+        fallbackId: 'rt-${DateTime.now().microsecondsSinceEpoch}',
+        currentUserId: userId,
+      );
+      if (message != null) {
+        _controller.add(message);
+      }
+    }
+
     final channel = client
-        .channel('messages-inserts')
+        .channel('messages-changes')
         .onPostgresChanges(
           event: realtime.PostgresChangeEvent.insert,
           schema: 'public',
           table: 'messages',
-          callback: (payload) {
-            final dto = ChatMessageDto.fromJson(payload.newRecord);
-            final message = dto.toDomain(
-              fallbackId: 'rt-${DateTime.now().microsecondsSinceEpoch}',
-              currentUserId: userId,
-            );
-            if (message != null) {
-              _controller.add(message);
-            }
-          },
+          callback: handlePayload,
+        )
+        .onPostgresChanges(
+          event: realtime.PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'messages',
+          callback: handlePayload,
         );
     channel.subscribe();
 

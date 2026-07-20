@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final appConfigProvider = Provider<AppConfig>(
@@ -40,28 +41,46 @@ class AppConfig {
     return baseUrl;
   }
 
+  /// Priority: `.env` (via `flutter_dotenv`, loaded in `main()`) > `--dart-define`
+  /// (for CI/build-time overrides where bundling a `.env` isn't practical) >
+  /// the hardcoded dev default. `--dart-define` reads must stay literal
+  /// compile-time consts (Dart requirement), so each is inlined here rather
+  /// than going through a shared helper.
   factory AppConfig.fromEnvironment() {
-    const baseUrl = String.fromEnvironment(
+    const defineBaseUrl = String.fromEnvironment(
       'PROMOO_BASE_URL',
       defaultValue: defaultBaseUrl,
     );
-    const fallbackCurrency = String.fromEnvironment(
+    const defineFallbackCurrency = String.fromEnvironment(
       'PROMOO_FALLBACK_CURRENCY',
       defaultValue: defaultFallbackCurrency,
     );
-    const supabaseUrl = String.fromEnvironment(
-      'PROMOO_SUPABASE_URL',
+    const defineSupabaseUrl = String.fromEnvironment(
+      'SUPABASE_URL',
       defaultValue: defaultSupabaseUrl,
     );
-    const supabaseAnonKey = String.fromEnvironment(
-      'PROMOO_SUPABASE_ANON_KEY',
+    const defineSupabaseAnonKey = String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
       defaultValue: defaultSupabaseAnonKey,
     );
-    return const AppConfig(
-      baseUrl: baseUrl,
-      fallbackCurrency: fallbackCurrency,
-      supabaseUrl: supabaseUrl,
-      supabaseAnonKey: supabaseAnonKey,
+
+    return AppConfig(
+      baseUrl: _dotenvGet('PROMOO_BASE_URL') ?? defineBaseUrl,
+      fallbackCurrency:
+          _dotenvGet('PROMOO_FALLBACK_CURRENCY') ?? defineFallbackCurrency,
+      supabaseUrl: _dotenvGet('SUPABASE_URL') ?? defineSupabaseUrl,
+      supabaseAnonKey: _dotenvGet('SUPABASE_ANON_KEY') ?? defineSupabaseAnonKey,
     );
+  }
+
+  /// `dotenv.maybeGet` throws if `.load()` was never called — true for every
+  /// test, since none of them boot through `main()`. Treat "not loaded" the
+  /// same as "key not present": fall through to the next source.
+  static String? _dotenvGet(String key) {
+    try {
+      return dotenv.maybeGet(key);
+    } catch (_) {
+      return null;
+    }
   }
 }

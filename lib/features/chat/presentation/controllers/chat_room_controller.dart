@@ -149,7 +149,7 @@ class ChatRoomController extends Notifier<ChatRoomState> {
 
     state = ChatRoomState.success(
       roomId: roomId,
-      messages: _mergeMessages(state.messages, optimistic),
+      messages: appendSortedMessage(state.messages, optimistic),
     );
 
     final result = await ref
@@ -160,13 +160,22 @@ class ChatRoomController extends Notifier<ChatRoomState> {
     }
 
     state = result.when(
+      // Upgrade the *same* optimistic bubble in place (sending → sent) rather
+      // than removing it and inserting a fresh one — that swap is what made a
+      // sent message flicker/duplicate. If the Realtime echo (below) already
+      // reconciled this send, `reconcileConfirmedMessage` finds it by id and
+      // no-ops.
       success: (message) => ChatRoomState.success(
         roomId: roomId,
-        messages: _replaceMessage(state.messages, tempId, message),
+        messages: reconcileConfirmedMessage(
+          state.messages,
+          message,
+          tempId: tempId,
+        ),
       ),
       failure: (_) => ChatRoomState.success(
         roomId: roomId,
-        messages: _markFailed(state.messages, tempId),
+        messages: markMessageFailed(state.messages, tempId),
       ),
     );
   }
@@ -278,43 +287,112 @@ class ChatRoomController extends Notifier<ChatRoomState> {
     }
     state = ChatRoomState.success(
       roomId: state.roomId,
-      messages: _mergeMessages(state.messages, message),
+      messages: reconcileConfirmedMessage(state.messages, message),
     );
-    unawaited(markRead());
+    // Only auto-mark read for messages the other side sent — echoes of my own
+    // send shouldn't ping the read endpoint.
+    if (!message.isMine) {
+      unawaited(markRead());
+    }
+  }
+}
+
+/// Folds a server-confirmed [confirmed] message into [messages] without ever
+/// producing a duplicate or a remove-then-insert flicker (WhatsApp-style).
+/// Pure and top-level so the delivery logic — the trickiest part of the send
+/// flow — can be unit-tested directly:
+///
+/// 1. Same real id already present → update in place (e.g. a read-receipt
+///    that never downgrades a stronger local status).
+/// 2. The exact optimistic row a send created ([tempId]) → upgrade it in place
+///    (sending → sent).
+/// 3. A Realtime echo of one of my own still-pending sends → match the oldest
+///    pending row with the same text and upgrade it in place, so the echo and
+///    the send-response converge on one bubble regardless of arrival order.
+/// 4. Otherwise it's genuinely new → insert in chronological order.
+List<ChatMessage> reconcileConfirmedMessage(
+  List<ChatMessage> messages,
+  ChatMessage confirmed, {
+  String? tempId,
+}) {
+  // A just-sent message has no server "status"; surface it as "sent".
+  final incoming =
+      confirmed.isMine && confirmed.status == ChatMessageStatus.unknown
+      ? confirmed.copyWith(status: ChatMessageStatus.sent)
+      : confirmed;
+
+  final next = [...messages];
+
+  final byId = next.indexWhere((m) => m.id == incoming.id);
+  if (byId != -1) {
+    next[byId] = _mergeStatus(next[byId], incoming);
+    return next;
   }
 
-  List<ChatMessage> _mergeMessages(
-    List<ChatMessage> previousMessages,
-    ChatMessage message,
-  ) {
-    final merged = [
-      for (final previous in previousMessages)
-        if (previous.id != message.id) previous,
-      message,
-    ];
-    merged.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    return merged;
+  if (tempId != null) {
+    final ti = next.indexWhere((m) => m.id == tempId);
+    if (ti != -1) {
+      next[ti] = incoming;
+      return next;
+    }
   }
 
-  List<ChatMessage> _replaceMessage(
-    List<ChatMessage> messages,
-    String tempId,
-    ChatMessage real,
-  ) {
-    final withoutTemp = [
-      for (final message in messages)
-        if (message.id != tempId) message,
-    ];
-    return _mergeMessages(withoutTemp, real);
+  if (incoming.isMine) {
+    final pending = next.indexWhere(
+      (m) =>
+          m.isMine &&
+          m.status == ChatMessageStatus.sending &&
+          m.id.startsWith('pending-') &&
+          m.content == incoming.content,
+    );
+    if (pending != -1) {
+      next[pending] = incoming;
+      return next;
+    }
   }
 
-  List<ChatMessage> _markFailed(List<ChatMessage> messages, String tempId) {
-    return [
-      for (final message in messages)
-        if (message.id == tempId)
-          message.copyWith(status: ChatMessageStatus.failed)
-        else
-          message,
-    ];
-  }
+  next.add(incoming);
+  next.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  return next;
+}
+
+/// Keeps the more-advanced delivery status so a later duplicate INSERT can't
+/// downgrade a message that's already shown as read.
+ChatMessage _mergeStatus(ChatMessage existing, ChatMessage incoming) {
+  return _statusRank(incoming.status) >= _statusRank(existing.status)
+      ? incoming
+      : incoming.copyWith(status: existing.status);
+}
+
+int _statusRank(ChatMessageStatus status) {
+  return switch (status) {
+    ChatMessageStatus.read => 3,
+    ChatMessageStatus.delivered => 2,
+    ChatMessageStatus.sent => 1,
+    ChatMessageStatus.sending ||
+    ChatMessageStatus.failed ||
+    ChatMessageStatus.unknown => 0,
+  };
+}
+
+List<ChatMessage> appendSortedMessage(
+  List<ChatMessage> messages,
+  ChatMessage message,
+) {
+  final next = [...messages, message];
+  next.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  return next;
+}
+
+List<ChatMessage> markMessageFailed(
+  List<ChatMessage> messages,
+  String tempId,
+) {
+  return [
+    for (final message in messages)
+      if (message.id == tempId)
+        message.copyWith(status: ChatMessageStatus.failed)
+      else
+        message,
+  ];
 }

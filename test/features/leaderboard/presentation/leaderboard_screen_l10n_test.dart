@@ -56,7 +56,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('الكأس'), findsOneWidget);
-      expect(find.text('الأول على الكأس'), findsOneWidget);
       // Champion (185,400 → compact "185.4K") uses the compact-count phrase.
       expect(find.text('البطل / 185.4K متابع'), findsOneWidget);
 
@@ -67,8 +66,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('الترتيب'), findsOneWidget);
-      // Runner-up (800, below 1000) uses real Arabic plural grammar.
-      expect(find.text('800 متابع'), findsOneWidget);
+      // Runner-up (800, below 1000) uses real Arabic plural grammar. It now
+      // appears in two places — on the podium and in the standings row — so
+      // this asserts the grammar renders, not a single occurrence.
+      expect(find.text('800 متابع'), findsWidgets);
 
       expect(
         Directionality.of(tester.element(find.text('الترتيب'))),

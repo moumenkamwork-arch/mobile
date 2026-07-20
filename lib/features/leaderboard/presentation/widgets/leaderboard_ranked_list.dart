@@ -21,6 +21,15 @@ class LeaderboardRankedList extends StatelessWidget {
     final sortedProfiles = [...profiles]
       ..sort((a, b) => a.rank.value.compareTo(b.rank.value));
 
+    // The medal three sit together as one attached panel; everyone from 4th
+    // down is a separate contender row.
+    final medalists = sortedProfiles
+        .where((p) => p.rank.isPodium)
+        .toList(growable: false);
+    final contenders = sortedProfiles
+        .where((p) => !p.rank.isPodium)
+        .toList(growable: false);
+
     final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,16 +39,19 @@ class LeaderboardRankedList extends StatelessWidget {
           subtitle: l10n.leaderboardRankingSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
-        for (var i = 0; i < sortedProfiles.length; i++) ...[
+        if (medalists.isNotEmpty)
+          LeaderboardMedalGroup(
+            profiles: medalists,
+            onProfileSelected: onProfileSelected,
+          ),
+        for (var i = 0; i < contenders.length; i++) ...[
+          SizedBox(height: i == 0 ? AppSpacing.sm : AppSpacing.xs),
           LeaderboardProfileCard(
-            profile: sortedProfiles[i],
-            highlight: sortedProfiles[i].rank.isPodium,
+            profile: contenders[i],
             onTap: onProfileSelected == null
                 ? null
-                : () => onProfileSelected!(sortedProfiles[i]),
+                : () => onProfileSelected!(contenders[i]),
           ),
-          if (i != sortedProfiles.length - 1)
-            const SizedBox(height: AppSpacing.md),
         ],
       ],
     );

@@ -13,6 +13,8 @@ import 'package:promoo_app/features/auth/presentation/screens/login_screen.dart'
 import 'package:promoo_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:promoo_app/features/chat/data/datasources/chat_fake_data_source.dart';
 import 'package:promoo_app/features/chat/data/repositories/chat_repository_impl.dart';
+import 'package:promoo_app/features/notifications/data/datasources/notifications_fake_data_source.dart';
+import 'package:promoo_app/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
 import 'package:promoo_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:promoo_app/features/profile/data/repositories/profile_repository_impl.dart';
@@ -173,6 +175,14 @@ void main() {
           chatRepositoryProvider.overrideWithValue(
             ChatRepositoryImpl(
               dataSource: ChatFakeDataSource(),
+              sessionStore: InMemoryAuthSessionStore(),
+            ),
+          ),
+          // Notifications likewise hit the real backend by default (Phase 10);
+          // Home's header badge reads this, so keep it on the fake here.
+          notificationsRepositoryProvider.overrideWithValue(
+            NotificationsRepositoryImpl(
+              dataSource: NotificationsFakeDataSource(),
               sessionStore: InMemoryAuthSessionStore(),
             ),
           ),

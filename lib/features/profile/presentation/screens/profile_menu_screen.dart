@@ -13,6 +13,7 @@ import '../../../../theme/app_spacing.dart';
 import '../../../../theme/theme_mode_controller.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../controllers/account_capabilities.dart';
+import '../controllers/profile_controller.dart';
 
 /// Profile tab page recreating the original app's profile/settings screen:
 /// welcome card, Following, management menu, language selector, logout, and
@@ -27,6 +28,13 @@ class ProfileMenuScreen extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final user = ref.watch(authControllerProvider).session?.user;
     final caps = ref.watch(accountCapabilitiesProvider);
+    // The login response is Supabase's raw auth user — it carries no avatar
+    // (that lives in `profiles`), so the owner's photo comes from the loaded
+    // profile (`GET /profiles/me`), the same source Edit Profile uses. Falls
+    // back to the session's avatar (usually null) for guests / before load.
+    final ownerAvatarUrl = ref.watch(
+      profileControllerProvider.select((state) => state.profile?.avatarUrl),
+    );
 
     // The header is a pinned sliver so content scrolls under it and it frosts
     // on scroll, matching Home. It paints its own status-bar inset so the
@@ -49,7 +57,7 @@ class ProfileMenuScreen extends ConsumerWidget {
             children: [
               _WelcomeCard(
                 displayName: user?.displayName ?? l10n.settingsGuest,
-                avatarUrl: user?.avatarUrl,
+                avatarUrl: ownerAvatarUrl ?? user?.avatarUrl,
               ),
               const SizedBox(height: AppSpacing.md),
               PromooCard(

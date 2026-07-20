@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_failure.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../data/realtime/notifications_realtime_service.dart';
 import '../../data/repositories/notifications_repository_impl.dart';
 import '../../domain/entities/app_notification.dart';
 
@@ -69,12 +71,48 @@ class NotificationsState {
 
 class NotificationsController extends Notifier<NotificationsState> {
   var _disposed = false;
+  StreamSubscription<AppNotification>? _realtimeSub;
 
   @override
   NotificationsState build() {
-    ref.onDispose(() => _disposed = true);
+    ref.onDispose(() {
+      _disposed = true;
+      _realtimeSub?.cancel();
+    });
+
+    // The list is fetched once at first build — for most sessions that's while
+    // still a guest (the header mounts before login), so without this the list
+    // and the header's unread badge would stay empty forever after signing in.
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      final wasAuthed = previous?.isAuthenticated ?? false;
+      if (next.isAuthenticated != wasAuthed) {
+        unawaited(load());
+      }
+    });
+
+    // A new follower / incoming message writes a notification row; Realtime
+    // pushes it here so it lands in the list and the badge live, no refresh.
+    _realtimeSub = ref
+        .read(notificationsRealtimeServiceProvider)
+        .notifications
+        .listen(_onRealtimeNotification);
+
     unawaited(Future<void>.microtask(load));
     return const NotificationsState.loading();
+  }
+
+  void _onRealtimeNotification(AppNotification notification) {
+    if (_disposed) {
+      return;
+    }
+    // Prepend (newest first), de-duplicating by id in case a refresh already
+    // pulled it in.
+    final merged = [
+      notification,
+      for (final item in state.notifications)
+        if (item.id != notification.id) item,
+    ];
+    state = NotificationsState.success(notifications: merged);
   }
 
   Future<void> load() {

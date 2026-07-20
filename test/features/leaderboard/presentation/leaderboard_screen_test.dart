@@ -60,7 +60,6 @@ void main() {
 
     expect(find.text('Cup'), findsOneWidget);
     expect(find.byType(LeaderboardPodium), findsOneWidget);
-    expect(find.text('Top of the Cup'), findsOneWidget);
     expect(find.text('Saffron Social Studio'), findsWidgets);
 
     await tester.scrollUntilVisible(

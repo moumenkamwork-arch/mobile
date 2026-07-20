@@ -6,13 +6,13 @@ import '../../../auth/data/session/auth_session_store.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notifications_repository.dart';
 import '../datasources/notifications_data_source.dart';
-import '../datasources/notifications_fake_data_source.dart';
+import '../datasources/notifications_remote_data_source.dart';
 
 final notificationsRepositoryProvider = Provider<NotificationsRepository>((
   ref,
 ) {
   return NotificationsRepositoryImpl(
-    dataSource: ref.watch(notificationsFakeDataSourceProvider),
+    dataSource: ref.watch(notificationsRemoteDataSourceProvider),
     sessionStore: ref.watch(authSessionStoreProvider),
   );
 });

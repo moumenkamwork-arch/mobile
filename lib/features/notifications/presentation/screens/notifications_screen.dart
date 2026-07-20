@@ -66,15 +66,8 @@ class NotificationsScreen extends ConsumerWidget {
                               .read(notificationsControllerProvider.notifier)
                               .retry(),
                           onLogin: () => context.go(AppRoutes.login),
-                          onSelected: (notification) {
-                            ref
-                                .read(notificationsControllerProvider.notifier)
-                                .markRead(notification);
-                            final roomId = notification.roomId;
-                            if (roomId != null && roomId.isNotEmpty) {
-                              context.push(AppRoutes.chatRoom(roomId));
-                            }
-                          },
+                          onSelected: (notification) =>
+                              _openNotification(context, ref, notification),
                           onDelete: (notification) => ref
                               .read(notificationsControllerProvider.notifier)
                               .deleteNotification(notification),
@@ -96,6 +89,30 @@ class NotificationsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+/// Instagram-style: tapping a notification marks it read and jumps to whatever
+/// it's about — a message opens the conversation, a follow opens the follower's
+/// profile. Notifications with no destination (system/payment) just mark read.
+void _openNotification(
+  BuildContext context,
+  WidgetRef ref,
+  AppNotification notification,
+) {
+  ref.read(notificationsControllerProvider.notifier).markRead(notification);
+
+  final roomId = notification.roomId;
+  if (roomId != null && roomId.isNotEmpty) {
+    context.push(AppRoutes.chatRoom(roomId));
+    return;
+  }
+
+  if (notification.type == NotificationType.follow) {
+    final profileId = notification.profileId;
+    if (profileId != null && profileId.isNotEmpty) {
+      context.push(AppRoutes.profileById(profileId));
+    }
   }
 }
 

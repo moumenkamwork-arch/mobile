@@ -47,10 +47,20 @@ class AppNotification {
 
   bool get isUnread => !isRead;
 
-  String? get roomId {
-    final value = data['room_id'] ?? data['roomId'];
-    if (value is String && value.trim().isNotEmpty) {
-      return value.trim();
+  /// Chat room to open when a message notification is tapped.
+  String? get roomId => _stringData(const ['room_id', 'roomId']);
+
+  /// The profile to open when a follow notification is tapped — the person who
+  /// started following you (`data.follower_id`), or a generic `profile_id`.
+  String? get profileId =>
+      _stringData(const ['follower_id', 'followerId', 'profile_id', 'profileId']);
+
+  String? _stringData(List<String> keys) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
     }
     return null;
   }

@@ -33,6 +33,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Environment variables (secrets) — see .env.example for the template
+.env
+.env.local
+.env.production
+
 # Symbolication related
 app.*.symbols
 
