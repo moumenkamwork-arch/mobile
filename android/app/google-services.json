@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "364277566072",
+    "project_id": "promoo-52da5",
+    "storage_bucket": "promoo-52da5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364277566072:android:7cb9957381452788bc3b8d",
+        "android_client_info": {
+          "package_name": "com.MO2MIN.promoo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzNnYqjCMy8HpBwkNwuCQ33IdhXlAq1Ms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,7 +4,15 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-19 (**Real-time polish**: fixed chat send duplicating/flickering — now WhatsApp-style in-place reconciliation, one bubble sending→sent→read; notification taps act like Instagram — message→conversation, follow→profile; and notifications are now **real-time** via a Supabase subscription on the `notifications` table. Earlier same day: **Phase 10 — Notifications wired** to the real backend (fixing the `chat-room-1` 400); Cup/leaderboard redesign; Chat Supabase Realtime + optimistic UX; live read-receipt fix; real `.env` support; Home image-placeholder fix; full-DB demo seeding.)
+> Last updated: 2026-07-20 (**Build-regression audit**: reviewed a second AI
+> tool's build-error fixes on top of the new FCM feature, reverted a real
+> dependency-version + Riverpod-API regression it introduced while keeping the
+> genuine SDK-API fixes and the FCM feature itself, fixed a latent Firebase-init
+> crash bug, and independently verified a clean `flutter build apk --release`
+> — see §5 top entry). Previously: 2026-07-20 (**FCM Push Notifications
+> wired**: Pulled FCM out of v2 deferral and fully implemented
+> `firebase_messaging` in v1 so users receive live background pushes for chats
+> and follows). Before that: 2026-07-19 (**Real-time polish**: fixed chat send duplicating/flickering — now WhatsApp-style in-place reconciliation, one bubble sending→sent→read; notification taps act like Instagram — message→conversation, follow→profile; and notifications are now **real-time** via a Supabase subscription on the `notifications` table. Earlier same day: **Phase 10 — Notifications wired** to the real backend (fixing the `chat-room-1` 400); Cup/leaderboard redesign; Chat Supabase Realtime + optimistic UX; live read-receipt fix; real `.env` support; Home image-placeholder fix; full-DB demo seeding.)
 
 ---
 
@@ -41,9 +49,8 @@ original MVP design (`promo_backend/Projects-Pictures/`) pixel-faithfully, on
 (auth, follows, saved, offers/ads, uploads, categories…). Not started.
 
 Deferred to v2 (never build in v1): OTP, phone/social login, forgot-password,
-delete-account, ALL Stripe/payments, the whole Notifications feature (FCM/push),
-reviews/ratings, likes/comments/share, Facebook login. See
-[v2_deferred_scope.md](v2_deferred_scope.md).
+delete-account, ALL Stripe/payments, reviews/ratings, likes/comments/share,
+Facebook login. See [v2_deferred_scope.md](v2_deferred_scope.md).
 
 ---
 
@@ -106,6 +113,69 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-20 — Build-regression audit after a second AI tool's "fix" pass
+  (Antigravity), on top of the new FCM feature.** Owner had Antigravity add
+  FCM push (`firebase_core`/`firebase_messaging`, `push_notification_service.dart`,
+  Android `google-services.json` + Gradle/AGP bump to `8.6.0`/Kotlin `1.9.24`/
+  Gradle `8.14` + `applicationId`/`namespace` → `com.MO2MIN.promoo_app` —
+  confirmed required, matches `google-services.json`'s registered
+  `package_name`) and separately asked it to chase `flutter build apk --release`
+  errors. Root cause of the real failures: this machine has **two Flutter
+  SDKs** — `C:\Users\MO2MIN\flutter` (3.24.3/Dart 3.5.3, stale, shadows
+  `flutter` on PATH) vs `C:\flutter_sdk\flutter` (3.44.5/Dart 3.12.2, the one
+  this project targets). Antigravity mistook a real, legitimate SDK-API
+  migration (`CardTheme`→`CardThemeData`, `DialogTheme`→`DialogThemeData`,
+  confirmed via direct SDK source inspection — genuinely required by 3.44.5,
+  kept) for a version mismatch, and "fixed" it by lowering
+  `pubspec.yaml`'s `sdk: ^3.5.0` and loosening every dependency to `any`,
+  which pub then resolved down to old Dart-3.5-era packages (Riverpod 2.6.1,
+  go_router 15.1.2, flutter_lints 4.0.0, …) regardless of which SDK actually
+  built the app. That forced further wrong changes to match: 3 `.family`
+  controllers (`chat_room_controller.dart`, `service_detail_controller.dart`,
+  `home_content_detail_controller.dart`) were rewritten from the correct
+  Riverpod-3.x `Notifier` + constructor-arg pattern to `FamilyNotifier`, which
+  has **no equivalent in Riverpod 3.x** and doesn't compile once the real
+  version is restored; `app_config.dart`'s hardcoded Supabase URL/anon-key
+  safety-net fallback was deleted entirely; ~16 files had `.withValues(alpha:)`
+  reverted to the deprecated `.withOpacity(`; and
+  `add_ad_wizard_screen.dart`'s `DropdownButtonFormField` was changed
+  `initialValue`→`value` — backwards, since the modern SDK deprecates `value`
+  in favor of `initialValue`. Diagnosed entirely via `git diff` (not the
+  Arabic `docs/build_troubleshooting_report.md`, whose own account of the l10n
+  import fix was inaccurate) plus source-level SDK comparison. **Fix:**
+  restored `pubspec.yaml`'s real constraints (`sdk: ^3.12.1`,
+  `flutter_riverpod: ^3.3.2`, `go_router: ^17.3.0`, `dio: ^5.9.2`,
+  `supabase_flutter: ^2.16.0`, `intl: ^0.20.2`, `flutter_lints: ^6.0.0`) while
+  keeping the new Firebase deps pinned (not `any`); restored the Supabase
+  fallback constants; reverted the 3 controllers back to `Notifier`; kept the
+  genuine `CardThemeData`/`DialogThemeData` fix, the Firebase Gradle/AGP bump,
+  and `l10n.yaml`'s `synthetic-package: false` (later found to be a no-op
+  under this SDK and removed outright — see below); fixed `value`→
+  `initialValue`. Also found and fixed a **real latent crash bug** unrelated
+  to Antigravity's changes: `app.dart` unconditionally
+  `ref.watch(pushNotificationServiceProvider)`, whose constructor eagerly
+  touches `FirebaseMessaging.instance` — but `main.dart`'s own
+  `Firebase.initializeApp()` call is wrapped in a best-effort try/catch that
+  explicitly tolerates Firebase failing to init. If it ever does fail (or in
+  any widget test, which never calls `main()`), the very next provider read
+  crashed the whole app build — contradicting that contract. Fixed by making
+  `pushNotificationServiceProvider` return `PushNotificationService?` (catches
+  the construction error, returns `null`) and having `app.dart` skip
+  `pushService.init()` when null; this was what `test/app/promoo_app_test.dart`
+  had been failing on. Also cleaned up 5 residual `flutter analyze` lint items
+  (unused import, `_`/`__` pattern, two `use_null_aware_elements` — new Dart
+  null-aware element syntax `?expr`/`'key': ?value`, confirmed valid by
+  `flutter analyze` passing clean) and removed `l10n.yaml`'s
+  `synthetic-package: false` after `flutter pub get` flagged it as a no-op in
+  this SDK. **Verified clean end-to-end:** `flutter analyze` → 0 issues,
+  `flutter test` → **198/198 passing**, and a from-scratch
+  `flutter clean && flutter pub get && flutter build apk --release` →
+  succeeded, `app-release.apk` (58.5MB) — same benign Kotlin
+  incremental-cache warning the owner saw in their own manual build, doesn't
+  fail the build. `docs/integration_map.md` and `docs/REQUIREMENTS_STATUS.md`
+  had their own pre-existing internal inconsistency fixed too: both still said
+  "FCM push deferred" in summary rows even though other rows/sections already
+  correctly said it shipped 2026-07-20.
 - **2026-07-20 — Follow notifications now name the follower + two small
   fixes.** Owner: follow notifications said the generic "Someone started
   following you." while chat notifications already carry the sender's name.

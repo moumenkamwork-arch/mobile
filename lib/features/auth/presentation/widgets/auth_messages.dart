@@ -1,4 +1,4 @@
-import '../../../../l10n/app_localizations.dart';
+import 'package:promoo_app/l10n/app_localizations.dart';
 import '../controllers/auth_controller.dart';
 
 /// Resolves an [AuthState] into a message to show the user (validation issue,

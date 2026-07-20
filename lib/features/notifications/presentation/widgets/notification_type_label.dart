@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/app_notification.dart';
 
 /// Resolves the localized label for a [NotificationType]. Split from the

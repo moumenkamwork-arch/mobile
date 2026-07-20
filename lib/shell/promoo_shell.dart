@@ -1,3 +1,4 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/domain/entities/auth_session.dart';
 import '../features/auth/presentation/controllers/auth_controller.dart';
-import '../l10n/app_localizations.dart';
 import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
 import '../shared/state/shell_scroll_provider.dart';

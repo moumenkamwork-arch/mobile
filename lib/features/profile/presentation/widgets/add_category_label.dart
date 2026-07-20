@@ -1,6 +1,5 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
-
-import '../../../../l10n/app_localizations.dart';
 
 /// The canonical (English) category values used internally by the Add
 /// Offer / Add Service forms. Kept English so the eventual `category_id`

@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/promoo_profile.dart';
 
 /// Resolves the localized label for a [ProfileAccountType]. Split from the

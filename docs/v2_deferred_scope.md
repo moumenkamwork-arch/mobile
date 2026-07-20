@@ -63,16 +63,18 @@ Last updated: 2026-07-15 (§1 Auth — confirmed final for v1: forgot/reset pass
 
 ---
 
-## 3. Notifications — the WHOLE feature (defer, incl. FCM/push)
+## 3. Notifications — ✅ Moved to v1 (Implemented 2026-07-20)
 
-| Item | Backend endpoint (for later) | v1 behaviour |
+> **2026-07-20 Update:** The owner decided to pull FCM Push Notifications back into v1 since the backend was already fully capable and sending was free/easy. The entire Notifications feature (List, Mark Read, Delete, and FCM Push) is now **fully wired and live** in the v1 app.
+
+| Item | Backend endpoint | v1 behaviour |
 | --- | --- | --- |
-| Notifications list | `GET /api/v1/notifications?page&limit` | **Display-only** — a skeleton screen already exists behind mocks; kept demoable but **not** wired and not a Phase A priority. |
-| Mark one read | `PATCH /api/v1/notifications/:id/read` | **Display-only / mock** — local state only. |
-| Mark all read | `PATCH /api/v1/notifications/read-all` | **Display-only / mock**. |
-| Delete notification | `DELETE /api/v1/notifications/:id` | **Display-only / mock**. |
-| FCM token registration | `POST /api/v1/notifications/token` | **Hidden** — no `firebase_messaging`, no push permission prompt, no background handler, no token collection. |
-| Home header bell (badge "6") | — | **Safe placeholder** — bell icon + badge kept for MVP parity; routes to the mock notifications screen. |
+| Notifications list | `GET /api/v1/notifications?page&limit` | **Live wired** — fully functional. |
+| Mark one read | `PATCH /api/v1/notifications/:id/read` | **Live wired** — fully functional. |
+| Mark all read | `PATCH /api/v1/notifications/read-all` | **Live wired** — fully functional. |
+| Delete notification | `DELETE /api/v1/notifications/:id` | **Live wired** — fully functional. |
+| FCM token registration | `POST /api/v1/notifications/token` | **Live wired** — `firebase_messaging` added, token retrieved and pushed to backend on login. |
+| Home header bell (badge "6") | — | **Live wired** — shows real unread count and routes to notifications screen. |
 
 ---
 

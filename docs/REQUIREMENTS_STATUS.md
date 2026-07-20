@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-13
+Last updated: 2026-07-20
 
 ---
 
@@ -35,15 +35,16 @@ Last updated: 2026-07-13
 | Public profile | ✅ | Back button; Instagram-style stats; **distinct per-id profiles** (fake synthesizes any id); **Follow toggle** (local), **Message → chat**, Edit → edit screen; packages + media |
 | Search | ✅ | Own Scaffold; grouped/typed results |
 | Chat (list + room) | ✅ | Room keyed by roomId (family); **compose + send works** (in-memory); header chat badge = live unread |
-| Notifications | 🔄 | In-app list works (mark read/all, delete, tap→room); header badge = live unread. Push/FCM feature deferred (v2). |
+| Notifications | ✅ | In-app list works (mark read/all, delete, tap→room); header badge = live unread. Push/FCM wired live 2026-07-20 (`firebase_core` + `firebase_messaging`, token registered on login). |
 | Localization (i18n / RTL) | ✅ | **All phases (L0-Lx) complete.** Full bilingual interface Arabic/English (text-only translation, layout stays LTR in both). Toggle persists. |
 
 ## Deferred to v2 (not built in v1)
 
 OTP · phone/social login · forgot-password · delete-account · ALL Stripe/
 payments (subscriptions, seat-booking checkout, package checkout, featured) ·
-Notifications feature incl. FCM/push · reviews/ratings · likes/comments/share ·
-Facebook login. Full list + endpoint mapping: [v2_deferred_scope.md](v2_deferred_scope.md).
+reviews/ratings · likes/comments/share · Facebook login. (Notifications incl.
+FCM/push moved to v1, 2026-07-20 — see below.) Full list + endpoint mapping:
+[v2_deferred_scope.md](v2_deferred_scope.md).
 
 ## Backend integration (Phase B — NOT started)
 
@@ -55,7 +56,8 @@ categories/services data, auth (email login/register), token persistence
 
 ## Health
 
-**176 tests passing** · `flutter analyze` clean · Tajawal + new logo applied ·
+**198 tests passing** · `flutter analyze` clean · `flutter build apk --release`
+verified end-to-end (58.5MB) · Tajawal + new logo applied ·
 AED everywhere · Light + Black themes done · role-gated Add Offer/Ad/Service ·
 **frontend-only (no network layer — reset 2026-07-09)** · **bilingual, fully
 localized, LTR-locked layout proven by test** · **zero known duplicated UI
@@ -74,6 +76,21 @@ a date picker stuck in placeholder styling, an un-translated "Back" tooltip) ·
 7 fully orphaned dead files deleted from the Seats feature (confirmed zero
 references anywhere + checked against the backend before deleting) · `README.md`
 rewritten for GitHub.
+
+**Recent (2026-07-20):** FCM push notifications wired live (`firebase_core` +
+`firebase_messaging`, Android Firebase project `com.MO2MIN.promoo_app`); follow
+notifications now name the real follower instead of "Someone"; profile-menu
+welcome-card avatar fixed to read the owner profile instead of the
+no-avatar login session; Services demo entries given content-matched images.
+Separately: a second AI tool's build-error pass had introduced a real
+regression (Dart SDK constraint + several package versions silently
+downgraded, 3 Riverpod `.family` controllers rewritten to a Riverpod-2.x-only
+pattern, a hardcoded Supabase URL/key safety-net removed) alongside genuinely
+correct fixes (Flutter's `CardTheme`→`CardThemeData` API rename, the Firebase
+Android Gradle/AGP bump); the regression was root-caused via `git diff` and
+reverted while keeping the genuine fixes and the new FCM feature — confirmed
+by a from-scratch `flutter clean && flutter build apk --release` succeeding
+(58.5MB) plus zero `flutter analyze` issues and all 198 tests passing.
 
 **Recent (2026-07-15):** Phase 1-5 Final Verifications. Successfully tested and audited roles logic (Admin Dashboard + Mobile UI). Fixed a critical UX bug in Mobile Bottom Navigation: Influencers and Companies now get a dynamic 6-tab layout (showing both Offers and Seats) instead of 5, without breaking the custom floating "P" cup design. Backend permissions tested via seeding test accounts.
 

@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-import '../../l10n/app_localizations.dart';
 import '../../theme/app_spacing.dart';
 
 /// Back arrow + title/subtitle column + an optional trailing action, used at

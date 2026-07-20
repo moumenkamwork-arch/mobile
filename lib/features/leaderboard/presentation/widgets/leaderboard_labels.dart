@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/leaderboard_profile.dart';
 
 /// Resolves the localized "N followers" line for a [LeaderboardProfile].

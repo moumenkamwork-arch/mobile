@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';

@@ -1,3 +1,4 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/chat/presentation/controllers/chat_controller.dart';
 import '../../features/notifications/presentation/controllers/notifications_controller.dart';
-import '../../l10n/app_localizations.dart';
 import '../../routing/route_names.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -54,8 +54,7 @@ class PromooPageHeader extends ConsumerWidget {
     final notificationsUnread = ref.watch(
       notificationsControllerProvider.select((state) => state.unreadCount),
     );
-    final backgroundColor = colors.background.withValues(
-      alpha: scrolled ? 0.72 : 0.9,
+    final backgroundColor = colors.background.withValues(alpha: scrolled ? 0.72 : 0.9,
     );
 
     final bar = DecoratedBox(

@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -300,8 +300,7 @@ class _StoryProgressBars extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: _valueForIndex(index),
                     minHeight: 3,
-                    backgroundColor: AppColors.dark.textPrimary.withValues(
-                      alpha: 0.28,
+                    backgroundColor: AppColors.dark.textPrimary.withValues(alpha: 0.28,
                     ),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.brandYellow,

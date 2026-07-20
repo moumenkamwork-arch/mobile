@@ -51,6 +51,9 @@ dependencies:
   flutter_dotenv: ^6.0.1
   flutter_localizations:
     sdk: flutter
+  # Push notifications (FCM) — added 2026-07-20.
+  firebase_core: ^4.7.0
+  firebase_messaging: ^16.2.0
 
 dev_dependencies:
   flutter_test:

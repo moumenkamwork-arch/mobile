@@ -1,0 +1,106 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../features/auth/presentation/controllers/auth_controller.dart';
+import '../../features/notifications/domain/repositories/notifications_repository.dart';
+import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
+
+final pushNotificationServiceProvider = Provider<PushNotificationService?>((
+  ref,
+) {
+  PushNotificationService service;
+  try {
+    // Firebase.initializeApp() in main.dart is itself best-effort (never
+    // crashes app start) — FirebaseMessaging.instance throws if that init
+    // didn't happen or didn't complete, so this must degrade the same way
+    // rather than taking the whole app down with it.
+    service = PushNotificationService(
+      repository: ref.watch(notificationsRepositoryProvider),
+    );
+  } catch (_) {
+    return null;
+  }
+
+  // Listen to auth changes to register token when user logs in
+  ref.listen(authControllerProvider, (previous, next) {
+    if (next.status == AuthStatus.authenticated) {
+      service.setupAndRegisterToken();
+    } else if (next.status == AuthStatus.unauthenticated) {
+      // We could delete token here, but it's optional
+    }
+  });
+
+  return service;
+});
+
+class PushNotificationService {
+  PushNotificationService({required this.repository});
+
+  final NotificationsRepository repository;
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+
+  Future<void> init() async {
+    // Request permission for iOS/Android 13+
+    final settings = await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional) {
+      
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        if (kDebugMode) {
+          print('Received foreground push notification: ${message.messageId}');
+        }
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
+    }
+  }
+
+  Future<void> setupAndRegisterToken() async {
+    try {
+      final token = await _messaging.getToken();
+      if (token != null) {
+        await _registerTokenWithBackend(token);
+      }
+      _messaging.onTokenRefresh.listen(_registerTokenWithBackend);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to setup FCM token: $e');
+      }
+    }
+  }
+
+  Future<void> _registerTokenWithBackend(String token) async {
+    String deviceType = 'web';
+    if (!kIsWeb) {
+      deviceType = Platform.isAndroid ? 'android' : (Platform.isIOS ? 'ios' : 'unknown');
+    }
+
+    await repository.registerDeviceToken(
+      token: token,
+      deviceType: deviceType,
+    );
+  }
+
+  void _handleMessageTap(RemoteMessage message) {
+    // In v1, this will just print or you can hook it up to AppRouter if needed.
+    if (kDebugMode) {
+      print('Tapped push notification: ${message.data}');
+    }
+  }
+}
+
+// Background handler must be a top-level function
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (kDebugMode) {
+    print('Handling a background message: ${message.messageId}');
+  }
+}

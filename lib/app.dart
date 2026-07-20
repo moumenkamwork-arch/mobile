@@ -1,11 +1,12 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'i18n/locale_controller.dart';
-import 'l10n/app_localizations.dart';
 import 'routing/app_router.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_mode_controller.dart';
+import 'core/push/push_notification_service.dart';
 
 class PromooApp extends ConsumerWidget {
   const PromooApp({super.key});
@@ -15,6 +16,17 @@ class PromooApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
+
+    // Watch the service to keep it alive and listening to auth changes.
+    // Null when Firebase didn't initialize (see push_notification_service.dart).
+    final pushService = ref.watch(pushNotificationServiceProvider);
+
+    // Initialize once
+    if (pushService != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        pushService.init();
+      });
+    }
 
     return MaterialApp.router(
       title: 'Promoo',

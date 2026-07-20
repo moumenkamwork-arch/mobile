@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-import '../../l10n/app_localizations.dart';
 import '../../theme/app_spacing.dart';
 
 /// Back arrow + single-line title row used at the top of detail-style pages

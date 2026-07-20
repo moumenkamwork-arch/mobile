@@ -1,6 +1,6 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/chat.dart';
 
 /// Resolves the localized label for a [ChatMessageStatus]. Split from the

@@ -25,6 +25,10 @@ class AppConfig {
   // The anon key is meant to be public/client-embeddable — Row Level
   // Security on the underlying tables is the real access boundary (already
   // scoped correctly for `messages`/`chat_rooms`/`chat_participants`).
+  // `.env` (SUPABASE_URL/SUPABASE_ANON_KEY) is still the priority source —
+  // see fromEnvironment() below — this is only the safety-net fallback if
+  // .env somehow isn't bundled/loaded, so Realtime never silently points at
+  // an empty URL.
   static const defaultSupabaseUrl = 'https://mqklargyjispbcyxzdjo.supabase.co';
   static const defaultSupabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xa2xhcmd5amlzcGJjeXh6ZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MjQ3NzUsImV4cCI6MjA5NzIwMDc3NX0.fJOsJy5AK5Uvn8SR-P6ajqtd1h4osNE8vlJ1XrFWXFI';

@@ -1,8 +1,8 @@
+import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/route_names.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -402,8 +402,7 @@ class _SeatCell extends ConsumerWidget {
           color: colors.background.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: tierColor.withValues(
-              alpha: tier == SeatTier.gold ? 0.8 : 0.55,
+            color: tierColor.withValues(alpha: tier == SeatTier.gold ? 0.8 : 0.55,
             ),
             width: 1.2,
           ),
