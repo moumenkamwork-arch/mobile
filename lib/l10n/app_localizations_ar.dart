@@ -283,6 +283,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeSectionStoriesSubtitle => 'آخر تحديثات شركاء بروموو';
 
   @override
+  String get homeStoryYourStory => 'قصتك';
+
+  @override
+  String get homeStoryUploading => 'جارٍ رفع القصة…';
+
+  @override
+  String get homeStoryAdded => 'تمت إضافة القصة.';
+
+  @override
   String get homeSectionTopOffersTitle => 'أفضل العروض';
 
   @override

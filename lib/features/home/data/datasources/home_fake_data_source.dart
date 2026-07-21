@@ -44,6 +44,9 @@ class HomeFakeDataSource implements HomeDataSource {
 
     throw const AppFailure.notFound(message: 'Home item not found.');
   }
+
+  @override
+  Future<void> createStory(String mediaUrl) async {}
 }
 
 const _fakeDetails = [

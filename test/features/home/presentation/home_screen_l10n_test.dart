@@ -75,4 +75,9 @@ class _HomeRepository implements HomeRepository {
       AppFailure.notFound(message: 'Home item not found.'),
     );
   }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
+  }
 }

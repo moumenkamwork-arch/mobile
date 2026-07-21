@@ -626,6 +626,24 @@ abstract class AppLocalizations {
   /// **'Fresh updates from Promoo partners'**
   String get homeSectionStoriesSubtitle;
 
+  /// No description provided for @homeStoryYourStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get homeStoryYourStory;
+
+  /// No description provided for @homeStoryUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading story…'**
+  String get homeStoryUploading;
+
+  /// No description provided for @homeStoryAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Story added.'**
+  String get homeStoryAdded;
+
   /// No description provided for @homeSectionTopOffersTitle.
   ///
   /// In en, this message translates to:

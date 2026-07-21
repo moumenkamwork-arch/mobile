@@ -103,6 +103,19 @@ class ProfileController extends Notifier<ProfileState> {
     return _load(refreshing: true);
   }
 
+  /// Patches the loaded profile in place (e.g. right after
+  /// `POST /profiles/me/avatar` already returned the fresh row) so every
+  /// watcher — the Profile Management welcome card included — updates
+  /// instantly. Safer than `ref.invalidate` + waiting for a re-fetch to win
+  /// the race against navigation back to a screen that's already watching.
+  void applyProfile(PromooProfile profile) {
+    state = ProfileState.success(
+      profile: profile,
+      packages: state.packages,
+      isFollowing: state.isFollowing,
+    );
+  }
+
   /// Optimistically toggles follow, then calls the backend
   /// (`POST`/`DELETE /follows/:id`). Reverts if the request fails (e.g. a guest
   /// gets 401). No-op until the profile has loaded.

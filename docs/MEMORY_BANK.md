@@ -4,7 +4,16 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-20 (**Phase 11 — Upload started**: built the reusable
+> Last updated: 2026-07-21 (**Story creation wired**: "Your story" tile on
+> Home, reusing the Upload infra against the backend's already-complete Story
+> API; fixed a welcome-card avatar/name staleness bug by patching profile
+> state directly instead of invalidate-and-race. See §5 top entry.) Before
+> that: 2026-07-21 (**Live device debugging pass**: fixed the FCM
+> notification icon/tap-routing, a chat/detail-screen staleness bug via
+> `autoDispose`, and a locale-switch bug that made Home/Services freeze
+> permanently — all root-caused with real `adb`/`flutter run` device
+> debugging, not guesswork.)
+> Before that: 2026-07-20 (**Phase 11 — Upload started**: built the reusable
 > two-step upload infrastructure — `lib/features/upload/` + `image_picker` —
 > and wired the first live consumer, the profile avatar, end-to-end through
 > `POST /upload/image` → `POST /profiles/me/avatar`. See §5 top entry.)
@@ -117,6 +126,80 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-21 — Story creation wired ("Your story" tile on Home) + a
+  welcome-card staleness bug fixed.** (1) Fixed: changing avatar/name on Edit
+  Profile relied on `ref.invalidate(profileControllerProvider)` + hoping a
+  background re-fetch won the race before the user navigated back to Profile
+  Management — it usually didn't, so the welcome card kept showing the old
+  photo until a full app restart forced a fresh fetch. Fixed properly:
+  `updateMyAvatar`/`updateMyProfile` already return the fresh `PromooProfile`
+  row from the backend response — added `ProfileController.applyProfile()` to
+  patch state with it directly, no invalidate, no race, instant everywhere.
+  (2) Story feature: the backend has always had a complete Story API
+  (`story.routes.ts`/`story.service.ts` — `GET /stories`, `POST /stories`,
+  `DELETE /stories/:id`, 24h auto-expiry) and `GET /home`'s `stories` field
+  was already wired to it — the Home story strip was showing empty only
+  because zero real stories existed in the DB (nobody could create one; the
+  `.fixture()` demo constant in `home_content_dto.dart` — what the owner
+  remembered seeing — is test-only, not what the live app renders). Added
+  `HomeRepository.createStory(mediaUrl)` down the usual
+  datasource/repository chain, and a "Your story" tile (first slot in
+  `HomeStoryStrip`, signed-in users only) that reuses the exact same
+  pick-image → upload (`bucket: stories`, `related: story`) flow as the
+  avatar, then calls `POST /stories` and refreshes Home. Extracted the
+  camera/gallery bottom sheet out of `edit_profile_screen.dart` into a shared
+  `shared/widgets/promoo_image_source_sheet.dart` since this is now its
+  second use. Not yet covered by a dedicated widget test (existing 198 all
+  still pass — no regression, just no new coverage for this feature yet).
+  Video stories and deleting your own story are not built (`POST
+  /upload/video` and `DELETE /stories/:id` are both scaffolded server-side
+  but unused client-side).
+- **2026-07-21 — Live device pass: FCM notification bugs + a locale-switch
+  hang, root-caused and fixed via real on-device debugging.** Owner reported
+  four issues after live FCM testing with a second account: (1) no app icon
+  on the system notification — a plain full-color launcher PNG was never a
+  valid Android small-icon (must be a flat alpha silhouette); added
+  `drawable/ic_stat_promoo.xml` (a simple "P" mark) + the
+  `default_notification_icon`/`default_notification_color` manifest
+  meta-data. (2) Tapping a notification always opened the app to a generic
+  screen instead of the specific chat/profile — `_handleMessageTap` in
+  `push_notification_service.dart` was literally just a debug `print()`;
+  wired it to `GoRouter` (same destination rule as
+  `notifications_screen.dart`: `room_id` → chat, `follow` type → profile) and
+  added `getInitialMessage()` handling for the fully-terminated-app case.
+  (3) A message wouldn't show until a manual pull-to-refresh — root cause:
+  `chatRoomControllerProvider` (and the same-shaped
+  `serviceDetailControllerProvider`/`homeContentDetailControllerProvider`)
+  were plain (non-autoDispose) family providers, so once a room/detail screen
+  was opened once, it stayed cached for the rest of the app session —
+  revisiting it never re-fetched, so a message received while the realtime
+  socket was suspended (backgrounded app) stayed invisible until an explicit
+  refresh. Converted all three to `.autoDispose` (Riverpod 3.x: just the
+  provider declaration changes, no Notifier base-class change needed) so
+  leaving and returning to a screen always re-fetches. (4) Switching the
+  language never refreshed already-loaded screens — `ServicesController` and
+  `HomeController` fetch once on first build and never watched
+  `localeProvider`, so server-resolved (`Accept-Language`) category names
+  stayed frozen in whichever language was active on first load; checked every
+  other list controller and only these two actually carry such content
+  (Search re-queries fresh per submission already, so it was unaffected).
+  Added `ref.watch(localeProvider)` to both — but this alone caused a **new,
+  worse bug**, found only via live on-device debugging (adb logcat + a
+  temporary `flutter run` with debug prints): a plain `Notifier`'s instance
+  is *not* recreated when a watched dependency changes (per Riverpod's own
+  doc comment), only `build()` reruns — meaning the *previous* build's
+  `ref.onDispose(() => _disposed = true)` fires right before the rerun, and
+  since nothing ever reset `_disposed` back to `false` in the new `build()`,
+  every `_load()` after the *first* locale switch silently returned early
+  (`if (_disposed) return;`) without ever setting `state` — the screen froze
+  on its loading spinner forever, even though the network request succeeded.
+  Fixed by resetting `_disposed = false` at the top of `build()` in both
+  controllers. All four verified live end-to-end via `adb` (screenshots +
+  `uiautomator dump` for exact tap coordinates + `flutter run` with temporary
+  prints, since blind screenshot-coordinate guessing repeatedly mistapped)
+  against the real ngrok-tunneled backend on the owner's physical device —
+  language switch confirmed working both directions (Home + Services) with
+  no hang. `flutter analyze` clean, **198/198 tests**.
 - **2026-07-20 — Phase 11 (Upload): infrastructure + avatar wired.** Built the
   two-step upload flow the whole app will reuse (mirrors the dashboard's
   `ImageUpload` component exactly): pick a local image → `POST /upload/image`

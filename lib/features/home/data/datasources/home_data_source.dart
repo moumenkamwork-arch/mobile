@@ -7,4 +7,6 @@ abstract interface class HomeDataSource {
   Future<HomeContentDetailDto> fetchHomeContentDetail(
     HomeContentDetailRequest request,
   );
+
+  Future<void> createStory(String mediaUrl);
 }

@@ -61,4 +61,16 @@ class HomeRepositoryImpl implements HomeRepository {
       return const Result.failure(AppFailure.unknown());
     }
   }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    try {
+      await dataSource.createStory(mediaUrl);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
 }

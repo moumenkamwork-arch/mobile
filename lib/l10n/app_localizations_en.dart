@@ -284,6 +284,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSectionStoriesSubtitle => 'Fresh updates from Promoo partners';
 
   @override
+  String get homeStoryYourStory => 'Your story';
+
+  @override
+  String get homeStoryUploading => 'Uploading story…';
+
+  @override
+  String get homeStoryAdded => 'Story added.';
+
+  @override
   String get homeSectionTopOffersTitle => 'Top Offers';
 
   @override

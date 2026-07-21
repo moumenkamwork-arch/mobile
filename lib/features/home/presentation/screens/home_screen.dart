@@ -138,12 +138,11 @@ class _HomeContentView extends StatelessWidget {
                 ),
                 sliver: SliverList.list(
                   children: [
-                    if (content.stories.isNotEmpty)
-                      HomeStoryStrip(
-                        stories: content.stories,
-                        onSeeAll: () =>
-                            context.push(AppRoutes.homeSeeAll('stories')),
-                      ),
+                    HomeStoryStrip(
+                      stories: content.stories,
+                      onSeeAll: () =>
+                          context.push(AppRoutes.homeSeeAll('stories')),
+                    ),
                     if (topOffers.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.lg),
                       HomeOffersPreviewSection(

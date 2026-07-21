@@ -105,6 +105,9 @@
 
   "homeSectionStoriesTitle": "القصص",
   "homeSectionStoriesSubtitle": "آخر تحديثات شركاء بروموو",
+  "homeStoryYourStory": "قصتك",
+  "homeStoryUploading": "جارٍ رفع القصة…",
+  "homeStoryAdded": "تمت إضافة القصة.",
   "homeSectionTopOffersTitle": "أفضل العروض",
   "homeSectionTopOffersSubtitle": "عروض مميزة من شركاء بروموو",
   "homeSectionForYouTitle": "لك أنت",

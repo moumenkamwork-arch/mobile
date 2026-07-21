@@ -2,6 +2,7 @@ class ApiEndpoints {
   const ApiEndpoints._();
 
   static const home = '/home';
+  static const stories = '/stories';
   static const offers = '/offers';
   static const activeAds = '/ads/active';
   static const loginEmail = '/auth/login/email';

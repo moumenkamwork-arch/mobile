@@ -69,4 +69,13 @@ class HomeRemoteDataSource implements HomeDataSource {
 
     throw const AppFailure.notFound(message: 'Promotion not found.');
   }
+
+  @override
+  Future<void> createStory(String mediaUrl) async {
+    await _apiClient.post<void>(
+      ApiEndpoints.stories,
+      data: {'media_url': mediaUrl},
+      decode: (_) {},
+    );
+  }
 }

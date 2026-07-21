@@ -50,6 +50,13 @@ class HomeController extends Notifier<HomeState> {
     // controller's one-time fetch frozen in whatever language was active on
     // first load.
     ref.watch(localeProvider);
+    // `build()` reruns (same instance, see class docs) whenever the locale
+    // changes, since a plain Notifier is never recreated on a watched-value
+    // change — only the state is reset. `_disposed` must be reset here too,
+    // otherwise the *previous* build's onDispose (fired right before this
+    // rerun) leaves it permanently `true`, silently dropping every future
+    // `_load()` result forever after the first locale switch.
+    _disposed = false;
     ref.onDispose(() => _disposed = true);
     unawaited(Future<void>.microtask(load));
     return const HomeState.loading();

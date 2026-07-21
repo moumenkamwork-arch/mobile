@@ -385,6 +385,11 @@ class _HomeRepository implements HomeRepository {
   ) async {
     return detailResult;
   }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
+  }
 }
 
 class _PendingHomeRepository implements HomeRepository {
@@ -406,5 +411,10 @@ class _PendingHomeRepository implements HomeRepository {
         AppFailure.notFound(message: 'Home item not found.'),
       ),
     );
+  }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
   }
 }

@@ -7,4 +7,9 @@ abstract interface class HomeRepository {
   Future<Result<HomeContentDetail>> getHomeContentDetail(
     HomeContentDetailRequest request,
   );
+
+  /// `POST /stories` with a Supabase Storage URL already produced by the
+  /// upload step (`bucket: UploadBucket.stories`, `related: UploadRelatedTo.story`).
+  /// The backend defaults `expires_at` to 24h from now.
+  Future<Result<void>> createStory(String mediaUrl);
 }

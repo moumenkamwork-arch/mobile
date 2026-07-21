@@ -100,6 +100,12 @@ class ServicesController extends Notifier<ServicesState> {
     // controller's one-time fetch frozen in whatever language was active on
     // first load.
     ref.watch(localeProvider);
+    // `build()` reruns (same instance) on every locale change, since a plain
+    // Notifier is never recreated on a watched-value change. `_disposed` must
+    // be reset here too, otherwise the *previous* build's onDispose (which
+    // fires right before this rerun) leaves it permanently `true`, silently
+    // dropping every future `_load()` result after the first locale switch.
+    _disposed = false;
     ref.onDispose(() => _disposed = true);
     unawaited(Future<void>.microtask(load));
     return const ServicesState.loading();

@@ -9,6 +9,7 @@ import '../../../upload/domain/entities/uploaded_media.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
+import '../../../../shared/widgets/promoo_image_source_sheet.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
@@ -284,9 +285,9 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     setState(() => _isSaving = false);
 
     result.when(
-      success: (_) {
+      success: (profile) {
+        ref.read(profileControllerProvider.notifier).applyProfile(profile);
         ref.invalidate(editProfileSourceProvider);
-        ref.invalidate(profileControllerProvider);
         _showNotice(l10n.profileEditSaveSuccess);
       },
       failure: (failure) => _showNotice(failure.message),
@@ -298,7 +299,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   /// → persist that URL via `POST /profiles/me/avatar` → refresh the profile so
   /// the new photo shows here, on the profile menu welcome card, and elsewhere.
   Future<void> _pickAndUploadAvatar(AppLocalizations l10n) async {
-    final source = await _chooseImageSource(l10n);
+    final source = await showImageSourceSheet(context, l10n);
     if (source == null || !mounted) {
       return;
     }
@@ -341,9 +342,12 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
         }
         setState(() => _isUploadingAvatar = false);
         saveResult.when(
-          success: (_) {
+          success: (profile) {
+            // Patch directly with the row the backend just returned — instant
+            // everywhere `profileControllerProvider` is read (welcome card
+            // included), no race against an invalidate-triggered re-fetch.
+            ref.read(profileControllerProvider.notifier).applyProfile(profile);
             ref.invalidate(editProfileSourceProvider);
-            ref.invalidate(profileControllerProvider);
             _showNotice(l10n.profileEditPhotoUpdated);
           },
           failure: (failure) => _showNotice(failure.message),
@@ -352,35 +356,6 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
         setState(() => _isUploadingAvatar = false);
         _showNotice(failure.message);
     }
-  }
-
-  Future<ImageSource?> _chooseImageSource(AppLocalizations l10n) {
-    return showModalBottomSheet<ImageSource>(
-      context: context,
-      backgroundColor: context.colors.elevatedSurface,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_camera_rounded),
-                title: Text(l10n.profileEditTakePhoto),
-                onTap: () =>
-                    Navigator.of(sheetContext).pop(ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library_rounded),
-                title: Text(l10n.profileEditChooseFromGallery),
-                onTap: () =>
-                    Navigator.of(sheetContext).pop(ImageSource.gallery),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _showNotice(String message) {

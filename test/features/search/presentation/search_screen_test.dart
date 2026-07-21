@@ -467,4 +467,9 @@ class _HomeRepository implements HomeRepository {
   ) async {
     return detailResult;
   }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
+  }
 }

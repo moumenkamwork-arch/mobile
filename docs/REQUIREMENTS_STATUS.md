@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 ---
 
@@ -27,7 +27,7 @@ Last updated: 2026-07-20
 | Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated), Saved, My Packages, Following (above Support), Support, Language (functional toggle → ar/en), Theme Mode (Black/Light, persisted), Logout, legal links. **Fully localized.** |
 | Light theme (all screens) | ✅ | 2026-07-08: token system (`context.colors`), AA contrast, black brand chrome, dark-locked auth/splash/media viewers |
 | Back navigation (system + in-app) | ✅ | 2026-07-08: step-wise everywhere — details → list → categories → Home → double-press exit; push-based details; Services results layer intercepts back |
-| Edit Profile | ✅ | Fields = `updateProfileSchema`; local only. Media grid reuses the same `ProfileMediaSection` component as the public profile (fixed 2026-07-13 — it used to be a separate, poorer copy with no likes/comments/share). |
+| Edit Profile | ✅ | Fields = `updateProfileSchema`; local only. Media grid reuses the same `ProfileMediaSection` component as the public profile (fixed 2026-07-13 — it used to be a separate, poorer copy with no likes/comments/share). Avatar wired live 2026-07-20 (camera/gallery → `POST /upload/image` → `POST /profiles/me/avatar`); cover still not wired (no UI yet). |
 | Add New Ad (wizard) | ✅ | 4 steps; fields map to `POST /ads` (`createAdSchema`); local only |
 | MyPackages | ✅ | Display-only (no backend package entity — v2) |
 | Saved / Following | ✅ | Mock lists (map to `/saved`, `/follows`) |
@@ -76,6 +76,14 @@ a date picker stuck in placeholder styling, an un-translated "Back" tooltip) ·
 7 fully orphaned dead files deleted from the Seats feature (confirmed zero
 references anywhere + checked against the backend before deleting) · `README.md`
 rewritten for GitHub.
+
+**Recent (2026-07-21):** Phase 11 Upload infra + avatar wired (camera + gallery
+picker). Live on-device FCM test found and fixed 4 bugs: missing notification
+icon, notification tap not deep-linking, chat/detail screens showing stale
+data after revisiting (fixed via `.autoDispose` on the room/detail
+providers), and a locale-switch bug that froze Home/Services permanently
+after the *second* language toggle (a `_disposed` flag never reset across
+provider rebuilds). Full root-cause detail: `MEMORY_BANK.md`.
 
 **Recent (2026-07-20):** FCM push notifications wired live (`firebase_core` +
 `firebase_messaging`, Android Firebase project `com.MO2MIN.promoo_app`); follow

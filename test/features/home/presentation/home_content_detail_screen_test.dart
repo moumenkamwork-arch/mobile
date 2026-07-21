@@ -130,6 +130,11 @@ class _HomeRepository implements HomeRepository {
   ) async {
     return detailResult;
   }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
+  }
 }
 
 class _PendingHomeRepository implements HomeRepository {
@@ -147,5 +152,10 @@ class _PendingHomeRepository implements HomeRepository {
     HomeContentDetailRequest request,
   ) {
     return completer.future;
+  }
+
+  @override
+  Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
   }
 }
