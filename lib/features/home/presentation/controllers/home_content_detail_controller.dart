@@ -6,8 +6,11 @@ import '../../../../core/errors/app_failure.dart';
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/entities/home_content.dart';
 
+// autoDispose: see chatRoomControllerProvider — without it, revisiting a
+// home item you already opened this session reuses its stale cached state
+// instead of refetching current data.
 final homeContentDetailControllerProvider =
-    NotifierProvider.family<
+    NotifierProvider.autoDispose.family<
       HomeContentDetailController,
       HomeContentDetailState,
       HomeContentDetailRequest

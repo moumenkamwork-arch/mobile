@@ -1,8 +1,11 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/utils/result.dart';
+import '../../../upload/data/repositories/upload_repository_impl.dart';
+import '../../../upload/domain/entities/uploaded_media.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
@@ -72,7 +75,9 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   late final TextEditingController _nameController;
   late final TextEditingController _bioController;
   late final TextEditingController _locationController;
+  final ImagePicker _imagePicker = ImagePicker();
   bool _isSaving = false;
+  bool _isUploadingAvatar = false;
 
   @override
   void initState() {
@@ -102,41 +107,66 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
       children: [
         Row(
           children: [
-            Stack(
-              children: [
-                Container(
-                  width: 96,
-                  height: 96,
-                  // Brand ring around the photo — yellow in both themes.
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.brandYellow, width: 3),
-                  ),
-                  child: ClipOval(
-                    child: PromooImage(
-                      imageUrl: profile.avatarUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                PositionedDirectional(
-                  bottom: 0,
-                  end: 0,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: const BoxDecoration(
-                      color: AppColors.brandYellow,
+            GestureDetector(
+              onTap: _isUploadingAvatar
+                  ? null
+                  : () => _pickAndUploadAvatar(l10n),
+              child: Stack(
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    // Brand ring around the photo — yellow in both themes.
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.brandYellow, width: 3),
                     ),
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: AppColors.brandBlack,
-                      size: 20,
+                    child: ClipOval(
+                      child: PromooImage(
+                        imageUrl: profile.avatarUrl,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  // Dim the photo behind a spinner while the pick → upload →
+                  // POST /profiles/me/avatar round-trip is in flight.
+                  if (_isUploadingAvatar)
+                    Positioned.fill(
+                      child: ClipOval(
+                        child: ColoredBox(
+                          color: AppColors.brandBlack.withValues(alpha: 0.55),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 26,
+                              height: 26,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: AppColors.brandYellow,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  PositionedDirectional(
+                    bottom: 0,
+                    end: 0,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        color: AppColors.brandYellow,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: AppColors.brandBlack,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -154,10 +184,13 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   InkWell(
-                    onTap: () =>
-                        _showNotice(l10n.profileEditChangePhotoComingSoon),
+                    onTap: _isUploadingAvatar
+                        ? null
+                        : () => _pickAndUploadAvatar(l10n),
                     child: Text(
-                      l10n.profileEditChangePhoto,
+                      _isUploadingAvatar
+                          ? l10n.profileEditUploadingPhoto
+                          : l10n.profileEditChangePhoto,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: context.colors.accent,
                         fontWeight: FontWeight.w700,
@@ -257,6 +290,96 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
         _showNotice(l10n.profileEditSaveSuccess);
       },
       failure: (failure) => _showNotice(failure.message),
+    );
+  }
+
+  /// The full avatar flow: choose a source → pick a local image → upload it
+  /// (bucket `avatars`, related `profile`) which returns a Supabase Storage URL
+  /// → persist that URL via `POST /profiles/me/avatar` → refresh the profile so
+  /// the new photo shows here, on the profile menu welcome card, and elsewhere.
+  Future<void> _pickAndUploadAvatar(AppLocalizations l10n) async {
+    final source = await _chooseImageSource(l10n);
+    if (source == null || !mounted) {
+      return;
+    }
+
+    final XFile? picked;
+    try {
+      picked = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1024,
+      );
+    } catch (_) {
+      if (mounted) _showNotice(l10n.profileEditUnavailableMessage);
+      return;
+    }
+    if (picked == null || !mounted) {
+      return;
+    }
+
+    setState(() => _isUploadingAvatar = true);
+
+    final uploadResult = await ref
+        .read(uploadRepositoryProvider)
+        .uploadImage(
+          filePath: picked.path,
+          bucket: UploadBucket.avatars,
+          relatedTo: UploadRelatedTo.profile,
+        );
+    if (!mounted) {
+      return;
+    }
+
+    switch (uploadResult) {
+      case Success(data: final media):
+        final saveResult = await ref
+            .read(profileRepositoryProvider)
+            .updateMyAvatar(media.fileUrl);
+        if (!mounted) {
+          return;
+        }
+        setState(() => _isUploadingAvatar = false);
+        saveResult.when(
+          success: (_) {
+            ref.invalidate(editProfileSourceProvider);
+            ref.invalidate(profileControllerProvider);
+            _showNotice(l10n.profileEditPhotoUpdated);
+          },
+          failure: (failure) => _showNotice(failure.message),
+        );
+      case Failure(failure: final failure):
+        setState(() => _isUploadingAvatar = false);
+        _showNotice(failure.message);
+    }
+  }
+
+  Future<ImageSource?> _chooseImageSource(AppLocalizations l10n) {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: context.colors.elevatedSurface,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_rounded),
+                title: Text(l10n.profileEditTakePhoto),
+                onTap: () =>
+                    Navigator.of(sheetContext).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded),
+                title: Text(l10n.profileEditChooseFromGallery),
+                onTap: () =>
+                    Navigator.of(sheetContext).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

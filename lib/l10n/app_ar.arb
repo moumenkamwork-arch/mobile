@@ -278,6 +278,10 @@
   "profileEditSaveButton": "حفظ",
   "profileEditSaving": "جارٍ الحفظ...",
   "profileEditSaveSuccess": "تم تحديث الملف الشخصي.",
+  "profileEditUploadingPhoto": "جارٍ رفع الصورة…",
+  "profileEditPhotoUpdated": "تم تحديث صورة الملف الشخصي.",
+  "profileEditTakePhoto": "التقاط صورة",
+  "profileEditChooseFromGallery": "اختيار من المعرض",
 
   "profileFollowingEmptyTitle": "لا يوجد متابَعون بعد",
   "profileFollowingEmptyMessage": "ستظهر هنا الملفات التي تتابعها.",

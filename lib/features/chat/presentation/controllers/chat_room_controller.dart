@@ -18,10 +18,20 @@ typedef ChatRoomArg = ({String? roomId, String? participantId});
 /// and the id reaches [ChatRoomController] directly (a plain global provider
 /// would read the root default and never see a nested ProviderScope override
 /// — see [serviceDetailControllerProvider] for the same idiom).
+///
+/// `autoDispose`: a plain (non-autoDispose) family provider stays alive
+/// forever once built, for every room id you've ever opened this session —
+/// leaving the room screen and coming back reuses that same cached state
+/// as-is, `build()` never reruns. If a message arrived via FCM while the
+/// realtime socket was suspended (app backgrounded/killed), reopening the
+/// room showed the stale list until a manual pull-to-refresh — that's the
+/// bug this fixes. `autoDispose` tears the controller down once nothing
+/// watches it, so reopening a room always rebuilds fresh and refetches.
 final chatRoomControllerProvider =
-    NotifierProvider.family<ChatRoomController, ChatRoomState, ChatRoomArg>(
-      ChatRoomController.new,
-    );
+    NotifierProvider.autoDispose
+        .family<ChatRoomController, ChatRoomState, ChatRoomArg>(
+          ChatRoomController.new,
+        );
 
 enum ChatRoomStatus { loading, success, empty, error, refreshing }
 

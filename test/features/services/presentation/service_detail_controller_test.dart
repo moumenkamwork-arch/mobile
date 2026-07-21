@@ -24,6 +24,12 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    // autoDispose: keep a listener alive so the provider isn't torn down
+    // between reads (a bare `.read()` alone doesn't keep it alive).
+    container.listen(
+      serviceDetailControllerProvider('service-influencer-launch'),
+      (_, _) {},
+    );
 
     expect(
       container
@@ -55,6 +61,7 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    container.listen(serviceDetailControllerProvider(''), (_, _) {});
 
     container.read(serviceDetailControllerProvider(''));
     await Future<void>.delayed(Duration.zero);
@@ -77,6 +84,7 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    container.listen(serviceDetailControllerProvider('missing'), (_, _) {});
 
     container.read(serviceDetailControllerProvider('missing'));
     await Future<void>.delayed(Duration.zero);

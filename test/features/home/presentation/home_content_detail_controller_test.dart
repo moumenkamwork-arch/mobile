@@ -29,6 +29,9 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    // autoDispose: keep a listener alive so the provider isn't torn down
+    // between reads (a bare `.read()` alone doesn't keep it alive).
+    container.listen(homeContentDetailControllerProvider(request), (_, _) {});
 
     expect(
       container.read(homeContentDetailControllerProvider(request)).status,
@@ -60,6 +63,7 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    container.listen(homeContentDetailControllerProvider(request), (_, _) {});
 
     container.read(homeContentDetailControllerProvider(request));
     await Future<void>.delayed(Duration.zero);
@@ -87,6 +91,7 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    container.listen(homeContentDetailControllerProvider(request), (_, _) {});
 
     container.read(homeContentDetailControllerProvider(request));
     await Future<void>.delayed(Duration.zero);

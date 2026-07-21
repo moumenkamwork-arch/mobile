@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
+import '../../routing/app_router.dart';
+import '../../routing/route_names.dart';
 
 final pushNotificationServiceProvider = Provider<PushNotificationService?>((
   ref,
@@ -19,6 +22,7 @@ final pushNotificationServiceProvider = Provider<PushNotificationService?>((
     // rather than taking the whole app down with it.
     service = PushNotificationService(
       repository: ref.watch(notificationsRepositoryProvider),
+      router: ref.watch(appRouterProvider),
     );
   } catch (_) {
     return null;
@@ -37,9 +41,10 @@ final pushNotificationServiceProvider = Provider<PushNotificationService?>((
 });
 
 class PushNotificationService {
-  PushNotificationService({required this.repository});
+  PushNotificationService({required this.repository, required this.router});
 
   final NotificationsRepository repository;
+  final GoRouter router;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> init() async {
@@ -52,14 +57,22 @@ class PushNotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
-      
+
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (kDebugMode) {
           print('Received foreground push notification: ${message.messageId}');
         }
       });
 
+      // App was in background and got brought to the foreground by a tap.
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
+
+      // App was fully terminated and launched fresh by tapping the
+      // notification — `onMessageOpenedApp` never fires for this case.
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        _handleMessageTap(initialMessage);
+      }
     }
   }
 
@@ -89,10 +102,25 @@ class PushNotificationService {
     );
   }
 
+  /// Same destination rule as the in-app notifications list
+  /// (`notifications_screen.dart:_openNotification`): a `room_id` always wins
+  /// (it means a chat message), otherwise a `follow` type opens the follower's
+  /// profile. Uses `router.push` directly — no `BuildContext` is available
+  /// here (this fires from a background/terminated-app message handler).
   void _handleMessageTap(RemoteMessage message) {
-    // In v1, this will just print or you can hook it up to AppRouter if needed.
-    if (kDebugMode) {
-      print('Tapped push notification: ${message.data}');
+    final data = message.data;
+
+    final roomId = data['room_id'];
+    if (roomId is String && roomId.isNotEmpty) {
+      router.push(AppRoutes.chatRoom(roomId));
+      return;
+    }
+
+    if (data['type'] == 'follow') {
+      final followerId = data['follower_id'];
+      if (followerId is String && followerId.isNotEmpty) {
+        router.push(AppRoutes.profileById(followerId));
+      }
     }
   }
 }

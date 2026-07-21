@@ -1538,6 +1538,30 @@ abstract class AppLocalizations {
   /// **'Profile updated.'**
   String get profileEditSaveSuccess;
 
+  /// No description provided for @profileEditUploadingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading photo…'**
+  String get profileEditUploadingPhoto;
+
+  /// No description provided for @profileEditPhotoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated.'**
+  String get profileEditPhotoUpdated;
+
+  /// No description provided for @profileEditTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get profileEditTakePhoto;
+
+  /// No description provided for @profileEditChooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get profileEditChooseFromGallery;
+
   /// No description provided for @profileFollowingEmptyTitle.
   ///
   /// In en, this message translates to:

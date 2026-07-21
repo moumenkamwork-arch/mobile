@@ -13,6 +13,10 @@ abstract interface class ProfileDataSource {
 
   Future<PromooProfileDto> updateMyProfile(ProfileUpdateDraft draft);
 
+  Future<PromooProfileDto> updateMyAvatar(String avatarUrl);
+
+  Future<PromooProfileDto> updateMyCover(String coverUrl);
+
   Future<bool> fetchFollowStatus(String profileId);
 
   Future<void> followProfile(String profileId);

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
@@ -7,6 +8,7 @@ import 'package:promoo_app/features/home/data/repositories/home_repository_impl.
 import 'package:promoo_app/features/home/domain/entities/home_content.dart';
 import 'package:promoo_app/features/home/domain/repositories/home_repository.dart';
 import 'package:promoo_app/features/home/presentation/controllers/home_controller.dart';
+import 'package:promoo_app/i18n/locale_controller.dart';
 
 void main() {
   test('emits loading then success', () async {
@@ -15,6 +17,10 @@ void main() {
         homeRepositoryProvider.overrideWithValue(
           _HomeRepository(Result.success(HomeContentDto.fixture().toDomain())),
         ),
+        // HomeController watches localeProvider to refetch on language change;
+        // the real LocaleController reads the device locale via
+        // WidgetsBinding.instance, which isn't bound in a bare-container test.
+        localeProvider.overrideWith(_FixedLocaleController.new),
       ],
     );
     addTearDown(container.dispose);
@@ -37,6 +43,7 @@ void main() {
             Result.failure(AppFailure.network(message: 'No connection')),
           ),
         ),
+        localeProvider.overrideWith(_FixedLocaleController.new),
       ],
     );
     addTearDown(container.dispose);
@@ -70,4 +77,9 @@ class _HomeRepository implements HomeRepository {
       AppFailure.notFound(message: 'Home item not found.'),
     );
   }
+}
+
+class _FixedLocaleController extends LocaleController {
+  @override
+  Locale build() => const Locale('en');
 }

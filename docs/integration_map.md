@@ -180,7 +180,7 @@
 | `GET /profiles/:idOrUsername`         | GET    | ✅200   | 88%   | ✅ **موصول + مُتحقَّق حياً (تصحيح 2026-07-15).** الملاحظة القديمة "لسا fake" **صارت غلط** — `getProfile` مربوط على remote من Phase 3 (`profile_remote_data_source.dart:fetchProfile`). تحقّق حي: `GET /profiles/<owner id>` رجّع 200 والاسم الحقيقي "Moumen Alkamsheh". |
 | `GET /profiles/me`                    | GET    | ✅200   | 88%   | ✅ **موصول** — `profile_remote_data_source.dart`. **تحقّق حي:** حساب حقيقي أظهر اسمه الحقيقي/0 متابع/حقول فاضية (مو بيانات Saffron Social الوهمية).                                                                                                                     |
 | `PUT /profiles/me`                    | PUT    | ✅200   | 90%   | ✅ **موصول** (كان stub ثابت يرجّع فشل فوراً — أُصلح). **تحقّق حي:** حفظ bio+location حقيقي رجع 200 مع العدّادات، وتحميل الصفحة من جديد أظهر القيم المحفوظة (استمرارية حقيقية، مو UI متفائل فقط). Name/Bio/Location فقط بالشاشة حالياً — لا category/website.            |
-| `POST /profiles/me/avatar` · `/cover` | POST   | ✅200   | 85%   | ❌ **لسا غير موصول** — يعتمد على Upload (Phase 8) أولاً. زر "Change profile photo" لسا "coming soon".                                                                                                                                                                   |
+| `POST /profiles/me/avatar` · `/cover` | POST   | ✅200   | 85%   | 🔄 **avatar موصول (Phase 11، 2026-07-20)** — زر/badge "Change profile photo" صار يفتح المعرض → يرفع (`bucket=avatars`, `related_to=profile`) → `POST /profiles/me/avatar` → يحدّث البروفايل. **cover لسا** (ما في UI غلاف بشاشة التعديل بعد).                                    |
 | `GET /profiles/:id/media`             | GET    | ✅200   | —     | ❌ غير مستخدم بعد؛ الميديا تُقرأ من كائن البروفايل حالياً.                                                                                                                                                                                                              |
 
 **تحديث إحصائيات البروفايل (كان تنبيهاً، انحلّ جزئياً بـ Phase 0):** الباك صار يرجّع `followers_count` (موجود من قبل) + `following_count`+`posts_count` (أُضيفا Phase 0، `profile.service.ts withCounts`) على GET **و** PUT (كانت PUT ناقصة العدّادات — أُصلحت بـ Phase 3). **`views_count` يبقى مفقود** (لا مصدر بالـ DB — مؤجّل v2 نهائياً، قرار مالك موثّق بـ `v2_deferred_scope.md` §6). `ProfileStatsDto` يقرأ الكل دفاعياً فيرجع 0 لـ views تلقائياً — سلوك صحيح ومقصود.
@@ -236,12 +236,25 @@
 
 > الشاشات الثلاث تتشارك chrome عبر `add_form_widgets.dart` (عرض فقط — لا أثر على الحقول)، وتُظهرها `accountCapabilitiesProvider` حسب `account_type`. راجع القسم 5.
 
-### 3.12 — Upload (شرط لِـ avatar/cover/ad-image)
+### 3.12 — Upload (شرط لِـ avatar/cover/ad-image) — 🔄 البنية التحتية موصولة (Phase 11، 2026-07-20)
+
+**البنية التحتية جاهزة ومستخدمة:** `image_picker` مضافة؛ feature slice `lib/features/upload/`
+(entity `UploadedMedia` + enums `UploadBucket`/`UploadRelatedTo` توثّق التنظيم المعتمد،
+`UploadRepository.uploadImage` يبني `FormData` multipart بحقل `file`). النمط **خطوتين** (طبق
+الأصل عن `ImageUpload` بالداشبورد): اختيار محلي → `POST /upload/image` يرجّع `file_url` →
+حفظ الرابط على الكيان عبر endpoint مستقل. **أول مستهلك حي: avatar** (شوف صف البروفايل فوق).
+المتبقي: cover + صور الإعلان/العرض/الخدمة (تُوصَل مع مرحلة النشر Phase 12).
 
 | Endpoint                            | Method | Backend           | ملاحظة                                                                 |
 | ----------------------------------- | ------ | ----------------- | ---------------------------------------------------------------------- |
-| `POST /upload/image` · video · file | POST   | ✅201 (multipart) | يرجّع `file_url` → يُرسل للـ avatar/cover/ad. حقول الرفع "next phase". |
-| `DELETE /upload/:id`                | DELETE | ✅200             | —                                                                      |
+| `POST /upload/image` · video · file | POST   | ✅201 (multipart) | 🔄 **image موصول** (`UploadRemoteDataSource`) — حقل `file` + `bucket` + `related_to`. video/file لسا (مؤجّلين لحين الحاجة). |
+| `DELETE /upload/:id`                | DELETE | ✅200             | ❌ لسا — يُوصَل مع حذف الميديا لاحقاً.                                  |
+
+> ⚠️ **مصيدة وثّقناها (التوثيق `Apis-Resaults/15 - Upload/Upload.md` ناقص/مضلِّل):** (1) حقل
+> `bucket` **غير مذكور بالتوثيق** لكن الكود الفعلي بياخده وهو أساسي. (2) الأفاتار/الغلاف **لا
+> يُحفظان عبر `PUT /profiles/me`** (الـ `updateProfileSchema` ما فيه `avatar_url`/`cover_url`) —
+> إلهم endpoints مستقلة `POST /profiles/me/avatar` و`/cover`. التفاصيل: قسم "منطق الرفع" بأعلى
+> هالملف والـ enums بالكود.
 
 ### 3.13 — Search — ✅ الكود موصول (Phase 5، 2026-07-14)
 

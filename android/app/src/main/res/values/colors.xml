@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#000000</color>
+    <!-- Brand yellow — tints the notification small icon (Android colors the
+         silhouette itself; this is the accent shown in the notification shade). -->
+    <color name="notification_color">#FFE604</color>
 </resources>

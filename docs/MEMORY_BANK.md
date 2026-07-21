@@ -4,7 +4,11 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-20 (**Build-regression audit**: reviewed a second AI
+> Last updated: 2026-07-20 (**Phase 11 — Upload started**: built the reusable
+> two-step upload infrastructure — `lib/features/upload/` + `image_picker` —
+> and wired the first live consumer, the profile avatar, end-to-end through
+> `POST /upload/image` → `POST /profiles/me/avatar`. See §5 top entry.)
+> Before that: 2026-07-20 (**Build-regression audit**: reviewed a second AI
 > tool's build-error fixes on top of the new FCM feature, reverted a real
 > dependency-version + Riverpod-API regression it introduced while keeping the
 > genuine SDK-API fixes and the FCM feature itself, fixed a latent Firebase-init
@@ -113,6 +117,28 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-20 — Phase 11 (Upload): infrastructure + avatar wired.** Built the
+  two-step upload flow the whole app will reuse (mirrors the dashboard's
+  `ImageUpload` component exactly): pick a local image → `POST /upload/image`
+  (multipart, field `file` + `bucket` + `related_to`) returns a Supabase
+  Storage `file_url` → persist that URL on the owning entity via its **own**
+  endpoint. New `lib/features/upload/` slice: `UploadedMedia` entity +
+  `UploadBucket`/`UploadRelatedTo` enums (these encode the org's bucket/related
+  convention — the thing the owner asked to document), `UploadRepository`
+  building `FormData` through the existing `ApiClient`. Added `image_picker`.
+  **First live consumer = avatar:** Edit Profile's "Change photo" badge/link now
+  opens the gallery → uploads (`bucket=avatars`, `related=profile`) → `POST
+  /profiles/me/avatar` → refreshes the profile (avatar updates here + on the
+  menu welcome card). **Two doc traps found + recorded** (owner pre-warned not
+  to trust the API doc): the Upload doc omits the `bucket` field entirely, and
+  avatar/cover are NOT part of `PUT /profiles/me` (`updateProfileSchema` has no
+  avatar_url/cover_url) — they have dedicated `POST /profiles/me/avatar|cover`
+  endpoints. Added `updateMyAvatar`/`updateMyCover` down the profile
+  data-source/repository chain (+ all `ProfileRepository`/`ProfileDataSource`
+  test doubles). `flutter analyze` clean, **198/198 tests**. Still to wire
+  (same infra): cover image (needs a cover UI in Edit Profile first), and
+  ad/offer/service images (land with the publish phase — Phase 12). Full detail:
+  `integration_map.md` §3.12.
 - **2026-07-20 — Build-regression audit after a second AI tool's "fix" pass
   (Antigravity), on top of the new FCM feature.** Owner had Antigravity add
   FCM push (`firebase_core`/`firebase_messaging`, `push_notification_service.dart`,

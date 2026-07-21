@@ -6,8 +6,11 @@ import '../../../../core/errors/app_failure.dart';
 import '../../data/repositories/services_repository_impl.dart';
 import '../../domain/entities/promoo_service.dart';
 
+// autoDispose: see chatRoomControllerProvider — without it, revisiting a
+// service you already opened this session reuses its stale cached state
+// instead of refetching current data.
 final serviceDetailControllerProvider =
-    NotifierProvider.family<
+    NotifierProvider.autoDispose.family<
       ServiceDetailController,
       ServiceDetailState,
       String

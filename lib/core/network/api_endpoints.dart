@@ -24,6 +24,18 @@ class ApiEndpoints {
   static const markAllNotificationsRead = '/notifications/read-all';
   static const notificationToken = '/notifications/token';
 
+  // Upload — multipart. The image route rejects non-image mimetypes; the file
+  // route rejects images/videos. All require Bearer auth.
+  static const uploadImage = '/upload/image';
+  static const uploadVideo = '/upload/video';
+  static const uploadFile = '/upload/file';
+
+  // Avatar/cover are NOT part of `PUT /profiles/me` (updateProfileSchema has no
+  // avatar_url/cover_url) — they have their own persist endpoints, called with
+  // the URL returned by the upload step above.
+  static const myAvatar = '/profiles/me/avatar';
+  static const myCover = '/profiles/me/cover';
+
   static String serviceById(String id) => '/services/$id';
 
   static String offerById(String id) => '/offers/$id';
@@ -52,4 +64,6 @@ class ApiEndpoints {
   static String markNotificationRead(String id) => '/notifications/$id/read';
 
   static String notificationById(String id) => '/notifications/$id';
+
+  static String uploadById(String fileId) => '/upload/$fileId';
 }

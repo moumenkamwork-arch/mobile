@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_failure.dart';
+import '../../../../i18n/locale_controller.dart';
 import '../../data/repositories/services_repository_impl.dart';
 import '../../domain/entities/promoo_service.dart';
 
@@ -93,6 +94,12 @@ class ServicesController extends Notifier<ServicesState> {
 
   @override
   ServicesState build() {
+    // Categories carry a single server-resolved `name` (via Accept-Language) —
+    // watching the locale forces a full rebuild (fresh categories + services
+    // fetch) whenever the language toggle changes, instead of leaving this
+    // controller's one-time fetch frozen in whatever language was active on
+    // first load.
+    ref.watch(localeProvider);
     ref.onDispose(() => _disposed = true);
     unawaited(Future<void>.microtask(load));
     return const ServicesState.loading();

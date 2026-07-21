@@ -106,6 +106,34 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<Result<PromooProfile>> updateMyAvatar(String avatarUrl) async {
+    try {
+      final dto = await dataSource.updateMyAvatar(avatarUrl);
+      return Result.success(dto.toDomain(fallbackId: 'me'));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<PromooProfile>> updateMyCover(String coverUrl) async {
+    try {
+      final dto = await dataSource.updateMyCover(coverUrl);
+      return Result.success(dto.toDomain(fallbackId: 'me'));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
   Future<Result<bool>> getFollowStatus(String profileId) async {
     try {
       return Result.success(await dataSource.fetchFollowStatus(profileId));

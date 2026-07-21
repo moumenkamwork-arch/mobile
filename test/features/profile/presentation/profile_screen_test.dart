@@ -285,6 +285,14 @@ class _ProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<PromooProfile>> updateMyAvatar(String avatarUrl) async =>
+      const Result.failure(AppFailure.unauthorized());
+
+  @override
+  Future<Result<PromooProfile>> updateMyCover(String coverUrl) async =>
+      const Result.failure(AppFailure.unauthorized());
+
+  @override
   Future<Result<bool>> getFollowStatus(String profileId) async =>
       const Result.success(false);
 
@@ -333,6 +341,16 @@ class _PendingProfileRepository implements ProfileRepository {
         AppFailure.unauthorized(message: 'Sign in to edit your profile.'),
       ),
     );
+  }
+
+  @override
+  Future<Result<PromooProfile>> updateMyAvatar(String avatarUrl) {
+    return completer.future;
+  }
+
+  @override
+  Future<Result<PromooProfile>> updateMyCover(String coverUrl) {
+    return completer.future;
   }
 
   @override

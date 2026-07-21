@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Take-a-photo option for avatar upload (Phase 11). image_picker's
+         camera source launches the system camera app via intent — some OEM
+         camera apps (e.g. MIUI) refuse the intent without this declared even
+         though stock Android doesn't strictly require it. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:label="Promoo"
@@ -34,6 +39,17 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- FCM notification branding — without these, the system falls back to
+             the raw launcher PNG as the small icon, which renders as a plain
+             blob (Android requires a flat alpha-silhouette icon, see
+             drawable/ic_stat_promoo.xml). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_promoo" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

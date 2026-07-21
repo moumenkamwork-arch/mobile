@@ -836,6 +836,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileEditSaveSuccess => 'Profile updated.';
 
   @override
+  String get profileEditUploadingPhoto => 'Uploading photo…';
+
+  @override
+  String get profileEditPhotoUpdated => 'Profile photo updated.';
+
+  @override
+  String get profileEditTakePhoto => 'Take photo';
+
+  @override
+  String get profileEditChooseFromGallery => 'Choose from gallery';
+
+  @override
   String get profileFollowingEmptyTitle => 'No follows yet';
 
   @override

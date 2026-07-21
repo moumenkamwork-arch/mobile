@@ -839,6 +839,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileEditSaveSuccess => 'تم تحديث الملف الشخصي.';
 
   @override
+  String get profileEditUploadingPhoto => 'جارٍ رفع الصورة…';
+
+  @override
+  String get profileEditPhotoUpdated => 'تم تحديث صورة الملف الشخصي.';
+
+  @override
+  String get profileEditTakePhoto => 'التقاط صورة';
+
+  @override
+  String get profileEditChooseFromGallery => 'اختيار من المعرض';
+
+  @override
   String get profileFollowingEmptyTitle => 'لا يوجد متابَعون بعد';
 
   @override

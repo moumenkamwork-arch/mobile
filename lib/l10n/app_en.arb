@@ -353,6 +353,10 @@
   "profileEditSaveButton": "Save",
   "profileEditSaving": "Saving...",
   "profileEditSaveSuccess": "Profile updated.",
+  "profileEditUploadingPhoto": "Uploading photo…",
+  "profileEditPhotoUpdated": "Profile photo updated.",
+  "profileEditTakePhoto": "Take photo",
+  "profileEditChooseFromGallery": "Choose from gallery",
 
   "profileFollowingEmptyTitle": "No follows yet",
   "profileFollowingEmptyMessage": "Profiles you follow will appear here.",

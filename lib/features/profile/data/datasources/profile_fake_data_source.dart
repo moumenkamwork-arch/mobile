@@ -384,6 +384,38 @@ class ProfileFakeDataSource implements ProfileDataSource {
     return _myProfile;
   }
 
+  @override
+  Future<PromooProfileDto> updateMyAvatar(String avatarUrl) async {
+    _myProfile = _copyMyProfileWith(avatarUrl: avatarUrl);
+    return _myProfile;
+  }
+
+  @override
+  Future<PromooProfileDto> updateMyCover(String coverUrl) async {
+    _myProfile = _copyMyProfileWith(coverUrl: coverUrl);
+    return _myProfile;
+  }
+
+  PromooProfileDto _copyMyProfileWith({String? avatarUrl, String? coverUrl}) {
+    return PromooProfileDto(
+      id: _myProfile.id,
+      displayName: _myProfile.displayName,
+      username: _myProfile.username,
+      bio: _myProfile.bio,
+      location: _myProfile.location,
+      website: _myProfile.website,
+      avatarUrl: avatarUrl ?? _myProfile.avatarUrl,
+      coverUrl: coverUrl ?? _myProfile.coverUrl,
+      categoryName: _myProfile.categoryName,
+      accountType: _myProfile.accountType,
+      stats: _myProfile.stats,
+      socialLinks: _myProfile.socialLinks,
+      mediaUrls: _myProfile.mediaUrls,
+      isVerified: _myProfile.isVerified,
+      isFeatured: _myProfile.isFeatured,
+    );
+  }
+
   final Set<String> _following = {};
 
   @override

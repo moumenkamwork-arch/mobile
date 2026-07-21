@@ -62,6 +62,26 @@ class ProfileRemoteDataSource implements ProfileDataSource {
   }
 
   @override
+  Future<PromooProfileDto> updateMyAvatar(String avatarUrl) async {
+    final response = await _apiClient.post<PromooProfileDto>(
+      ApiEndpoints.myAvatar,
+      data: {'avatar_url': avatarUrl},
+      decode: PromooProfileDto.fromJsonFlexible,
+    );
+    return response.data ?? const PromooProfileDto();
+  }
+
+  @override
+  Future<PromooProfileDto> updateMyCover(String coverUrl) async {
+    final response = await _apiClient.post<PromooProfileDto>(
+      ApiEndpoints.myCover,
+      data: {'cover_url': coverUrl},
+      decode: PromooProfileDto.fromJsonFlexible,
+    );
+    return response.data ?? const PromooProfileDto();
+  }
+
+  @override
   Future<bool> fetchFollowStatus(String profileId) async {
     final response = await _apiClient.get<bool>(
       ApiEndpoints.followStatus(profileId),

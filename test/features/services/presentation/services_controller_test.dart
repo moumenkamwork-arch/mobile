@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
@@ -6,6 +7,7 @@ import 'package:promoo_app/features/services/data/repositories/services_reposito
 import 'package:promoo_app/features/services/domain/entities/promoo_service.dart';
 import 'package:promoo_app/features/services/domain/repositories/services_repository.dart';
 import 'package:promoo_app/features/services/presentation/controllers/services_controller.dart';
+import 'package:promoo_app/i18n/locale_controller.dart';
 
 void main() {
   test('emits loading then success', () async {
@@ -21,6 +23,10 @@ void main() {
             ]),
           ),
         ),
+        // ServicesController watches localeProvider to refetch on language
+        // change; the real LocaleController reads the device locale via
+        // WidgetsBinding.instance, which isn't bound in a bare-container test.
+        localeProvider.overrideWith(_FixedLocaleController.new),
       ],
     );
     addTearDown(container.dispose);
@@ -53,7 +59,10 @@ void main() {
       ]),
     );
     final container = ProviderContainer(
-      overrides: [servicesRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        servicesRepositoryProvider.overrideWithValue(repository),
+        localeProvider.overrideWith(_FixedLocaleController.new),
+      ],
     );
     addTearDown(container.dispose);
 
@@ -89,6 +98,7 @@ void main() {
             servicesResult: Result.success([]),
           ),
         ),
+        localeProvider.overrideWith(_FixedLocaleController.new),
       ],
     );
     addTearDown(container.dispose);
@@ -141,4 +151,9 @@ class _ServicesRepository implements ServicesRepository {
   Future<Result<PromooService>> getServiceById(String id) async {
     return detailResult;
   }
+}
+
+class _FixedLocaleController extends LocaleController {
+  @override
+  Locale build() => const Locale('en');
 }

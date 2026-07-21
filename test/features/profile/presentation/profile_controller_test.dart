@@ -196,6 +196,14 @@ class _ProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<PromooProfile>> updateMyAvatar(String avatarUrl) async =>
+      editResult;
+
+  @override
+  Future<Result<PromooProfile>> updateMyCover(String coverUrl) async =>
+      editResult;
+
+  @override
   Future<Result<bool>> getFollowStatus(String profileId) async =>
       const Result.success(false);
 
