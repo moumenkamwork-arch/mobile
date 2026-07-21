@@ -1,6 +1,6 @@
 # Promoo Mobile — v2 Deferred Scope
 
-Last updated: 2026-07-15 (§1 Auth — confirmed final for v1: forgot/reset password and email confirmation are fully disabled, not just "coming soon"; see note below §1). Previously: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid seed took migration `035`, so the RLS pass is now `036`)
+Last updated: 2026-07-21 (§10 added — Stories: video upload, delete-own-story, and cross-device instant refresh all explicitly deferred; see below). Previously: 2026-07-15 (§1 Auth — confirmed final for v1: forgot/reset password and email confirmation are fully disabled, not just "coming soon"; see note below §1). Before that: 2026-07-13 (Phase-0 wiring: `views_count` deferred; the seat-grid seed took migration `035`, so the RLS pass is now `036`)
 
 > **Purpose.** This is the single, authoritative list of everything we are **deferring to v2** and everything we are **hiding in v1**. Rule of the project: **the backend is the single source of truth; the app must match it 100%.** For each item below we record: (a) the backend endpoint / entity it will map to when we build it later, and (b) the exact **v1 behaviour** in the app right now.
 >
@@ -149,6 +149,21 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 | Bilingual user content (offer/service titles & descriptions, profile bio, chat messages) | **None** — user-content tables have a single text column per field; only *reference* content (categories, subscription plans) has `_ar`/`_en` column pairs resolved via `Accept-Language` (see `docs/localization_plan.md` §0) | **Single-language, as authored** — user content always displays in whichever language its author wrote it in, regardless of the app's UI language. No dual-language entry form, no per-field language toggle, no auto-translation. Matches how Instagram/Etsy/Airbnb handle user content. |
 
 > Owner decision (2026-07-12): keep this behaviour permanently unless the client explicitly asks for bilingual user content later. If requested, it needs new `_ar`/`_en` columns per user-content field (mirroring the existing reference-content pattern) — a backend schema change, so it's v2 by definition. Recorded in `docs/localization_plan.md` §"القرارات (مُعتمدة)" item 4.
+
+---
+
+## 10. Stories — v1 scope decided 2026-07-21 (owner: everyone can post, no role gate)
+
+> Story creation went live 2026-07-21 (`HomeStoryStrip`'s "Your story" tile, `POST /stories`,
+> reusing the Phase 11 Upload infra). Owner decision that session: **any signed-in account type
+> can post a story, no restriction** — unlike Offers/Ads/Services, which are role-gated by
+> `account_type`. The items below were discussed the same session and explicitly deferred.
+
+| Item | Backend support | v1 behaviour |
+| --- | --- | --- |
+| Video stories | `POST /upload/video` exists and works (Phase 11 infra), just never called for stories | **Hidden** — "Your story" only offers camera/gallery **image** capture. Owner explicitly said not now (2026-07-21) when asked. |
+| Delete own story | `DELETE /stories/:id` exists and works server-side (ownership-checked) | **Hidden** — no delete affordance in the story viewer for your own story yet. |
+| Cross-device "instant" story refresh | N/A — client behaviour, not backend | **Deferred.** Discussed 2026-07-21: true real-time (Supabase Realtime `INSERT` subscription on `stories`, same pattern as chat) was considered and explicitly **not** chosen. Owner picked the cheap option instead: refresh on cold start (already true — `HomeController` fetches on first build) + manual pull-to-refresh (already true — `RefreshIndicator` on Home). **Missing piece, deferred:** refreshing automatically when the app resumes from the background (`AppLifecycleState.resumed`) — currently the only genuinely-missing trigger; nothing in the app listens for app-resume today. Matches how Instagram actually behaves in practice (no live push of new stories to everyone watching) rather than the idealized "instant" mental model. |
 
 ---
 

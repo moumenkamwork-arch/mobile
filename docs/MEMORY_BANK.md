@@ -4,10 +4,14 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-21 (**Story creation wired**: "Your story" tile on
-> Home, reusing the Upload infra against the backend's already-complete Story
-> API; fixed a welcome-card avatar/name staleness bug by patching profile
-> state directly instead of invalidate-and-race. See §5 top entry.) Before
+> Last updated: 2026-07-21 (**Cross-device test fallout**: fixed stories
+> showing one ring per story instead of one per person, and an FCM deep-link
+> that got silently wiped by the splash screen's own forced navigation on
+> cold start from a locked phone. See §5 top entry.) Before that: 2026-07-21
+> (**Story creation wired**: "Your story" tile on Home, reusing the Upload
+> infra against the backend's already-complete Story API; fixed a
+> welcome-card avatar/name staleness bug by patching profile state directly
+> instead of invalidate-and-race.) Before
 > that: 2026-07-21 (**Live device debugging pass**: fixed the FCM
 > notification icon/tap-routing, a chat/detail-screen staleness bug via
 > `autoDispose`, and a locale-switch bug that made Home/Services freeze
@@ -126,6 +130,45 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-21 — Story grouping bug + an FCM cold-start deep-link race, both
+  found via real cross-device testing (owner + a friend account).**
+  (1) **Grouping:** each story a user posted got its own separate ring on
+  Home instead of one ring per person holding all their stories
+  (Instagram/WhatsApp-style). Root cause: the backend's `getActiveStories()`
+  returns a flat list (one row per story, explicitly documented as "grouping
+  could be done... on the frontend" in `story.service.ts`), but
+  `HomeStoryDto.fromJson` mapped each row 1:1 into its own `HomeStoryDto` —
+  never grouped by author. Replaced with `HomeStoryDto.groupedFromJson()`
+  (groups by `profile.id`, sorts each person's stories oldest-first for
+  natural viewing progression) in `home_content_dto.dart`. Also removed a
+  stale filter in `toDomain()` that silently dropped any story item with no
+  `title` — harmless for the old hand-crafted fixture data (which always set
+  titles) but would have hidden every *real* story once grouped, since actual
+  `stories` rows only ever have `media_url`, never a title.
+  (2) **FCM cold-start deep-link silently lost specifically when the phone
+  was locked:** confirmed the exact cause — `splash_placeholder_screen.dart`
+  runs a fixed ~2.4s intro animation and then unconditionally
+  `context.go(AppRoutes.login)` (replaces the *entire* navigation stack) the
+  instant it finishes, regardless of anything else happening. Tapping a
+  notification from the lock screen almost always cold-starts the process
+  (Android had already killed it), so `getInitialMessage()`'s
+  `router.push(...)` (added in the earlier live-debug pass) landed **before**
+  splash's own timer fired — and got wiped out a moment later when it did.
+  Tapping from an unlocked, still-backgrounded app never hit this (splash was
+  long gone by then), which is why it looked "mostly fixed." Fixed by
+  exposing `SplashPlaceholderScreen.introDuration` as a public constant and
+  having the cold-start path in `push_notification_service.dart` wait that
+  exact duration before pushing, so it always lands *after* splash's forced
+  navigation instead of racing it.
+  Both verified: `flutter analyze` clean, **198/198 tests** (no dedicated
+  widget test added for either fix — noted as a coverage gap). Also this
+  session: recorded in `v2_deferred_scope.md` §10 — the owner decision that
+  *any* account type can post a story (no role gate, unlike Offers/Ads), plus
+  video stories, deleting your own story, and true cross-device realtime
+  story refresh are all explicitly deferred (chose cheap
+  cold-start-fetch + pull-to-refresh over Supabase Realtime after discussing
+  the cost/benefit — matches how Instagram actually behaves, not the
+  idealized "instant" version).
 - **2026-07-21 — Story creation wired ("Your story" tile on Home) + a
   welcome-card staleness bug fixed.** (1) Fixed: changing avatar/name on Edit
   Profile relied on `ref.invalidate(profileControllerProvider)` + hoping a

@@ -94,9 +94,9 @@ class HomeContentDto {
               fallbackBadge: 'Promoted',
               fallbackType: HomeContentDetailType.ad,
             ),
-      stories: _mapsFrom(
-        _firstPresent(source, const ['stories', 'highlights']),
-      ).map(HomeStoryDto.fromJson).toList(growable: false),
+      stories: HomeStoryDto.groupedFromJson(
+        _mapsFrom(_firstPresent(source, const ['stories', 'highlights'])),
+      ),
       categories: _mapsFrom(
         source['categories'],
       ).map(HomeCategoryDto.fromJson).toList(growable: false),
@@ -699,39 +699,64 @@ class HomeStoryDto {
   final String? profileAvatarUrl;
   final List<HomeStoryItemDto> items;
 
-  factory HomeStoryDto.fromJson(Map<String, Object?> json) {
-    final profile = _mapFrom(json['profile']);
-    final directTitle =
-        _readString(json, const ['title', 'name']) ??
-        (profile == null
-            ? null
-            : _readString(profile, const ['full_name', 'name', 'username']));
-    final directImage = _readString(json, const [
-      'image_url',
-      'imageUrl',
-      'cover_url',
-      'media_url',
-    ]);
-    final itemMaps = _mapsFrom(
-      _firstPresent(json, const [
-        'items',
-        'story_items',
-        'storyItems',
-        'media',
-      ]),
-    );
+  /// The backend (`getActiveStories()`) returns a **flat** list — one row per
+  /// story, not grouped by author — so a raw 1:1 mapping would give every
+  /// individual story its own ring. Groups rows by author here instead, so
+  /// each person gets exactly one ring holding all their active stories,
+  /// matching Instagram/WhatsApp instead of one ring per story.
+  static List<HomeStoryDto> groupedFromJson(List<Map<String, Object?>> rows) {
+    final order = <String>[];
+    final byAuthor = <String, List<Map<String, Object?>>>{};
+
+    for (final row in rows) {
+      final profile = _mapFrom(row['profile']);
+      final key =
+          (profile == null ? null : _readString(profile, const ['id'])) ??
+          _readString(row, const ['profile_id']) ??
+          _readString(row, const ['id']) ??
+          'unknown';
+      byAuthor.putIfAbsent(key, () {
+        order.add(key);
+        return <Map<String, Object?>>[];
+      }).add(row);
+    }
+
+    return [for (final key in order) _fromGroup(key, byAuthor[key]!)];
+  }
+
+  static HomeStoryDto _fromGroup(
+    String groupId,
+    List<Map<String, Object?>> rows,
+  ) {
+    // Oldest first within a person's ring — natural viewing progression,
+    // matching the backend's own `getUserStories()` ordering.
+    final sorted = [...rows]..sort((a, b) {
+      final aTime = _readString(a, const ['created_at']) ?? '';
+      final bTime = _readString(b, const ['created_at']) ?? '';
+      return aTime.compareTo(bTime);
+    });
+
+    final first = sorted.first;
+    final profile = _mapFrom(first['profile']);
 
     return HomeStoryDto(
-      id: _readString(json, const ['id', 'story_id']),
-      title: directTitle,
-      imageUrl: directImage,
+      id: groupId,
+      title: profile == null
+          ? null
+          : _readString(profile, const ['full_name', 'name', 'username']),
+      imageUrl: _readString(sorted.last, const [
+        'image_url',
+        'imageUrl',
+        'cover_url',
+        'media_url',
+      ]),
       profileName: profile == null
           ? null
           : _readString(profile, const ['full_name', 'name', 'username']),
       profileAvatarUrl: profile == null
           ? null
           : _readString(profile, const ['avatar_url', 'avatarUrl']),
-      items: itemMaps.map(HomeStoryItemDto.fromJson).toList(growable: false),
+      items: sorted.map(HomeStoryItemDto.fromJson).toList(growable: false),
     );
   }
 
@@ -744,8 +769,7 @@ class HomeStoryDto {
       profileAvatarUrl: profileAvatarUrl,
       items: [
         for (var i = 0; i < items.length; i++)
-          if (items[i].title != null)
-            items[i].toDomain(fallbackId: '${id ?? fallbackId}-$i'),
+          items[i].toDomain(fallbackId: '${id ?? fallbackId}-$i'),
       ],
     );
   }

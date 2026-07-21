@@ -10,6 +10,7 @@ import '../../features/notifications/domain/repositories/notifications_repositor
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
 import '../../routing/app_router.dart';
 import '../../routing/route_names.dart';
+import '../../shell/splash_placeholder_screen.dart';
 
 final pushNotificationServiceProvider = Provider<PushNotificationService?>((
   ref,
@@ -68,9 +69,18 @@ class PushNotificationService {
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
 
       // App was fully terminated and launched fresh by tapping the
-      // notification — `onMessageOpenedApp` never fires for this case.
+      // notification (this is the common case when the tap comes from the
+      // *lock screen* specifically — Android usually has already killed the
+      // process by then) — `onMessageOpenedApp` never fires for this case.
       final initialMessage = await _messaging.getInitialMessage();
       if (initialMessage != null) {
+        // The splash screen force-navigates on a fixed timer regardless of
+        // anything else happening (`context.go` — replaces the whole stack),
+        // a moment after this method starts running. Pushing before that
+        // fires gets silently wiped out the instant it does — the app opens,
+        // seems to do nothing, and settles on whatever splash lands on. Wait
+        // it out first, then push on top of wherever that landed.
+        await Future<void>.delayed(SplashPlaceholderScreen.introDuration);
         _handleMessageTap(initialMessage);
       }
     }

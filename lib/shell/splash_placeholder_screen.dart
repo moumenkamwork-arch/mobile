@@ -14,6 +14,13 @@ import '../theme/app_typography.dart';
 class SplashPlaceholderScreen extends StatefulWidget {
   const SplashPlaceholderScreen({super.key});
 
+  /// Fixed intro length before `_handleIntroStatus` force-navigates
+  /// (`context.go` — replaces the whole stack). Exposed so anything that
+  /// pushes a route during cold start (e.g. a notification deep link, see
+  /// `push_notification_service.dart`) knows how long to wait first —
+  /// otherwise this screen's own navigation wipes it out a moment later.
+  static const introDuration = Duration(milliseconds: 2400);
+
   @override
   State<SplashPlaceholderScreen> createState() =>
       _SplashPlaceholderScreenState();
@@ -35,7 +42,7 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
     _controller =
         AnimationController(
             vsync: this,
-            duration: const Duration(milliseconds: 2400),
+            duration: SplashPlaceholderScreen.introDuration,
           )
           ..addStatusListener(_handleIntroStatus)
           ..forward();
