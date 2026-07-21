@@ -126,6 +126,13 @@
   "homeSeeAllEmptyMessage": "ستظهر عناصر هذا القسم هنا قريباً.",
 
   "homeStoryViewerCloseTooltip": "إغلاق القصة",
+  "homeStoryViewerMoreTooltip": "خيارات إضافية",
+  "homeStoryViewerDeleteAction": "حذف القصة",
+  "homeStoryViewerDeleteConfirmTitle": "حذف هذه القصة؟",
+  "homeStoryViewerDeleteConfirmMessage": "لا يمكن التراجع عن هذا الإجراء.",
+  "homeStoryViewerDeleteConfirmButton": "حذف",
+  "homeStoryViewerCancelButton": "إلغاء",
+  "homeStoryViewerDeleted": "تم حذف القصة.",
 
   "homeDetailLoadingMessage": "جارِ تحميل التفاصيل",
   "homeDetailErrorTitle": "تعذّر تحميل التفاصيل",

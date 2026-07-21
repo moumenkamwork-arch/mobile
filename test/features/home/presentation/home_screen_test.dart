@@ -390,6 +390,11 @@ class _HomeRepository implements HomeRepository {
   Future<Result<void>> createStory(String mediaUrl) async {
     return const Result.success(null);
   }
+
+  @override
+  Future<Result<void>> deleteStory(String storyId) async {
+    return const Result.success(null);
+  }
 }
 
 class _PendingHomeRepository implements HomeRepository {
@@ -415,6 +420,11 @@ class _PendingHomeRepository implements HomeRepository {
 
   @override
   Future<Result<void>> createStory(String mediaUrl) async {
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<void>> deleteStory(String storyId) async {
     return const Result.success(null);
   }
 }

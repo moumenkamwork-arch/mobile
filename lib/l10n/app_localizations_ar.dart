@@ -337,6 +337,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeStoryViewerCloseTooltip => 'إغلاق القصة';
 
   @override
+  String get homeStoryViewerMoreTooltip => 'خيارات إضافية';
+
+  @override
+  String get homeStoryViewerDeleteAction => 'حذف القصة';
+
+  @override
+  String get homeStoryViewerDeleteConfirmTitle => 'حذف هذه القصة؟';
+
+  @override
+  String get homeStoryViewerDeleteConfirmMessage =>
+      'لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get homeStoryViewerDeleteConfirmButton => 'حذف';
+
+  @override
+  String get homeStoryViewerCancelButton => 'إلغاء';
+
+  @override
+  String get homeStoryViewerDeleted => 'تم حذف القصة.';
+
+  @override
   String get homeDetailLoadingMessage => 'جارِ تحميل التفاصيل';
 
   @override

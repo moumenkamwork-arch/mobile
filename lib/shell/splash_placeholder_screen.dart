@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../routing/route_names.dart';
 import '../shared/widgets/promoo_glow_background.dart';
 import '../theme/app_colors.dart';
@@ -11,7 +13,7 @@ import '../theme/app_typography.dart';
 /// reveals letter by letter (each letter brightening from a dim, desaturated
 /// tone to full brand yellow) while the letter spacing collapses from wide to
 /// tight, then holds before fading into Login.
-class SplashPlaceholderScreen extends StatefulWidget {
+class SplashPlaceholderScreen extends ConsumerStatefulWidget {
   const SplashPlaceholderScreen({super.key});
 
   /// Fixed intro length before `_handleIntroStatus` force-navigates
@@ -22,11 +24,12 @@ class SplashPlaceholderScreen extends StatefulWidget {
   static const introDuration = Duration(milliseconds: 2400);
 
   @override
-  State<SplashPlaceholderScreen> createState() =>
+  ConsumerState<SplashPlaceholderScreen> createState() =>
       _SplashPlaceholderScreenState();
 }
 
-class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
+class _SplashPlaceholderScreenState
+    extends ConsumerState<SplashPlaceholderScreen>
     with SingleTickerProviderStateMixin {
   static const _word = 'Promoo';
   static const _revealEnd = 0.55;
@@ -159,9 +162,14 @@ class _SplashPlaceholderScreenState extends State<SplashPlaceholderScreen>
   }
 
   void _handleIntroStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed && mounted) {
-      context.go(AppRoutes.login);
+    if (status != AnimationStatus.completed || !mounted) {
+      return;
     }
+    // Already signed in (session restored from secure storage during the
+    // intro) — skip Login's "Signed in / Continue" panel and land straight
+    // on Home, matching every other app's behaviour on a warm launch.
+    final isSignedIn = ref.read(authControllerProvider).session != null;
+    context.go(isSignedIn ? AppRoutes.home : AppRoutes.login);
   }
 }
 

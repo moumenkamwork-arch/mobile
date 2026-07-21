@@ -15,10 +15,10 @@ Last updated: 2026-07-21
 
 | Screen / flow | Status | Notes |
 | --- | --- | --- |
-| Splash / intro | ✅ | Animated "Promoo" reveal + corner glow → Login. Do not touch. |
+| Splash / intro | ✅ | Animated "Promoo" reveal (visual: do not touch) → **Home if already signed in, Login otherwise** (fixed 2026-07-21 — used to always force `/login` even for a signed-in user, landing on Login's "Signed in / Continue" panel instead of skipping straight to Home). |
 | Login | ✅ | MVP layout, big new logo, Apple+Google (no Facebook), guest access |
 | Register | ✅ | Fields = backend `registerEmailSchema` (email/password/full_name/account_type) |
-| Home | ✅ | Header, Stories, Services (compact), Top Offers (hero swiper ≥5), For You, Promoo of the Day; See All on all; story viewer (tap + swipe) |
+| Home | ✅ | Header, Stories (create/view/delete-own, one ring per person, hold-to-pause), Services (compact), Top Offers (hero swiper ≥5), For You, Promoo of the Day; See All on all |
 | Services (categories) | ✅ | Search box + image category grid + "No service found" |
 | Service detail | ✅ | Display/contact only; own Scaffold; hidden unsupported fields |
 | Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets (Visible to Companies and Influencers, but only Influencers can book) |

@@ -12,4 +12,9 @@ abstract interface class HomeRepository {
   /// upload step (`bucket: UploadBucket.stories`, `related: UploadRelatedTo.story`).
   /// The backend defaults `expires_at` to 24h from now.
   Future<Result<void>> createStory(String mediaUrl);
+
+  /// `DELETE /stories/:id` — backend checks ownership itself (403 if it's
+  /// not yours), but the viewer only ever offers this for the signed-in
+  /// user's own story group.
+  Future<Result<void>> deleteStory(String storyId);
 }

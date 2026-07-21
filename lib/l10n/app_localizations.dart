@@ -734,6 +734,48 @@ abstract class AppLocalizations {
   /// **'Close story'**
   String get homeStoryViewerCloseTooltip;
 
+  /// No description provided for @homeStoryViewerMoreTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get homeStoryViewerMoreTooltip;
+
+  /// No description provided for @homeStoryViewerDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete story'**
+  String get homeStoryViewerDeleteAction;
+
+  /// No description provided for @homeStoryViewerDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this story?'**
+  String get homeStoryViewerDeleteConfirmTitle;
+
+  /// No description provided for @homeStoryViewerDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get homeStoryViewerDeleteConfirmMessage;
+
+  /// No description provided for @homeStoryViewerDeleteConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get homeStoryViewerDeleteConfirmButton;
+
+  /// No description provided for @homeStoryViewerCancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get homeStoryViewerCancelButton;
+
+  /// No description provided for @homeStoryViewerDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Story deleted.'**
+  String get homeStoryViewerDeleted;
+
   /// No description provided for @homeDetailLoadingMessage.
   ///
   /// In en, this message translates to:

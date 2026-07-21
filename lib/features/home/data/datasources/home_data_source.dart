@@ -9,4 +9,6 @@ abstract interface class HomeDataSource {
   );
 
   Future<void> createStory(String mediaUrl);
+
+  Future<void> deleteStory(String storyId);
 }

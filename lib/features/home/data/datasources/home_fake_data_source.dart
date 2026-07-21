@@ -47,6 +47,9 @@ class HomeFakeDataSource implements HomeDataSource {
 
   @override
   Future<void> createStory(String mediaUrl) async {}
+
+  @override
+  Future<void> deleteStory(String storyId) async {}
 }
 
 const _fakeDetails = [

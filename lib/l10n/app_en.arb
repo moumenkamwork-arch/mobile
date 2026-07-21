@@ -141,6 +141,13 @@
   "homeSeeAllEmptyMessage": "Items for this section will appear here soon.",
 
   "homeStoryViewerCloseTooltip": "Close story",
+  "homeStoryViewerMoreTooltip": "More options",
+  "homeStoryViewerDeleteAction": "Delete story",
+  "homeStoryViewerDeleteConfirmTitle": "Delete this story?",
+  "homeStoryViewerDeleteConfirmMessage": "This can't be undone.",
+  "homeStoryViewerDeleteConfirmButton": "Delete",
+  "homeStoryViewerCancelButton": "Cancel",
+  "homeStoryViewerDeleted": "Story deleted.",
 
   "homeDetailLoadingMessage": "Loading details",
   "homeDetailErrorTitle": "Could not load details",

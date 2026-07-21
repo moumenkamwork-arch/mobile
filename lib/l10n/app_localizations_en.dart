@@ -341,6 +341,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeStoryViewerCloseTooltip => 'Close story';
 
   @override
+  String get homeStoryViewerMoreTooltip => 'More options';
+
+  @override
+  String get homeStoryViewerDeleteAction => 'Delete story';
+
+  @override
+  String get homeStoryViewerDeleteConfirmTitle => 'Delete this story?';
+
+  @override
+  String get homeStoryViewerDeleteConfirmMessage => 'This can\'t be undone.';
+
+  @override
+  String get homeStoryViewerDeleteConfirmButton => 'Delete';
+
+  @override
+  String get homeStoryViewerCancelButton => 'Cancel';
+
+  @override
+  String get homeStoryViewerDeleted => 'Story deleted.';
+
+  @override
   String get homeDetailLoadingMessage => 'Loading details';
 
   @override

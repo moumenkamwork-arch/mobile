@@ -78,4 +78,12 @@ class HomeRemoteDataSource implements HomeDataSource {
       decode: (_) {},
     );
   }
+
+  @override
+  Future<void> deleteStory(String storyId) async {
+    await _apiClient.delete<void>(
+      ApiEndpoints.storyById(storyId),
+      decode: (_) {},
+    );
+  }
 }

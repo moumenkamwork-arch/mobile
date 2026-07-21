@@ -1,14 +1,18 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../../../theme/app_theme.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/entities/home_content.dart';
+import '../controllers/home_controller.dart';
 
-class HomeStoryViewer extends StatefulWidget {
+class HomeStoryViewer extends ConsumerStatefulWidget {
   const HomeStoryViewer({
     super.key,
     required this.stories,
@@ -19,10 +23,10 @@ class HomeStoryViewer extends StatefulWidget {
   final int initialIndex;
 
   @override
-  State<HomeStoryViewer> createState() => _HomeStoryViewerState();
+  ConsumerState<HomeStoryViewer> createState() => _HomeStoryViewerState();
 }
 
-class _HomeStoryViewerState extends State<HomeStoryViewer>
+class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _progressController;
   late int _currentGroupIndex;
@@ -31,6 +35,14 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
   HomeStory get _story => widget.stories[_currentGroupIndex];
   List<HomeStoryItem> get _items => _story.effectiveItems;
   HomeStoryItem get _item => _items[_currentItemIndex];
+
+  /// Stories are grouped by author (`HomeStory.id` is the author's profile
+  /// id — see `HomeStoryDto.groupedFromJson`), so this is true for every item
+  /// in the group, not just the one currently showing.
+  bool get _isOwnStory {
+    final myId = ref.read(authControllerProvider).session?.user.id;
+    return myId != null && myId == _story.id;
+  }
 
   @override
   void initState() {
@@ -73,6 +85,8 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapUp: (details) => _handleStoryTap(context, details),
+      onLongPressStart: (_) => _progressController.stop(),
+      onLongPressEnd: (_) => _progressController.forward(),
       onVerticalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0;
         if (velocity > 420) {
@@ -159,6 +173,17 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
                               ),
                         ),
                       ),
+                      if (_isOwnStory)
+                        IconButton(
+                          tooltip: AppLocalizations.of(
+                            context,
+                          ).homeStoryViewerMoreTooltip,
+                          onPressed: _showOwnStoryMenu,
+                          icon: Icon(
+                            Icons.more_vert_rounded,
+                            color: AppColors.dark.textPrimary,
+                          ),
+                        ),
                       IconButton(
                         tooltip: AppLocalizations.of(
                           context,
@@ -229,7 +254,101 @@ class _HomeStoryViewerState extends State<HomeStoryViewer>
       return;
     }
 
+    // Last item of the last story — tapping "next" here should behave like
+    // swiping past the end (see `_showStory`'s out-of-range case): close the
+    // viewer, not freeze on the last frame.
     _progressController.stop();
+    Navigator.of(context).pop();
+  }
+
+  /// Pauses progress, offers "Delete story" for the current item, confirms,
+  /// then deletes and closes the viewer (simplest correct behavior — the
+  /// underlying `widget.stories` list is immutable/owned by Home, so this
+  /// doesn't try to splice the item out and keep viewing in place).
+  Future<void> _showOwnStoryMenu() async {
+    final l10n = AppLocalizations.of(context);
+    _progressController.stop();
+
+    final wantsDelete = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: context.colors.elevatedSurface,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                ),
+                title: Text(
+                  l10n.homeStoryViewerDeleteAction,
+                  style: const TextStyle(color: Colors.redAccent),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop(true),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (!mounted) {
+      return;
+    }
+    if (wantsDelete != true) {
+      _progressController.forward();
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.homeStoryViewerDeleteConfirmTitle),
+        content: Text(l10n.homeStoryViewerDeleteConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.homeStoryViewerCancelButton),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l10n.homeStoryViewerDeleteConfirmButton,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+    if (confirmed != true) {
+      _progressController.forward();
+      return;
+    }
+
+    final result = await ref.read(homeRepositoryProvider).deleteStory(_item.id);
+    if (!mounted) {
+      return;
+    }
+
+    result.when(
+      success: (_) {
+        ref.read(homeControllerProvider.notifier).refresh();
+        Navigator.of(context).pop();
+      },
+      failure: (failure) {
+        _progressController.forward();
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(failure.message)));
+      },
+    );
   }
 
   void _showPreviousStoryItem() {

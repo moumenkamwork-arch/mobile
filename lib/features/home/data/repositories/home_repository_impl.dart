@@ -73,4 +73,16 @@ class HomeRepositoryImpl implements HomeRepository {
       return const Result.failure(AppFailure.unknown());
     }
   }
+
+  @override
+  Future<Result<void>> deleteStory(String storyId) async {
+    try {
+      await dataSource.deleteStory(storyId);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
 }

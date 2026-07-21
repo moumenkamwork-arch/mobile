@@ -67,4 +67,6 @@ class ApiEndpoints {
   static String notificationById(String id) => '/notifications/$id';
 
   static String uploadById(String fileId) => '/upload/$fileId';
+
+  static String storyById(String id) => '/stories/$id';
 }

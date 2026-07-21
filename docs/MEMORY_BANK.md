@@ -4,10 +4,14 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-21 (**Cross-device test fallout**: fixed stories
-> showing one ring per story instead of one per person, and an FCM deep-link
-> that got silently wiped by the splash screen's own forced navigation on
-> cold start from a locked phone. See §5 top entry.) Before that: 2026-07-21
+> Last updated: 2026-07-21 (**Story viewer polish + warm-launch fix**:
+> hold-to-pause, delete-own-story, tap-next-on-last-item now exits instead
+> of freezing, and splash skips Login's "Signed in" panel straight to Home
+> when already authenticated. See §5 top entry.) Before that: 2026-07-21
+> (**Cross-device test fallout**: fixed stories showing one ring per story
+> instead of one per person, and an FCM deep-link that got silently wiped by
+> the splash screen's own forced navigation on cold start from a locked
+> phone.) Before that: 2026-07-21
 > (**Story creation wired**: "Your story" tile on Home, reusing the Upload
 > infra against the backend's already-complete Story API; fixed a
 > welcome-card avatar/name staleness bug by patching profile state directly
@@ -130,6 +134,28 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-21 — Story viewer polish (pause/hold, delete, last-item exit) +
+  skip Login's "Signed in" panel on a warm launch.** All four from one round
+  of owner feedback after the cross-device story test. (1) Hold-to-pause:
+  `onLongPressStart`/`onLongPressEnd` on the viewer's `GestureDetector` stop
+  and resume `_progressController` — Instagram-standard, wasn't there before.
+  (2) Delete own story: a "⋮" button now shows in the viewer header only when
+  `HomeStory.id` (the author's profile id, post-grouping) matches the
+  signed-in user — opens a sheet → confirm dialog → `DELETE /stories/:id` →
+  closes the viewer and refreshes Home. New `HomeRepository.deleteStory()`
+  down the usual chain. (3) Tapping "next" on the last item of the last
+  story used to just freeze (`_progressController.stop()` with no pop) —
+  swiping already correctly exited, tapping didn't; now both do. (4) Splash
+  unconditionally sent everyone to `/login` after its intro, even an
+  already-signed-in user — landing on Login's `AuthSignedInPanel` ("Signed
+  in / Continue") instead of Home. Splash now checks
+  `authControllerProvider` when its intro timer fires and goes straight to
+  `/home` if a session exists. (This session should already be restored by
+  then — the intro takes a fixed 2.4s, secure-storage reads are much
+  faster — and doesn't disturb the FCM cold-start fix from earlier today,
+  which pushes on top of whichever destination splash picks, either one.)
+  `flutter analyze` clean, **198/198 tests** (no new dedicated coverage for
+  any of the four — noted as a gap, same as the last two rounds).
 - **2026-07-21 — Story grouping bug + an FCM cold-start deep-link race, both
   found via real cross-device testing (owner + a friend account).**
   (1) **Grouping:** each story a user posted got its own separate ring on
