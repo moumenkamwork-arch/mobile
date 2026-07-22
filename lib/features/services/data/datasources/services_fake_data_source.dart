@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/entities/promoo_service.dart';
 import '../dto/services_dto.dart';
 import 'services_data_source.dart';
 
@@ -310,5 +311,19 @@ class ServicesFakeDataSource implements ServicesDataSource {
       (service) => service.id == id,
       orElse: () => throw const FormatException('Service not found.'),
     );
+  }
+
+  @override
+  Future<String> createService(ServiceDraft draft) async => 'fake-service-id';
+
+  @override
+  Future<void> updateService(String id, ServiceDraft draft) async {}
+
+  @override
+  Future<void> deleteService(String id) async {}
+
+  @override
+  Future<PromooServicesDto> fetchServicesByProfile(String profileId) async {
+    return const PromooServicesDto([]);
   }
 }

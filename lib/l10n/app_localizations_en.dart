@@ -115,6 +115,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuFollowing => 'Following';
 
   @override
+  String get menuFollowers => 'Followers';
+
+  @override
+  String get menuBlockedUsers => 'Blocked Users';
+
+  @override
+  String get menuMyListings => 'My Listings';
+
+  @override
+  String get reportAction => 'Report';
+
+  @override
+  String get reportSheetTitle => 'Report';
+
+  @override
+  String get reportSheetSubtitle => 'Why are you reporting this?';
+
+  @override
+  String get reportReasonSpam => 'Spam or misleading';
+
+  @override
+  String get reportReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get reportReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get reportReasonScam => 'Scam or fraud';
+
+  @override
+  String get reportReasonFalseInfo => 'False information';
+
+  @override
+  String get reportReasonOther => 'Other';
+
+  @override
+  String get reportDetailsLabel => 'Details (optional)';
+
+  @override
+  String get reportDetailsHint => 'Add anything that helps us review this';
+
+  @override
+  String get reportSubmitButton => 'Submit report';
+
+  @override
+  String get reportSubmitting => 'Submitting…';
+
+  @override
+  String get reportSubmittedSnackbar => 'Thanks — your report was submitted';
+
+  @override
+  String get reportFailedSnackbar => 'Couldn\'t submit the report — try again';
+
+  @override
   String get menuProfileManagement => 'Profile Management';
 
   @override
@@ -128,6 +182,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuSaved => 'Saved';
+
+  @override
+  String get savedButtonSaveTooltip => 'Save';
+
+  @override
+  String get savedButtonUnsaveTooltip => 'Unsave';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get profileBlockAction => 'Block user';
+
+  @override
+  String get profileUnblockAction => 'Unblock user';
+
+  @override
+  String get profileBlockConfirmTitle => 'Block this user?';
+
+  @override
+  String get profileBlockConfirmMessage =>
+      'They won\'t be able to message you, and you won\'t see each other\'s content.';
+
+  @override
+  String get profileBlockConfirmButton => 'Block';
+
+  @override
+  String get profileUnblockConfirmTitle => 'Unblock this user?';
+
+  @override
+  String get profileUnblockConfirmMessage =>
+      'They will be able to message you again.';
+
+  @override
+  String get profileUnblockConfirmButton => 'Unblock';
+
+  @override
+  String get profileBlockedSnackbar => 'User blocked';
+
+  @override
+  String get profileUnblockedSnackbar => 'User unblocked';
+
+  @override
+  String get blockedUsersEmptyTitle => 'No blocked users';
+
+  @override
+  String get blockedUsersEmptyMessage => 'Accounts you block will appear here.';
+
+  @override
+  String get myListingsEmptyTitle => 'Nothing published yet';
+
+  @override
+  String get myListingsEmptyMessage =>
+      'Offers, services, and ads you publish will appear here.';
+
+  @override
+  String get myListingsOffersSection => 'Offers';
+
+  @override
+  String get myListingsServicesSection => 'Services';
+
+  @override
+  String get myListingsAdsSection => 'Ads';
+
+  @override
+  String get myListingsEditTooltip => 'Edit';
+
+  @override
+  String get myListingsDeleteTooltip => 'Delete';
+
+  @override
+  String get myListingsDeleteConfirmTitle => 'Delete this listing?';
+
+  @override
+  String get myListingsDeleteConfirmMessage => 'This can\'t be undone.';
+
+  @override
+  String get myListingsDeleteConfirmButton => 'Delete';
+
+  @override
+  String get myListingsDeleteFailed => 'Couldn\'t delete — try again.';
 
   @override
   String get menuPackages => 'My Packages';
@@ -155,6 +290,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLogout => 'Logout';
+
+  @override
+  String get settingsDeleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete your account permanently?';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'This permanently deletes your profile, listings, chats, and everything else tied to your account. This cannot be undone.';
+
+  @override
+  String get deleteAccountConfirmButton => 'Delete My Account';
+
+  @override
+  String get deleteAccountFailed =>
+      'Couldn\'t delete your account — try again.';
 
   @override
   String get logoutDialogTitle => 'Logout';
@@ -885,6 +1037,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Profiles you follow will appear here.';
 
   @override
+  String get profileFollowersEmptyTitle => 'No followers yet';
+
+  @override
+  String get profileFollowersEmptyMessage =>
+      'People who follow you will appear here.';
+
+  @override
   String get profileMyPackagesBasicTitle => 'Basic Package';
 
   @override
@@ -1017,6 +1176,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addCommonCategoryDigitalMarketing => 'Digital Marketing';
+
+  @override
+  String get addCommonUploading => 'Uploading…';
+
+  @override
+  String get addCommonReplaceImage => 'Replace';
+
+  @override
+  String get addCommonRemoveImage => 'Remove';
+
+  @override
+  String get addCommonCategoriesUnavailable =>
+      'Couldn\'t load categories. Try again.';
+
+  @override
+  String get addCommonPublishing => 'Publishing…';
+
+  @override
+  String get addCommonSaving => 'Saving…';
+
+  @override
+  String get addCommonSaveButton => 'Save Changes';
+
+  @override
+  String get addOfferEditTitle => 'Edit Offer';
+
+  @override
+  String get addServiceEditTitle => 'Edit Service';
+
+  @override
+  String get addAdEditTitle => 'Edit Ad';
+
+  @override
+  String get addOfferUpdated => 'Offer updated';
+
+  @override
+  String get addServiceUpdated => 'Service updated';
+
+  @override
+  String get addAdUpdated => 'Ad updated';
+
+  @override
+  String get addCommonValidationTitle => 'Please complete the required fields.';
+
+  @override
+  String addCommonSubmitFailed(Object error) {
+    return 'Couldn\'t publish. $error';
+  }
+
+  @override
+  String get addOfferPublished => 'Offer published.';
+
+  @override
+  String get addServicePublished => 'Service published.';
+
+  @override
+  String get addAdPublished => 'Ad submitted.';
 
   @override
   String get addOfferCreateButton => 'Create Offer';

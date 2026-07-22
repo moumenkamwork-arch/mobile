@@ -16,6 +16,9 @@ import '../features/profile/presentation/screens/add_ad_wizard_screen.dart';
 import '../features/profile/presentation/screens/add_offer_screen.dart';
 import '../features/profile/presentation/screens/add_service_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../features/my_listings/presentation/screens/my_listings_screen.dart';
+import '../features/profile/presentation/screens/blocked_users_screen.dart';
+import '../features/profile/presentation/screens/followers_screen.dart';
 import '../features/profile/presentation/screens/following_screen.dart';
 import '../features/profile/presentation/screens/my_packages_screen.dart';
 import '../features/profile/presentation/screens/profile_menu_screen.dart';
@@ -123,6 +126,21 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         path: AppRoutes.profileFollowing,
         name: RouteNames.profileFollowing,
         builder: (context, state) => const FollowingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileFollowers,
+        name: RouteNames.profileFollowers,
+        builder: (context, state) => const FollowersScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileBlockedUsers,
+        name: RouteNames.profileBlockedUsers,
+        builder: (context, state) => const BlockedUsersScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileMyListings,
+        name: RouteNames.profileMyListings,
+        builder: (context, state) => const MyListingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.profileSupport,

@@ -5,6 +5,8 @@ import '../entities/promoo_profile.dart';
 abstract interface class ProfileRepository {
   Future<Result<List<FollowUser>>> getFollowing(String profileId);
 
+  Future<Result<List<FollowUser>>> getFollowers(String profileId);
+
   Future<Result<PromooProfile>> getDemoProfile();
 
   Future<Result<PromooProfile>> getProfile(String idOrUsername);
@@ -28,4 +30,16 @@ abstract interface class ProfileRepository {
   Future<Result<void>> followProfile(String profileId);
 
   Future<Result<void>> unfollowProfile(String profileId);
+
+  Future<Result<bool>> getBlockStatus(String profileId);
+
+  Future<Result<void>> blockProfile(String profileId);
+
+  Future<Result<void>> unblockProfile(String profileId);
+
+  Future<Result<List<FollowUser>>> getBlockedUsers();
+
+  /// `DELETE /profiles/me` — permanently deletes the signed-in user's
+  /// Supabase auth account (the `profiles` row cascades). Irreversible.
+  Future<Result<void>> deleteAccount();
 }

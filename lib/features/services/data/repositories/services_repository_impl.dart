@@ -75,4 +75,57 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return const Result.failure(AppFailure.unknown());
     }
   }
+
+  @override
+  Future<Result<String>> createService(ServiceDraft draft) async {
+    try {
+      return Result.success(await dataSource.createService(draft));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> updateService(String id, ServiceDraft draft) async {
+    try {
+      await dataSource.updateService(id, draft);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteService(String id) async {
+    try {
+      await dataSource.deleteService(id);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<List<PromooService>>> getMyServices(String profileId) async {
+    try {
+      final dto = await dataSource.fetchServicesByProfile(profileId);
+      return Result.success(
+        dto.toDomain(fallbackCurrency: config.fallbackCurrency),
+      );
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
 }

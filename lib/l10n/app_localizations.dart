@@ -296,6 +296,114 @@ abstract class AppLocalizations {
   /// **'Following'**
   String get menuFollowing;
 
+  /// No description provided for @menuFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get menuFollowers;
+
+  /// No description provided for @menuBlockedUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked Users'**
+  String get menuBlockedUsers;
+
+  /// No description provided for @menuMyListings.
+  ///
+  /// In en, this message translates to:
+  /// **'My Listings'**
+  String get menuMyListings;
+
+  /// No description provided for @reportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportAction;
+
+  /// No description provided for @reportSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportSheetTitle;
+
+  /// No description provided for @reportSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting this?'**
+  String get reportSheetSubtitle;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or misleading'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get reportReasonInappropriate;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonScam.
+  ///
+  /// In en, this message translates to:
+  /// **'Scam or fraud'**
+  String get reportReasonScam;
+
+  /// No description provided for @reportReasonFalseInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'False information'**
+  String get reportReasonFalseInfo;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get reportDetailsLabel;
+
+  /// No description provided for @reportDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add anything that helps us review this'**
+  String get reportDetailsHint;
+
+  /// No description provided for @reportSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get reportSubmitButton;
+
+  /// No description provided for @reportSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting…'**
+  String get reportSubmitting;
+
+  /// No description provided for @reportSubmittedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — your report was submitted'**
+  String get reportSubmittedSnackbar;
+
+  /// No description provided for @reportFailedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t submit the report — try again'**
+  String get reportFailedSnackbar;
+
   /// No description provided for @menuProfileManagement.
   ///
   /// In en, this message translates to:
@@ -325,6 +433,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get menuSaved;
+
+  /// No description provided for @savedButtonSaveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get savedButtonSaveTooltip;
+
+  /// No description provided for @savedButtonUnsaveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsave'**
+  String get savedButtonUnsaveTooltip;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @profileBlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block user'**
+  String get profileBlockAction;
+
+  /// No description provided for @profileUnblockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock user'**
+  String get profileUnblockAction;
+
+  /// No description provided for @profileBlockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this user?'**
+  String get profileBlockConfirmTitle;
+
+  /// No description provided for @profileBlockConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be able to message you, and you won\'t see each other\'s content.'**
+  String get profileBlockConfirmMessage;
+
+  /// No description provided for @profileBlockConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get profileBlockConfirmButton;
+
+  /// No description provided for @profileUnblockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock this user?'**
+  String get profileUnblockConfirmTitle;
+
+  /// No description provided for @profileUnblockConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be able to message you again.'**
+  String get profileUnblockConfirmMessage;
+
+  /// No description provided for @profileUnblockConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get profileUnblockConfirmButton;
+
+  /// No description provided for @profileBlockedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked'**
+  String get profileBlockedSnackbar;
+
+  /// No description provided for @profileUnblockedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked'**
+  String get profileUnblockedSnackbar;
+
+  /// No description provided for @blockedUsersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No blocked users'**
+  String get blockedUsersEmptyTitle;
+
+  /// No description provided for @blockedUsersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts you block will appear here.'**
+  String get blockedUsersEmptyMessage;
+
+  /// No description provided for @myListingsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing published yet'**
+  String get myListingsEmptyTitle;
+
+  /// No description provided for @myListingsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers, services, and ads you publish will appear here.'**
+  String get myListingsEmptyMessage;
+
+  /// No description provided for @myListingsOffersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get myListingsOffersSection;
+
+  /// No description provided for @myListingsServicesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get myListingsServicesSection;
+
+  /// No description provided for @myListingsAdsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads'**
+  String get myListingsAdsSection;
+
+  /// No description provided for @myListingsEditTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get myListingsEditTooltip;
+
+  /// No description provided for @myListingsDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get myListingsDeleteTooltip;
+
+  /// No description provided for @myListingsDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this listing?'**
+  String get myListingsDeleteConfirmTitle;
+
+  /// No description provided for @myListingsDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get myListingsDeleteConfirmMessage;
+
+  /// No description provided for @myListingsDeleteConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get myListingsDeleteConfirmButton;
+
+  /// No description provided for @myListingsDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete — try again.'**
+  String get myListingsDeleteFailed;
 
   /// No description provided for @menuPackages.
   ///
@@ -379,6 +643,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get settingsLogout;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account permanently?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your profile, listings, chats, and everything else tied to your account. This cannot be undone.'**
+  String get deleteAccountConfirmMessage;
+
+  /// No description provided for @deleteAccountConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete My Account'**
+  String get deleteAccountConfirmButton;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete your account — try again.'**
+  String get deleteAccountFailed;
 
   /// No description provided for @logoutDialogTitle.
   ///
@@ -1634,6 +1928,18 @@ abstract class AppLocalizations {
   /// **'Profiles you follow will appear here.'**
   String get profileFollowingEmptyMessage;
 
+  /// No description provided for @profileFollowersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No followers yet'**
+  String get profileFollowersEmptyTitle;
+
+  /// No description provided for @profileFollowersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'People who follow you will appear here.'**
+  String get profileFollowersEmptyMessage;
+
   /// No description provided for @profileMyPackagesBasicTitle.
   ///
   /// In en, this message translates to:
@@ -1873,6 +2179,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Digital Marketing'**
   String get addCommonCategoryDigitalMarketing;
+
+  /// No description provided for @addCommonUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get addCommonUploading;
+
+  /// No description provided for @addCommonReplaceImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get addCommonReplaceImage;
+
+  /// No description provided for @addCommonRemoveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get addCommonRemoveImage;
+
+  /// No description provided for @addCommonCategoriesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load categories. Try again.'**
+  String get addCommonCategoriesUnavailable;
+
+  /// No description provided for @addCommonPublishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get addCommonPublishing;
+
+  /// No description provided for @addCommonSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get addCommonSaving;
+
+  /// No description provided for @addCommonSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get addCommonSaveButton;
+
+  /// No description provided for @addOfferEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Offer'**
+  String get addOfferEditTitle;
+
+  /// No description provided for @addServiceEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Service'**
+  String get addServiceEditTitle;
+
+  /// No description provided for @addAdEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Ad'**
+  String get addAdEditTitle;
+
+  /// No description provided for @addOfferUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer updated'**
+  String get addOfferUpdated;
+
+  /// No description provided for @addServiceUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Service updated'**
+  String get addServiceUpdated;
+
+  /// No description provided for @addAdUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad updated'**
+  String get addAdUpdated;
+
+  /// No description provided for @addCommonValidationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete the required fields.'**
+  String get addCommonValidationTitle;
+
+  /// No description provided for @addCommonSubmitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t publish. {error}'**
+  String addCommonSubmitFailed(Object error);
+
+  /// No description provided for @addOfferPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer published.'**
+  String get addOfferPublished;
+
+  /// No description provided for @addServicePublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Service published.'**
+  String get addServicePublished;
+
+  /// No description provided for @addAdPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad submitted.'**
+  String get addAdPublished;
 
   /// No description provided for @addOfferCreateButton.
   ///

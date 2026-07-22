@@ -115,6 +115,60 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuFollowing => 'المتابَعون';
 
   @override
+  String get menuFollowers => 'المتابِعون';
+
+  @override
+  String get menuBlockedUsers => 'المستخدمون المحظورون';
+
+  @override
+  String get menuMyListings => 'منشوراتي';
+
+  @override
+  String get reportAction => 'إبلاغ';
+
+  @override
+  String get reportSheetTitle => 'إبلاغ';
+
+  @override
+  String get reportSheetSubtitle => 'لماذا تبلّغ عن هذا؟';
+
+  @override
+  String get reportReasonSpam => 'محتوى مزعج أو مضلّل';
+
+  @override
+  String get reportReasonInappropriate => 'محتوى غير لائق';
+
+  @override
+  String get reportReasonHarassment => 'تحرّش أو تنمّر';
+
+  @override
+  String get reportReasonScam => 'احتيال أو نصب';
+
+  @override
+  String get reportReasonFalseInfo => 'معلومات كاذبة';
+
+  @override
+  String get reportReasonOther => 'أخرى';
+
+  @override
+  String get reportDetailsLabel => 'تفاصيل (اختياري)';
+
+  @override
+  String get reportDetailsHint => 'أضف أي شيء يساعدنا في المراجعة';
+
+  @override
+  String get reportSubmitButton => 'إرسال البلاغ';
+
+  @override
+  String get reportSubmitting => 'جارٍ الإرسال…';
+
+  @override
+  String get reportSubmittedSnackbar => 'شكراً — تم إرسال بلاغك';
+
+  @override
+  String get reportFailedSnackbar => 'تعذّر إرسال البلاغ — حاول مرة أخرى';
+
+  @override
   String get menuProfileManagement => 'إدارة الحساب';
 
   @override
@@ -128,6 +182,87 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get menuSaved => 'المحفوظات';
+
+  @override
+  String get savedButtonSaveTooltip => 'حفظ';
+
+  @override
+  String get savedButtonUnsaveTooltip => 'إلغاء الحفظ';
+
+  @override
+  String get commonCancel => 'إلغاء';
+
+  @override
+  String get profileBlockAction => 'حظر المستخدم';
+
+  @override
+  String get profileUnblockAction => 'إلغاء حظر المستخدم';
+
+  @override
+  String get profileBlockConfirmTitle => 'حظر هذا المستخدم؟';
+
+  @override
+  String get profileBlockConfirmMessage =>
+      'لن يستطيع مراسلتك، ولن يرى أي منكما محتوى الآخر.';
+
+  @override
+  String get profileBlockConfirmButton => 'حظر';
+
+  @override
+  String get profileUnblockConfirmTitle => 'إلغاء حظر هذا المستخدم؟';
+
+  @override
+  String get profileUnblockConfirmMessage => 'سيتمكن من مراسلتك مجدداً.';
+
+  @override
+  String get profileUnblockConfirmButton => 'إلغاء الحظر';
+
+  @override
+  String get profileBlockedSnackbar => 'تم حظر المستخدم';
+
+  @override
+  String get profileUnblockedSnackbar => 'تم إلغاء حظر المستخدم';
+
+  @override
+  String get blockedUsersEmptyTitle => 'لا يوجد مستخدمون محظورون';
+
+  @override
+  String get blockedUsersEmptyMessage => 'الحسابات التي تحظرها ستظهر هنا.';
+
+  @override
+  String get myListingsEmptyTitle => 'لا يوجد شيء منشور بعد';
+
+  @override
+  String get myListingsEmptyMessage =>
+      'العروض والخدمات والإعلانات التي تنشرها ستظهر هنا.';
+
+  @override
+  String get myListingsOffersSection => 'العروض';
+
+  @override
+  String get myListingsServicesSection => 'الخدمات';
+
+  @override
+  String get myListingsAdsSection => 'الإعلانات';
+
+  @override
+  String get myListingsEditTooltip => 'تعديل';
+
+  @override
+  String get myListingsDeleteTooltip => 'حذف';
+
+  @override
+  String get myListingsDeleteConfirmTitle => 'حذف هذا المنشور؟';
+
+  @override
+  String get myListingsDeleteConfirmMessage =>
+      'هذا الإجراء لا يمكن التراجع عنه.';
+
+  @override
+  String get myListingsDeleteConfirmButton => 'حذف';
+
+  @override
+  String get myListingsDeleteFailed => 'تعذّر الحذف — حاول مرة أخرى.';
 
   @override
   String get menuPackages => 'باقاتي';
@@ -148,13 +283,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsThemeMode => 'المظهر';
 
   @override
-  String get settingsBlackMode => 'الوضع الأسود';
+  String get settingsBlackMode => 'الوضع الداكن';
 
   @override
   String get settingsLightMode => 'الوضع الفاتح';
 
   @override
   String get settingsLogout => 'تسجيل الخروج';
+
+  @override
+  String get settingsDeleteAccount => 'حذف الحساب';
+
+  @override
+  String get deleteAccountConfirmTitle => 'حذف حسابك نهائياً؟';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'هذا سيحذف نهائياً بروفايلك ومنشوراتك ومحادثاتك وكل شي مرتبط بحسابك. هذا الإجراء لا يمكن التراجع عنه.';
+
+  @override
+  String get deleteAccountConfirmButton => 'احذف حسابي';
+
+  @override
+  String get deleteAccountFailed => 'تعذّر حذف حسابك — حاول مرة أخرى.';
 
   @override
   String get logoutDialogTitle => 'تسجيل الخروج';
@@ -888,6 +1039,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileFollowingEmptyMessage => 'ستظهر هنا الملفات التي تتابعها.';
 
   @override
+  String get profileFollowersEmptyTitle => 'لا يوجد متابِعون بعد';
+
+  @override
+  String get profileFollowersEmptyMessage =>
+      'سيظهر هنا الأشخاص الذين يتابعونك.';
+
+  @override
   String get profileMyPackagesBasicTitle => 'الباقة الأساسية';
 
   @override
@@ -1018,6 +1176,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addCommonCategoryDigitalMarketing => 'التسويق الرقمي';
+
+  @override
+  String get addCommonUploading => 'جارٍ الرفع…';
+
+  @override
+  String get addCommonReplaceImage => 'استبدال';
+
+  @override
+  String get addCommonRemoveImage => 'إزالة';
+
+  @override
+  String get addCommonCategoriesUnavailable =>
+      'تعذّر تحميل الفئات. حاول مجدداً.';
+
+  @override
+  String get addCommonPublishing => 'جارٍ النشر…';
+
+  @override
+  String get addCommonSaving => 'جارٍ الحفظ…';
+
+  @override
+  String get addCommonSaveButton => 'حفظ التعديلات';
+
+  @override
+  String get addOfferEditTitle => 'تعديل العرض';
+
+  @override
+  String get addServiceEditTitle => 'تعديل الخدمة';
+
+  @override
+  String get addAdEditTitle => 'تعديل الإعلان';
+
+  @override
+  String get addOfferUpdated => 'تم تحديث العرض';
+
+  @override
+  String get addServiceUpdated => 'تم تحديث الخدمة';
+
+  @override
+  String get addAdUpdated => 'تم تحديث الإعلان';
+
+  @override
+  String get addCommonValidationTitle => 'يرجى إكمال الحقول المطلوبة.';
+
+  @override
+  String addCommonSubmitFailed(Object error) {
+    return 'تعذّر النشر. $error';
+  }
+
+  @override
+  String get addOfferPublished => 'تم نشر العرض.';
+
+  @override
+  String get addServicePublished => 'تم نشر الخدمة.';
+
+  @override
+  String get addAdPublished => 'تم إرسال الإعلان.';
 
   @override
   String get addOfferCreateButton => 'إنشاء عرض';

@@ -8,6 +8,8 @@ import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../reports/domain/entities/report_draft.dart';
+import '../../../reports/presentation/report_sheet.dart';
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/entities/home_content.dart';
 import '../controllers/home_controller.dart';
@@ -31,6 +33,11 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
   late final AnimationController _progressController;
   late int _currentGroupIndex;
   late int _currentItemIndex;
+
+  /// A press shorter than this counts as a tap (navigate); longer means the
+  /// finger was held to pause, so releasing just resumes without navigating.
+  static const _holdThresholdMs = 220;
+  DateTime? _pressDownAt;
 
   HomeStory get _story => widget.stories[_currentGroupIndex];
   List<HomeStoryItem> get _items => _story.effectiveItems;
@@ -84,9 +91,32 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
   Widget _buildViewerBody(BuildContext context, String displayName) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapUp: (details) => _handleStoryTap(context, details),
-      onLongPressStart: (_) => _progressController.stop(),
-      onLongPressEnd: (_) => _progressController.forward(),
+      // Pause the instant a finger touches down — no long-press delay. On
+      // release we decide tap vs hold by how long it was held: a quick press
+      // navigates (advance/back by tap position); a longer press was a
+      // deliberate hold-to-pause, so we just resume. This replaces
+      // `onLongPressStart`, whose built-in ~500ms recognition delay was the
+      // lag the owner noticed before the story would pause.
+      onTapDown: (_) {
+        _pressDownAt = DateTime.now();
+        _progressController.stop();
+      },
+      onTapUp: (details) {
+        final held = _pressDownAt == null
+            ? 0
+            : DateTime.now().difference(_pressDownAt!).inMilliseconds;
+        _pressDownAt = null;
+        _progressController.forward();
+        if (held < _holdThresholdMs) {
+          _handleStoryTap(context, details);
+        }
+      },
+      onTapCancel: () {
+        _pressDownAt = null;
+        if (mounted) {
+          _progressController.forward();
+        }
+      },
       onVerticalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0;
         if (velocity > 420) {
@@ -183,6 +213,15 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
                             Icons.more_vert_rounded,
                             color: AppColors.dark.textPrimary,
                           ),
+                        )
+                      else
+                        IconButton(
+                          tooltip: AppLocalizations.of(context).reportAction,
+                          onPressed: _reportStory,
+                          icon: Icon(
+                            Icons.more_vert_rounded,
+                            color: AppColors.dark.textPrimary,
+                          ),
                         ),
                       IconButton(
                         tooltip: AppLocalizations.of(
@@ -259,6 +298,21 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
     // viewer, not freeze on the last frame.
     _progressController.stop();
     Navigator.of(context).pop();
+  }
+
+  /// Pauses progress while the report sheet is open (so the story doesn't
+  /// advance underneath it), then resumes.
+  Future<void> _reportStory() async {
+    _progressController.stop();
+    await showReportSheet(
+      context,
+      ref,
+      reportedId: _item.id,
+      reportedType: ReportedType.story,
+    );
+    if (mounted) {
+      _progressController.forward();
+    }
   }
 
   /// Pauses progress, offers "Delete story" for the current item, confirms,

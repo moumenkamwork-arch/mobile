@@ -1,36 +1,71 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../../../shared/widgets/promoo_button.dart';
+import '../../../../shared/widgets/promoo_image_upload_field.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
-import '../widgets/add_category_label.dart';
+import '../../../services/data/repositories/services_repository_impl.dart';
+import '../../../services/domain/entities/promoo_service.dart';
+import '../../../services/presentation/controllers/service_categories_provider.dart';
+import '../../../upload/domain/entities/uploaded_media.dart';
 import '../widgets/add_form_widgets.dart';
 
-/// "Add New Service" single-page creation form.
-///
-/// Fields map 1:1 to the backend `POST /services` payload (title / description /
-/// price / delivery_days / category_id / images / tags) so wiring the real
-/// request during integration is a drop-in change.
-/// Phase A: local-only, no network call.
-class AddServiceScreen extends StatefulWidget {
-  const AddServiceScreen({super.key});
+/// "Add New Service" — collects the `POST /services` fields, uploads an image
+/// through the shared Upload infra, then publishes (role-gated to
+/// service_provider/company by the backend).
+class AddServiceScreen extends ConsumerStatefulWidget {
+  const AddServiceScreen({super.key, this.editing});
+
+  /// When set, the form pre-fills from this existing service and submits via
+  /// `PUT /services/:id` instead of `POST /services`.
+  final PromooService? editing;
 
   @override
-  State<AddServiceScreen> createState() => _AddServiceScreenState();
+  ConsumerState<AddServiceScreen> createState() => _AddServiceScreenState();
 }
 
-class _AddServiceScreenState extends State<AddServiceScreen> {
+class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _deliveryController = TextEditingController();
   final _tagsController = TextEditingController();
 
-  String? _category;
+  ServiceCategory? _category;
+  String? _imageUrl;
+  bool _isSubmitting = false;
+
+  bool get _isEditing => widget.editing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final editing = widget.editing;
+    if (editing == null) {
+      return;
+    }
+    _titleController.text = editing.title;
+    _descriptionController.text = editing.description ?? '';
+    _priceController.text = editing.price == null
+        ? ''
+        : _formatNum(editing.price!.amount);
+    _deliveryController.text = editing.deliveryDays?.toString() ?? '';
+    _tagsController.text = editing.tags.join(', ');
+    _category = editing.category;
+    if (editing.imageUrls.isNotEmpty) {
+      _imageUrl = editing.imageUrls.first;
+    }
+  }
+
+  static String _formatNum(num value) {
+    return value % 1 == 0 ? value.toInt().toString() : value.toString();
+  }
 
   @override
   void dispose() {
@@ -45,11 +80,17 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    ref.watch(serviceCategoriesProvider);
+
     return PromooSubpageScaffold(
-      title: l10n.menuAddService,
+      title: _isEditing ? l10n.addServiceEditTitle : l10n.menuAddService,
       bottomBar: _FormActions(
-        submitLabel: l10n.addServiceCreateButton,
-        onSubmit: _createService,
+        submitLabel: _isSubmitting
+            ? (_isEditing ? l10n.addCommonSaving : l10n.addCommonPublishing)
+            : (_isEditing
+                  ? l10n.addCommonSaveButton
+                  : l10n.addServiceCreateButton),
+        onSubmit: _isSubmitting ? null : _submit,
         onCancel: () => Navigator.of(context).maybePop(),
       ),
       child: Column(
@@ -77,9 +118,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonCategoryLabel),
                 AddFormPickerField(
-                  hint: _category == null
-                      ? l10n.commonSelectCategory
-                      : addCategoryLabel(context, _category!),
+                  hint: _category?.name ?? l10n.commonSelectCategory,
                   isPlaceholder: _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
@@ -140,11 +179,13 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AddFormFieldLabel(l10n.addServiceImagesLabel),
-                AddFormUploadBox(
-                  icon: Icons.add_photo_alternate_outlined,
+                PromooImageUploadField(
+                  value: _imageUrl,
+                  onChanged: (url) => setState(() => _imageUrl = url),
+                  bucket: UploadBucket.services,
+                  relatedTo: UploadRelatedTo.service,
                   label: l10n.addServiceUploadImages,
                   caption: l10n.addCommonUploadCaption,
-                  onTap: _showUploadNotice,
                 ),
               ],
             ),
@@ -156,36 +197,42 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   Future<void> _pickCategory() async {
     final l10n = AppLocalizations.of(context);
-    final selected = await showModalBottomSheet<String>(
+    final categories = ref.read(serviceCategoriesProvider).asData?.value;
+    if (categories == null || categories.isEmpty) {
+      _showNotice(l10n.addCommonCategoriesUnavailable);
+      ref.invalidate(serviceCategoriesProvider);
+      return;
+    }
+
+    final selected = await showModalBottomSheet<ServiceCategory>(
       context: context,
       backgroundColor: context.colors.elevatedSurface,
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
       builder: (sheetContext) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                child: Text(
-                  l10n.commonSelectCategory,
-                  style: Theme.of(sheetContext).textTheme.titleMedium,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  child: Text(
+                    l10n.commonSelectCategory,
+                    style: Theme.of(sheetContext).textTheme.titleMedium,
+                  ),
                 ),
-              ),
-              for (final option in addCategoryValues)
-                ListTile(
-                  title: Text(addCategoryLabel(sheetContext, option)),
-                  trailing: option == _category
-                      ? Icon(
-                          Icons.check_rounded,
-                          color: sheetContext.colors.accent,
-                        )
-                      : null,
-                  onTap: () => Navigator.of(sheetContext).pop(option),
-                ),
-              const SizedBox(height: AppSpacing.xs),
-            ],
+                for (final option in categories)
+                  ListTile(
+                    title: Text(option.name),
+                    trailing: option.id == _category?.id
+                        ? Icon(Icons.check_rounded, color: sheetContext.colors.accent)
+                        : null,
+                    onTap: () => Navigator.of(sheetContext).pop(option),
+                  ),
+                const SizedBox(height: AppSpacing.xs),
+              ],
+            ),
           ),
         );
       },
@@ -195,13 +242,65 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     }
   }
 
-  void _showUploadNotice() {
-    _showNotice(AppLocalizations.of(context).addCommonMediaUploadComingSoon);
-  }
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final category = _category;
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+    final price = num.tryParse(_priceController.text.trim());
+    final deliveryDays = int.tryParse(_deliveryController.text.trim());
 
-  void _createService() {
-    _showNotice(AppLocalizations.of(context).addServiceReadySnackbar);
-    Navigator.of(context).maybePop();
+    // Mirror `createServiceSchema`: title >= 5, description >= 10, price > 0,
+    // delivery_days a positive int, category required.
+    if (category == null ||
+        title.length < 5 ||
+        description.length < 10 ||
+        price == null ||
+        price <= 0 ||
+        deliveryDays == null ||
+        deliveryDays <= 0) {
+      _showNotice(l10n.addCommonValidationTitle);
+      return;
+    }
+
+    final tags = _tagsController.text
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList(growable: false);
+
+    final draft = ServiceDraft(
+      categoryId: category.id,
+      title: title,
+      description: description,
+      price: price,
+      deliveryDays: deliveryDays,
+      mediaUrls: [?_imageUrl],
+      tags: tags,
+    );
+
+    setState(() => _isSubmitting = true);
+    final repository = ref.read(servicesRepositoryProvider);
+    final editingId = widget.editing?.id;
+    final AppFailure? failure;
+    if (editingId == null) {
+      final result = await repository.createService(draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    } else {
+      final result = await repository.updateService(editingId, draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSubmitting = false);
+
+    if (failure == null) {
+      _showNotice(_isEditing ? l10n.addServiceUpdated : l10n.addServicePublished);
+      Navigator.of(context).maybePop();
+    } else {
+      _showNotice(l10n.addCommonSubmitFailed(failure.message));
+    }
   }
 
   void _showNotice(String message) {
@@ -219,7 +318,7 @@ class _FormActions extends StatelessWidget {
   });
 
   final String submitLabel;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final VoidCallback onCancel;
 
   @override

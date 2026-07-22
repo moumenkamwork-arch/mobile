@@ -348,4 +348,27 @@ class _ProfileRepository implements ProfileRepository {
   @override
   Future<Result<List<FollowUser>>> getFollowing(String profileId) async =>
       const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowers(String profileId) async =>
+      const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<bool>> getBlockStatus(String profileId) async =>
+      const Result.success(false);
+
+  @override
+  Future<Result<void>> blockProfile(String profileId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> unblockProfile(String profileId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<FollowUser>>> getBlockedUsers() async =>
+      const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<void>> deleteAccount() async => const Result.success(null);
 }

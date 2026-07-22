@@ -14,6 +14,9 @@ import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_metric.dart';
+import '../../../reports/domain/entities/report_draft.dart';
+import '../../../reports/presentation/report_menu_button.dart';
+import '../../../../shared/widgets/promoo_save_button.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -165,6 +168,26 @@ class _HomeContentDetailContent extends StatelessWidget {
               PromooDetailHeader(
                 title: homeContentDetailTypeLabel(context, detail.type),
                 onBack: onBack,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PromooSaveButton(
+                      itemId: detail.id,
+                      itemType: detail.type == HomeContentDetailType.ad
+                          ? 'ad'
+                          : 'offer',
+                      title: detail.title,
+                      subtitle: detail.categoryName,
+                      imageUrl: detail.imageUrl,
+                    ),
+                    PromooReportMenuButton(
+                      reportedId: detail.id,
+                      reportedType: detail.type == HomeContentDetailType.ad
+                          ? ReportedType.ad
+                          : ReportedType.offer,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               _HeroCard(detail: detail),

@@ -5,6 +5,8 @@ import '../dto/profile_dto.dart';
 abstract interface class ProfileDataSource {
   Future<List<FollowUser>> fetchFollowing(String profileId);
 
+  Future<List<FollowUser>> fetchFollowers(String profileId);
+
   Future<PromooProfileDto> fetchProfile(String idOrUsername);
 
   Future<PromooProfileDto> fetchMyProfile();
@@ -22,4 +24,14 @@ abstract interface class ProfileDataSource {
   Future<void> followProfile(String profileId);
 
   Future<void> unfollowProfile(String profileId);
+
+  Future<bool> fetchBlockStatus(String profileId);
+
+  Future<void> blockProfile(String profileId);
+
+  Future<void> unblockProfile(String profileId);
+
+  Future<List<FollowUser>> fetchBlockedUsers();
+
+  Future<void> deleteAccount();
 }

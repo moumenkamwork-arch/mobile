@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../routing/route_names.dart';
+import '../../../reports/domain/entities/report_draft.dart';
+import '../../../reports/presentation/report_sheet.dart';
 import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_empty_state.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
@@ -169,6 +171,12 @@ class _ProfileContentView extends ConsumerWidget {
                             context.go(AppRoutes.home);
                           }
                         },
+                        trailing: isOwnerProfile
+                            ? null
+                            : _ProfileOverflowMenuButton(
+                                profileId: profile.id,
+                                isBlocked: state.isBlocked,
+                              ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                     ],
@@ -210,6 +218,100 @@ class _ProfileContentView extends ConsumerWidget {
             end: 0,
             child: LinearProgressIndicator(minHeight: 2),
           ),
+      ],
+    );
+  }
+}
+
+enum _ProfileMenuAction { toggleBlock, report }
+
+/// Overflow menu on a public profile offering Block/Unblock and Report — the
+/// mobile side of Apple Guideline 1.2 (users must be able to both block and
+/// report abusive users themselves).
+class _ProfileOverflowMenuButton extends ConsumerWidget {
+  const _ProfileOverflowMenuButton({
+    required this.profileId,
+    required this.isBlocked,
+  });
+
+  final String profileId;
+  final bool isBlocked;
+
+  Future<void> _toggleBlock(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+
+    if (isBlocked) {
+      await ref.read(profileControllerProvider.notifier).toggleBlock();
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.profileUnblockedSnackbar)));
+      }
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.profileBlockConfirmTitle),
+        content: Text(l10n.profileBlockConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l10n.profileBlockConfirmButton,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    await ref.read(profileControllerProvider.notifier).toggleBlock();
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.profileBlockedSnackbar)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    return PopupMenuButton<_ProfileMenuAction>(
+      icon: const Icon(Icons.more_vert_rounded),
+      onSelected: (action) {
+        switch (action) {
+          case _ProfileMenuAction.toggleBlock:
+            _toggleBlock(context, ref);
+          case _ProfileMenuAction.report:
+            showReportSheet(
+              context,
+              ref,
+              reportedId: profileId,
+              reportedType: ReportedType.profile,
+            );
+        }
+      },
+      itemBuilder: (menuContext) => [
+        PopupMenuItem<_ProfileMenuAction>(
+          value: _ProfileMenuAction.toggleBlock,
+          child: Text(
+            isBlocked ? l10n.profileUnblockAction : l10n.profileBlockAction,
+          ),
+        ),
+        PopupMenuItem<_ProfileMenuAction>(
+          value: _ProfileMenuAction.report,
+          child: Text(l10n.reportAction),
+        ),
       ],
     );
   }

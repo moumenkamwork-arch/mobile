@@ -5,19 +5,19 @@
 > **هذا الملف هو المرجع المعتمد لمرحلة الربط (Phase B).** أُعيد توليده بالكامل بفحص مُتحقَّق منه لـ:
 >
 > - **طبقة البيانات بالموبايل (الحالية):** كل `*_dto.dart` و entities و `*_data_source.dart` (واجهات) و `*_fake_data_source.dart` و `*_repository_impl.dart`، حقلاً بحقل، بالإضافة لملفات السباكة (`app_config.dart`, `auth_session_store.dart`, `locale_controller.dart`, `pubspec.yaml`).
-> - **عقد الـ API بالباك إند:** جرد الـ endpoints + الحقول من التوليد الأصلي المُتحقَّق منه (`promoo-api-reference.json` + `src/routes/**` + نتائج `Apis-Resaults/`)، **والباك مقفول ولم يتغيّر** — آخر migration = `034_advisor_security_hardening.sql` (لا يوجد 035 بعد).
+> - **عقد الـ API بالباك إند:** جرد الـ endpoints + الحقول من التوليد الأصلي المُتحقَّق منه (`promoo-api-reference.json` + `src/routes/**` + نتائج `Apis-Resaults/`). آخر migration = `036_create_blocks.sql` (2026-07-22 — أضفنا `blocks` لميزة حظر المستخدم؛ `035_seed_seat_grid.sql` كانت موجودة من قبل بدون توثيق هون).
 >
 > **⚠️ ما تغيّر عن نسخة 2026-07-09 (المهم):** أُعيد فحص المشروع بعد: (1) **حذف طبقة الشبكة بالكامل** (frontend-only)، (2) **إنجاز التعريب بالكامل** (محور ربط جديد: `Accept-Language`)، (3) إصلاحات UX (Follow صار toggle محلي فعّال، البروفايل يولّد نسخة لكل id، الشات صار `family`)، (4) تنظيف مكوّنات مكرّرة (طبقة العرض فقط — **لم يمسّ الـ DTOs**، لذا نِسَب التوافق ثابتة). التفاصيل بقسم 0.1.
 >
 > **القاعدة الذهبية:** لم نعدّل أي ملف بالباك.
 >
-> آخر تحديث: 2026-07-19 (**Phase 10 — Notifications موصولة** بالباك الحقيقي: `GET /notifications` + مقروء/مقروء-الكل/حذف/تسجيل توكن. هاد كمان صلّح مشكلة كان يواجهها المالك — الضغط على إشعار رسالة كان يعطي 400 لأن القسم كان لسا fake وإشعاره الوهمي يحمل room id وهمي `chat-room-1`). قبلها: **Chat Realtime** عبر Supabase (بعد ما كانت مؤجلة بـ Phase 9) + UX تفاؤلي، Phase 9 (Chat REST)، Phase 8 (Saved)، Phase 7 (Follow)، Phase 6 (Seats قراءة)، Phase 5 (Services/Categories/Search/Leaderboard)، Phase 4 (Home)، Phase 3 (Profile)، Phase 2 (Auth)، Phase 1 (السباكة)، Phase 0 (تصليب التوافق).
+> آخر تحديث: 2026-07-22 (**Apple-compliance + إدارة المحتوى — دفعة "كمّل كلشي"**: أُضيفت الأربع نواقص v1 المتبقية: (1) **تعديل/حذف المحتوى** — الشاشات الثلاث `Add Offer/Service/Ad` صارت تقبل `editing` وتوصل `PUT /offers|/services|/ads/:id`، وشاشة **"منشوراتي" (`MyListingsScreen`)** جديدة تعرض عروض/خدمات/إعلانات المستخدم بكل الحالات مع تعديل+حذف (`DELETE /...`). أُضيف بالباك ما كان ناقص: `deleteAd` و`GET /services/profile/:id`. (2) **حذف الحساب** (`DELETE /profiles/me`) — صف أحمر بقائمة البروفايل + تأكيد، مطلب متجر Apple/Google. (3) **الإبلاغ (`POST /reports`)** — كان موجود بالباك من زمان وأخيراً اتوصل بالموبايل: `showReportSheet` + `PromooReportMenuButton` بنقاط دخول: قائمة "⋮" بالبروفايل العام، تفاصيل العرض/الإعلان/الخدمة، وعارض الستوري. يكمّل الحظر لتغطية Apple 1.2 كاملاً. التفاصيل بأقسام 3.11/3.14/3.15. قبلها بنفس اليوم: **حظر المستخدم (Block)** جديد بالكامل (جدول `blocks` migration 036 + `POST/DELETE /blocks/:id` + إنفاذ بالشات + شاشة المحظورين)، ونشر المحتوى (Phase 12)، وزر الحفظ من التفاصيل، وقائمة Followers. المتبقي v1 الوحيد بلا ربط: cover (لا UI له، قرار متعمّد). قبلها: 2026-07-21 (Story viewer polish + warm-launch fix)، 2026-07-19 (**Phase 10 — Notifications موصولة**). قبلها: **Chat Realtime** عبر Supabase، Phase 9 (Chat REST)، Phase 8 (Saved)، Phase 7 (Follow)، Phase 6 (Seats قراءة)، Phase 5 (Services/Categories/Search/Leaderboard)، Phase 4 (Home)، Phase 3 (Profile)، Phase 2 (Auth)، Phase 1 (السباكة)، Phase 0 (تصليب التوافق).
 
 ---
 
 ## 0. الخلاصة التنفيذية (اقرأ هذا أولاً)
 
-**تحديث 2026-07-19:** الربط ماشي ومُتحقَّق حياً — مو مجرد "خطة". جاهز حياً: السباكة (شبكة+interceptor+تخزين آمن)، Auth، Profile (me + تعديل **+ البروفايل العام**)، Home، Categories/Services/Search/Leaderboard، **Seats (قراءة — Phase 6)**، **Follow/Unfollow (Phase 7)**، **Saved (قائمة + إزالة — Phase 8)**، **Chat (Phase 9 REST + Realtime — قائمة/غرفة/إرسال/مقروء + رسائل حيّة عبر Supabase + فتح/إرسال تفاؤلي)**، **Notifications (Phase 10 — قائمة + مقروء + مقروء-الكل + حذف + تسجيل توكن + دفع FCM حي)**، **Upload (Phase 11 — بنية الرفع + avatar موصولين، 2026-07-20)**. الباقي (نشر الإعلان/العرض/الخدمة، cover، زر حفظ من الكروت، قوائم المتابعة) لسا **fake محلي** — التفاصيل أدناه.
+**تحديث 2026-07-22:** الربط ماشي ومُتحقَّق حياً — مو مجرد "خطة". جاهز حياً: السباكة (شبكة+interceptor+تخزين آمن)، Auth، Profile (me + تعديل **+ البروفايل العام**)، Home، Categories/Services/Search/Leaderboard، **Seats (قراءة — Phase 6)**، **Follow/Unfollow (Phase 7)**، **Saved (قائمة + إزالة — Phase 8)**، **Chat (Phase 9 REST + Realtime — قائمة/غرفة/إرسال/مقروء + رسائل حيّة عبر Supabase + فتح/إرسال تفاؤلي)**، **Notifications (Phase 10 — قائمة + مقروء + مقروء-الكل + حذف + تسجيل توكن + دفع FCM حي)**، **Upload (Phase 11 — بنية الرفع + avatar موصولين، 2026-07-20)**، **Stories (إنشاء/عرض/حذف — 2026-07-21)**، **نشر المحتوى: Add Offer/Service/Ad (Phase 12 — 2026-07-22)** — الثلاثة موصولة حقيقة بـ `POST /offers|/services|/ads` مع category picker حقيقي ورفع صور حقيقي، **وزر الحفظ من التفاصيل + قوائم المتابِعين/المتابَعين + ميزة حظر المستخدم الجديدة بالكامل (Block — نفس اليوم 2026-07-22)**. الباقي الوحيد بلا ربط هو غلاف البروفايل (cover — لا UI له أصلاً) — التفاصيل أدناه.
 
 **لماذا لا يزال هذا الملف صالحاً وحاسماً لبقية الأقسام؟** لأن العنصر الأثمن لم يُمَس: **الـ DTOs**. كل `*_dto.dart` ما زالت موجودة، **دفاعية جداً** (كل حقل يقبل عدة تهجئات `snake_case`+`camelCase`+aliases، ويقرأ الكائنات المتداخلة `profile`/`category`/`data`/`items`). أي أن **عقد السلك (wire contract) محفوظ**، وإعادة بناء الطبقة البعيدة لبقية الأقسام ستكون **إعادة توصيل منخفضة الاحتكاك**، لا إعادة تصميم.
 
@@ -30,24 +30,31 @@
 5. ~~Categories + Services + Search + Leaderboard~~ ✅ **تمّت (Phase 5)** — موصولة؛ Categories/Services/Leaderboard مُتحقَّقة حياً ببيانات حقيقية، Search كود جاهز بانتظار أول استخدام حي.
 6. ~~Seats (قراءة)~~ ✅ **تمّت (Phase 6)** — `GET /seats` + `/seats/me` موصولة، 144 مقعد حقيقي. الحجز (Stripe) مؤجل v2.
 7. ~~البروفايل العام + Follow/Unfollow~~ ✅ **تمّت (Phase 7)** — `GET /profiles/:id` (كان موصول من Phase 3)، و `POST/DELETE /follows/:id` + `GET /follows/:id/status` موصولة حياً.
-8. ~~Saved (قائمة + إزالة)~~ ✅ **تمّت (Phase 8)** — `GET /saved` (مع hydrate) + `DELETE /saved/:id` موصولة. زر الحفظ من الكروت (`POST /saved`) لسا.
+8. ~~Saved (قائمة + إزالة + حفظ)~~ ✅ **تمّت (Phase 8 + 2026-07-22)** — `GET /saved` (مع hydrate) + `DELETE /saved/:id` + `POST /saved` (زر bookmark بتفاصيل العرض/الإعلان/الخدمة) كلها موصولة.
 9. ~~Chat (REST + Realtime)~~ ✅ **تمّت (Phase 9 + 2026-07-19)** — قائمة/بدء غرفة/رسائل/إرسال/مقروء موصولة، بالإضافة لـ **Realtime حي عبر Supabase** (رسائل جديدة تظهر فوراً بدون refresh، بادج الأيقونة يتحدث حي) وفتح/إرسال تفاؤلي (UI فوري، الشبكة بالخلفية).
 10. ~~Notifications~~ ✅ **تمّت (Phase 10 — 2026-07-19، دفع FCM أُضيف 2026-07-20)** — `GET /notifications` + `PATCH /notifications/:id/read` + `PATCH /notifications/read-all` + `DELETE /notifications/:id` + `POST /notifications/token` موصولة. (صلّحت مشكلة الـ `chat-room-1` 400: الإشعارات صارت حقيقية فتحمل room id حقيقي يفتح المحادثة صح.) دفع FCM صار حي بالكامل (`firebase_core` + `firebase_messaging`)، شوف قسم 3.10 تحت.
-11. **أزرار مدعومة بالباك بلا توصيل (بقية الأقسام):** نشر الإعلان/العرض/الخدمة (بيستهلكوا بنية Upload الجاهزة)، غلاف البروفايل (cover — ما في UI بعد)، زر حفظ من الكروت، قوائم المتابِعين/المتابَعين.
+11. ~~Stories (إنشاء/عرض/حذف)~~ ✅ **تمّت (2026-07-21)** — `GET /stories` + `POST /stories` + `DELETE /stories/:id` موصولة، تجميع بالحلقة الواحدة لكل شخص (`groupedFromJson`).
+12. ~~نشر المحتوى (Add Offer/Service/Ad)~~ ✅ **تمّت (Phase 12 — 2026-07-22)** — الثلاث شاشات موصولة حقيقة بـ `POST /offers|/services|/ads`، category picker حقيقي عبر `GET /categories` (بدل enum وهمي)، ورفع صور حقيقي عبر `PromooImageUploadField`. تحقّق وير-كونتراكت لكل الثلاثة بإدخال/حذف صف تجريبي حي بالـ DB. التفاصيل قسم 3.11.
+13. ~~زر حفظ من الكروت + قوائم المتابِعين/المتابَعين~~ ✅ **تمّت (2026-07-22)** — التفاصيل بقسم 3.7/3.8 فوق.
+14. ~~حظر المستخدم (Block)~~ ✅ **تمّت (2026-07-22، ميزة جديدة بالكامل)** — كانت غير موجودة إطلاقاً (لا endpoint لا جدول لا UI). أُضيفت من الصفر: جدول `blocks` (migration 036) + `POST/DELETE /blocks/:id` + `GET /blocks/:id/status` + `GET /blocks` (قائمة)، وإنفاذ فعلي بالشات (`startOrOpenChat`/`sendMessage` بيرفضوا 403 لو أي طرف حاظر التاني). موبايل: زر حظر/إلغاء حظر بقائمة "⋮" برأس البروفايل العام (تأكيد قبل الحظر)، وشاشة إدارة "المستخدمون المحظورون" جديدة (`BlockedUsersScreen`). **مطلب Apple Guideline 1.2** (يكمّل `POST /reports` الموجود مسبقاً بالباك بس غير مربوط بالموبايل بعد). التفاصيل بقسم 3.14.
+15. ~~تعديل/حذف المحتوى + شاشة "منشوراتي"~~ ✅ **تمّت (2026-07-22)** — `PUT` + `DELETE` على offers/ads/services موصولة، وشاشة `MyListingsScreen` جديدة (تعرض الثلاثة بكل الحالات، تعديل يعيد استخدام شاشات الإضافة مع prefill، حذف بتأكيد). أُضيف بالباك `deleteAd` و`GET /services/profile/:id` (كانوا ناقصين). التفاصيل قسم 3.11.
+16. ~~حذف الحساب~~ ✅ **تمّت (2026-07-22)** — `DELETE /profiles/me` (كان الـ service موجود بلا route؛ أُضيف الـ route). صف أحمر بأسفل قائمة البروفايل + تأكيد → حذف + logout + رجوع للـ Login. مطلب متجر Apple/Google. التفاصيل قسم 3.15.
+17. ~~الإبلاغ عن المحتوى (`POST /reports`)~~ ✅ **تمّت (2026-07-22)** — كان موجود بالباك من زمان (`report.routes.ts`) بس غير مربوط بالموبايل؛ اتوصل أخيراً: شريحة `lib/features/reports/` + `showReportSheet` (أسباب + تفاصيل اختيارية) + `PromooReportMenuButton`. نقاط دخول: قائمة "⋮" بالبروفايل العام، تفاصيل العرض/الإعلان/الخدمة، عارض الستوري. يكمّل الحظر لتغطية Apple 1.2. التفاصيل قسم 3.15.
+18. **الوحيد المتبقي (بلا UI أصلاً، قرار متعمّد):** غلاف البروفايل (cover) — الريبو/الـ endpoint (`POST /profiles/me/cover`) جاهزين بالكود، بس ما في شاشة/زر لتحميله بعد.
 
 **الأرقام:**
 
 | المقياس                                               | القيمة                                 | ملاحظة                                                                                                                                                                                                                                                                                                                                                                  |
 | ----------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| إجمالي endpoints بالباك                               | **111**                                | 108 موثّقة + 3 admin content مكتشفة بالكود                                                                                                                                                                                                                                                                                                                              |
-| endpoints يحتاجها الموبايل بـ v1                      | **~50**                                | القراءة + المصادقة + follow/saved/upload/chat                                                                                                                                                                                                                                                                                                                           |
-| endpoints مؤجلة v2 (Stripe/Reports/Featured)          | **~19**                                | القسم 6 — Notifications REST + FCM صارت موصولة (Phase 10)، و`POST/DELETE /stories` صارت موصولة كمان (2026-07-21) فطلعوا من هالعدّاد                                                                                                                                                                                                                                     |
-| endpoints للداشبورد فقط                               | **23**                                 | كل `/admin/*`                                                                                                                                                                                                                                                                                                                                                           |
+| إجمالي endpoints بالباك                               | **~118**                               | 108 موثّقة + 3 admin content + 4 `blocks` + `deleteAd` + `GET /services/profile/:id` + `DELETE /profiles/me` (المضافة 2026-07-22). ملاحظة: فحص مباشر لكود admin طلّع **25** endpoint فعلي مو 23.                                                                                                                                                                          |
+| endpoints يحتاجها الموبايل بـ v1                      | **~60**                                | القراءة + المصادقة + follow/block/saved/upload/chat + نشر/تعديل/حذف المحتوى + reports + حذف الحساب                                                                                                                                                                                                                                                                        |
+| endpoints مؤجلة v2 (Stripe/Featured/OTP)              | **~17**                                | القسم 6 — Notifications + Stories + Reports طلعوا من العدّاد (صاروا موصولين)                                                                                                                                                                                                                                                                                             |
+| endpoints للداشبورد فقط                               | **25**                                 | كل `/admin/*` — 24 منها موصولة فعلياً بالداشبورد، الوحيد الناقص `GET /admin/users/:id`                                                                                                                                                                                                                                                                                  |
 | endpoints أخرى (Auth موسّع، Webhook، إدارة المالك)    | **~11**                                | phone/oauth/otp، webhook، PUT/DELETE للمالك                                                                                                                                                                                                                                                                                                                             |
-| **حالة الربط الحالية**                                | **✅ ~33 موصولة حياً + Chat Realtime** | ...السابقة + `GET/POST /chats` · `GET/POST /chats/:id/messages` · `PATCH /chats/:id/read` · اشتراك Supabase Realtime على `messages` · **`GET /notifications` · `PATCH /notifications/:id/read` · `PATCH /notifications/read-all` · `DELETE /notifications/:id` · `POST /notifications/token`** · **`POST /upload/image` + `POST /profiles/me/avatar`** · **`POST /stories` + `DELETE /stories/:id`**. الباقي (~17) لسا fake (أبرزه: نشر المحتوى، زر الحفظ من الكروت). |
-| نسبة التوافق المتوقعة (حقول ↔ حقول)                   | **~89%**                               | ثابتة للأقسام غير الموصولة بعد — الـ DTOs لم تُمَس منذ الفحص الأصلي                                                                                                                                                                                                                                                                                                     |
+| **حالة الربط الحالية (موبايل فقط)**                   | **✅ ~53 موصولة حياً + Chat Realtime** | ...السابقة + `GET/POST /chats` · `GET/POST /chats/:id/messages` · `PATCH /chats/:id/read` · Supabase Realtime · **notifications (5)** · **`POST /upload/image` + `POST /profiles/me/avatar`** · **`POST /stories` + `DELETE /stories/:id`** · **`POST/PUT/DELETE /offers|/services|/ads` + `GET /offers|/services|/ads/profile/:id`** · **`POST /saved` · `GET /follows/followers/:id`** · **`POST/DELETE /blocks/:id` · `GET /blocks(/:id/status)`** · **`POST /reports`** · **`DELETE /profiles/me`**. الباقي بموبايل v1 (cover فقط) لسا مو مربوط؛ الباقي إجمالاً كله admin/v2. |
+| نسبة التوافق المتوقعة (حقول ↔ حقول)                   | **~90%**                               | ثابتة للأقسام غير الموصولة بعد — الـ DTOs لم تُمَس منذ الفحص الأصلي                                                                                                                                                                                                                                                                                                     |
 | صفحات ناقصة بالموبايل                                 | **صفر**                                | كل المسارات تفتح شاشة حقيقية (القسم 7)                                                                                                                                                                                                                                                                                                                                  |
-| اختبارات تمرّ حالياً                                  | **193**                                | `flutter analyze` نظيف                                                                                                                                                                                                                                                                                                                                                  |
+| اختبارات تمرّ حالياً                                  | **198**                                | `flutter analyze` نظيف                                                                                                                                                                                                                                                                                                                                                  |
 
 ### 0.1 — ماذا تغيّر منذ النسخة الأصلية (2026-07-09 → 2026-07-13)؟
 
@@ -192,7 +199,8 @@
 | `POST /follows/:profileId`                     | POST   | ✅200   | 90%   | ✅ **موصول** — زر Follow صار طلب حقيقي (optimistic + revert عند الفشل). أُضيف للـ `ProfileDataSource/Repository` + `profile_controller.toggleFollow`.         |
 | `DELETE /follows/:profileId`                   | DELETE | ✅200   | 90%   | ✅ **موصول** — Unfollow.                                                                                                                                      |
 | `GET /follows/:profileId/status`               | GET    | ✅200   | 90%   | ✅ **موصول** — يُجلب عند فتح بروفايل شخص آخر (إذا مسجّل دخول) لتهيئة حالة الزر. تحقّق حي: بدون توكن رجّع 401 (auth-gated صح). البارس يقرأ `data.isFollowing`. |
-| `GET /follows/followers/:id` · `following/:id` | GET    | ✅200   | 85%   | ⏳ قوائم المتابعين/المتابَعين لسا ديمو محلي — تُربط لاحقاً (Following screen).                                                                                |
+| `GET /follows/following/:id`                   | GET    | ✅200   | 90%   | ✅ **موصول** — شاشة `FollowingScreen` (`followingControllerProvider`).                                                                                        |
+| `GET /follows/followers/:id`                   | GET    | ✅200   | 90%   | ✅ **موصول (2026-07-22)** — شاشة `FollowersScreen` جديدة (`followersControllerProvider`)، مضافة `ProfileRepository.getFollowers` + `fetchFollowers` بنفس `_parseFollowUsers` المشترك. رابط قائمة قسم Profile جنب Following.                                                                       |
 
 ### 3.8 — Saved Items — ✅ موصول (Phase 8، 2026-07-15)
 
@@ -200,7 +208,7 @@
 | ------------------- | ------ | ------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /saved`        | GET    | ✅200   | 90%   | ✅ **موصول** — **الفجوة القديمة (بلا تفاصيل) انحلّت بالباك Phase 0:** الباك صار يعمل hydrate ويرجّع `item` الكامل (offer/service/ad/profile) لكل صف — لا N+1. شريحة جديدة `lib/features/saved/` (DTO polymorphic + controller). تحقّق حي: بدون توكن 401 (auth-gated صح). زُرع صف saved للمالك للعرض. الضيف → حالة فاضية (بلا استدعاء). |
 | `DELETE /saved/:id` | DELETE | ✅200   | 90%   | ✅ **موصول** — إزالة من شاشة Saved (optimistic + revert). ياخد **saved-row id** مو item_id.                                                                                                                                                                                                                                            |
-| `POST /saved`       | POST   | ✅201   | 90%   | ⏳ زر الحفظ من كروت العروض/الخدمات لسا غير مربوط (يحتاج bookmark buttons عبر التطبيق) — لاحقاً.                                                                                                                                                                                                                                        |
+| `POST /saved`       | POST   | ✅201   | 90%   | ✅ **موصول (2026-07-22)** — زر bookmark جديد `PromooSaveButton` (يبني على `SavedController.toggle`، تفاؤلي + revert) في رأس تفاصيل العرض/الإعلان (`home_content_detail_screen.dart`) وتفاصيل الخدمة (`service_detail_screen.dart`). `SavedRepository.addSavedItem` جديدة.                                                        |
 
 ### 3.9 — Chat (ميزة v1) — ✅ موصول REST + Realtime (Phase 9 يوم 2026-07-15، Realtime يوم 2026-07-19)
 
@@ -226,15 +234,24 @@
 | `POST /notifications/token`     | POST   | ✅      | ✅ **موصول (2026-07-20)** — `firebase_messaging` مضافة والتوكن يُرسل للباك إند عند تسجيل الدخول لاستقبال الـ Push. |
 | ملاحظة                          | —      | —       | إشعارات الرسائل تحمل `data.room_id` حقيقي → الضغط عليها يفتح المحادثة الصحيحة (صلّح خطأ `chat-room-1` 400 الذي سببه القديم الـ fake data source). |
 
-### 3.11 — إنشاء المحتوى (Add Ad / Offer / Service)
+### 3.11 — إدارة المحتوى (نشر + تعديل + حذف + "منشوراتي") — ✅ موصولة (Phase 12 نشر 2026-07-22 · تعديل/حذف 2026-07-22)
 
-| Endpoint         | Method | Backend | Role                      | ملاحظة                                                                                                                          |
-| ---------------- | ------ | ------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /ads`      | POST   | ✅201   | company, influencer       | wizard 4 خطوات؛ الحقول تطابق `createAdSchema` (المطلوبة `ad_type/budget/target_url` تحتاج defaults). زر Create AD "next phase". |
-| `POST /offers`   | POST   | ✅201   | company, service_provider | شاشة `AddOfferScreen` موجودة (role-gated). "next phase".                                                                        |
-| `POST /services` | POST   | ✅201   | service_provider, company | شاشة `AddServiceScreen` موجودة (role-gated). "next phase".                                                                      |
+| Endpoint                    | Method | Backend | Role                      | ملاحظة                                                                                                                          |
+| --------------------------- | ------ | ------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /ads`                 | POST   | ✅201   | company, influencer       | ✅ **موصول** — `AdsRepository.createAd`. wizard 4 خطوات، صورة واحدة (`media_url`). `ad_type` default `banner`، `budget` default للسعر أو `1`. |
+| `POST /offers`              | POST   | ✅201   | company, service_provider | ✅ **موصول** — `OffersRepository.createOffer` + category picker حقيقي + `PromooImageUploadField`.                              |
+| `POST /services`            | POST   | ✅201   | service_provider, company | ✅ **موصول** — `ServicesRepository.createService`.                                                                            |
+| `PUT /offers/:id`           | PUT    | ✅200   | المالك                    | ✅ **موصول (2026-07-22)** — `AddOfferScreen(editing:)` يعبّي الحقول ويرسل `updateOffer`. نفس الشاشة، بلا نموذج تعديل منفصل.       |
+| `PUT /services/:id`         | PUT    | ✅200   | المالك                    | ✅ **موصول (2026-07-22)** — `AddServiceScreen(editing:)`.                                                                      |
+| `PUT /ads/:id`              | PUT    | ✅200   | المالك                    | ✅ **موصول (2026-07-22)** — `AddAdWizardScreen(editing:)` يعبّي الخطوات الأربع.                                                 |
+| `DELETE /offers/:id`        | DELETE | ✅200   | المالك                    | ✅ **موصول (2026-07-22)** — من شاشة "منشوراتي" (تفاؤلي + revert).                                                              |
+| `DELETE /services/:id`      | DELETE | ✅200   | المالك                    | ✅ **موصول (2026-07-22)**.                                                                                                    |
+| `DELETE /ads/:id`           | DELETE | ✅200   | المالك                    | ✅ **موصول (2026-07-22)** — **الـ endpoint نفسه كان ناقص بالباك؛ أُضيف** (`ad.service.deleteAd` + route).                       |
+| `GET /offers/profile/:id`   | GET    | ✅200   | —                         | ✅ **موصول (2026-07-22)** — يغذّي "منشوراتي" (كل الحالات للمالك). `OfferListing`/`offer_listing_dto.dart`.                       |
+| `GET /ads/profile/:id`      | GET    | ✅200   | المالك فقط                | ✅ **موصول (2026-07-22)** — `AdListing`/`ad_listing_dto.dart`.                                                                  |
+| `GET /services/profile/:id` | GET    | ✅200   | —                         | ✅ **موصول (2026-07-22)** — **الـ endpoint نفسه كان ناقص بالباك؛ أُضيف** (`service.service.getServicesByProfileId` + route). يعيد استخدام `PromooServiceDto` (+ حقل `status` جديد). |
 
-> الشاشات الثلاث تتشارك chrome عبر `add_form_widgets.dart` (عرض فقط — لا أثر على الحقول)، وتُظهرها `accountCapabilitiesProvider` حسب `account_type`. راجع القسم 5.
+> **شاشة "منشوراتي" (`MyListingsScreen`/`MyListingsController`)** جديدة تحت قائمة البروفايل (تظهر لمن يقدر ينشر — `canCreateAnything`): تجيب الثلاثة بالتوازي، تعرضهم بأقسام مع حالة كل عنصر، التعديل يفتح شاشة الإضافة المناسبة مع `editing:` (prefill + PUT)، والحذف بتأكيد. الشاشات الثلاث تتشارك chrome عبر `add_form_widgets.dart` وتُظهرها `accountCapabilitiesProvider` حسب `account_type`. التفاصيل الكاملة بـ [MEMORY_BANK.md](MEMORY_BANK.md) §5.
 
 > **2026-07-21 — تصحيحات حية بعد اختبار FCM حقيقي على جهاز:** أيقونة إشعار حقيقية (`ic_stat_promoo.xml`، بدل صورة blob)؛ الضغط عالإشعار صار يفتح الوجهة الصحيحة فعلياً (`_handleMessageTap` كان `print()` بس)؛ `chatRoomControllerProvider`/`serviceDetailControllerProvider`/`homeContentDetailControllerProvider` صاروا `.autoDispose` (كانوا بيضلوا محفوظين بالذاكرة للأبد فما بيرجعوا يجيبوا بيانات جديدة)؛ وصلّح bug عميق بـ `_disposed` كان بيوقف تحديث Home/Services نهائياً بعد أول تبديل لغة. التفاصيل الكاملة بـ [MEMORY_BANK.md](MEMORY_BANK.md).
 
@@ -244,8 +261,8 @@
 (entity `UploadedMedia` + enums `UploadBucket`/`UploadRelatedTo` توثّق التنظيم المعتمد،
 `UploadRepository.uploadImage` يبني `FormData` multipart بحقل `file`). النمط **خطوتين** (طبق
 الأصل عن `ImageUpload` بالداشبورد): اختيار محلي → `POST /upload/image` يرجّع `file_url` →
-حفظ الرابط على الكيان عبر endpoint مستقل. **أول مستهلك حي: avatar** (شوف صف البروفايل فوق).
-المتبقي: cover + صور الإعلان/العرض/الخدمة (تُوصَل مع مرحلة النشر Phase 12).
+حفظ الرابط على الكيان عبر endpoint مستقل. **مستهلكوه حياً الآن: avatar (Phase 11)، وصور الإعلان/العرض/الخدمة عبر `PromooImageUploadField` (Phase 12، 2026-07-22)** — شوف صف البروفايل فوق وقسم 3.11.
+المتبقي: cover فقط (ما في UI بعد).
 
 | Endpoint                            | Method | Backend           | ملاحظة                                                                 |
 | ----------------------------------- | ------ | ----------------- | ---------------------------------------------------------------------- |
@@ -263,6 +280,34 @@
 | Endpoint                 | Method | Backend | توافق | ملاحظة                                                                                                                                                                                                                                                                                                                     |
 | ------------------------ | ------ | ------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /search?q=&type=&…` | GET    | ✅200   | 92%   | ✅ **موصول** (`search_remote_data_source.dart`، نفس نمط الباقي). يرجّع `{profiles[],offers[],ads[],services[]}` مجمّعة. `type` + `meta` (pagination) مدعومان. **لم يُختبر حياً بعد** (الشاشة ما بتطلق طلب إلا بعد كتابة نص — التفاعل الحي تعثّر بمشكلة تقنية بأداة المتصفح، مو بمشكلة كود؛ يُتحقّق أول ما يُستخدم فعلياً). |
+
+### 3.14 — حظر المستخدم (Block) — ✅ ميزة جديدة بالكامل، موصولة (2026-07-22)
+
+**ما كان موجود إطلاقاً قبل اليوم:** لا جدول `blocks`، لا endpoint، لا UI. هاي فجوة حقيقية اكتُشفت بمراجعة (كنت افترضت غلطاً إنها موجودة — تصحيح). بُنيت من الصفر بنفس نمط `follows` (migration `003_create_follows.sql` كان القالب):
+
+| Endpoint                       | Method | Backend | ملاحظة                                                                                                                                                                                              |
+| ------------------------------- | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /blocks/:profileId`       | POST   | ✅201   | ✅ **جديد + موصول** — جدول `blocks` (migration `036_create_blocks.sql`، RLS خاص: فقط الحاظر يشوف صفوفه — عكس `follows` العام). زر "حظر" بقائمة "⋮" برأس البروفايل العام + `AlertDialog` تأكيد.        |
+| `DELETE /blocks/:profileId`     | DELETE | ✅200   | ✅ **جديد + موصول** — إلغاء الحظر، من نفس القائمة أو من شاشة "المستخدمون المحظورون" الجديدة (`BlockedUsersScreen`).                                                                                    |
+| `GET /blocks/:profileId/status` | GET    | ✅200   | ✅ **جديد + موصول** — يُجلب مع `GET /follows/:id/status` عند فتح بروفايل الغير (`ProfileController._load`، حقل `isBlocked` جديد بـ `ProfileState`).                                                    |
+| `GET /blocks`                   | GET    | ✅200   | ✅ **جديد + موصول** — شاشة إدارة جديدة تحت قائمة البروفايل (جنب Followers)، تعرض المحظورين مع زر إلغاء حظر لكل صف (`BlockedUsersController`، نفس نمط `FollowingController`).                          |
+
+**إنفاذ فعلي بالشات (الأهم):** `chat.service.ts` — `startOrOpenChat` و`sendMessage` صاروا يتحققوا `blockService.isBlockedEitherWay(...)` ويرجّعوا `403 Forbidden` لو أي طرف حاظر التاني (يغطي الحالتين: فتح محادثة جديدة، وإرسال برسالة بمحادثة قديمة انحظر فيها أحد الطرفين لاحقاً).
+
+**السبب:** شرط Apple Guideline 1.2 (لأي تطبيق فيه محتوى/تواصل بين المستخدمين) يتطلب **تبليغ + حظر** معاً — `POST /reports` كان موجود بالباك من زمان بس غير مربوط بالموبايل، والحظر ما كان موجود إطلاقاً لا بالباك ولا بالموبايل. الحظر أُنجز؛ **تبليغ المحتوى (`POST /reports`) لسا غير مربوط بالموبايل** — بند منفصل.
+
+**نطاق مقصود (لسا):** ما في زر حظر مباشر داخل شاشة الشات نفسها (الشاشة ما بتعرف هوية الطرف التاني بثبات لمحادثة مفتوحة بـ `roomId` بس بدون رسائل) — الحظر متاح فقط من صفحة البروفايل العام حالياً. لا فلترة تلقائية للمحظورين من الهوم/السيرش/نتائج البحث (نطاق أكبر، مؤجل لو يحتاج). لا اختبار آلي (test) مخصص لميزة الحظر بعد.
+
+### 3.15 — الإبلاغ + حذف الحساب — ✅ موصولة (2026-07-22)
+
+| Endpoint             | Method | Backend | ملاحظة                                                                                                                                                                                                                                            |
+| -------------------- | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /reports`      | POST   | ✅201   | ✅ **موصول (2026-07-22)** — كان موجود بالباك من زمان (`report.routes.ts`، `createReportSchema`: `reported_id`/`reported_type`/`reason`/`details?`) بس غير مربوط بالموبايل. صار مربوط: شريحة `lib/features/reports/` + `showReportSheet` (chips للأسباب + تفاصيل اختيارية) + `PromooReportMenuButton`. نقاط دخول: قائمة "⋮" بالبروفايل العام (`ReportedType.profile`)، تفاصيل العرض/الإعلان (offer/ad)، تفاصيل الخدمة (service)، عارض الستوري (story). قيمة `reason` تبقى إنكليزية ثابتة (الداشبورد يقرأها موحّدة) بينما الـ label معرّب. |
+| `DELETE /profiles/me` | DELETE | ✅200   | ✅ **موصول (2026-07-22)** — الـ service (`profileService.deleteAccount` → `supabaseAdmin.auth.admin.deleteUser`، الـ profile يتحذف cascade) كان موجود بلا route؛ **أُضيف الـ route**. موبايل: صف أحمر أسفل قائمة البروفايل + `AlertDialog` تأكيد → عند النجاح `logout()` محلي + `context.go(login)`. مطلب متجر Apple/Google لأي تطبيق فيه تسجيل حساب. |
+
+**السبب:** بهيك اكتمل مطلب Apple Guideline 1.2 (**تبليغ + حظر** معاً — الحظر بقسم 3.14، التبليغ هون) ومطلب حذف الحساب الإجباري بالمتجرين.
+
+**نطاق مقصود (لسا):** ما في تبليغ على رسالة مفردة داخل الشات (الـ `ReportedType.message` معرّف بالـ enum بس بلا نقطة دخول UI — الشات ما بيمرّر message id للإبلاغ بعد). لا اختبارات آلية مخصصة للإبلاغ/حذف الحساب بعد.
 
 ---
 
@@ -282,14 +327,17 @@
 | ✅ Services + Detail     | 3         | **88%**  | **موصول (Phase 5)** — تحقّق حي؛ لا `location` للخدمة                                      |
 | ✅ Leaderboard           | 1         | **98%**  | **موصول (Phase 5) + مُتحقَّق حياً** — بيانات حقيقية                                       |
 | ✅ Seats (قراءة)         | 2         | **90%**  | **موصول (Phase 6)** — `GET /seats`+`/seats/me` حي، 144 مقعد حقيقي؛ الحجز (Stripe) مؤجل v2 |
-| Profile (عام)            | 2         | **88%**  | ❌ لسا fake — `GET /profiles/:id` غير موصول                                               |
+| ✅ Profile (عام)         | 2         | **88%**  | **موصول (Phase 3/7)** — `GET /profiles/:id` حي                                            |
 | ✅ Profile (أنا + تعديل) | 3         | **90%**  | **موصول (Phase 3)** — يتبقّى الأفاتار (Upload) والفئة فقط                                 |
-| Follow/Unfollow          | 5         | **88%**  | toggle محلي بدل الطلب الحقيقي                                                             |
-| Saved                    | 3         | **75%**  | الباك يرجّع id فقط بلا تفاصيل                                                             |
+| ✅ Follow/Unfollow       | 5         | **90%**  | **موصول بالكامل (Phase 7 + قائمة Followers 2026-07-22)**                                   |
+| ✅ Block (جديدة)         | 4         | **90%**  | **بُنيت ووُصلت من الصفر (2026-07-22)** — تنفيذ حقيقي على الشات، شوف قسم 3.14               |
+| ✅ Saved                 | 3         | **90%**  | **موصول بالكامل (Phase 8 + زر الحفظ 2026-07-22)** — الباك يرجّع `item` الكامل hydrate       |
 | ✅ Chat                  | 6         | **88%**  | **موصول REST + Realtime (2026-07-19)**                                                    |
-| Upload                   | 4         | **80%**  | حقول الرفع "next phase"                                                                   |
-| Add Ad/Offer/Service     | 3         | **85%**  | defaults لـ ad_type/budget؛ التوصيل الفعلي                                                |
-| **الإجمالي المرجّح**     | **~50**   | **≈89%** |                                                                                           |
+| ✅ Upload                | 4         | **85%**  | **موصول (avatar + Add Offer/Service/Ad، Phase 11+12)** — video/file لسا مؤجّلين           |
+| ✅ إدارة المحتوى (نشر/تعديل/حذف/منشوراتي) | 12 | **90%**  | **موصول بالكامل (Phase 12 نشر + 2026-07-22 تعديل/حذف/منشوراتي)** — `POST/PUT/DELETE` + `GET /*/profile/:id`؛ defaults لـ ad_type/budget |
+| ✅ Reports (جديدة)       | 1         | **90%**  | **موصول (2026-07-22)** — `POST /reports` من 4 نقاط دخول، شوف قسم 3.15                       |
+| ✅ Delete Account (جديدة)| 1         | **90%**  | **موصول (2026-07-22)** — `DELETE /profiles/me`، شوف قسم 3.15                                |
+| **الإجمالي المرجّح**     | **~62**   | **≈90%** |                                                                                           |
 
 ---
 
@@ -299,7 +347,7 @@
 
 التعارض الأصلي (صف واحد "Add New Offer" يفتح wizard الإعلان → أسماء/صلاحيات متضاربة → 403 محتمل) **حُلّ**: صار في 3 شاشات منفصلة (`add_offer_screen.dart` · `add_service_screen.dart` · Ad wizard)، و`accountCapabilitiesProvider` ([account_capabilities.dart](../lib/features/profile/presentation/controllers/account_capabilities.dart)) يقرأ `account_type` ويُظهر الإنشاءات المسموحة فقط (Offer=company/service_provider · Ad=company/influencer · Service=company/service_provider · guest/user=لا شيء).
 
-**يتبقّى للربط:** يعتمد على `account_type` الحقيقي من الجلسة بعد ربط الـ auth (register يحدّده)؛ وتوصيل أزرار الـ "next phase" الثلاثة بـ `POST /ads|/offers|/services` (تعتمد على Upload + Auth).
+**الحالة (2026-07-22):** ✅ الثلاثة موصولة بـ `POST /ads|/offers|/services` (Phase 12) و`account_type` الحقيقي من الجلسة (register يحدّده) هو ما يقرأه `accountCapabilitiesProvider`. لا شيء متبقٍ هنا.
 
 </div>
 

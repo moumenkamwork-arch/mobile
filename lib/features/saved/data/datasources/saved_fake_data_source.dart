@@ -34,6 +34,16 @@ class SavedFakeDataSource implements SavedDataSource {
   }
 
   @override
+  Future<String> addSaved({
+    required String itemId,
+    required String itemType,
+  }) async {
+    final id = 'saved-${_rows.length + 1}';
+    _rows.add({'id': id, 'item_id': itemId, 'item_type': itemType, 'item': null});
+    return id;
+  }
+
+  @override
   Future<void> removeSaved(String savedId) async {
     _rows.removeWhere((row) => row['id'] == savedId);
   }

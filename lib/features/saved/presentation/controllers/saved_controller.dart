@@ -58,6 +58,73 @@ class SavedController extends Notifier<SavedState> {
 
   Future<void> retry() => load();
 
+  bool isSaved(String itemId) {
+    if (state.status != SavedStatus.success) return false;
+    return state.items.any((item) => item.itemId == itemId);
+  }
+
+  /// Bookmark toggle used by content/detail screens (not the Saved list
+  /// itself). Optimistic on both directions; reverts on failure.
+  Future<void> toggle({
+    required String itemId,
+    required String itemType,
+    required String title,
+    String? subtitle,
+    String? imageUrl,
+  }) async {
+    if (ref.read(authControllerProvider).session == null) {
+      return;
+    }
+
+    // Ensure the list is loaded so membership checks below are accurate —
+    // a detail screen may be the first thing the user opens this session.
+    if (state.status == SavedStatus.loading) {
+      await load();
+    }
+
+    final existing = state.items.where((item) => item.itemId == itemId);
+    if (existing.isNotEmpty) {
+      await remove(existing.first.id);
+      return;
+    }
+
+    final current = state;
+    final placeholder = SavedItem(
+      id: '_pending_$itemId',
+      itemId: itemId,
+      itemType: itemType,
+      title: title,
+      subtitle: subtitle,
+      imageUrl: imageUrl,
+    );
+    state = SavedState.success([...current.items, placeholder]);
+
+    final result = await ref
+        .read(savedRepositoryProvider)
+        .addSavedItem(itemId: itemId, itemType: itemType);
+    if (_disposed) return;
+
+    result.when(
+      success: (savedId) {
+        state = SavedState.success([
+          for (final item in state.items)
+            if (item.id == placeholder.id)
+              SavedItem(
+                id: savedId,
+                itemId: item.itemId,
+                itemType: item.itemType,
+                title: item.title,
+                subtitle: item.subtitle,
+                imageUrl: item.imageUrl,
+              )
+            else
+              item,
+        ]);
+      },
+      failure: (_) => state = current,
+    );
+  }
+
   /// Optimistically drops the item, then calls `DELETE /saved/:id`. Reverts on
   /// failure.
   Future<void> remove(String savedId) async {

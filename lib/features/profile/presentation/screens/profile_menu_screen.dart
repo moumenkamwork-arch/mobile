@@ -12,6 +12,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 import '../../../../theme/theme_mode_controller.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../data/repositories/profile_repository_impl.dart';
 import '../controllers/account_capabilities.dart';
 import '../controllers/profile_controller.dart';
 
@@ -118,6 +119,16 @@ class ProfileMenuScreen extends ConsumerWidget {
                   onTap: () => _confirmLogout(context, ref),
                 ),
               ),
+              const SizedBox(height: AppSpacing.sm),
+              PromooCard(
+                padding: EdgeInsets.zero,
+                child: _MenuRow(
+                  icon: Icons.delete_forever_rounded,
+                  label: l10n.settingsDeleteAccount,
+                  labelColor: Colors.redAccent,
+                  onTap: () => _confirmDeleteAccount(context, ref),
+                ),
+              ),
               const SizedBox(height: AppSpacing.lg),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -169,6 +180,57 @@ class ProfileMenuScreen extends ConsumerWidget {
             ),
           ],
         );
+      },
+    );
+  }
+
+  Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: context.colors.cardSurface,
+          title: Text(l10n.deleteAccountConfirmTitle),
+          content: Text(l10n.deleteAccountConfirmMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.actionCancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(
+                l10n.deleteAccountConfirmButton,
+                style: const TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    final result = await ref.read(profileRepositoryProvider).deleteAccount();
+    if (!context.mounted) {
+      return;
+    }
+
+    result.when(
+      success: (_) {
+        // The account (and its token) is already gone server-side; this only
+        // needs to clear the local session, same fire-and-forget pattern the
+        // Logout button already uses — its own network call clears the
+        // session store even when it 401s against an already-deleted user.
+        ref.read(authControllerProvider.notifier).logout();
+        context.go(AppRoutes.login);
+      },
+      failure: (_) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.deleteAccountFailed)));
       },
     );
   }
@@ -252,6 +314,12 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
         label: l10n.menuAddService,
         onTap: () => context.push(AppRoutes.profileAddService),
       ),
+    if (caps.canCreateAnything)
+      _MenuRow(
+        icon: Icons.dashboard_customize_outlined,
+        label: l10n.menuMyListings,
+        onTap: () => context.push(AppRoutes.profileMyListings),
+      ),
     _MenuRow(
       icon: Icons.bookmark_rounded,
       label: l10n.menuSaved,
@@ -267,6 +335,16 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
       icon: Icons.star_rounded,
       label: l10n.menuFollowing,
       onTap: () => context.push(AppRoutes.profileFollowing),
+    ),
+    _MenuRow(
+      icon: Icons.groups_rounded,
+      label: l10n.menuFollowers,
+      onTap: () => context.push(AppRoutes.profileFollowers),
+    ),
+    _MenuRow(
+      icon: Icons.block_rounded,
+      label: l10n.menuBlockedUsers,
+      onTap: () => context.push(AppRoutes.profileBlockedUsers),
     ),
     _MenuRow(
       icon: Icons.support_agent_rounded,
@@ -290,11 +368,13 @@ class _MenuRow extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.labelColor,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -303,8 +383,13 @@ class _MenuRow extends StatelessWidget {
         horizontal: AppSpacing.md,
         vertical: AppSpacing.xxs,
       ),
-      leading: Icon(icon, color: context.colors.accent, size: 26),
-      title: Text(label, style: Theme.of(context).textTheme.titleMedium),
+      leading: Icon(icon, color: labelColor ?? context.colors.accent, size: 26),
+      title: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(color: labelColor),
+      ),
       trailing: Icon(
         Icons.chevron_right_rounded,
         color: context.colors.textMuted,

@@ -118,8 +118,60 @@ class ProfileRemoteDataSource implements ProfileDataSource {
     return response.data ?? const [];
   }
 
+  @override
+  Future<List<FollowUser>> fetchFollowers(String profileId) async {
+    final response = await _apiClient.get<List<FollowUser>>(
+      ApiEndpoints.followersList(profileId),
+      decode: _parseFollowUsers,
+    );
+    return response.data ?? const [];
+  }
+
+  @override
+  Future<bool> fetchBlockStatus(String profileId) async {
+    final response = await _apiClient.get<bool>(
+      ApiEndpoints.blockStatus(profileId),
+      decode: (data) {
+        final map = data is Map ? Map<String, Object?>.from(data) : null;
+        return map?['isBlocked'] == true || map?['is_blocked'] == true;
+      },
+    );
+    return response.data ?? false;
+  }
+
+  @override
+  Future<void> blockProfile(String profileId) async {
+    await _apiClient.post<void>(
+      ApiEndpoints.block(profileId),
+      decode: (_) {},
+    );
+  }
+
+  @override
+  Future<void> unblockProfile(String profileId) async {
+    await _apiClient.delete<void>(
+      ApiEndpoints.block(profileId),
+      decode: (_) {},
+    );
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await _apiClient.delete<void>(ApiEndpoints.myProfile, decode: (_) {});
+  }
+
+  @override
+  Future<List<FollowUser>> fetchBlockedUsers() async {
+    final response = await _apiClient.get<List<FollowUser>>(
+      ApiEndpoints.blocks,
+      decode: _parseFollowUsers,
+    );
+    return response.data ?? const [];
+  }
+
   /// Each `GET /follows/following/:id` row is `{created_at, following:{...}}`
-  /// (followers use `follower`) — pull the nested profile defensively.
+  /// (followers use `follower`, `GET /blocks` uses `blocked`) — pull the
+  /// nested profile defensively.
   static List<FollowUser> _parseFollowUsers(Object? data) {
     final list = data is List
         ? data
@@ -131,7 +183,12 @@ class ProfileRemoteDataSource implements ProfileDataSource {
       final map = row is Map ? Map<String, Object?>.from(row) : null;
       if (map == null) continue;
       final nested =
-          map['following'] ?? map['follower'] ?? map['profile'] ?? map['user'] ?? map;
+          map['following'] ??
+          map['follower'] ??
+          map['blocked'] ??
+          map['profile'] ??
+          map['user'] ??
+          map;
       final profile = nested is Map ? Map<String, Object?>.from(nested) : null;
       final id = profile?['id'];
       if (profile == null || id is! String || id.isEmpty) continue;

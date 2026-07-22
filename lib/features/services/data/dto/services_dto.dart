@@ -94,6 +94,7 @@ class PromooServiceDto {
     this.location,
     this.deliveryDays,
     this.tags = const [],
+    this.status,
   });
 
   final String? id;
@@ -107,6 +108,7 @@ class PromooServiceDto {
   final String? location;
   final int? deliveryDays;
   final List<String> tags;
+  final String? status;
 
   factory PromooServiceDto.fromJson(Map<String, Object?> json) {
     final category = _mapFrom(json['category']);
@@ -166,6 +168,7 @@ class PromooServiceDto {
               : _readString(profile, const ['location', 'city', 'address'])),
       deliveryDays: _readInt(json, const ['delivery_days', 'deliveryDays']),
       tags: _readStringList(json, const ['tags']),
+      status: _readString(json, const ['status']),
     );
   }
 
@@ -189,6 +192,7 @@ class PromooServiceDto {
       location: location,
       deliveryDays: deliveryDays,
       tags: tags,
+      status: status,
     );
   }
 }

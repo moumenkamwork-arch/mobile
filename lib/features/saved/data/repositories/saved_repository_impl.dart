@@ -31,6 +31,21 @@ class SavedRepositoryImpl implements SavedRepository {
   }
 
   @override
+  Future<Result<String>> addSavedItem({
+    required String itemId,
+    required String itemType,
+  }) async {
+    try {
+      final id = await dataSource.addSaved(itemId: itemId, itemType: itemType);
+      return Result.success(id);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
   Future<Result<void>> removeSavedItem(String savedId) async {
     try {
       await dataSource.removeSaved(savedId);

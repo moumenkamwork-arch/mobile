@@ -431,6 +431,18 @@ class ProfileFakeDataSource implements ProfileDataSource {
   }
 
   @override
+  Future<List<FollowUser>> fetchFollowers(String profileId) async {
+    return const [
+      FollowUser(
+        id: 'profile-demo-follower',
+        name: 'Demo Follower',
+        username: 'demo.follower',
+        accountType: 'user',
+      ),
+    ];
+  }
+
+  @override
   Future<bool> fetchFollowStatus(String profileId) async =>
       _following.contains(profileId);
 
@@ -442,5 +454,32 @@ class ProfileFakeDataSource implements ProfileDataSource {
   @override
   Future<void> unfollowProfile(String profileId) async {
     _following.remove(profileId);
+  }
+
+  final Set<String> _blocked = {};
+
+  @override
+  Future<bool> fetchBlockStatus(String profileId) async =>
+      _blocked.contains(profileId);
+
+  @override
+  Future<void> blockProfile(String profileId) async {
+    _blocked.add(profileId);
+  }
+
+  @override
+  Future<void> unblockProfile(String profileId) async {
+    _blocked.remove(profileId);
+  }
+
+  @override
+  Future<void> deleteAccount() async {}
+
+  @override
+  Future<List<FollowUser>> fetchBlockedUsers() async {
+    return [
+      for (final id in _blocked)
+        FollowUser(id: id, name: 'Blocked user', accountType: 'user'),
+    ];
   }
 }

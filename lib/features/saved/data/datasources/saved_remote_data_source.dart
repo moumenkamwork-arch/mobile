@@ -24,6 +24,22 @@ class SavedRemoteDataSource implements SavedDataSource {
   }
 
   @override
+  Future<String> addSaved({
+    required String itemId,
+    required String itemType,
+  }) async {
+    final response = await _apiClient.post<String>(
+      ApiEndpoints.saved,
+      data: {'item_id': itemId, 'item_type': itemType},
+      decode: (data) {
+        final map = data is Map ? Map<String, Object?>.from(data) : const {};
+        return (map['id'] as String?) ?? '';
+      },
+    );
+    return response.data ?? '';
+  }
+
+  @override
   Future<void> removeSaved(String savedId) async {
     await _apiClient.delete<void>(
       ApiEndpoints.savedById(savedId),

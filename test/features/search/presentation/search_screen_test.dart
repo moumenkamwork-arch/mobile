@@ -425,6 +425,29 @@ class _ProfileRepository implements ProfileRepository {
   @override
   Future<Result<List<FollowUser>>> getFollowing(String profileId) async =>
       const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowers(String profileId) async =>
+      const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<bool>> getBlockStatus(String profileId) async =>
+      const Result.success(false);
+
+  @override
+  Future<Result<void>> blockProfile(String profileId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> unblockProfile(String profileId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<FollowUser>>> getBlockedUsers() async =>
+      const Result.success(<FollowUser>[]);
+
+  @override
+  Future<Result<void>> deleteAccount() async => const Result.success(null);
 }
 
 class _ServicesRepository implements ServicesRepository {
@@ -449,6 +472,22 @@ class _ServicesRepository implements ServicesRepository {
   Future<Result<PromooService>> getServiceById(String id) async {
     return detailResult;
   }
+
+  @override
+  Future<Result<String>> createService(ServiceDraft draft) async =>
+      const Result.success('test-service-id');
+
+  @override
+  Future<Result<void>> updateService(String id, ServiceDraft draft) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> deleteService(String id) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<PromooService>>> getMyServices(String profileId) async =>
+      const Result.success(<PromooService>[]);
 }
 
 class _HomeRepository implements HomeRepository {

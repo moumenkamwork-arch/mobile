@@ -134,6 +134,22 @@ class _ServicesRepository implements ServicesRepository {
   Future<Result<PromooService>> getServiceById(String id) async {
     return detailResult;
   }
+
+  @override
+  Future<Result<String>> createService(ServiceDraft draft) async =>
+      const Result.success('test-service-id');
+
+  @override
+  Future<Result<void>> updateService(String id, ServiceDraft draft) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> deleteService(String id) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<PromooService>>> getMyServices(String profileId) async =>
+      const Result.success(<PromooService>[]);
 }
 
 class _PendingServicesRepository implements ServicesRepository {
@@ -158,4 +174,20 @@ class _PendingServicesRepository implements ServicesRepository {
   Future<Result<PromooService>> getServiceById(String id) {
     return completer.future;
   }
+
+  @override
+  Future<Result<String>> createService(ServiceDraft draft) async =>
+      const Result.success('test-service-id');
+
+  @override
+  Future<Result<void>> updateService(String id, ServiceDraft draft) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> deleteService(String id) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<PromooService>>> getMyServices(String profileId) async =>
+      const Result.success(<PromooService>[]);
 }

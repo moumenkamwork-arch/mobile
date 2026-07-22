@@ -26,6 +26,7 @@ class ProfileState {
     this.packages = const [],
     this.failure,
     this.isFollowing = false,
+    this.isBlocked = false,
   });
 
   const ProfileState.loading() : this(status: ProfileStatus.loading);
@@ -34,11 +35,13 @@ class ProfileState {
     required PromooProfile profile,
     List<ProfilePackage> packages = const [],
     bool isFollowing = false,
+    bool isBlocked = false,
   }) : this(
          status: ProfileStatus.success,
          profile: profile,
          packages: packages,
          isFollowing: isFollowing,
+         isBlocked: isBlocked,
        );
 
   const ProfileState.empty({AppFailure? failure})
@@ -75,6 +78,10 @@ class ProfileState {
   /// `GET /follows/:id/status` and driven by `toggleFollow` (POST/DELETE
   /// `/follows/:id`). Always false for a guest or one's own profile.
   final bool isFollowing;
+
+  /// Whether the signed-in user has blocked this profile. Same lifecycle as
+  /// [isFollowing] but backed by `GET/POST/DELETE /blocks/:id`.
+  final bool isBlocked;
 
   bool get isRefreshing => status == ProfileStatus.refreshing;
 
@@ -113,6 +120,7 @@ class ProfileController extends Notifier<ProfileState> {
       profile: profile,
       packages: state.packages,
       isFollowing: state.isFollowing,
+      isBlocked: state.isBlocked,
     );
   }
 
@@ -130,6 +138,7 @@ class ProfileController extends Notifier<ProfileState> {
       profile: profile,
       packages: state.packages,
       isFollowing: !wasFollowing,
+      isBlocked: state.isBlocked,
     );
 
     final repository = ref.read(profileRepositoryProvider);
@@ -149,6 +158,47 @@ class ProfileController extends Notifier<ProfileState> {
             profile: state.profile!,
             packages: state.packages,
             isFollowing: wasFollowing,
+            isBlocked: state.isBlocked,
+          );
+        }
+      },
+    );
+  }
+
+  /// Optimistically toggles block, then calls the backend
+  /// (`POST`/`DELETE /blocks/:id`). Reverts if the request fails. No-op until
+  /// the profile has loaded.
+  Future<void> toggleBlock() async {
+    final profile = state.profile;
+    if (state.status != ProfileStatus.success || profile == null) {
+      return;
+    }
+
+    final wasBlocked = state.isBlocked;
+    state = ProfileState.success(
+      profile: profile,
+      packages: state.packages,
+      isFollowing: state.isFollowing,
+      isBlocked: !wasBlocked,
+    );
+
+    final repository = ref.read(profileRepositoryProvider);
+    final result = wasBlocked
+        ? await repository.unblockProfile(profile.id)
+        : await repository.blockProfile(profile.id);
+    if (_disposed) {
+      return;
+    }
+
+    result.when(
+      success: (_) {},
+      failure: (_) {
+        if (state.status == ProfileStatus.success && state.profile != null) {
+          state = ProfileState.success(
+            profile: state.profile!,
+            packages: state.packages,
+            isFollowing: state.isFollowing,
+            isBlocked: wasBlocked,
           );
         }
       },
@@ -199,6 +249,7 @@ class ProfileController extends Notifier<ProfileState> {
         // signed-in caller (the endpoint is auth-only). Guests / own profile
         // keep isFollowing = false.
         var isFollowing = false;
+        var isBlocked = false;
         if (!isOwner && isSignedIn) {
           final statusResult = await repository.getFollowStatus(profile.id);
           if (_disposed) {
@@ -208,12 +259,24 @@ class ProfileController extends Notifier<ProfileState> {
             success: (value) => value,
             failure: (_) => false,
           );
+
+          final blockStatusResult = await repository.getBlockStatus(
+            profile.id,
+          );
+          if (_disposed) {
+            return;
+          }
+          isBlocked = blockStatusResult.when(
+            success: (value) => value,
+            failure: (_) => false,
+          );
         }
 
         state = ProfileState.success(
           profile: profile,
           packages: packages,
           isFollowing: isFollowing,
+          isBlocked: isBlocked,
         );
       },
       failure: (failure) async {

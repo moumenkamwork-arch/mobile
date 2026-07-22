@@ -14,6 +14,9 @@ import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_metric.dart';
+import '../../../reports/domain/entities/report_draft.dart';
+import '../../../reports/presentation/report_menu_button.dart';
+import '../../../../shared/widgets/promoo_save_button.dart';
 import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
@@ -123,6 +126,24 @@ class _ServiceDetailContent extends StatelessWidget {
               PromooDetailHeader(
                 title: AppLocalizations.of(context).serviceDetailScreenTitle,
                 onBack: onBack,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PromooSaveButton(
+                      itemId: service.id,
+                      itemType: 'service',
+                      title: service.title,
+                      subtitle: service.category?.name,
+                      imageUrl: service.imageUrls.isEmpty
+                          ? null
+                          : service.imageUrls.first,
+                    ),
+                    PromooReportMenuButton(
+                      reportedId: service.id,
+                      reportedType: ReportedType.service,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               _HeroCard(service: service),

@@ -21,6 +21,9 @@ class RouteNames {
   static const profileSaved = 'profileSaved';
   static const profilePackages = 'profilePackages';
   static const profileFollowing = 'profileFollowing';
+  static const profileFollowers = 'profileFollowers';
+  static const profileBlockedUsers = 'profileBlockedUsers';
+  static const profileMyListings = 'profileMyListings';
   static const profileSupport = 'profileSupport';
   static const profileInfo = 'profileInfo';
   static const search = 'search';
@@ -53,6 +56,9 @@ class AppRoutes {
   static const profileSaved = '/profile/saved';
   static const profilePackages = '/profile/packages';
   static const profileFollowing = '/profile/following';
+  static const profileFollowers = '/profile/followers';
+  static const profileBlockedUsers = '/profile/blocked';
+  static const profileMyListings = '/profile/my-listings';
   static const profileSupport = '/profile/support';
   static const profileInfoPath = '/profile/info/:topic';
   static const profileDetail = '/profiles/:id';

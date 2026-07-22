@@ -11,10 +11,14 @@ class PromooDetailHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.onBack,
+    this.trailing,
   });
 
   final String title;
   final VoidCallback onBack;
+
+  /// Optional action (e.g. save/bookmark toggle) rendered at the row's end.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +38,7 @@ class PromooDetailHeader extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
+        ?trailing,
       ],
     );
   }

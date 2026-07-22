@@ -4,7 +4,20 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-21 (**Story viewer polish + warm-launch fix**:
+> Last updated: 2026-07-22 (**"Finish everything" pass — last four v1 gaps
+> closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an
+> `editing:` arg and submit `PUT /…/:id`; new **My Listings** screen lists own
+> offers/services/ads (all statuses) with edit + delete; backend gained the
+> missing `deleteAd` and `GET /services/profile/:id`. (2) **Delete Account**
+> (`DELETE /profiles/me`, App Store requirement). (3) **Reports**
+> (`POST /reports`) finally wired mobile-side — `showReportSheet` +
+> `PromooReportMenuButton` from profile "⋮", offer/ad + service detail, and
+> story viewer; completes Apple 1.2 with block. Earlier the same day: block
+> feature from scratch (`blocks` table + `POST/DELETE /blocks/:id` +
+> chat-enforcement + Blocked Users screen), Phase 12 content publish, the
+> save-from-detail button, and the Followers screen. Only `cover` (no UI) is
+> intentionally left unwired. See §5 top entries.) Before that:
+> 2026-07-21 (**Story viewer polish + warm-launch fix**:
 > hold-to-pause, delete-own-story, tap-next-on-last-item now exits instead
 > of freezing, and splash skips Login's "Signed in" panel straight to Home
 > when already authenticated. See §5 top entry.) Before that: 2026-07-21
@@ -134,6 +147,158 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-22 — "Finish everything" pass: content edit/delete + My Listings,
+  Delete Account, and Reports wiring (the last four v1 gaps after block).**
+  **Content management:** the three Add screens (`add_offer_screen.dart`,
+  `add_service_screen.dart`, `add_ad_wizard_screen.dart`) each gained an
+  `editing:` constructor arg — when set, `initState` pre-fills the controllers
+  and the submit path calls `updateOffer/updateService/updateAd` (`PUT
+  /…/:id`) instead of create, so there's no separate edit form to maintain.
+  New `lib/features/my_listings/` slice: `MyListingsController` loads the
+  signed-in user's own offers/services/ads concurrently from `GET
+  /offers|/services|/ads/profile/:myId` (all statuses, owner-only), and
+  `MyListingsScreen` renders them in sections with edit (pushes the pre-filled
+  Add screen via `MaterialPageRoute`) and delete (confirm + optimistic
+  `DELETE`). New domain entities `OfferListing`/`AdListing` + their DTOs; the
+  existing `PromooService`/DTO gained a `status` field. Menu entry gated by
+  `canCreateAnything`. **Backend gaps found and filled:** `ad.service.deleteAd`
+  + `DELETE /ads/:id` route (offers/services already had delete; ad didn't),
+  and `service.service.getServicesByProfileId` + `GET /services/profile/:id`
+  route (offers/ads already had `/profile/:id`). New mobile endpoint helpers:
+  `adById`, `offersByProfile`, `adsByProfile`, `servicesByProfile`.
+  **Delete Account:** `DELETE /profiles/me` route added (the
+  `profileService.deleteAccount` service — `supabaseAdmin.auth.admin.deleteUser`,
+  profile cascades — already existed but had no route);
+  `ProfileRepository.deleteAccount` + a red row at the bottom of the profile
+  menu with a confirm dialog → on success calls the existing `logout()` (its
+  own network call clears the local session even against an already-deleted
+  user) + `context.go(login)`. App Store guideline 5.1.1(v) / Play requirement.
+  **Reports:** `POST /reports` existed backend-side since forever
+  (`report.routes.ts`, `createReportSchema`) but was never called from mobile.
+  New `lib/features/reports/` slice: `ReportDraft`/`ReportedType` (enum mirrors
+  the backend's `reported_type`), repo + remote data source, a shared
+  `showReportSheet` (reason ChoiceChips with stable English wire values +
+  optional details) and a `PromooReportMenuButton`. Entry points: the
+  public-profile "⋮" menu (now a two-action `PopupMenuButton` — block + report,
+  `ReportedType.profile`), the offer/ad detail header (`ReportedType.offer|ad`,
+  as a Row next to the save button), the service detail header
+  (`ReportedType.service`), and the story viewer (`ReportedType.story`, pauses
+  progress while the sheet is open). Completes Apple Guideline 1.2 (report +
+  block). Backend `npx tsc --noEmit` clean; mobile `flutter analyze` clean,
+  198/198 tests (test doubles across 6 files updated for the new
+  `ProfileRepository`/`ServicesRepository` methods). **Deliberately out of
+  scope:** no per-message report inside chat (`ReportedType.message` exists in
+  the enum but has no UI entry point yet), no dedicated automated tests for the
+  new flows. Only remaining v1 item: profile cover (no UI).
+- **2026-07-22 — User-to-user block feature built end-to-end from nothing
+  (backend + mobile).** Prior review incorrectly assumed a "block" feature
+  already existed alongside `follows`/`reports` — it didn't, at all: no
+  `blocks` table, no endpoint, no UI anywhere. Built fresh, mirroring the
+  existing `follows` feature's exact file layout: backend migration
+  `036_create_blocks.sql` (`blocks` table — unlike `follows`, RLS is
+  **private**: only the blocker can `SELECT` their own rows), then
+  `block.validator/service/controller/routes.ts` (`POST/DELETE /blocks/:id`,
+  `GET /blocks/:id/status`, `GET /blocks` for the list), mounted at
+  `/blocks` in `routes/index.ts`. **Real enforcement, not just a list**:
+  `chat.service.ts`'s `startOrOpenChat` and `sendMessage` both call the new
+  `blockService.isBlockedEitherWay(...)` and throw 403 if either party has
+  blocked the other — covers both starting a fresh conversation and sending
+  into an existing room where a block happened afterward. Mobile:
+  `ProfileRepository` gained `blockProfile`/`unblockProfile`/
+  `getBlockStatus`/`getBlockedUsers` (same file layout as the
+  follow methods — no new top-level `block` feature slice, since block is a
+  profile-relationship exactly like follow); `ProfileState` gained an
+  `isBlocked` field fetched in `_load()` right after `isFollowing`, and
+  `ProfileController.toggleBlock()` mirrors `toggleFollow()` (optimistic +
+  revert). UI: a new "⋮" `PopupMenuButton` in `profile_screen.dart`'s header
+  `trailing` slot (block asks for confirmation via `AlertDialog`; unblock
+  doesn't), and a new `BlockedUsersScreen`/`BlockedUsersController` (mirrors
+  `FollowersScreen`, but each row has an inline Unblock button like
+  `FollowingScreen`), reachable from a new Profile-menu row next to
+  Followers. Backend `npx tsc --noEmit` clean; mobile `flutter analyze`
+  clean, 198/198 tests (6 `ProfileRepository` test doubles updated for the 4
+  new interface methods — no new dedicated tests written for the block flow
+  itself). **Deliberately out of scope for this pass**: no block shortcut
+  inside the chat room screen (only from the profile page — the room screen
+  has no reliable way to know the other participant's id for a room opened
+  by `roomId` with zero messages yet); no automatic filtering of a blocked
+  user's content out of home/search feeds. Motivation: Apple Guideline 1.2
+  requires both a report mechanism and a user-initiated block — `POST
+  /reports` already existed backend-side (built earlier, never wired to the
+  mobile app — that's a separate remaining item) but blocking had zero
+  implementation anywhere until now.
+- **2026-07-22 — Save-from-detail + Followers screen wired, closing out all
+  remaining v1 items except cover (no UI).** `SavedRepository` gained
+  `addSavedItem` (`POST /saved`, returns the new saved-row id);
+  `SavedController` gained `toggle()`/`isSaved()` (optimistic add/remove,
+  same pattern as `remove()`). New shared widget `PromooSaveButton`
+  (bookmark icon, `lib/shared/widgets/promoo_save_button.dart`) added to
+  `PromooDetailHeader`'s new optional `trailing` slot on the offer/ad detail
+  screen and the service detail screen. Separately, `ProfileRepository`
+  gained `getFollowers` (`GET /follows/followers/:id`) reusing the existing
+  `_parseFollowUsers` parser (already handled both `follower`/`following`
+  nested-object keys defensively — no backend surprises). New
+  `FollowersController`/`FollowersScreen` mirror the existing
+  `FollowingController`/`FollowingScreen`, wired via a new
+  `AppRoutes.profileFollowers` route and a menu row next to Following.
+  `flutter analyze` clean, 198/198 tests (6 `ProfileRepository` test doubles
+  updated for the new interface method). Cover remains the only unwired v1
+  item — deliberately, since no UI exists for it yet.
+- **2026-07-22 — Phase 12 complete: Add Service + Add Ad publish wired
+  (`POST /services`, `POST /ads`), finishing all three content-publish flows.**
+  Both reuse the same foundation as Add Offer: real category picker
+  (`serviceCategoriesProvider`, Service only — ads have no category),
+  `PromooImageUploadField` for images, UI validation mirroring the backend
+  schema, and a minimal per-entity data slice
+  (`ServiceDraft`/`createService` added to the existing services repo;
+  new `features/ads/` slice with `AdDraft`/`AdsRepository`). **Ad specifics:**
+  the schema requires `ad_type` + `budget` but the MVP wizard collects
+  neither — owner-approved defaults (`ad_type: 'banner'`; `budget` proxies the
+  entered price, falls back to 1, since v1 has no ad payment and the ad is
+  created `status: pending` for admin activation). An ad carries a single
+  `media_url` (not an array), so the wizard's two step-1 image boxes collapsed
+  to one required field; the location-map box became a real upload too. **All
+  three verified live** the same way — schema + service field-mapping read
+  from `offer/service/ad.service.ts`, then a direct DB insert with the exact
+  column shape for each (offer/service/ad) succeeded and was deleted. `flutter
+  analyze` clean, **198/198 tests** (7 `ServicesRepository`/1 more test
+  doubles updated for the new `createService`). Remaining v1 leftovers at the
+  time (save-from-card `POST /saved`, followers list, profile cover) — see the
+  entry above this one for the first two, closed same day.
+- **2026-07-21 — Phase 12 started: Add Offer publish wired live (`POST
+  /offers`) + shared publish foundation + 3 quick fixes.** Quick fixes first:
+  story hold-to-pause is now instant (`onTapDown` pauses immediately instead
+  of `onLongPressStart`'s built-in ~500ms recognition delay; tap-vs-hold
+  decided by press duration on release); the Arabic dark-mode label
+  `settingsBlackMode` changed "الوضع الأسود" → "الوضع الداكن"; and the 4
+  Services category catalog images that were still fake `example.com` URLs
+  (Design/Programming/Consulting/Other) were replaced with real Unsplash
+  photos in the DB (Technology/Marketing already had real uploads). **Phase
+  12 foundation:** the Add forms used a hardcoded 4-item category enum
+  (Beauty/Restaurants/Events/Digital-Marketing) that didn't even exist in the
+  DB and carried no UUID — the blocker for any publish flow, since the
+  backend requires a real `category_id`. Replaced with
+  `serviceCategoriesProvider` (autoDispose FutureProvider over the real `GET
+  /categories`). Built a reusable `PromooImageUploadField`
+  (`shared/widgets/`) — the empty-box → pick → upload → thumbnail flow, same
+  two-step Upload infra as avatar/story, `bucket`/`related` configurable.
+  **Add Offer** fully rewired: real category picker, main + additional image
+  upload (`bucket: offers`), UI-side validation mirroring `createOfferSchema`,
+  and `POST /offers` via a new minimal `features/offers/` slice
+  (`OfferDraft` + `OffersRepository`). **Verified live:** confirmed the
+  wire contract against the real backend — schema (`createOfferSchema`) and
+  service field-mapping (`offer.service.ts`) both match the payload; a direct
+  DB insert with the exact column shape succeeded and round-tripped through
+  `GET /offers`, then was deleted. (Couldn't POST through HTTP auth — no valid
+  company/service_provider test password on hand; the owner's own
+  `moumen.kam.work@gmail.com` is a company account and can test the real
+  in-app flow. The influencer account they normally test with can't create
+  offers by design — the menu entry is hidden for it via
+  `accountCapabilities`.) `flutter analyze` clean, **198/198 tests**. **Still
+  to wire (Phase 12 remainder):** Add Service (`POST /services`, nearly
+  identical), Add Ad (`POST /ads` — single `media_url`, `ad_type`, `budget`
+  required, many optional contact fields), plus the smaller leftovers
+  (save-from-card `POST /saved`, followers/following lists, profile cover).
 - **2026-07-21 — Story viewer polish (pause/hold, delete, last-item exit) +
   skip Login's "Signed in" panel on a warm launch.** All four from one round
   of owner feedback after the cross-device story test. (1) Hold-to-pause:

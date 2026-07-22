@@ -16,6 +16,31 @@ class ServiceCategory {
   final String? imageUrl;
 }
 
+/// Fields the Add Service form collects, mapped 1:1 to `POST /services`
+/// (`createServiceSchema`). `mediaUrls` are Storage URLs from the Upload step
+/// (`bucket: services`).
+class ServiceDraft {
+  const ServiceDraft({
+    required this.categoryId,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.deliveryDays,
+    this.currency = 'AED',
+    this.mediaUrls = const [],
+    this.tags = const [],
+  });
+
+  final String categoryId;
+  final String title;
+  final String description;
+  final num price;
+  final int deliveryDays;
+  final String currency;
+  final List<String> mediaUrls;
+  final List<String> tags;
+}
+
 class PromooService {
   const PromooService({
     required this.id,
@@ -28,6 +53,7 @@ class PromooService {
     this.location,
     this.deliveryDays,
     this.tags = const [],
+    this.status,
   });
 
   final String id;
@@ -40,6 +66,11 @@ class PromooService {
   final String? location;
   final int? deliveryDays;
   final List<String> tags;
+
+  /// One of: active, paused, deleted. Only populated by the My Listings
+  /// fetch (`GET /services/profile/:id`) — the public feed/detail calls
+  /// leave this `null` since every row there is already active.
+  final String? status;
 
   bool get hasPrice => price != null;
 }

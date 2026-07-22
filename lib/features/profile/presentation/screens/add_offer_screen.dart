@@ -1,30 +1,40 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../../../shared/widgets/promoo_button.dart';
+import '../../../../shared/widgets/promoo_image_upload_field.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
-import '../widgets/add_category_label.dart';
+import '../../../offers/data/repositories/offers_repository_impl.dart';
+import '../../../offers/domain/entities/offer_draft.dart';
+import '../../../offers/domain/entities/offer_listing.dart';
+import '../../../services/domain/entities/promoo_service.dart';
+import '../../../services/presentation/controllers/service_categories_provider.dart';
+import '../../../upload/domain/entities/uploaded_media.dart';
 import '../widgets/add_form_widgets.dart';
 
-/// "Add New Offer" single-page creation form.
-///
-/// Fields map 1:1 to the backend `POST /offers` payload (title / description /
-/// original_price / offer_price / discount_percentage / category_id /
-/// start_date / end_date / main_image / images / tags) so wiring the real
-/// request during integration is a drop-in change.
-/// Phase A: local-only, no network call.
-class AddOfferScreen extends StatefulWidget {
-  const AddOfferScreen({super.key});
+/// "Add New Offer" — collects the `POST /offers` fields, uploads images through
+/// the shared Upload infra, then publishes (role-gated to company/
+/// service_provider by the backend; the menu entry is already hidden for
+/// others via `accountCapabilities`).
+class AddOfferScreen extends ConsumerStatefulWidget {
+  const AddOfferScreen({super.key, this.editing});
+
+  /// When set, the form pre-fills from this existing offer and submits via
+  /// `PUT /offers/:id` instead of `POST /offers` — same screen, no separate
+  /// edit form to maintain.
+  final OfferListing? editing;
 
   @override
-  State<AddOfferScreen> createState() => _AddOfferScreenState();
+  ConsumerState<AddOfferScreen> createState() => _AddOfferScreenState();
 }
 
-class _AddOfferScreenState extends State<AddOfferScreen> {
+class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _originalPriceController = TextEditingController();
@@ -32,9 +42,49 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
   final _discountController = TextEditingController();
   final _tagsController = TextEditingController();
 
-  String? _category;
+  ServiceCategory? _category;
   DateTime? _startDate;
   DateTime? _endDate;
+  String? _mainImageUrl;
+  String? _additionalImageUrl;
+  bool _isSubmitting = false;
+
+  bool get _isEditing => widget.editing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final editing = widget.editing;
+    if (editing == null) {
+      return;
+    }
+    _titleController.text = editing.title;
+    _descriptionController.text = editing.description;
+    _offerPriceController.text = _formatNum(editing.offerPrice);
+    _originalPriceController.text = editing.originalPrice == null
+        ? ''
+        : _formatNum(editing.originalPrice!);
+    _discountController.text = editing.discountPercentage?.toString() ?? '';
+    _tagsController.text = editing.tags.join(', ');
+    _startDate = editing.startDate;
+    _endDate = editing.endDate;
+    if (editing.categoryId != null) {
+      _category = ServiceCategory(
+        id: editing.categoryId!,
+        name: editing.categoryName ?? '',
+      );
+    }
+    if (editing.mediaUrls.isNotEmpty) {
+      _mainImageUrl = editing.mediaUrls[0];
+    }
+    if (editing.mediaUrls.length > 1) {
+      _additionalImageUrl = editing.mediaUrls[1];
+    }
+  }
+
+  static String _formatNum(num value) {
+    return value % 1 == 0 ? value.toInt().toString() : value.toString();
+  }
 
   @override
   void dispose() {
@@ -50,11 +100,17 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Keep the categories loaded so the picker has real data (and a real
+    // category_id) when opened.
+    ref.watch(serviceCategoriesProvider);
+
     return PromooSubpageScaffold(
-      title: l10n.menuAddOffer,
+      title: _isEditing ? l10n.addOfferEditTitle : l10n.menuAddOffer,
       bottomBar: _FormActions(
-        submitLabel: l10n.addOfferCreateButton,
-        onSubmit: _createOffer,
+        submitLabel: _isSubmitting
+            ? (_isEditing ? l10n.addCommonSaving : l10n.addCommonPublishing)
+            : (_isEditing ? l10n.addCommonSaveButton : l10n.addOfferCreateButton),
+        onSubmit: _isSubmitting ? null : _submit,
         onCancel: () => Navigator.of(context).maybePop(),
       ),
       child: Column(
@@ -82,9 +138,7 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonCategoryLabel),
                 AddFormPickerField(
-                  hint: _category == null
-                      ? l10n.commonSelectCategory
-                      : addCategoryLabel(context, _category!),
+                  hint: _category?.name ?? l10n.commonSelectCategory,
                   isPlaceholder: _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
@@ -204,19 +258,23 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AddFormFieldLabel(l10n.addOfferMainImageLabel),
-                AddFormUploadBox(
-                  icon: Icons.add_photo_alternate_outlined,
+                PromooImageUploadField(
+                  value: _mainImageUrl,
+                  onChanged: (url) => setState(() => _mainImageUrl = url),
+                  bucket: UploadBucket.offers,
+                  relatedTo: UploadRelatedTo.offer,
                   label: l10n.addOfferUploadMainImage,
                   caption: l10n.addCommonUploadCaption,
-                  onTap: _showUploadNotice,
                 ),
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addOfferAdditionalImageLabel),
-                AddFormUploadBox(
-                  icon: Icons.add_photo_alternate_outlined,
+                PromooImageUploadField(
+                  value: _additionalImageUrl,
+                  onChanged: (url) => setState(() => _additionalImageUrl = url),
+                  bucket: UploadBucket.offers,
+                  relatedTo: UploadRelatedTo.offer,
                   label: l10n.addOfferUploadAdditionalImages,
                   caption: l10n.addCommonUploadCaption,
-                  onTap: _showUploadNotice,
                 ),
               ],
             ),
@@ -228,36 +286,42 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
 
   Future<void> _pickCategory() async {
     final l10n = AppLocalizations.of(context);
-    final selected = await showModalBottomSheet<String>(
+    final categories = ref.read(serviceCategoriesProvider).asData?.value;
+    if (categories == null || categories.isEmpty) {
+      _showNotice(l10n.addCommonCategoriesUnavailable);
+      ref.invalidate(serviceCategoriesProvider);
+      return;
+    }
+
+    final selected = await showModalBottomSheet<ServiceCategory>(
       context: context,
       backgroundColor: context.colors.elevatedSurface,
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
       builder: (sheetContext) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                child: Text(
-                  l10n.commonSelectCategory,
-                  style: Theme.of(sheetContext).textTheme.titleMedium,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  child: Text(
+                    l10n.commonSelectCategory,
+                    style: Theme.of(sheetContext).textTheme.titleMedium,
+                  ),
                 ),
-              ),
-              for (final option in addCategoryValues)
-                ListTile(
-                  title: Text(addCategoryLabel(sheetContext, option)),
-                  trailing: option == _category
-                      ? Icon(
-                          Icons.check_rounded,
-                          color: sheetContext.colors.accent,
-                        )
-                      : null,
-                  onTap: () => Navigator.of(sheetContext).pop(option),
-                ),
-              const SizedBox(height: AppSpacing.xs),
-            ],
+                for (final option in categories)
+                  ListTile(
+                    title: Text(option.name),
+                    trailing: option.id == _category?.id
+                        ? Icon(Icons.check_rounded, color: sheetContext.colors.accent)
+                        : null,
+                    onTap: () => Navigator.of(sheetContext).pop(option),
+                  ),
+                const SizedBox(height: AppSpacing.xs),
+              ],
+            ),
           ),
         );
       },
@@ -305,13 +369,71 @@ class _AddOfferScreenState extends State<AddOfferScreen> {
     return '${date.year}-$month-$day';
   }
 
-  void _showUploadNotice() {
-    _showNotice(AppLocalizations.of(context).addCommonMediaUploadComingSoon);
-  }
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final category = _category;
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+    final offerPrice = num.tryParse(_offerPriceController.text.trim());
+    final originalPrice = num.tryParse(_originalPriceController.text.trim());
+    final discount = int.tryParse(_discountController.text.trim());
 
-  void _createOffer() {
-    _showNotice(AppLocalizations.of(context).addOfferReadySnackbar);
-    Navigator.of(context).maybePop();
+    // Mirror `createOfferSchema` so we fail fast in the UI instead of on a 400.
+    if (category == null ||
+        title.length < 3 ||
+        description.length < 10 ||
+        offerPrice == null ||
+        offerPrice <= 0 ||
+        (originalPrice != null && offerPrice >= originalPrice)) {
+      _showNotice(l10n.addCommonValidationTitle);
+      return;
+    }
+
+    final mediaUrls = [
+      ?_mainImageUrl,
+      ?_additionalImageUrl,
+    ];
+    final tags = _tagsController.text
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList(growable: false);
+
+    final draft = OfferDraft(
+      categoryId: category.id,
+      title: title,
+      description: description,
+      offerPrice: offerPrice,
+      startDate: _startDate ?? DateTime.now(),
+      originalPrice: originalPrice,
+      discountPercentage: discount,
+      endDate: _endDate,
+      mediaUrls: mediaUrls,
+      tags: tags,
+    );
+
+    setState(() => _isSubmitting = true);
+    final repository = ref.read(offersRepositoryProvider);
+    final editingId = widget.editing?.id;
+    final AppFailure? failure;
+    if (editingId == null) {
+      final result = await repository.createOffer(draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    } else {
+      final result = await repository.updateOffer(editingId, draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSubmitting = false);
+
+    if (failure == null) {
+      _showNotice(_isEditing ? l10n.addOfferUpdated : l10n.addOfferPublished);
+      Navigator.of(context).maybePop();
+    } else {
+      _showNotice(l10n.addCommonSubmitFailed(failure.message));
+    }
   }
 
   void _showNotice(String message) {
@@ -329,7 +451,7 @@ class _FormActions extends StatelessWidget {
   });
 
   final String submitLabel;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final VoidCallback onCancel;
 
   @override

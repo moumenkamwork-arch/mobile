@@ -1,11 +1,18 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../../../shared/widgets/promoo_button.dart';
+import '../../../../shared/widgets/promoo_image_upload_field.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
+import '../../../ads/data/repositories/ads_repository_impl.dart';
+import '../../../ads/domain/entities/ad_draft.dart';
+import '../../../ads/domain/entities/ad_listing.dart';
+import '../../../upload/domain/entities/uploaded_media.dart';
 import '../widgets/add_form_widgets.dart';
 
 /// "Add New AD" 4-step wizard recreating the original app flow.
@@ -15,14 +22,18 @@ import '../widgets/add_form_widgets.dart';
 /// city/area/full_address/location_map_url → phone/whatsapp/contact_email/
 /// instagram_link → price/currency/service_type/payment_method.
 /// Phase A: local-only, no network call.
-class AddAdWizardScreen extends StatefulWidget {
-  const AddAdWizardScreen({super.key});
+class AddAdWizardScreen extends ConsumerStatefulWidget {
+  const AddAdWizardScreen({super.key, this.editing});
+
+  /// When set, the wizard pre-fills from this existing ad and submits via
+  /// `PUT /ads/:id` instead of `POST /ads`.
+  final AdListing? editing;
 
   @override
-  State<AddAdWizardScreen> createState() => _AddAdWizardScreenState();
+  ConsumerState<AddAdWizardScreen> createState() => _AddAdWizardScreenState();
 }
 
-class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
+class _AddAdWizardScreenState extends ConsumerState<AddAdWizardScreen> {
   static const _cities = [
     'Dubai',
     'Abu Dhabi',
@@ -67,6 +78,41 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
   String? _serviceType;
   String? _currency;
   String? _paymentMethod;
+  String? _mainImageUrl;
+  String? _locationMapUrl;
+  bool _isSubmitting = false;
+
+  bool get _isEditing => widget.editing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final editing = widget.editing;
+    if (editing == null) {
+      return;
+    }
+    _titleController.text = editing.title;
+    _descriptionController.text = editing.description ?? '';
+    _addressController.text = editing.fullAddress ?? '';
+    _phoneController.text = editing.phone ?? '';
+    _whatsappController.text = editing.whatsapp ?? '';
+    _emailController.text = editing.contactEmail ?? '';
+    _instagramController.text = editing.instagramLink ?? '';
+    _priceController.text = editing.price == null ? '' : _formatNum(editing.price!);
+    _tagsController.text = editing.tags.join(', ');
+    _postDate = editing.startDate;
+    _city = editing.city;
+    _area = editing.area;
+    _serviceType = editing.serviceType;
+    _currency = editing.currency;
+    _paymentMethod = editing.paymentMethod;
+    _mainImageUrl = editing.mediaUrl.isEmpty ? null : editing.mediaUrl;
+    _locationMapUrl = editing.locationMapUrl;
+  }
+
+  static String _formatNum(num value) {
+    return value % 1 == 0 ? value.toInt().toString() : value.toString();
+  }
 
   @override
   void dispose() {
@@ -107,9 +153,11 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
       l10n.addAdStepPricing,
     ];
     return PromooSubpageScaffold(
-      title: l10n.addAdScreenTitle,
+      title: _isEditing ? l10n.addAdEditTitle : l10n.addAdScreenTitle,
       bottomBar: _WizardActions(
         step: _step,
+        isSubmitting: _isSubmitting,
+        isEditing: _isEditing,
         onBack: () {
           if (_step == 0) {
             Navigator.of(context).maybePop();
@@ -121,7 +169,7 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
           if (_step < 3) {
             setState(() => _step += 1);
           } else {
-            _createAd();
+            _submit();
           }
         },
       ),
@@ -160,20 +208,16 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
           hint: l10n.addCommonDescriptionLabel,
         ),
         const AddFormFieldGap(),
+        // An ad carries a single `media_url` (not an array like offers/
+        // services), so one image field here — required.
         AddFormFieldLabel(l10n.addOfferMainImageLabel),
-        AddFormUploadBox(
-          icon: Icons.add_photo_alternate_outlined,
+        PromooImageUploadField(
+          value: _mainImageUrl,
+          onChanged: (url) => setState(() => _mainImageUrl = url),
+          bucket: UploadBucket.ads,
+          relatedTo: UploadRelatedTo.ad,
           label: l10n.addAdUploadImagesLabel,
           caption: l10n.addCommonUploadCaption,
-          onTap: _showUploadNotice,
-        ),
-        const AddFormFieldGap(),
-        AddFormFieldLabel(l10n.addOfferAdditionalImageLabel),
-        AddFormUploadBox(
-          icon: Icons.add_photo_alternate_outlined,
-          label: l10n.addAdUploadImagesLabel,
-          caption: l10n.addCommonUploadCaption,
-          onTap: _showUploadNotice,
         ),
         const AddFormFieldGap(),
         AddFormFieldLabel(l10n.addAdPostDateLabel),
@@ -224,11 +268,14 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
         ),
         const AddFormFieldGap(),
         AddFormFieldLabel(l10n.addAdLocationMapLabel),
-        AddFormUploadBox(
+        PromooImageUploadField(
+          value: _locationMapUrl,
+          onChanged: (url) => setState(() => _locationMapUrl = url),
+          bucket: UploadBucket.ads,
+          relatedTo: UploadRelatedTo.ad,
           icon: Icons.map_outlined,
           label: l10n.addAdUploadLocationMap,
           caption: l10n.addAdLocationMapCaption,
-          onTap: _showUploadNotice,
         ),
       ],
     );
@@ -320,27 +367,81 @@ class _AddAdWizardScreenState extends State<AddAdWizardScreen> {
     }
   }
 
-  void _showUploadNotice() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context).addCommonMediaUploadComingSoon,
-          ),
-        ),
-      );
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final title = _titleController.text.trim();
+    final mainImage = _mainImageUrl;
+    final price = num.tryParse(_priceController.text.trim());
+
+    // `createAdSchema`: title >= 3 and media_url required. ad_type/budget are
+    // schema-required with no MVP field — see AdDraft (defaults). A missing
+    // image is the one thing worth blocking on here.
+    if (title.length < 3 || mainImage == null || mainImage.isEmpty) {
+      _showNotice(l10n.addCommonValidationTitle);
+      if (mainImage == null || mainImage.isEmpty) {
+        setState(() => _step = 0); // jump back to the step with the image
+      }
+      return;
+    }
+
+    final tags = _tagsController.text
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList(growable: false);
+
+    final draft = AdDraft(
+      title: title,
+      mediaUrl: mainImage,
+      adType: widget.editing?.adType ?? 'banner',
+      // Nominal in v1 (no ad payment; admin activates the pending ad) —
+      // proxy the entered price, fall back to 1 to satisfy `.positive()`.
+      budget: (price != null && price > 0) ? price : 1,
+      startDate: _postDate ?? DateTime.now(),
+      description: _descriptionController.text.trim(),
+      phone: _phoneController.text.trim(),
+      whatsapp: _whatsappController.text.trim(),
+      contactEmail: _emailController.text.trim(),
+      instagramLink: _instagramController.text.trim(),
+      city: _city,
+      area: _area,
+      fullAddress: _addressController.text.trim(),
+      locationMapUrl: _locationMapUrl,
+      price: price,
+      currency: _currency,
+      serviceType: _serviceType,
+      paymentMethod: _paymentMethod,
+      tags: tags,
+    );
+
+    setState(() => _isSubmitting = true);
+    final repository = ref.read(adsRepositoryProvider);
+    final editingId = widget.editing?.id;
+    final AppFailure? failure;
+    if (editingId == null) {
+      final result = await repository.createAd(draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    } else {
+      final result = await repository.updateAd(editingId, draft);
+      failure = result.when(success: (_) => null, failure: (f) => f);
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSubmitting = false);
+
+    if (failure == null) {
+      _showNotice(_isEditing ? l10n.addAdUpdated : l10n.addAdPublished);
+      Navigator.of(context).maybePop();
+    } else {
+      _showNotice(l10n.addCommonSubmitFailed(failure.message));
+    }
   }
 
-  void _createAd() {
+  void _showNotice(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).addAdReadySnackbar),
-        ),
-      );
-    Navigator.of(context).maybePop();
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -446,20 +547,27 @@ class _WizardActions extends StatelessWidget {
     required this.step,
     required this.onBack,
     required this.onNext,
+    this.isSubmitting = false,
+    this.isEditing = false,
   });
 
   final int step;
   final VoidCallback onBack;
   final VoidCallback onNext;
+  final bool isSubmitting;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final finalStepLabel = isEditing
+        ? l10n.addCommonSaveButton
+        : l10n.addAdCreateButton;
     return Row(
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: onBack,
+            onPressed: isSubmitting ? null : onBack,
             style: OutlinedButton.styleFrom(
               foregroundColor: context.colors.error,
               side: BorderSide(color: context.colors.error),
@@ -472,9 +580,11 @@ class _WizardActions extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: PromooButton.primary(
-            label: step == 3 ? l10n.addAdCreateButton : l10n.addAdNextButton,
+            label: isSubmitting
+                ? (isEditing ? l10n.addCommonSaving : l10n.addCommonPublishing)
+                : (step == 3 ? finalStepLabel : l10n.addAdNextButton),
             fullWidth: true,
-            onPressed: onNext,
+            onPressed: isSubmitting ? null : onNext,
           ),
         ),
       ],

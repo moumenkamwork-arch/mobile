@@ -4,6 +4,7 @@ class ApiEndpoints {
   static const home = '/home';
   static const stories = '/stories';
   static const offers = '/offers';
+  static const ads = '/ads';
   static const activeAds = '/ads/active';
   static const loginEmail = '/auth/login/email';
   static const registerEmail = '/auth/register/email';
@@ -41,6 +42,14 @@ class ApiEndpoints {
 
   static String offerById(String id) => '/offers/$id';
 
+  static String adById(String id) => '/ads/$id';
+
+  static String offersByProfile(String profileId) => '/offers/profile/$profileId';
+
+  static String adsByProfile(String profileId) => '/ads/profile/$profileId';
+
+  static String servicesByProfile(String profileId) => '/services/profile/$profileId';
+
   static String bookSeat(String id) => '/seats/$id/book';
 
   static String profileByIdOrUsername(String idOrUsername) {
@@ -57,6 +66,14 @@ class ApiEndpoints {
   static String followingList(String profileId) => '/follows/following/$profileId';
 
   static String followersList(String profileId) => '/follows/followers/$profileId';
+
+  static const blocks = '/blocks';
+
+  static const reports = '/reports';
+
+  static String block(String profileId) => '/blocks/$profileId';
+
+  static String blockStatus(String profileId) => '/blocks/$profileId/status';
 
   static String chatMessages(String roomId) => '/chats/$roomId/messages';
 

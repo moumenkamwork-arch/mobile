@@ -180,4 +180,77 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return const Result.failure(AppFailure.unknown());
     }
   }
+
+  @override
+  Future<Result<List<FollowUser>>> getFollowers(String profileId) async {
+    try {
+      return Result.success(await dataSource.fetchFollowers(profileId));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<bool>> getBlockStatus(String profileId) async {
+    try {
+      return Result.success(await dataSource.fetchBlockStatus(profileId));
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> blockProfile(String profileId) async {
+    try {
+      await dataSource.blockProfile(profileId);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> unblockProfile(String profileId) async {
+    try {
+      await dataSource.unblockProfile(profileId);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteAccount() async {
+    try {
+      await dataSource.deleteAccount();
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
+  Future<Result<List<FollowUser>>> getBlockedUsers() async {
+    try {
+      return Result.success(await dataSource.fetchBlockedUsers());
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } on FormatException catch (error) {
+      return Result.failure(AppFailure.parsing(message: error.message));
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
 }
