@@ -236,27 +236,31 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
                     ],
                   ),
                   const Spacer(),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppColors.dark.overlay,
-                      borderRadius: AppRadius.card,
-                      border: Border.all(
-                        color: AppColors.brandYellow.withValues(alpha: 0.22),
+                  // Caption box only when the story actually has a title —
+                  // most don't, and an empty/placeholder box looked wrong.
+                  if (_item.title.trim().isNotEmpty)
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.dark.overlay,
+                        borderRadius: AppRadius.card,
+                        border: Border.all(
+                          color: AppColors.brandYellow.withValues(alpha: 0.22),
+                        ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                      child: Text(
-                        _item.title,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.dark.textPrimary,
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                        child: Text(
+                          _item.title,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppColors.dark.textPrimary,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                              ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

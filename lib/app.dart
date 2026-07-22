@@ -2,8 +2,11 @@ import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/auth/session_expiry_signal.dart';
+import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'i18n/locale_controller.dart';
 import 'routing/app_router.dart';
+import 'routing/route_names.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_mode_controller.dart';
 import 'core/push/push_notification_service.dart';
@@ -16,6 +19,18 @@ class PromooApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
+
+    // Expired-session guard: when the network layer gives up refreshing a dead
+    // token it bumps this signal. Flip auth to signed-out and bounce to Login
+    // so the app can't get stuck showing authed screens whose every request
+    // 401s (the "I was on Home but everything was broken until I signed out"
+    // bug).
+    ref.listen<int>(sessionExpiredSignalProvider, (previous, next) {
+      if (next > (previous ?? 0)) {
+        ref.read(authControllerProvider.notifier).onSessionExpired();
+        router.go(AppRoutes.login);
+      }
+    });
 
     // Watch the service to keep it alive and listening to auth changes.
     // Null when Firebase didn't initialize (see push_notification_service.dart).

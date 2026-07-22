@@ -241,11 +241,14 @@ class _ProfileOverflowMenuButton extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
 
     if (isBlocked) {
-      await ref.read(profileControllerProvider.notifier).toggleBlock();
+      final ok = await ref
+          .read(profileControllerProvider.notifier)
+          .toggleBlock();
       if (context.mounted) {
-        ScaffoldMessenger.of(
+        _snack(
           context,
-        ).showSnackBar(SnackBar(content: Text(l10n.profileUnblockedSnackbar)));
+          ok ? l10n.profileUnblockedSnackbar : l10n.commonSomethingWentWrong,
+        );
       }
       return;
     }
@@ -253,6 +256,7 @@ class _ProfileOverflowMenuButton extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        icon: const Icon(Icons.block_rounded, color: Colors.redAccent),
         title: Text(l10n.profileBlockConfirmTitle),
         content: Text(l10n.profileBlockConfirmMessage),
         actions: [
@@ -260,12 +264,10 @@ class _ProfileOverflowMenuButton extends ConsumerWidget {
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(l10n.commonCancel),
           ),
-          TextButton(
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(
-              l10n.profileBlockConfirmButton,
-              style: const TextStyle(color: Colors.redAccent),
-            ),
+            child: Text(l10n.profileBlockConfirmButton),
           ),
         ],
       ),
@@ -275,12 +277,19 @@ class _ProfileOverflowMenuButton extends ConsumerWidget {
       return;
     }
 
-    await ref.read(profileControllerProvider.notifier).toggleBlock();
+    final ok = await ref.read(profileControllerProvider.notifier).toggleBlock();
     if (context.mounted) {
-      ScaffoldMessenger.of(
+      _snack(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.profileBlockedSnackbar)));
+        ok ? l10n.profileBlockedSnackbar : l10n.commonSomethingWentWrong,
+      );
     }
+  }
+
+  void _snack(BuildContext context, String text) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -304,15 +313,38 @@ class _ProfileOverflowMenuButton extends ConsumerWidget {
       itemBuilder: (menuContext) => [
         PopupMenuItem<_ProfileMenuAction>(
           value: _ProfileMenuAction.toggleBlock,
-          child: Text(
-            isBlocked ? l10n.profileUnblockAction : l10n.profileBlockAction,
+          child: ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              isBlocked ? Icons.person_add_rounded : Icons.block_rounded,
+              color: isBlocked ? null : Colors.redAccent,
+            ),
+            title: Text(
+              isBlocked ? l10n.profileUnblockAction : l10n.profileBlockAction,
+              style: TextStyle(color: isBlocked ? null : Colors.redAccent),
+            ),
           ),
         ),
         PopupMenuItem<_ProfileMenuAction>(
           value: _ProfileMenuAction.report,
-          child: Text(l10n.reportAction),
+          child: const ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.flag_outlined),
+            title: _ReportMenuLabel(),
+          ),
         ),
       ],
     );
+  }
+}
+
+class _ReportMenuLabel extends StatelessWidget {
+  const _ReportMenuLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(AppLocalizations.of(context).reportAction);
   }
 }

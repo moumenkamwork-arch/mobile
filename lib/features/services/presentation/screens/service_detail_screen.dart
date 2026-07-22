@@ -76,8 +76,14 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
         onContactPressed: () {
           setState(() => _showContactNotice = true);
         },
-        // Push keeps the stack intact so back returns to these details.
-        onOpenChatsPressed: () => context.push(AppRoutes.chats),
+        // "Message" opens a DIRECT chat with this provider (like the profile
+        // Message button), not the generic chat list. Push keeps the stack
+        // intact so back returns to these details.
+        onOpenChatsPressed: () => context.push(
+          state.service!.provider == null
+              ? AppRoutes.chats
+              : AppRoutes.chatWithParticipant(state.service!.provider!.id),
+        ),
         onViewProfilePressed: state.service!.provider == null
             ? null
             : () => context.push(
@@ -477,7 +483,7 @@ class _ContactSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         PromooButton.secondary(
-          label: l10n.commonOpenChats,
+          label: l10n.profileActionMessage,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,
           onPressed: onOpenChatsPressed,

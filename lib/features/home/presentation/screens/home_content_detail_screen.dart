@@ -107,8 +107,15 @@ class _HomeContentDetailBodyState
             _noticeMessage = l10n.commonContactFlowComingSoon;
           });
         },
-        // Push keeps the stack intact so back returns to these details.
-        onOpenChatsPressed: () => context.push(AppRoutes.chats),
+        // "Message" opens a DIRECT chat with this provider (like the profile
+        // Message button), not the generic chat list. Falls back to the list
+        // only when there's no provider to message. Push keeps the stack
+        // intact so back returns to these details.
+        onOpenChatsPressed: () => context.push(
+          state.detail!.provider == null
+              ? AppRoutes.chats
+              : AppRoutes.chatWithParticipant(state.detail!.provider!.id),
+        ),
         onLocationPressed: state.detail!.location == null
             ? null
             : () {
@@ -530,7 +537,7 @@ class _ActionSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         PromooButton.secondary(
-          label: l10n.commonOpenChats,
+          label: l10n.profileActionMessage,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,
           onPressed: onOpenChatsPressed,

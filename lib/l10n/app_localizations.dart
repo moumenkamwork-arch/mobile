@@ -878,6 +878,30 @@ abstract class AppLocalizations {
   /// **'Registration created. Please verify your account before signing in.'**
   String get authRegistrationPendingVerification;
 
+  /// No description provided for @authSessionExpiredNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired. Please sign in again.'**
+  String get authSessionExpiredNotice;
+
+  /// No description provided for @authErrorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email or password.'**
+  String get authErrorInvalidCredentials;
+
+  /// No description provided for @authErrorNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your network and try again.'**
+  String get authErrorNoConnection;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authErrorGeneric;
+
   /// No description provided for @homeLoadingMessage.
   ///
   /// In en, this message translates to:

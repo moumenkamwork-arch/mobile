@@ -51,6 +51,7 @@ class ProfileRemoteDataSource implements ProfileDataSource {
       if (draft.bio != null) 'bio': draft.bio,
       if (draft.location != null) 'location': draft.location,
       if (draft.website != null) 'website': draft.website,
+      if (draft.categoryId != null) 'category_id': draft.categoryId,
     };
 
     final response = await _apiClient.put<PromooProfileDto>(

@@ -69,7 +69,7 @@ void main() {
     );
     await tester.ensureVisible(find.text('Contact'));
     await tester.pumpAndSettle();
-    expect(find.text('Open chats'), findsOneWidget);
+    expect(find.text('Message'), findsOneWidget);
     expect(find.text('View provider profile'), findsOneWidget);
     expect(find.text('Location'), findsOneWidget);
 

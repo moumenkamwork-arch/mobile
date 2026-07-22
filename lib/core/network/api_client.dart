@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/data/session/auth_session_store.dart';
 import '../../features/auth/domain/entities/auth_session.dart';
 import '../../i18n/locale_controller.dart';
+import '../auth/session_expiry_signal.dart';
 import '../config/app_config.dart';
 import '../errors/app_failure.dart';
 import 'api_response.dart';
@@ -68,6 +69,7 @@ final dioProvider = Provider<Dio>((ref) {
           final newTokens = _extractRefreshedTokens(response.data);
           if (newTokens == null) {
             await sessionStore.clear();
+            ref.read(sessionExpiredSignalProvider.notifier).trigger();
             return handler.next(error);
           }
 
@@ -86,6 +88,7 @@ final dioProvider = Provider<Dio>((ref) {
           return handler.resolve(retryResponse);
         } catch (_) {
           await sessionStore.clear();
+          ref.read(sessionExpiredSignalProvider.notifier).trigger();
           return handler.next(error);
         }
       },

@@ -126,6 +126,7 @@ class ProfileUpdateDraft {
     this.bio,
     this.location,
     this.website,
+    this.categoryId,
   });
 
   final String? displayName;
@@ -133,4 +134,8 @@ class ProfileUpdateDraft {
   final String? bio;
   final String? location;
   final String? website;
+
+  /// `category_id` in `updateProfileSchema` — the profile's primary category
+  /// (Technology, Beauty, …). Picked from the real `GET /categories` list.
+  final String? categoryId;
 }

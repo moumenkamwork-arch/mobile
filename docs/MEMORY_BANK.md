@@ -147,6 +147,41 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-22 — Live-device UX bug pass (post real-device testing).** Fixes
+  from actual on-device use: **(1) Critical — expired-session lockup:** when the
+  refresh interceptor gave up (dead refresh token) it cleared the token store
+  but never told `AuthController`, so the app stayed on Home believing it was
+  signed in while every request 401'd, unusable until a manual logout. Added a
+  neutral `sessionExpiredSignalProvider` (Notifier counter) the interceptor
+  bumps on give-up; `app.dart` listens and calls `AuthController.onSessionExpired()`
+  (new `AuthState.sessionExpired`) + `router.go(login)`. Login now shows a
+  localized "your session expired" notice. **(2) Friendlier auth errors:**
+  `resolveAuthMessage` maps `AppFailureType` → localized text (401 → "wrong
+  email or password" instead of the raw backend string; network/timeout → "no
+  connection"). **(3) "Open chats" on offer/service detail** now opens a DIRECT
+  chat with that provider (`chatWithParticipant(provider.id)`), not the generic
+  chat list; button relabeled "Message". **(4) Chat opens at the latest
+  message:** new `_MessageList` stateful widget with a ScrollController jumps to
+  bottom on first build and animates down on new messages. **(5) Story viewer
+  fullscreen:** pushed on `rootNavigator: true` so the shell bottom bar no
+  longer shows under it; removed the bogus `'Story update'` fallback caption
+  (now empty → caption box hidden when a story has no title). **(6) Block
+  polish + reliability:** `ProfileController.toggleBlock()` now returns success
+  so the profile "⋮" shows the right snackbar (it used to claim success even on
+  failure — and the "block did nothing" report was the dead-token 401 silently
+  reverting, fixed by #1); restyled the block confirm (red FilledButton + icon)
+  and menu items (icons/colors). **(7) Block + Report inside the chat room**
+  (Instagram-style): new `_ChatRoomMenuButton` in the chat header, with the
+  other participant derived from `arg.participantId` or the first non-mine
+  message's sender; block confirms, calls `POST /blocks/:id`, and leaves the
+  room. **(8) Edit Profile category** is now a real picker (bottom sheet from
+  `serviceCategoriesProvider`) that saves `category_id` via `PUT /profiles/me`
+  (`ProfileUpdateDraft` gained `categoryId`) — was a "coming soon" stub.
+  `flutter analyze` clean, 198/198 tests (two detail-screen tests updated for
+  the "Open chats"→"Message" relabel). Verified there's **no mock data wired
+  into production**: the `*FakeDataSource` files exist but their providers are
+  referenced nowhere outside their own files / tests — every repository uses its
+  remote data source. Full manual QA checklist added: `docs/V1_TEST_PLAN.md`.
 - **2026-07-22 — "Finish everything" pass: content edit/delete + My Listings,
   Delete Account, and Reports wiring (the last four v1 gaps after block).**
   **Content management:** the three Add screens (`add_offer_screen.dart`,

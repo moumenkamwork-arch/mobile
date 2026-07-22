@@ -71,7 +71,7 @@ void main() {
     await tester.drag(find.byType(Scrollable), const Offset(0, -160));
     await tester.pumpAndSettle();
     expect(find.text('Contact provider'), findsOneWidget);
-    expect(find.text('Open chats'), findsOneWidget);
+    expect(find.text('Message'), findsOneWidget);
     expect(find.text('View provider profile'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(ElevatedButton, 'Contact provider'));

@@ -145,6 +145,10 @@
   "authValidationFullNameTooShort": "يجب أن يتكوّن الاسم الكامل من حرفين على الأقل.",
   "authValidationPasswordTooShort": "يجب أن تتكوّن كلمة المرور من 8 أحرف على الأقل.",
   "authRegistrationPendingVerification": "تم إنشاء الحساب. الرجاء تفعيل حسابك قبل تسجيل الدخول.",
+  "authSessionExpiredNotice": "انتهت جلستك. الرجاء تسجيل الدخول من جديد.",
+  "authErrorInvalidCredentials": "البريد الإلكتروني أو كلمة السر غير صحيحة.",
+  "authErrorNoConnection": "لا يوجد اتصال بالإنترنت. تحقق من الشبكة وحاول مرة أخرى.",
+  "authErrorGeneric": "صار خطأ ما. حاول مرة أخرى.",
 
   "homeLoadingMessage": "جارِ تحميل الرئيسية",
   "homeEmptyTitle": "لا يوجد شيء للعرض بعد",

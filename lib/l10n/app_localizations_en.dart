@@ -414,6 +414,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Registration created. Please verify your account before signing in.';
 
   @override
+  String get authSessionExpiredNotice =>
+      'Your session expired. Please sign in again.';
+
+  @override
+  String get authErrorInvalidCredentials => 'Wrong email or password.';
+
+  @override
+  String get authErrorNoConnection =>
+      'No internet connection. Check your network and try again.';
+
+  @override
+  String get authErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
   String get homeLoadingMessage => 'Loading Promoo home';
 
   @override

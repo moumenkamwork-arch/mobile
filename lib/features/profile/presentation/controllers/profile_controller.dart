@@ -167,11 +167,13 @@ class ProfileController extends Notifier<ProfileState> {
 
   /// Optimistically toggles block, then calls the backend
   /// (`POST`/`DELETE /blocks/:id`). Reverts if the request fails. No-op until
-  /// the profile has loaded.
-  Future<void> toggleBlock() async {
+  /// the profile has loaded. Returns `true` if the request succeeded, so the
+  /// UI can show the right confirmation vs an error (previously it always
+  /// claimed success even when the request failed and silently reverted).
+  Future<bool> toggleBlock() async {
     final profile = state.profile;
     if (state.status != ProfileStatus.success || profile == null) {
-      return;
+      return false;
     }
 
     final wasBlocked = state.isBlocked;
@@ -187,11 +189,11 @@ class ProfileController extends Notifier<ProfileState> {
         ? await repository.unblockProfile(profile.id)
         : await repository.blockProfile(profile.id);
     if (_disposed) {
-      return;
+      return result.isSuccess;
     }
 
-    result.when(
-      success: (_) {},
+    return result.when(
+      success: (_) => true,
       failure: (_) {
         if (state.status == ProfileStatus.success && state.profile != null) {
           state = ProfileState.success(
@@ -201,6 +203,7 @@ class ProfileController extends Notifier<ProfileState> {
             isBlocked: wasBlocked,
           );
         }
+        return false;
       },
     );
   }

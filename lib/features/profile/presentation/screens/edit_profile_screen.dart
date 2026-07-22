@@ -16,6 +16,8 @@ import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../../../services/domain/entities/promoo_service.dart';
+import '../../../services/presentation/controllers/service_categories_provider.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/promoo_profile.dart';
 import '../controllers/profile_controller.dart';
@@ -80,6 +82,11 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   bool _isSaving = false;
   bool _isUploadingAvatar = false;
 
+  /// Newly-picked category (null until the user changes it — the current
+  /// category is shown from `profile.categoryName` in that case, since the
+  /// profile entity carries the name but not the id).
+  ServiceCategory? _category;
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +109,8 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   Widget build(BuildContext context) {
     final profile = widget.profile;
     final l10n = AppLocalizations.of(context);
+    // Keep the category list warm so the picker opens instantly with real data.
+    ref.watch(serviceCategoriesProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -232,11 +241,15 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
                 icon: Icons.category_outlined,
                 label: l10n.profileEditFieldCategory,
                 child: InkWell(
-                  onTap: () => _showNotice(l10n.profileEditCategoryComingSoon),
+                  onTap: _pickCategory,
                   child: InputDecorator(
-                    decoration: const InputDecoration(),
+                    decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
+                    ),
                     child: Text(
-                      profile.categoryName ?? l10n.commonSelectCategory,
+                      _category?.name ??
+                          profile.categoryName ??
+                          l10n.commonSelectCategory,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge,
@@ -267,6 +280,56 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     );
   }
 
+  Future<void> _pickCategory() async {
+    final l10n = AppLocalizations.of(context);
+    final categories = ref.read(serviceCategoriesProvider).asData?.value;
+    if (categories == null || categories.isEmpty) {
+      _showNotice(l10n.addCommonCategoriesUnavailable);
+      ref.invalidate(serviceCategoriesProvider);
+      return;
+    }
+
+    final selected = await showModalBottomSheet<ServiceCategory>(
+      context: context,
+      backgroundColor: context.colors.elevatedSurface,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  child: Text(
+                    l10n.commonSelectCategory,
+                    style: Theme.of(sheetContext).textTheme.titleMedium,
+                  ),
+                ),
+                for (final option in categories)
+                  ListTile(
+                    title: Text(option.name),
+                    trailing: option.id == _category?.id
+                        ? Icon(
+                            Icons.check_rounded,
+                            color: sheetContext.colors.accent,
+                          )
+                        : null,
+                    onTap: () => Navigator.of(sheetContext).pop(option),
+                  ),
+                const SizedBox(height: AppSpacing.xs),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (selected != null && mounted) {
+      setState(() => _category = selected);
+    }
+  }
+
   Future<void> _handleSave(AppLocalizations l10n) async {
     setState(() => _isSaving = true);
 
@@ -274,6 +337,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
       displayName: _nameController.text.trim(),
       bio: _bioController.text.trim(),
       location: _locationController.text.trim(),
+      categoryId: _category?.id,
     );
     final result = await ref
         .read(profileRepositoryProvider)

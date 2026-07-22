@@ -413,6 +413,21 @@ class AppLocalizationsAr extends AppLocalizations {
       'تم إنشاء الحساب. الرجاء تفعيل حسابك قبل تسجيل الدخول.';
 
   @override
+  String get authSessionExpiredNotice =>
+      'انتهت جلستك. الرجاء تسجيل الدخول من جديد.';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة السر غير صحيحة.';
+
+  @override
+  String get authErrorNoConnection =>
+      'لا يوجد اتصال بالإنترنت. تحقق من الشبكة وحاول مرة أخرى.';
+
+  @override
+  String get authErrorGeneric => 'صار خطأ ما. حاول مرة أخرى.';
+
+  @override
   String get homeLoadingMessage => 'جارِ تحميل الرئيسية';
 
   @override

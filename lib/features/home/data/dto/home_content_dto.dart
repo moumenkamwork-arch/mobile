@@ -799,7 +799,10 @@ class HomeStoryItemDto {
   HomeStoryItem toDomain({required String fallbackId}) {
     return HomeStoryItem(
       id: id ?? fallbackId,
-      title: title ?? 'Story update',
+      // No fake caption — stories rarely carry a title, and the viewer hides
+      // the caption box entirely when this is empty (was 'Story update',
+      // which showed a bogus label at the bottom of every story).
+      title: title ?? '',
       imageUrl: imageUrl,
     );
   }

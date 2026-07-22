@@ -1,4 +1,5 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
+import '../../../../core/errors/app_failure.dart';
 import '../controllers/auth_controller.dart';
 
 /// Resolves an [AuthState] into a message to show the user (validation issue,
@@ -19,12 +20,16 @@ AuthDisplayMessage? resolveAuthMessage(AppLocalizations l10n, AuthState state) {
     return AuthDisplayMessage(text: _issueText(l10n, issue), isError: true);
   }
 
+  if (state.sessionExpired) {
+    return AuthDisplayMessage(
+      text: l10n.authSessionExpiredNotice,
+      isError: true,
+    );
+  }
+
   final failure = state.failure;
   if (failure != null) {
-    // Data-layer failure messages (from AppFailure) are a cross-cutting
-    // concern shared by every feature's Result<T, AppFailure> — out of scope
-    // for this screen-by-screen localization pass; see docs/localization_plan.md.
-    return AuthDisplayMessage(text: failure.message, isError: true);
+    return AuthDisplayMessage(text: _failureText(l10n, failure), isError: true);
   }
 
   if (state.registrationPending) {
@@ -35,6 +40,19 @@ AuthDisplayMessage? resolveAuthMessage(AppLocalizations l10n, AuthState state) {
   }
 
   return null;
+}
+
+/// Maps a data-layer [AppFailure] to a friendly, localized, event-appropriate
+/// message. The most important case is a login/register 401 → "wrong email or
+/// password" instead of the raw backend string ("Invalid login credentials").
+String _failureText(AppLocalizations l10n, AppFailure failure) {
+  return switch (failure.type) {
+    AppFailureType.unauthorized => l10n.authErrorInvalidCredentials,
+    AppFailureType.network || AppFailureType.timeout => l10n.authErrorNoConnection,
+    AppFailureType.validation =>
+      failure.message.isNotEmpty ? failure.message : l10n.authErrorGeneric,
+    _ => l10n.authErrorGeneric,
+  };
 }
 
 String _issueText(AppLocalizations l10n, AuthValidationIssue issue) {

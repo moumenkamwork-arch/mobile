@@ -37,6 +37,7 @@ class AuthState {
     this.failure,
     this.validationIssue,
     this.registrationPending = false,
+    this.sessionExpired = false,
   });
 
   const AuthState.unauthenticated({bool registrationPending = false})
@@ -44,6 +45,12 @@ class AuthState {
         status: AuthStatus.unauthenticated,
         registrationPending: registrationPending,
       );
+
+  /// The token expired and refreshing failed (see the network refresh
+  /// interceptor). Signed-out, but flagged so Login can explain why the user
+  /// landed there instead of showing a blank form.
+  const AuthState.sessionExpired()
+    : this(status: AuthStatus.unauthenticated, sessionExpired: true);
 
   const AuthState.authenticating() : this(status: AuthStatus.authenticating);
 
@@ -67,6 +74,10 @@ class AuthState {
   /// True right after registration, before the demo/verification message is
   /// shown — resolved to text by the presentation layer.
   final bool registrationPending;
+
+  /// True when the user was bounced to Login by an expired session (not a
+  /// deliberate logout). Resolved to a notice by the presentation layer.
+  final bool sessionExpired;
 
   bool get isAuthenticated => session?.isAuthenticated ?? false;
 
@@ -153,6 +164,17 @@ class AuthController extends Notifier<AuthState> {
       success: (_) => const AuthState.unauthenticated(),
       failure: AuthState.error,
     );
+  }
+
+  /// Called (via the app-root listener on `sessionExpiredSignalProvider`) when
+  /// the network layer gave up refreshing an expired token. Drops the stale
+  /// in-memory session so the whole app re-renders as signed-out; the store
+  /// was already cleared by the interceptor.
+  void onSessionExpired() {
+    if (_disposed) {
+      return;
+    }
+    state = const AuthState.sessionExpired();
   }
 
   void clearMessage() {

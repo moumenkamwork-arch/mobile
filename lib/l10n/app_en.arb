@@ -160,6 +160,10 @@
   "authValidationFullNameTooShort": "Full name must be at least 2 characters.",
   "authValidationPasswordTooShort": "Password must be at least 8 characters.",
   "authRegistrationPendingVerification": "Registration created. Please verify your account before signing in.",
+  "authSessionExpiredNotice": "Your session expired. Please sign in again.",
+  "authErrorInvalidCredentials": "Wrong email or password.",
+  "authErrorNoConnection": "No internet connection. Check your network and try again.",
+  "authErrorGeneric": "Something went wrong. Please try again.",
 
   "homeLoadingMessage": "Loading Promoo home",
   "homeEmptyTitle": "Nothing to show yet",

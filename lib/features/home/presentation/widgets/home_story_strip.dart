@@ -69,7 +69,10 @@ class HomeStoryStrip extends ConsumerWidget {
   }
 
   void _openStoryViewer(BuildContext context, int initialIndex) {
-    Navigator.of(context).push(
+    // rootNavigator: true pushes ABOVE the shell (and its bottom nav bar) so
+    // the story plays truly fullscreen, like Instagram — otherwise the nav bar
+    // stayed visible under the story.
+    Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder<void>(
         opaque: true,
         transitionDuration: const Duration(milliseconds: 220),
