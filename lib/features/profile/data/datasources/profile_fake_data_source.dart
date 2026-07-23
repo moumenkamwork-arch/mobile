@@ -12,6 +12,9 @@ final profileFakeDataSourceProvider = Provider<ProfileFakeDataSource>((ref) {
 class ProfileFakeDataSource implements ProfileDataSource {
   ProfileFakeDataSource();
 
+  @override
+  Future<void> deleteMedia(String imageUrl) async {}
+
   /// The signed-in "my profile" fixture, mutable so [updateMyProfile] can
   /// persist edits for the lifetime of this data source instance.
   PromooProfileDto _myProfile = _demoProfile;

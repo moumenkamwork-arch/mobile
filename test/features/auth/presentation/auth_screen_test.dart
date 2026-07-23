@@ -295,6 +295,11 @@ class _ProfileRepository implements ProfileRepository {
   final Result<List<ProfilePackage>> packagesResult;
 
   @override
+  Future<Result<void>> deleteMedia(String imageUrl) async {
+    return const Result.success(null);
+  }
+
+  @override
   Future<Result<PromooProfile>> getDemoProfile() async {
     return profileResult;
   }

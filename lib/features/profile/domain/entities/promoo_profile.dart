@@ -61,6 +61,42 @@ class PromooProfile {
   final bool isFeatured;
 
   String get handle => username == null ? '@promoo' : '@$username';
+
+  PromooProfile copyWith({
+    String? id,
+    String? displayName,
+    String? username,
+    String? bio,
+    String? location,
+    String? website,
+    String? avatarUrl,
+    String? coverUrl,
+    String? categoryName,
+    ProfileAccountType? accountType,
+    ProfileStats? stats,
+    Map<String, String>? socialLinks,
+    List<String>? mediaUrls,
+    bool? isVerified,
+    bool? isFeatured,
+  }) {
+    return PromooProfile(
+      id: id ?? this.id,
+      displayName: displayName ?? this.displayName,
+      username: username ?? this.username,
+      bio: bio ?? this.bio,
+      location: location ?? this.location,
+      website: website ?? this.website,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
+      categoryName: categoryName ?? this.categoryName,
+      accountType: accountType ?? this.accountType,
+      stats: stats ?? this.stats,
+      socialLinks: socialLinks ?? this.socialLinks,
+      mediaUrls: mediaUrls ?? this.mediaUrls,
+      isVerified: isVerified ?? this.isVerified,
+      isFeatured: isFeatured ?? this.isFeatured,
+    );
+  }
 }
 
 class ProfileStats {

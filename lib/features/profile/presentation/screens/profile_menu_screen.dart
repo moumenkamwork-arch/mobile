@@ -171,10 +171,12 @@ class ProfileMenuScreen extends ConsumerWidget {
               child: Text(l10n.actionCancel),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                ref.read(authControllerProvider.notifier).logout();
-                context.go(AppRoutes.login);
+                await ref.read(authControllerProvider.notifier).logout();
+                if (context.mounted) {
+                  context.go(AppRoutes.login);
+                }
               },
               child: Text(l10n.settingsLogout),
             ),
@@ -219,13 +221,11 @@ class ProfileMenuScreen extends ConsumerWidget {
     }
 
     result.when(
-      success: (_) {
-        // The account (and its token) is already gone server-side; this only
-        // needs to clear the local session, same fire-and-forget pattern the
-        // Logout button already uses — its own network call clears the
-        // session store even when it 401s against an already-deleted user.
-        ref.read(authControllerProvider.notifier).logout();
-        context.go(AppRoutes.login);
+      success: (_) async {
+        await ref.read(authControllerProvider.notifier).logout();
+        if (context.mounted) {
+          context.go(AppRoutes.login);
+        }
       },
       failure: (_) {
         ScaffoldMessenger.of(context)

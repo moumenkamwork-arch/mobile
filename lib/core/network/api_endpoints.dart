@@ -29,6 +29,7 @@ class ApiEndpoints {
   static const uploadImage = '/upload/image';
   static const uploadVideo = '/upload/video';
   static const uploadFile = '/upload/file';
+  static const uploadMedia = '/upload/media';
 
   // Avatar/cover are NOT part of `PUT /profiles/me` (updateProfileSchema has no
   // avatar_url/cover_url) — they have their own persist endpoints, called with

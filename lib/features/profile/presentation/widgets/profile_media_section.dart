@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -7,22 +8,25 @@ import '../../../../shared/widgets/promoo_section_header.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
 import '../../../../theme/app_spacing.dart';
+import '../controllers/profile_controller.dart';
 import 'profile_media_viewer.dart';
 
-class ProfileMediaSection extends StatelessWidget {
+class ProfileMediaSection extends ConsumerWidget {
   const ProfileMediaSection({
     super.key,
     required this.mediaUrls,
     required this.profileName,
     this.avatarUrl,
+    this.isOwner = false,
   });
 
   final List<String> mediaUrls;
   final String profileName;
   final String? avatarUrl;
+  final bool isOwner;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final mediaItems = _mediaItemsFrom(mediaUrls);
     final l10n = AppLocalizations.of(context);
 
@@ -52,23 +56,80 @@ class ProfileMediaSection extends StatelessWidget {
               childAspectRatio: 0.82,
             ),
             itemBuilder: (context, index) {
+              final item = mediaItems[index];
               return _ProfileMediaTile(
                 index: index,
-                item: mediaItems[index],
+                item: item,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     fullscreenDialog: true,
                     builder: (context) => ProfileMediaViewer(
-                      item: mediaItems[index],
+                      item: item,
                       profileName: profileName,
                       avatarUrl: avatarUrl,
+                      isOwner: isOwner,
+                      onDelete: isOwner
+                          ? () => ref
+                              .read(profileControllerProvider.notifier)
+                              .deleteMedia(item.imageUrl)
+                          : null,
                     ),
                   ),
                 ),
+                onLongPress: isOwner
+                    ? () => _confirmAndDeleteMedia(context, ref, item)
+                    : null,
               );
             },
           ),
       ],
+    );
+  }
+
+  void _confirmAndDeleteMedia(
+    BuildContext context,
+    WidgetRef ref,
+    ProfileMediaPreviewItem item,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('حذف العنصر'),
+          content: const Text('هل أنت تأكيد من رغبتك في حذف هذا العنصر النهائي من البروفايل؟'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('إلغاء'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                final success = await ref
+                    .read(profileControllerProvider.notifier)
+                    .deleteMedia(item.imageUrl);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? 'تم حذف العنصر بنجاح'
+                            : 'فشل حذف العنصر، يرجى المحاولة لاحقاً',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+              child: const Text('حذف'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -78,11 +139,13 @@ class _ProfileMediaTile extends StatelessWidget {
     required this.index,
     required this.item,
     required this.onTap,
+    this.onLongPress,
   });
 
   final int index;
   final ProfileMediaPreviewItem item;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +158,7 @@ class _ProfileMediaTile extends StatelessWidget {
         child: InkWell(
           key: ValueKey('profile-media-tile-$index'),
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: AppRadius.card,
           child: Ink(
             decoration: BoxDecoration(

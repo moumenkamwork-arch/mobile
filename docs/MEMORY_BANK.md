@@ -10,6 +10,7 @@
 > (3) **Form Validation Error Styling**: added `isError` prop with red border highlighting to `PromooTextField` and `AddFormPickerField` across Add Offer / Add Service forms.
 > (4) **Instant Profile Avatar Sync**: `auth_controller.dart` calls `clearUserSessionCaches` on login/logout/expiry so avatar and profile update immediately without restarting the app.
 > (5) **Chat Realtime Reconnection Guard**: fixed `ChatRealtimeService` listener condition to connect whenever `next.isAuthenticated && _client == null`, ensuring Supabase Realtime WebSocket stays connected even when auth state updates.
+> (6) **Profile Media Deletion Flow**: added full deletion support for profile media items (`deleteMedia` in repository/controller). Owner can long-press any media tile in `ProfileMediaSection` or tap the red trash button in `ProfileMediaViewer` to confirm and delete media items (which syncs via `DELETE /upload/media` with backend DB and storage).
 > Earlier same day: Ads removed entirely from mobile, Admin Services status & delete endpoints added, formal `rejected` status for services deferred to v2 in `v2_deferred_scope.md` §11.) Before that:
 > 2026-07-22 (**"Finish everything" pass — last four v1 gaps
 > closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an

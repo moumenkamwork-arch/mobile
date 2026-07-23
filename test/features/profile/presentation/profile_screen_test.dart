@@ -330,12 +330,20 @@ class _ProfileRepository implements ProfileRepository {
 
   @override
   Future<Result<void>> deleteAccount() async => const Result.success(null);
+
+  @override
+  Future<Result<void>> deleteMedia(String imageUrl) async =>
+      const Result.success(null);
 }
 
 class _PendingProfileRepository implements ProfileRepository {
   const _PendingProfileRepository(this.completer);
 
   final Completer<Result<PromooProfile>> completer;
+
+  @override
+  Future<Result<void>> deleteMedia(String imageUrl) async =>
+      const Result.success(null);
 
   @override
   Future<Result<PromooProfile>> getDemoProfile() {

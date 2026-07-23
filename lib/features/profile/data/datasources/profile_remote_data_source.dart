@@ -162,6 +162,15 @@ class ProfileRemoteDataSource implements ProfileDataSource {
   }
 
   @override
+  Future<void> deleteMedia(String imageUrl) async {
+    await _apiClient.delete<void>(
+      ApiEndpoints.uploadMedia,
+      data: {'url': imageUrl},
+      decode: (_) {},
+    );
+  }
+
+  @override
   Future<List<FollowUser>> fetchBlockedUsers() async {
     final response = await _apiClient.get<List<FollowUser>>(
       ApiEndpoints.blocks,

@@ -242,6 +242,18 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<Result<void>> deleteMedia(String imageUrl) async {
+    try {
+      await dataSource.deleteMedia(imageUrl);
+      return const Result.success(null);
+    } on AppFailure catch (failure) {
+      return Result.failure(failure);
+    } catch (_) {
+      return const Result.failure(AppFailure.unknown());
+    }
+  }
+
+  @override
   Future<Result<List<FollowUser>>> getBlockedUsers() async {
     try {
       return Result.success(await dataSource.fetchBlockedUsers());

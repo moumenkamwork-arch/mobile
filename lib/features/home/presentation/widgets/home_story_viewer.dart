@@ -217,7 +217,7 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
                       else
                         IconButton(
                           tooltip: AppLocalizations.of(context).reportAction,
-                          onPressed: _reportStory,
+                          onPressed: _showOtherStoryMenu,
                           icon: Icon(
                             Icons.more_vert_rounded,
                             color: AppColors.dark.textPrimary,
@@ -304,16 +304,46 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
     Navigator.of(context).pop();
   }
 
-  /// Pauses progress while the report sheet is open (so the story doesn't
-  /// advance underneath it), then resumes.
-  Future<void> _reportStory() async {
+  /// Pauses progress while showing the actions menu (Report story),
+  /// then opens the report sheet if selected.
+  Future<void> _showOtherStoryMenu() async {
+    final l10n = AppLocalizations.of(context);
     _progressController.stop();
-    await showReportSheet(
-      context,
-      ref,
-      reportedId: _item.id,
-      reportedType: ReportedType.story,
+
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: context.colors.elevatedSurface,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+                title: Text(
+                  l10n.reportAction,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('report'),
+              ),
+            ],
+          ),
+        );
+      },
     );
+
+    if (!mounted) return;
+
+    if (action == 'report') {
+      await showReportSheet(
+        context,
+        ref,
+        reportedId: _item.id,
+        reportedType: ReportedType.story,
+      );
+    }
+
     if (mounted) {
       _progressController.forward();
     }

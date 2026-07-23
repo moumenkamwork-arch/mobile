@@ -44,14 +44,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
-    final session = state.session;
+
+    // Auto-navigate to home as soon as authentication succeeds
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (next.status == AuthStatus.authenticated &&
+          previous?.status != AuthStatus.authenticated) {
+        if (GoRouter.maybeOf(context) != null) {
+          context.go(AppRoutes.home);
+        }
+      }
+    });
+
+    final showSignedInPanel = state.session != null &&
+        state.status == AuthStatus.authenticated;
 
     return AuthScreenFrame(
       showBackButton: false,
-      child: session != null
+      child: showSignedInPanel
           ? AuthSignedInPanel(
-              session: session,
-              isLoggingOut: state.status == AuthStatus.loggingOut,
+              session: state.session!,
+              isLoggingOut: false,
               onLogout: () =>
                   ref.read(authControllerProvider.notifier).logout(),
             )

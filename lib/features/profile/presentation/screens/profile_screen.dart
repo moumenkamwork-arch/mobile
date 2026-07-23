@@ -190,9 +190,20 @@ class _ProfileContentView extends ConsumerWidget {
                       onFollowPressed: () => ref
                           .read(profileControllerProvider.notifier)
                           .toggleFollow(),
-                      onMessagePressed: () => context.push(
-                        AppRoutes.chatWithParticipant(profile.id),
-                      ),
+                      onMessagePressed: () {
+                        if (isOwnerProfile) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('لا يمكنك مراسلة نفسك'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          return;
+                        }
+                        context.push(
+                          AppRoutes.chatWithParticipant(profile.id),
+                        );
+                      },
                       onEditPressed: () => context.push(AppRoutes.profileEdit),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -202,6 +213,7 @@ class _ProfileContentView extends ConsumerWidget {
                       mediaUrls: profile.mediaUrls,
                       profileName: profile.displayName,
                       avatarUrl: profile.avatarUrl,
+                      isOwner: isOwnerProfile,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     ProfileAboutSection(profile: profile),

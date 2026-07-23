@@ -42,4 +42,7 @@ abstract interface class ProfileRepository {
   /// `DELETE /profiles/me` — permanently deletes the signed-in user's
   /// Supabase auth account (the `profiles` row cascades). Irreversible.
   Future<Result<void>> deleteAccount();
+
+  /// `DELETE /upload/media` — deletes a media item by URL from profile media grid.
+  Future<Result<void>> deleteMedia(String imageUrl);
 }

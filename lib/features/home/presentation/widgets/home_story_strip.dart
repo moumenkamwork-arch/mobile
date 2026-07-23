@@ -160,9 +160,11 @@ class _AddStoryTileState extends ConsumerState<_AddStoryTile> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ownerAvatarUrl = ref.watch(
+    final user = ref.watch(authControllerProvider).session?.user;
+    final profileAvatarUrl = ref.watch(
       profileControllerProvider.select((state) => state.profile?.avatarUrl),
     );
+    final ownerAvatarUrl = profileAvatarUrl ?? user?.avatarUrl;
 
     return SizedBox(
       width: 72,

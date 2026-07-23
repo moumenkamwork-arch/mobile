@@ -212,6 +212,45 @@ class ProfileController extends Notifier<ProfileState> {
     );
   }
 
+  Future<bool> deleteMedia(String imageUrl) async {
+    final profile = state.profile;
+    if (state.status != ProfileStatus.success || profile == null) {
+      return false;
+    }
+
+    final updatedMediaUrls =
+        profile.mediaUrls.where((url) => url != imageUrl).toList();
+    final updatedProfile = profile.copyWith(mediaUrls: updatedMediaUrls);
+
+    state = ProfileState.success(
+      profile: updatedProfile,
+      packages: state.packages,
+      isFollowing: state.isFollowing,
+      isBlocked: state.isBlocked,
+    );
+
+    final repository = ref.read(profileRepositoryProvider);
+    final result = await repository.deleteMedia(imageUrl);
+    if (_disposed) {
+      return result.isSuccess;
+    }
+
+    return result.when(
+      success: (_) => true,
+      failure: (_) {
+        if (state.status == ProfileStatus.success && state.profile != null) {
+          state = ProfileState.success(
+            profile: profile,
+            packages: state.packages,
+            isFollowing: state.isFollowing,
+            isBlocked: state.isBlocked,
+          );
+        }
+        return false;
+      },
+    );
+  }
+
   Future<void> _load({
     bool showLoading = false,
     bool refreshing = false,

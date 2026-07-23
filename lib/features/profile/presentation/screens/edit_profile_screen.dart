@@ -23,8 +23,14 @@ import '../../domain/entities/promoo_profile.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/profile_media_section.dart';
 
-/// Loads the demo profile used to prefill the Edit Profile form.
-final editProfileSourceProvider = FutureProvider<PromooProfile>((ref) async {
+/// Loads the profile used to prefill the Edit Profile form.
+///
+/// Uses `autoDispose` so the provider is automatically discarded when no
+/// widget is watching it (i.e. every time the screen is popped). This
+/// guarantees the form always shows the **current** user's fresh data — no
+/// risk of a previous user's profile leaking across logout/login cycles.
+final editProfileSourceProvider =
+    FutureProvider.autoDispose<PromooProfile>((ref) async {
   final result = await ref.watch(profileRepositoryProvider).getDemoProfile();
   return switch (result) {
     Success(data: final profile) => profile,
@@ -269,6 +275,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
           mediaUrls: profile.mediaUrls,
           profileName: profile.displayName,
           avatarUrl: profile.avatarUrl,
+          isOwner: true,
         ),
         const SizedBox(height: AppSpacing.lg),
         PromooButton.primary(

@@ -302,16 +302,26 @@ class _ConversationBody extends StatelessWidget {
                 ],
               )
             : PromooErrorState(
-                title: l10n.chatRoomErrorTitle,
-                message:
-                    state.failure?.message ??
-                    l10n.commonSomethingWentWrongShort,
-                onRetry: onRetry,
+                title: _isSelfChatError(state.failure?.message)
+                    ? 'تعذّر بدء المحادثة'
+                    : l10n.chatRoomErrorTitle,
+                message: _isSelfChatError(state.failure?.message)
+                    ? 'لا يمكنك بدء محادثة مع نفسك'
+                    : (state.failure?.message ??
+                        l10n.commonSomethingWentWrongShort),
+                onRetry:
+                    _isSelfChatError(state.failure?.message) ? null : onRetry,
               ),
       ChatRoomStatus.success ||
       ChatRoomStatus.refreshing => _MessageList(messages: state.messages),
     };
   }
+}
+
+bool _isSelfChatError(String? message) {
+  if (message == null) return false;
+  final lower = message.toLowerCase();
+  return lower.contains('yourself') || lower.contains('مع نفسك');
 }
 
 /// Message list that opens pinned to the LATEST message and follows new ones.

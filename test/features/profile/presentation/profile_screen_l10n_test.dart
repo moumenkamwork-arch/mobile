@@ -70,6 +70,11 @@ void main() {
 class _ProfileRepository implements ProfileRepository {
   const _ProfileRepository();
 
+  @override
+  Future<Result<void>> deleteMedia(String imageUrl) async {
+    return const Result.success(null);
+  }
+
   static const _profile = PromooProfile(
     id: 'profile-saffron-social',
     displayName: 'Saffron Social Studio',

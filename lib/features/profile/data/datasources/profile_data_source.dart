@@ -34,4 +34,6 @@ abstract interface class ProfileDataSource {
   Future<List<FollowUser>> fetchBlockedUsers();
 
   Future<void> deleteAccount();
+
+  Future<void> deleteMedia(String imageUrl);
 }
