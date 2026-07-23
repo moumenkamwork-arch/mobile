@@ -40,10 +40,9 @@ class ChatRealtimeService {
       previous,
       next,
     ) {
-      final wasAuthed = previous?.isAuthenticated ?? false;
-      if (next.isAuthenticated && !wasAuthed) {
+      if (next.isAuthenticated && _client == null) {
         unawaited(_connect());
-      } else if (!next.isAuthenticated && wasAuthed) {
+      } else if (!next.isAuthenticated) {
         _disconnect();
       }
     }, fireImmediately: true);

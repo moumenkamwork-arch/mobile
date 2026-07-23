@@ -80,22 +80,16 @@ class PromooShell extends ConsumerStatefulWidget {
   /// index is always correct for a 5- or 6-tab bar.
   final String currentPath;
 
-  /// The five bottom-nav slots. Slot 1 is **role-dependent**: influencers see
-  /// the Influencer/Seats tab (the Seats screen is influencer-only per client
-  /// request), everyone else — companies, providers, regular users, guests —
-  /// sees the Offers tab in that slot instead. All other slots and their
-  /// indices are identical across roles (index 2 stays the center P mark).
+  /// The five bottom-nav slots. Slot 1 is role-dependent:
+  /// - Accounts with `canViewSeats` (influencers & companies) get the Seats tab (`influencer`).
+  /// - All other accounts (users, service_providers, guests) get the `offers` tab.
+  /// Temporarily, `offers` is hidden for influencers/companies so every role has 5 items.
   static List<PromooShellTab> tabsFor({required bool canViewSeats}) {
     final list = <PromooShellTab>[
       const PromooShellTab(
         id: PromooShellTabId.home,
         route: AppRoutes.home,
         icon: Icons.home_rounded,
-      ),
-      const PromooShellTab(
-        id: PromooShellTabId.offers,
-        route: AppRoutes.offers,
-        icon: Icons.local_offer_rounded,
       ),
     ];
 
@@ -105,6 +99,14 @@ class PromooShell extends ConsumerStatefulWidget {
           id: PromooShellTabId.influencer,
           route: AppRoutes.seats,
           icon: Icons.event_seat_rounded,
+        ),
+      );
+    } else {
+      list.add(
+        const PromooShellTab(
+          id: PromooShellTabId.offers,
+          route: AppRoutes.offers,
+          icon: Icons.local_offer_rounded,
         ),
       );
     }

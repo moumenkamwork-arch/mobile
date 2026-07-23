@@ -172,6 +172,7 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 | Item | Backend support | v1 behaviour |
 | --- | --- | --- |
 | Services `rejected` status | Supabase `services` table check constraint currently enforces `active`, `paused`, `deleted`. | **Deferred to v2.** In v1, services in the Dashboard & API use `active` (live) and `paused` (hidden/suspended), plus deletion. Adding a formal `rejected` status to `services` requires a DB constraint migration in v2. |
+| Temporary 5-item Bottom Bar for Influencers/Companies | `PromooShell.tabsFor` replaces `offers` tab with `seats` when `canViewSeats` is true. | **Temporary v1 adjustment.** Offers tab is hidden from bottom bar for Influencer & Company roles so every account sees 5 bottom nav items instead of 6. |
 
 ---
 

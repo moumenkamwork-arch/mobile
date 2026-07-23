@@ -15,16 +15,15 @@ void main() {
     return tabs.indexWhere((tab) => tab.id == id);
   }
 
-  group('6-tab bar (influencer / company — can view Seats)', () {
+  group('5-tab bar (influencer / company — can view Seats)', () {
     final tabs = PromooShell.tabsFor(canViewSeats: true);
 
-    test('has 6 tabs in the expected order', () {
-      expect(tabs.length, 6);
+    test('has 5 tabs in the expected order (offers hidden temporarily)', () {
+      expect(tabs.length, 5);
       expect(
         tabs.map((t) => t.id).toList(),
         const [
           PromooShellTabId.home,
-          PromooShellTabId.offers,
           PromooShellTabId.influencer,
           PromooShellTabId.promoo,
           PromooShellTabId.services,
@@ -33,13 +32,12 @@ void main() {
       );
     });
 
-    test('each route resolves to its real index (not the stale 5-tab map)', () {
+    test('each route resolves to its real index', () {
       expect(indexForPath(tabs, AppRoutes.home), 0);
-      expect(indexForPath(tabs, AppRoutes.offers), 1);
-      expect(indexForPath(tabs, AppRoutes.seats), 2);
-      expect(indexForPath(tabs, AppRoutes.cup), 3);
-      expect(indexForPath(tabs, AppRoutes.services), 4); // was wrongly 3
-      expect(indexForPath(tabs, AppRoutes.profile), 5); // was wrongly 4
+      expect(indexForPath(tabs, AppRoutes.seats), 1);
+      expect(indexForPath(tabs, AppRoutes.cup), 2);
+      expect(indexForPath(tabs, AppRoutes.services), 3);
+      expect(indexForPath(tabs, AppRoutes.profile), 4);
     });
   });
 

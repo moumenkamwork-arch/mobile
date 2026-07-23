@@ -4,10 +4,12 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-23 (**Caching Strategy, Red Borders & Instant Profile Avatar Sync** —
-> (1) **Full Caching Strategy implemented**: `cached_network_image` integrated into `PromooImage` for automatic disk caching of all network images; `serviceCategoriesProvider` made a permanent `FutureProvider` for session-wide reference data caching; `clearUserSessionCaches` utility created to invalidate user-specific providers on logout/expiry.
-> (2) **Form Validation Error Styling**: added `isError` prop with red border highlighting to `PromooTextField` and `AddFormPickerField` across Add Offer / Add Service forms.
-> (3) **Instant Profile Avatar Sync**: `auth_controller.dart` calls `clearUserSessionCaches` on login/logout/expiry so avatar and profile update immediately without restarting the app.
+> Last updated: 2026-07-23 (**Caching Strategy, Red Borders, Instant Avatar Sync & 5-Item Bottom Bar** —
+> (1) **Temporary 5-item Bottom Bar**: `PromooShell.tabsFor` now swaps `offers` for `seats` when `canViewSeats` is true (influencer / company), so every account type sees exactly 5 bottom bar items (no 6-item bar). Documented in `v2_deferred_scope.md` §11.
+> (2) **Full Caching Strategy implemented**: `cached_network_image` integrated into `PromooImage` for automatic disk caching of all network images; `serviceCategoriesProvider` made a permanent `FutureProvider` for session-wide reference data caching; `clearUserSessionCaches` utility created to invalidate user-specific providers on logout/expiry.
+> (3) **Form Validation Error Styling**: added `isError` prop with red border highlighting to `PromooTextField` and `AddFormPickerField` across Add Offer / Add Service forms.
+> (4) **Instant Profile Avatar Sync**: `auth_controller.dart` calls `clearUserSessionCaches` on login/logout/expiry so avatar and profile update immediately without restarting the app.
+> (5) **Chat Realtime Reconnection Guard**: fixed `ChatRealtimeService` listener condition to connect whenever `next.isAuthenticated && _client == null`, ensuring Supabase Realtime WebSocket stays connected even when auth state updates.
 > Earlier same day: Ads removed entirely from mobile, Admin Services status & delete endpoints added, formal `rejected` status for services deferred to v2 in `v2_deferred_scope.md` §11.) Before that:
 > 2026-07-22 (**"Finish everything" pass — last four v1 gaps
 > closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an
