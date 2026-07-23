@@ -1,12 +1,13 @@
 /// The kind of thing being reported — mirrors the backend
-/// `createReportSchema`'s `reported_type` enum exactly.
-enum ReportedType { profile, offer, ad, message, service, story, seat }
+/// `createReportSchema`'s `reported_type` enum. `ad` is a valid backend value
+/// (the `ads` table/API stay in place) but is intentionally omitted here:
+/// the app has no ad-related UI left to report from.
+enum ReportedType { profile, offer, message, service, story, seat }
 
 extension ReportedTypeWire on ReportedType {
   String get wireValue => switch (this) {
     ReportedType.profile => 'profile',
     ReportedType.offer => 'offer',
-    ReportedType.ad => 'ad',
     ReportedType.message => 'message',
     ReportedType.service => 'service',
     ReportedType.story => 'story',

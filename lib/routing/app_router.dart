@@ -12,7 +12,6 @@ import '../features/home/presentation/screens/home_see_all_screen.dart';
 import '../features/home/presentation/screens/offers_screen.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
-import '../features/profile/presentation/screens/add_ad_wizard_screen.dart';
 import '../features/profile/presentation/screens/add_offer_screen.dart';
 import '../features/profile/presentation/screens/add_service_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
@@ -96,11 +95,6 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         path: AppRoutes.profileEdit,
         name: RouteNames.profileEdit,
         builder: (context, state) => const EditProfileScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.profileAddAd,
-        name: RouteNames.profileAddAd,
-        builder: (context, state) => const AddAdWizardScreen(),
       ),
       GoRoute(
         path: AppRoutes.profileAddOffer,

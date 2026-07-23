@@ -416,12 +416,6 @@ abstract class AppLocalizations {
   /// **'Add New Offer'**
   String get menuAddOffer;
 
-  /// No description provided for @menuAddAd.
-  ///
-  /// In en, this message translates to:
-  /// **'Add New Ad'**
-  String get menuAddAd;
-
   /// No description provided for @menuAddService.
   ///
   /// In en, this message translates to:
@@ -533,7 +527,7 @@ abstract class AppLocalizations {
   /// No description provided for @myListingsEmptyMessage.
   ///
   /// In en, this message translates to:
-  /// **'Offers, services, and ads you publish will appear here.'**
+  /// **'Offers and services you publish will appear here.'**
   String get myListingsEmptyMessage;
 
   /// No description provided for @myListingsOffersSection.
@@ -547,12 +541,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Services'**
   String get myListingsServicesSection;
-
-  /// No description provided for @myListingsAdsSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Ads'**
-  String get myListingsAdsSection;
 
   /// No description provided for @myListingsEditTooltip.
   ///
@@ -1112,12 +1100,6 @@ abstract class AppLocalizations {
   /// **'Offer'**
   String get homeDetailTypeOffer;
 
-  /// No description provided for @homeDetailTypeAd.
-  ///
-  /// In en, this message translates to:
-  /// **'Promotion'**
-  String get homeDetailTypeAd;
-
   /// No description provided for @homeDetailTypeUnknown.
   ///
   /// In en, this message translates to:
@@ -1375,6 +1357,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More seats are opening soon.'**
   String get seatsMoreSeatsOpeningSoon;
+
+  /// No description provided for @seatsBookingComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat booking & payment are coming in the next phase.'**
+  String get seatsBookingComingSoon;
 
   /// No description provided for @seatsBookSeatLabel.
   ///
@@ -2258,12 +2246,6 @@ abstract class AppLocalizations {
   /// **'Edit Service'**
   String get addServiceEditTitle;
 
-  /// No description provided for @addAdEditTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Ad'**
-  String get addAdEditTitle;
-
   /// No description provided for @addOfferUpdated.
   ///
   /// In en, this message translates to:
@@ -2275,12 +2257,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Service updated'**
   String get addServiceUpdated;
-
-  /// No description provided for @addAdUpdated.
-  ///
-  /// In en, this message translates to:
-  /// **'Ad updated'**
-  String get addAdUpdated;
 
   /// No description provided for @addCommonValidationTitle.
   ///
@@ -2305,12 +2281,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Service published.'**
   String get addServicePublished;
-
-  /// No description provided for @addAdPublished.
-  ///
-  /// In en, this message translates to:
-  /// **'Ad submitted.'**
-  String get addAdPublished;
 
   /// No description provided for @addOfferCreateButton.
   ///
@@ -2491,240 +2461,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your service is ready! Publishing will be enabled in the next phase.'**
   String get addServiceReadySnackbar;
-
-  /// No description provided for @addAdScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add New AD'**
-  String get addAdScreenTitle;
-
-  /// No description provided for @addAdStepBasic.
-  ///
-  /// In en, this message translates to:
-  /// **'Basic Ad Details'**
-  String get addAdStepBasic;
-
-  /// No description provided for @addAdStepLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'Location Information'**
-  String get addAdStepLocation;
-
-  /// No description provided for @addAdStepContact.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact Information'**
-  String get addAdStepContact;
-
-  /// No description provided for @addAdStepPricing.
-  ///
-  /// In en, this message translates to:
-  /// **'Pricing Information'**
-  String get addAdStepPricing;
-
-  /// No description provided for @addAdTitleLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Ad Title'**
-  String get addAdTitleLabel;
-
-  /// No description provided for @addAdUploadImagesLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload additional images'**
-  String get addAdUploadImagesLabel;
-
-  /// No description provided for @addAdPostDateLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Post Date'**
-  String get addAdPostDateLabel;
-
-  /// No description provided for @addAdSelectDateCap.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Date'**
-  String get addAdSelectDateCap;
-
-  /// No description provided for @addAdTagsHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Tags'**
-  String get addAdTagsHint;
-
-  /// No description provided for @addAdCityLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'City'**
-  String get addAdCityLabel;
-
-  /// No description provided for @addAdSelectCity.
-  ///
-  /// In en, this message translates to:
-  /// **'Select City'**
-  String get addAdSelectCity;
-
-  /// No description provided for @addAdAreaLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Area'**
-  String get addAdAreaLabel;
-
-  /// No description provided for @addAdSelectArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Area'**
-  String get addAdSelectArea;
-
-  /// No description provided for @addAdFullAddressLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'full Address'**
-  String get addAdFullAddressLabel;
-
-  /// No description provided for @addAdFullAddressHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Full Address'**
-  String get addAdFullAddressHint;
-
-  /// No description provided for @addAdLocationMapLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Location Map'**
-  String get addAdLocationMapLabel;
-
-  /// No description provided for @addAdUploadLocationMap.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload Location Map'**
-  String get addAdUploadLocationMap;
-
-  /// No description provided for @addAdLocationMapCaption.
-  ///
-  /// In en, this message translates to:
-  /// **'Please upload location map'**
-  String get addAdLocationMapCaption;
-
-  /// No description provided for @addAdPhoneLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Phone Number'**
-  String get addAdPhoneLabel;
-
-  /// No description provided for @addAdWhatsappLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Whatsapp Number'**
-  String get addAdWhatsappLabel;
-
-  /// No description provided for @addAdInstagramLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Instagram Link'**
-  String get addAdInstagramLabel;
-
-  /// No description provided for @addAdCurrencyLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Currency'**
-  String get addAdCurrencyLabel;
-
-  /// No description provided for @addAdSelectCurrency.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Currency'**
-  String get addAdSelectCurrency;
-
-  /// No description provided for @addAdServiceProductLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Service / Product'**
-  String get addAdServiceProductLabel;
-
-  /// No description provided for @addAdSelectType.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Type'**
-  String get addAdSelectType;
-
-  /// No description provided for @addAdPaymentMethodLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment Method'**
-  String get addAdPaymentMethodLabel;
-
-  /// No description provided for @addAdSelectPaymentMethod.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Payment Method'**
-  String get addAdSelectPaymentMethod;
-
-  /// No description provided for @addAdNextButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get addAdNextButton;
-
-  /// No description provided for @addAdCreateButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Create AD'**
-  String get addAdCreateButton;
-
-  /// No description provided for @addAdReadySnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Your ad is ready! Publishing will be enabled in the next phase.'**
-  String get addAdReadySnackbar;
-
-  /// No description provided for @addAdCityDubai.
-  ///
-  /// In en, this message translates to:
-  /// **'Dubai'**
-  String get addAdCityDubai;
-
-  /// No description provided for @addAdCityAbuDhabi.
-  ///
-  /// In en, this message translates to:
-  /// **'Abu Dhabi'**
-  String get addAdCityAbuDhabi;
-
-  /// No description provided for @addAdCitySharjah.
-  ///
-  /// In en, this message translates to:
-  /// **'Sharjah'**
-  String get addAdCitySharjah;
-
-  /// No description provided for @addAdCityAjman.
-  ///
-  /// In en, this message translates to:
-  /// **'Ajman'**
-  String get addAdCityAjman;
-
-  /// No description provided for @addAdCityRasAlKhaimah.
-  ///
-  /// In en, this message translates to:
-  /// **'Ras Al Khaimah'**
-  String get addAdCityRasAlKhaimah;
-
-  /// No description provided for @addAdCityFujairah.
-  ///
-  /// In en, this message translates to:
-  /// **'Fujairah'**
-  String get addAdCityFujairah;
-
-  /// No description provided for @addAdCityUmmAlQuwain.
-  ///
-  /// In en, this message translates to:
-  /// **'Umm Al Quwain'**
-  String get addAdCityUmmAlQuwain;
-
-  /// No description provided for @addAdCityAlAin.
-  ///
-  /// In en, this message translates to:
-  /// **'Al Ain'**
-  String get addAdCityAlAin;
 
   /// No description provided for @commonSomethingWentWrongShort.
   ///

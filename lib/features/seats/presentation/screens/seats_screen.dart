@@ -480,18 +480,19 @@ class _SeatCell extends ConsumerWidget {
         return _SeatDetailSheet(
           seat: seat,
           tierColor: _getTierColor(context),
+          // Real booking + payment is Stripe/v2 (not built yet — the checkout
+          // preview screen this used to push to is a disconnected mock with
+          // no working payment behind it and a different visual style from
+          // the rest of the app). A "coming soon" notice is honest about
+          // that instead of dropping the user on a dead-end fake form.
           onBookNow: () {
             final l10n = AppLocalizations.of(context);
-            final tierKey = _seatTierKey(seat.tier);
             Navigator.of(sheetContext).pop();
-            context.push(
-              AppRoutes.seatCheckout(
-                seatId: seat.id,
-                title: '${l10n.seatsSingularLabel(tierKey)} ${seat.position}',
-                tier: l10n.seatsVisibilityPlacementLabel(tierKey),
-                price: _priceLabel,
-              ),
-            );
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text(l10n.seatsBookingComingSoon)),
+              );
           },
         );
       },

@@ -9,17 +9,15 @@ import '../../../../shared/widgets/promoo_image.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
 import '../../../../theme/app_spacing.dart';
-import '../../../ads/domain/entities/ad_listing.dart';
 import '../../../offers/domain/entities/offer_listing.dart';
-import '../../../profile/presentation/screens/add_ad_wizard_screen.dart';
 import '../../../profile/presentation/screens/add_offer_screen.dart';
 import '../../../profile/presentation/screens/add_service_screen.dart';
 import '../../../services/domain/entities/promoo_service.dart';
 import '../controllers/my_listings_controller.dart';
 
-/// "My Listings" — the signed-in user's own offers/services/ads (every
-/// status, not just active), with edit (reuses the Add screens pre-filled)
-/// and delete. Feeds from `GET /offers|/services|/ads/profile/:myId`.
+/// "My Listings" — the signed-in user's own offers/services (every status,
+/// not just active), with edit (reuses the Add screens pre-filled) and
+/// delete. Feeds from `GET /offers|/services/profile/:myId`.
 class MyListingsScreen extends StatelessWidget {
   const MyListingsScreen({super.key});
 
@@ -82,14 +80,6 @@ class _MyListingsScreenBody extends ConsumerWidget {
               _SectionHeader(l10n.myListingsServicesSection),
               for (final service in state.services) ...[
                 _ServiceRow(service: service),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-              const SizedBox(height: AppSpacing.md),
-            ],
-            if (state.ads.isNotEmpty) ...[
-              _SectionHeader(l10n.myListingsAdsSection),
-              for (final ad in state.ads) ...[
-                _AdRow(ad: ad),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ],
@@ -300,64 +290,6 @@ class _ServiceRow extends ConsumerWidget {
               () => ref
                   .read(myListingsControllerProvider.notifier)
                   .deleteService(service.id),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AdRow extends ConsumerWidget {
-  const _AdRow({required this.ad});
-
-  final AdListing ad;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return PromooCard(
-      padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 64,
-              height: 64,
-              child: PromooImage(imageUrl: ad.mediaUrl, fit: BoxFit.cover),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ad.title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: AppSpacing.xxxs),
-                Text(
-                  ad.status,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          _ListingActions(
-            onEdit: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AddAdWizardScreen(editing: ad),
-              ),
-            ),
-            onDelete: () => _confirmAndDelete(
-              context,
-              () =>
-                  ref.read(myListingsControllerProvider.notifier).deleteAd(ad.id),
             ),
           ),
         ],

@@ -133,32 +133,6 @@ void main() {
     expect(detail.imageUrl, 'https://example.com/offer.jpg');
   });
 
-  test('parses active ad list details', () {
-    final details = HomeContentDetailDto.listFromJsonFlexible({
-      'success': true,
-      'data': [
-        {
-          'id': 'ad-1',
-          'title': 'Featured campaign spotlight',
-          'description': 'Premium discovery placement for active campaigns.',
-          'media_url': 'https://example.com/ad.jpg',
-          'ad_type': 'banner',
-          'profile_id': 'profile-saffron-social',
-        },
-      ],
-    }, fallbackType: HomeContentDetailType.ad);
-
-    final detail = details.single.toDomain(
-      fallbackId: 'ad-1',
-      fallbackCurrency: 'AED',
-    );
-
-    expect(detail.type, HomeContentDetailType.ad);
-    expect(detail.title, 'Featured campaign spotlight');
-    expect(detail.provider?.id, 'profile-saffron-social');
-    expect(detail.badge, 'banner');
-  });
-
   test('parses missing optional sections as empty content', () {
     final dto = HomeContentDto.fromJsonFlexible({
       'success': true,

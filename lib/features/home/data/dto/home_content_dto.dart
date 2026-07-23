@@ -77,22 +77,13 @@ class HomeContentDto {
         'featured_offer',
       ]),
     );
-    final firstAd = _firstMapFrom(
-      _firstPresent(source, const ['ads', 'banners', 'promotions']),
-    );
 
     return HomeContentDto(
-      highlight: promooOfTheDay != null
-          ? HomeHighlightDto.fromJson(
-              promooOfTheDay,
-              fallbackType: HomeContentDetailType.offer,
-            )
-          : firstAd == null
+      highlight: promooOfTheDay == null
           ? null
           : HomeHighlightDto.fromJson(
-              firstAd,
-              fallbackBadge: 'Promoted',
-              fallbackType: HomeContentDetailType.ad,
+              promooOfTheDay,
+              fallbackType: HomeContentDetailType.offer,
             ),
       stories: HomeStoryDto.groupedFromJson(
         _mapsFrom(_firstPresent(source, const ['stories', 'highlights'])),
@@ -215,9 +206,8 @@ class HomeContentDto {
           imageUrl: _demoDigitalImage,
         ),
         HomeOfferPreviewDto(
-          id: 'ad-1',
+          id: 'offer-8',
           title: 'Featured campaign spotlight',
-          detailType: HomeContentDetailType.ad,
           subtitle: 'Prominent visibility for active launch campaigns.',
           imageUrl: _demoTeamImage,
         ),
@@ -443,10 +433,10 @@ class HomeHighlightDto {
       'images',
     ]);
     return HomeHighlightDto(
-      id: _readString(json, const ['id', 'offer_id', 'ad_id']),
+      id: _readString(json, const ['id', 'offer_id']),
       title: _readString(json, const ['title', 'name', 'headline']),
       detailType: _detailTypeFromValue(
-        _readString(json, const ['type', 'kind', 'ad_type', 'content_type']),
+        _readString(json, const ['type', 'kind', 'content_type']),
         fallbackType,
       ),
       subtitle: _readString(json, const [
@@ -885,9 +875,9 @@ class HomeContentDetailDto {
         _readString(profile, const ['id', 'profile_id']);
 
     return HomeContentDetailDto(
-      id: _readString(json, const ['id', 'offer_id', 'ad_id']),
+      id: _readString(json, const ['id', 'offer_id']),
       type: _detailTypeFromValue(
-        _readString(json, const ['type', 'kind', 'ad_type', 'content_type']),
+        _readString(json, const ['type', 'kind', 'content_type']),
         fallbackType,
       ),
       title: _readString(json, const ['title', 'name', 'headline']),
@@ -899,12 +889,7 @@ class HomeContentDetailDto {
         'details',
       ]),
       imageUrl: directImage ?? (mediaUrls.isEmpty ? null : mediaUrls.first),
-      badge: _readString(json, const [
-        'badge',
-        'label',
-        'placement',
-        'ad_type',
-      ]),
+      badge: _readString(json, const ['badge', 'label', 'placement']),
       provider: profile == null
           ? providerId == null
                 ? null
@@ -1141,14 +1126,6 @@ Object? _unwrapListContainer(Object? value) {
   }
 
   return value;
-}
-
-Map<String, Object?>? _firstMapFrom(Object? value) {
-  final maps = _mapsFrom(value);
-  if (maps.isNotEmpty) {
-    return maps.first;
-  }
-  return _mapFrom(value);
 }
 
 Map<String, Object?>? _mapFrom(Object? value) {

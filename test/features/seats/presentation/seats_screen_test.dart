@@ -81,7 +81,7 @@ void main() {
     expect(find.text('Follow'), findsOneWidget);
   });
 
-  testWidgets('available seat opens tier sheet and checkout preview', (
+  testWidgets('available seat opens tier sheet and shows booking-soon notice', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -98,11 +98,15 @@ void main() {
     expect(find.text('Book Now'), findsOneWidget);
     expect(find.textContaining('Gold seats provide'), findsOneWidget);
 
+    // Real booking/payment is Stripe/v2 — Book Now shows a "coming soon"
+    // notice instead of dropping onto the disconnected checkout-preview mock.
     await tester.tap(find.text('Book Now'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Checkout preview'), findsOneWidget);
-    expect(find.text('2500 AED'), findsOneWidget);
+    expect(
+      find.text('Seat booking & payment are coming in the next phase.'),
+      findsOneWidget,
+    );
   });
 }
 

@@ -32,7 +32,6 @@ class SearchFakeDataSource implements SearchDataSource {
                   item.accountType == 'influencer',
             SearchFilterType.services => item.type == SearchResultType.service,
             SearchFilterType.offers => item.type == SearchResultType.offer,
-            SearchFilterType.ads => item.type == SearchResultType.ad,
           };
           return matchesQuery && matchesType;
         })
@@ -173,21 +172,6 @@ const _fakeResults = [
         'id': 'profile-calmfit',
         'full_name': 'CalmFit Wellness',
         'username': 'calmfit.wellness',
-      },
-    },
-  ),
-  _FakeSearchRow(
-    type: SearchResultType.ad,
-    searchText: 'Featured campaign spotlight ad digital marketing dubai',
-    json: {
-      'id': 'ad-1',
-      'title': 'Featured campaign spotlight',
-      'description': 'Premium discovery placement for active campaigns.',
-      'profile': {
-        'id': 'profile-saffron-social',
-        'full_name': 'Saffron Social Studio',
-        'username': 'saffron.social',
-        'is_verified': true,
       },
     },
   ),

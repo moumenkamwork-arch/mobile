@@ -34,7 +34,6 @@ String homeContentDetailTypeLabel(
   final l10n = AppLocalizations.of(context);
   return switch (type) {
     HomeContentDetailType.offer => l10n.homeDetailTypeOffer,
-    HomeContentDetailType.ad => l10n.homeDetailTypeAd,
     HomeContentDetailType.unknown => l10n.homeDetailTypeUnknown,
   };
 }
@@ -180,18 +179,14 @@ class _HomeContentDetailContent extends StatelessWidget {
                   children: [
                     PromooSaveButton(
                       itemId: detail.id,
-                      itemType: detail.type == HomeContentDetailType.ad
-                          ? 'ad'
-                          : 'offer',
+                      itemType: 'offer',
                       title: detail.title,
                       subtitle: detail.categoryName,
                       imageUrl: detail.imageUrl,
                     ),
                     PromooReportMenuButton(
                       reportedId: detail.id,
-                      reportedType: detail.type == HomeContentDetailType.ad
-                          ? ReportedType.ad
-                          : ReportedType.offer,
+                      reportedType: ReportedType.offer,
                     ),
                   ],
                 ),
@@ -266,9 +261,7 @@ class _HeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PromooDetailChip(
-                  icon: detail.type == HomeContentDetailType.ad
-                      ? Icons.campaign_rounded
-                      : Icons.local_offer_rounded,
+                  icon: Icons.local_offer_rounded,
                   label:
                       detail.badge ??
                       homeContentDetailTypeLabel(context, detail.type),
@@ -568,7 +561,6 @@ class _ActionSection extends StatelessWidget {
 IconData _iconFor(HomeContentDetailType type) {
   return switch (type) {
     HomeContentDetailType.offer => Icons.local_offer_rounded,
-    HomeContentDetailType.ad => Icons.campaign_rounded,
     HomeContentDetailType.unknown => Icons.auto_awesome_rounded,
   };
 }

@@ -4,7 +4,24 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-22 (**"Finish everything" pass — last four v1 gaps
+> Last updated: 2026-07-23 (**Ads removed entirely from the mobile app** —
+> the client's original prototype only ever had Offers + Services; Ads was
+> scope creep from an earlier build pass, discovered when the owner went
+> looking for Ads content on Home and found none. Every trace deleted from
+> Flutter (`lib/features/ads/`, the wizard screen, its route/menu row, My
+> Listings' Ads section, the `ad` branch of 4 different enums, ~50 dead l10n
+> keys) — **backend `ads` table/routes untouched**, kept dormant for v2.
+> `influencer` (Ads' only user) now gets Add Offer instead
+> (`requireAccountType` on `POST /offers` gained `influencer`). Same day:
+> a **live-device bug-fix pass** — expired-session lockup (the app used to
+> stay on Home believing it was signed in while every request silently
+> 401'd), friendlier login errors, chat "Message" button opens a direct
+> chat with the right provider, chat opens at the latest message, story
+> viewer is truly fullscreen with the bogus "Story update" caption gone,
+> block now reports real success/failure and auto-unfollows both
+> directions, block+report added inside the chat room, and Edit Profile's
+> category field is a real picker. See §5 top entries.) Before that:
+> 2026-07-22 (**"Finish everything" pass — last four v1 gaps
 > closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an
 > `editing:` arg and submit `PUT /…/:id`; new **My Listings** screen lists own
 > offers/services/ads (all statuses) with edit + delete; backend gained the
@@ -16,7 +33,7 @@
 > feature from scratch (`blocks` table + `POST/DELETE /blocks/:id` +
 > chat-enforcement + Blocked Users screen), Phase 12 content publish, the
 > save-from-detail button, and the Followers screen. Only `cover` (no UI) is
-> intentionally left unwired. See §5 top entries.) Before that:
+> intentionally left unwired. See §5 entries.) Before that:
 > 2026-07-21 (**Story viewer polish + warm-launch fix**:
 > hold-to-pause, delete-own-story, tap-next-on-last-item now exits instead
 > of freezing, and splash skips Login's "Signed in" panel straight to Home
@@ -147,6 +164,52 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-23 — Ads removed entirely from the mobile app; block
+  auto-unfollow; seat-booking "coming soon".** **(1) Ads removal (the big
+  one):** the owner realized the client's original prototype only ever had
+  **Offers + Services** — no Ads — after noticing Home never actually showed
+  any ad content and tracing a mislabeled button in the old design mockups
+  that opened an ad flow under an "Add New Offer" label. Decision: since Ads
+  had been built out fully in an earlier pass (its own backend table + full
+  CRUD + a whole mobile feature slice), ripping out the backend was
+  unnecessary risk for zero benefit — **only the mobile side was deleted**,
+  backend `ads` table/service/routes left completely untouched for a
+  possible v2. Deleted: `lib/features/ads/` (6 files), `add_ad_wizard_screen.dart`,
+  the `profileAddAd` route (`route_names.dart`/`app_router.dart`), the "Add
+  New Ad" profile-menu row, My Listings' Ads section (`_AdRow`,
+  `MyListingsState.ads`, `deleteAd`), the `ad` value from 4 enums
+  (`HomeContentDetailType`, `ReportedType`, `SearchResultType`,
+  `SearchFilterType`) and everything branching on it (Home's highlight
+  "ads/banners/promotions" fallback + `ad_id`/`ad_type` alias keys +
+  `GET /ads/active` detail fetch; Search's `SearchAdResult` + `ads[]` parsing
+  + the "Ads" filter chip; the report/save-button ad ternaries on the
+  offer/ad detail screen), the `ads`/`activeAds`/`adById`/`adsByProfile`
+  `ApiEndpoints` constants, and ~50 dead `addAd*`/`homeDetailTypeAd`/
+  `myListingsAdsSection` l10n keys from both arb files. Backend:
+  `offer.routes.ts`'s `POST /offers` gained `influencer` to its
+  `requireAccountType` list (was `['company', 'service_provider']`) so
+  `influencer` — previously Ads-only via `canAddAd` — now publishes via Add
+  Offer instead; `AccountCapabilities.canAddOffer` mirrors this,
+  `canAddAd` removed. `docs/roles_logic.md` updated to match (Offers now
+  lists `influencer` as allowed; Ads section marked removed with the
+  reasoning). **(2) Block now auto-unfollows both directions:**
+  `block.service.ts`'s `blockProfile` deletes any `follows` row between the
+  pair (either direction) right after inserting the block row — mirrors
+  Instagram (you can't stay following someone you just blocked, and they
+  can't stay following you). Mobile's `ProfileController.toggleBlock()`
+  mirrors this locally (sets `isFollowing: false` optimistically when
+  blocking) so the Follow button doesn't show stale state until a reload.
+  **(3) Seat "Book Now"** now shows a "coming soon" snackbar
+  (`seatsBookingComingSoon`) instead of navigating to the checkout-preview
+  screen — that screen was a disconnected mock (no real payment behind it,
+  different visual language from the rest of the app) for a feature
+  (Stripe seat booking) that's v2, not something to dead-end users on now.
+  Backend `npx tsc --noEmit` clean; mobile `flutter analyze` clean,
+  196/196 tests (2 fewer than the prior 198 — the two ad-only tests were
+  deleted along with the feature, not broken by it). Confirmed via grep
+  there is zero remaining functional reference to Ads anywhere in
+  `lib/`/`test/` (only the now-deleted l10n keys existed, and those are gone
+  too).
 - **2026-07-22 — Live-device UX bug pass (post real-device testing).** Fixes
   from actual on-device use: **(1) Critical — expired-session lockup:** when the
   refresh interceptor gave up (dead refresh token) it cleared the token store

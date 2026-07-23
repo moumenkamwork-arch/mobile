@@ -32,7 +32,6 @@ class HomeRemoteDataSource implements HomeDataSource {
   ) async {
     return switch (request.type) {
       HomeContentDetailType.offer => _fetchOfferDetail(request.id),
-      HomeContentDetailType.ad => _fetchActiveAdDetail(request.id),
       HomeContentDetailType.unknown => throw const AppFailure.validation(
         message: 'Home detail is unavailable.',
       ),
@@ -50,24 +49,6 @@ class HomeRemoteDataSource implements HomeDataSource {
 
     return response.data ??
         (throw const AppFailure.notFound(message: 'Offer not found.'));
-  }
-
-  Future<HomeContentDetailDto> _fetchActiveAdDetail(String id) async {
-    final response = await _apiClient.get<List<HomeContentDetailDto>>(
-      ApiEndpoints.activeAds,
-      decode: (data) => HomeContentDetailDto.listFromJsonFlexible(
-        data,
-        fallbackType: HomeContentDetailType.ad,
-      ),
-    );
-
-    for (final detail in response.data ?? const <HomeContentDetailDto>[]) {
-      if (detail.id == id) {
-        return detail;
-      }
-    }
-
-    throw const AppFailure.notFound(message: 'Promotion not found.');
   }
 
   @override

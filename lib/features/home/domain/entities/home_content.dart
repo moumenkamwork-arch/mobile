@@ -25,13 +25,12 @@ class HomeContent {
   }
 }
 
-enum HomeContentDetailType { offer, ad, unknown }
+enum HomeContentDetailType { offer, unknown }
 
 extension HomeContentDetailTypeValue on HomeContentDetailType {
   String get routeValue {
     return switch (this) {
       HomeContentDetailType.offer => 'offer',
-      HomeContentDetailType.ad => 'ad',
       HomeContentDetailType.unknown => 'unknown',
     };
   }
@@ -44,7 +43,6 @@ extension HomeContentDetailTypeValue on HomeContentDetailType {
   String get dataFallbackLabel {
     return switch (this) {
       HomeContentDetailType.offer => 'Offer',
-      HomeContentDetailType.ad => 'Promotion',
       HomeContentDetailType.unknown => 'Promoo item',
     };
   }
@@ -56,7 +54,6 @@ extension HomeContentDetailTypeValue on HomeContentDetailType {
       'promotion' ||
       'promotions' ||
       'for-you' => HomeContentDetailType.offer,
-      'ad' || 'ads' => HomeContentDetailType.ad,
       _ => HomeContentDetailType.unknown,
     };
   }

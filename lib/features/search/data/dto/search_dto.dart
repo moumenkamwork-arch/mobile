@@ -158,7 +158,6 @@ class SearchResultsDto {
     results.addAll(_parseList(map['profiles'], SearchResultType.profile));
     results.addAll(_parseList(map['services'], SearchResultType.service));
     results.addAll(_parseList(map['offers'], SearchResultType.offer));
-    results.addAll(_parseList(map['ads'], SearchResultType.ad));
     return results;
   }
 
@@ -317,13 +316,6 @@ class SearchResultDto {
         categoryName: categoryName,
         isFeatured: isFeatured,
       ),
-      SearchResultType.ad => SearchAdResult(
-        id: resolvedId,
-        title: resolvedTitle,
-        description: description,
-        imageUrl: imageUrl,
-        provider: resolvedProvider,
-      ),
       SearchResultType.unknown => SearchUnknownResult(
         id: resolvedId,
         title: resolvedTitle,
@@ -386,7 +378,6 @@ SearchResultType _typeFromValue(String? value, SearchResultType fallbackType) {
     'profile' || 'profiles' => SearchResultType.profile,
     'service' || 'services' => SearchResultType.service,
     'offer' || 'offers' => SearchResultType.offer,
-    'ad' || 'ads' => SearchResultType.ad,
     _ => fallbackType,
   };
 }

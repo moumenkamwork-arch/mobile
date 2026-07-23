@@ -56,11 +56,11 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.ensureVisible(find.text('Ads'));
-    await tester.tap(find.text('Ads'));
+    await tester.ensureVisible(find.text('Offers'));
+    await tester.tap(find.text('Offers'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ads'), findsOneWidget);
+    expect(find.text('Offers'), findsOneWidget);
   });
 
   testWidgets('renders loading state', (tester) async {
@@ -201,38 +201,6 @@ void main() {
     expect(find.text('1500 AED'), findsOneWidget);
   });
 
-  testWidgets('ad result navigates to home detail route', (tester) async {
-    final router = createAppRouter(initialLocation: AppRoutes.search);
-    addTearDown(router.dispose);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          searchRepositoryProvider.overrideWithValue(
-            const _SearchRepository(result: Result.success(_adPage)),
-          ),
-          homeRepositoryProvider.overrideWithValue(
-            const _HomeRepository(detailResult: Result.success(_adDetail)),
-          ),
-        ],
-        child: MaterialApp.router(
-          theme: AppTheme.dark,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: router,
-        ),
-      ),
-    );
-
-    await tester.enterText(find.byType(TextField), 'spotlight');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Search'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Featured campaign spotlight'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Promotion'), findsAtLeastNWidgets(1));
-    expect(find.text('Featured campaign spotlight'), findsOneWidget);
-  });
 }
 
 Widget _buildSearchScreen(SearchRepository repository) {
@@ -282,16 +250,6 @@ const _offerPage = SearchResultsPage(
   ],
 );
 
-const _adPage = SearchResultsPage(
-  results: [
-    SearchAdResult(
-      id: 'ad-1',
-      title: 'Featured campaign spotlight',
-      description: 'Premium discovery placement for active campaigns.',
-    ),
-  ],
-);
-
 const _profile = PromooProfile(
   id: 'profile-saffron-social',
   displayName: 'Saffron Social Studio',
@@ -321,13 +279,6 @@ const _offerDetail = HomeContentDetail(
   title: 'Cafe opening spotlight',
   description: 'Discovery placement for a new cafe launch.',
   price: HomeContentPrice(amount: 1500, currency: 'AED'),
-);
-
-const _adDetail = HomeContentDetail(
-  id: 'ad-1',
-  type: HomeContentDetailType.ad,
-  title: 'Featured campaign spotlight',
-  description: 'Premium discovery placement for active campaigns.',
 );
 
 class _SearchRepository implements SearchRepository {

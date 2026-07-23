@@ -14,7 +14,6 @@ class RouteNames {
   static const profile = 'profile';
   static const profileDetail = 'profileDetail';
   static const profileEdit = 'profileEdit';
-  static const profileAddAd = 'profileAddAd';
   static const profileAddOffer = 'profileAddOffer';
   static const profileAddService = 'profileAddService';
   static const homeSeeAll = 'homeSeeAll';
@@ -49,7 +48,6 @@ class AppRoutes {
   static const seatCheckoutPreview = '/seats/checkout';
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';
-  static const profileAddAd = '/profile/add-ad';
   static const profileAddOffer = '/profile/add-offer';
   static const profileAddService = '/profile/add-service';
   static const homeSeeAllPath = '/home/see-all/:section';

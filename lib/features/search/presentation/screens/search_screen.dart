@@ -171,9 +171,6 @@ class _SearchBody extends StatelessWidget {
                     onOfferSelected: (offer) {
                       context.push(AppRoutes.homeItemDetail('offer', offer.id));
                     },
-                    onAdSelected: (ad) {
-                      context.push(AppRoutes.homeItemDetail('ad', ad.id));
-                    },
                   ),
                 ],
               )
@@ -197,9 +194,6 @@ class _SearchBody extends StatelessWidget {
         },
         onOfferSelected: (offer) {
           context.push(AppRoutes.homeItemDetail('offer', offer.id));
-        },
-        onAdSelected: (ad) {
-          context.push(AppRoutes.homeItemDetail('ad', ad.id));
         },
       ),
     };

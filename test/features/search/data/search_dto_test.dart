@@ -36,19 +36,15 @@ void main() {
             'profile': {'id': 'profile-2', 'full_name': 'Pearl District Cafe'},
           },
         ],
-        'ads': [
-          {'id': 'ad-1', 'title': 'Featured campaign spotlight'},
-        ],
       },
     });
 
     final page = dto.toDomain(fallbackCurrency: 'AED');
 
-    expect(page.results, hasLength(4));
+    expect(page.results, hasLength(3));
     expect(page.results[0], isA<SearchProfileResult>());
     expect(page.results[1], isA<SearchServiceResult>());
     expect(page.results[2], isA<SearchOfferResult>());
-    expect(page.results[3], isA<SearchAdResult>());
     expect((page.results[1] as SearchServiceResult).price?.label, '2200 AED');
     expect((page.results[2] as SearchOfferResult).price?.label, '1500 AED');
   });

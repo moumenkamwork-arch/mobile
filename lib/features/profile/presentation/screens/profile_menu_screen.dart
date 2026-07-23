@@ -302,12 +302,6 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
         label: l10n.menuAddOffer,
         onTap: () => context.push(AppRoutes.profileAddOffer),
       ),
-    if (caps.canAddAd)
-      _MenuRow(
-        icon: Icons.campaign_outlined,
-        label: l10n.menuAddAd,
-        onTap: () => context.push(AppRoutes.profileAddAd),
-      ),
     if (caps.canAddService)
       _MenuRow(
         icon: Icons.design_services_outlined,

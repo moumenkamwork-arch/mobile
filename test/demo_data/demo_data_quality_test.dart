@@ -113,7 +113,6 @@ Future<List<HomeContentDetail>> _homeDetails() async {
     ),
     HomeContentDetailRequest(type: HomeContentDetailType.offer, id: 'offer-1'),
     HomeContentDetailRequest(type: HomeContentDetailType.offer, id: 'offer-2'),
-    HomeContentDetailRequest(type: HomeContentDetailType.ad, id: 'ad-1'),
   ];
 
   return [

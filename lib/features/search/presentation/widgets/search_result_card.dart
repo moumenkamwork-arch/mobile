@@ -95,7 +95,6 @@ class _ResultVisual extends StatelessWidget {
       SearchResultType.profile => Icons.person_rounded,
       SearchResultType.service => Icons.handshake_rounded,
       SearchResultType.offer => Icons.local_offer_rounded,
-      SearchResultType.ad => Icons.campaign_rounded,
       SearchResultType.unknown => Icons.search_rounded,
     };
 
@@ -172,7 +171,6 @@ class _ResultMeta extends StatelessWidget {
       SearchResultType.profile => 'Profile',
       SearchResultType.service => 'Service',
       SearchResultType.offer => 'Offer',
-      SearchResultType.ad => 'Ad',
       SearchResultType.unknown => 'Result',
     };
   }

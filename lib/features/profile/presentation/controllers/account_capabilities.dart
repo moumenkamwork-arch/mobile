@@ -9,10 +9,13 @@ import '../../../auth/presentation/controllers/auth_controller.dart';
 /// no user is shown a control that would return `403 Forbidden`.
 ///
 /// Backend rules (see `docs/roles_logic.md`):
-/// - **Offers**  → `company`, `service_provider`
-/// - **Ads**     → `company`, `influencer`
+/// - **Offers**  → `company`, `service_provider`, `influencer`
 /// - **Services**→ `company`, `service_provider`
 /// - **Book seat**→ `influencer`
+///
+/// Ads were dropped from the app entirely (v1 scope is Offers + Services
+/// only, per the original client design) — `influencer`, who used to only
+/// get Ads, now publishes via Offers instead.
 ///
 /// A guest (no session) or a regular `user` can create nothing.
 class AccountCapabilities {
@@ -22,10 +25,7 @@ class AccountCapabilities {
 
   bool get canAddOffer =>
       accountType == AuthAccountType.company ||
-      accountType == AuthAccountType.serviceProvider;
-
-  bool get canAddAd =>
-      accountType == AuthAccountType.company ||
+      accountType == AuthAccountType.serviceProvider ||
       accountType == AuthAccountType.influencer;
 
   bool get canAddService =>
@@ -36,7 +36,7 @@ class AccountCapabilities {
 
   /// True when at least one creation action is available — used to decide
   /// whether to render the "create" group at all.
-  bool get canCreateAnything => canAddOffer || canAddAd || canAddService;
+  bool get canCreateAnything => canAddOffer || canAddService;
 }
 
 /// Reads the current session's `account_type` and exposes the derived

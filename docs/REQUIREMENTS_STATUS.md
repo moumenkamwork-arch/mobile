@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-22
+Last updated: 2026-07-23
 
 ---
 
@@ -24,12 +24,12 @@ Last updated: 2026-07-22
 | Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets (Visible to Companies and Influencers, but only Influencers can book) |
 | Seat checkout preview | ✅ | Display-only, no payment |
 | Cup / Leaderboard | ✅ | Header + podium + ranked list |
-| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Ad/Service (role-gated, wired live), **My Listings (new 2026-07-22 — edit/delete own content)**, Saved, My Packages, Following + Followers + Blocked Users, Support, Language, Theme Mode, Logout, **Delete Account (new 2026-07-22, red row + confirm → `DELETE /profiles/me`)**, legal links. **Fully localized.** |
+| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Service (role-gated, wired live — **no Add Ad, removed 2026-07-23**), **My Listings (new 2026-07-22 — edit/delete own content)**, Saved, My Packages, Following + Followers + Blocked Users, Support, Language, Theme Mode, Logout, **Delete Account (new 2026-07-22, red row + confirm → `DELETE /profiles/me`)**, legal links. **Fully localized.** |
 | Light theme (all screens) | ✅ | 2026-07-08: token system (`context.colors`), AA contrast, black brand chrome, dark-locked auth/splash/media viewers |
 | Back navigation (system + in-app) | ✅ | 2026-07-08: step-wise everywhere — details → list → categories → Home → double-press exit; push-based details; Services results layer intercepts back |
 | Edit Profile | ✅ | Fields = `updateProfileSchema`; local only. Media grid reuses the same `ProfileMediaSection` component as the public profile (fixed 2026-07-13 — it used to be a separate, poorer copy with no likes/comments/share). Avatar wired live 2026-07-20 (camera/gallery → `POST /upload/image` → `POST /profiles/me/avatar`); cover still not wired (no UI yet). |
-| Add New Ad (wizard) | ✅ | 4 steps; fields map to `POST /ads`; **wired live 2026-07-22** (defaults for `ad_type`/`budget`). Also **edit mode** (`editing:` param → `PUT /ads/:id`, prefills all 4 steps) via My Listings. Offer/Service Add screens gained the same edit mode. |
-| My Listings | ✅ | **New 2026-07-22.** Lists the signed-in user's own offers/services/ads (all statuses) from `GET /offers\|/services\|/ads/profile/:myId`; edit reuses the Add screens pre-filled, delete is confirm + optimistic (`DELETE /...`). Backend gaps filled: `deleteAd` and `GET /services/profile/:id` didn't exist and were added. |
+| ~~Add New Ad (wizard)~~ | ⛔ | **Removed entirely 2026-07-23** — the original client prototype only ever had Offers + Services; Ads was scope creep from an earlier build pass. All mobile code deleted (screen, route, repository, DTOs); backend `ads` table/routes untouched for a possible v2. `influencer` (Ads' only user) now uses Add Offer instead — backend added `influencer` to `POST /offers`'s allowed roles. Add Offer/Service screens kept their `editing:` param (edit mode via My Listings). |
+| My Listings | ✅ | **New 2026-07-22, Ads section removed 2026-07-23.** Lists the signed-in user's own offers/services (all statuses) from `GET /offers\|/services/profile/:myId`; edit reuses the Add screens pre-filled, delete is confirm + optimistic (`DELETE /...`). Backend gap filled: `GET /services/profile/:id` didn't exist and was added (`deleteAd` was also added 2026-07-22 but is now unused mobile-side). |
 | MyPackages | ✅ | Display-only (no backend package entity — v2) |
 | Saved / Following / Followers | ✅ | **Wired live** — `GET/POST /saved` + `DELETE /saved/:id` (bookmark button on offer/ad/service detail, 2026-07-22), `GET /follows/following|followers/:id` (Followers screen new, 2026-07-22) |
 | Support / About / Terms / Privacy | ✅ | Static/safe pages |
@@ -61,8 +61,8 @@ envelope parsing. Full live-wiring status: [integration_map.md](integration_map.
 
 **198 tests passing** · `flutter analyze` clean · `flutter build apk --release`
 verified end-to-end (58.5MB) · Tajawal + new logo applied ·
-AED everywhere · Light + Black themes done · role-gated Add Offer/Ad/Service
-(**wired live to the real backend, 2026-07-22**) ·
+AED everywhere · Light + Black themes done · role-gated Add Offer/Service
+(**wired live to the real backend, 2026-07-22; Add Ad removed 2026-07-23 — see below**) ·
 **bilingual, fully
 localized, LTR-locked layout proven by test** · **zero known duplicated UI
 components** (whole-app dedup sweep 2026-07-13).
@@ -80,6 +80,46 @@ a date picker stuck in placeholder styling, an un-translated "Back" tooltip) ·
 7 fully orphaned dead files deleted from the Seats feature (confirmed zero
 references anywhere + checked against the backend before deleting) · `README.md`
 rewritten for GitHub.
+
+**Recent (2026-07-23):** Two threads. **(A) Ads removed entirely from
+mobile.** The original client-provided prototype only ever had Offers +
+Services — Ads was scope creep added in an earlier build pass (discovered
+when the owner went looking for "Ads" content on Home and found none, then
+traced a mislabeled "Add New Offer" button in the old design mockups that
+actually opened the ad flow). Deleted every trace from the Flutter app: the
+`lib/features/ads/` slice, `AddAdWizardScreen`, the `profileAddAd` route, the
+"Add New Ad" menu row, the Ads section of My Listings, the `ad` branch of
+`HomeContentDetailType`/`ReportedType`/`SearchResultType`/`SearchFilterType`
+(plus the Home "ads/banners/promotions" highlight fallback and the
+`GET /ads/active` detail fetch), and ~50 now-dead `addAd*`/`homeDetailTypeAd`/
+`myListingsAdsSection` l10n keys. The backend `ads` table/routes/service were
+**not touched** — kept dormant for a possible v2 revival. `influencer`
+(previously Ads-only via `canAddAd`) now gets `canAddOffer` instead;
+`offer.routes.ts`'s `POST /offers` gained `influencer` to its allowed
+`requireAccountType` list. **(B) Live-device bug fixes** from real testing on
+two phones: **expired-session lockup** — the refresh interceptor cleared the
+token store on a dead refresh token but never told `AuthController`, so the
+app stayed on Home believing it was signed in while every request 401'd until
+a manual logout; fixed with a new `sessionExpiredSignalProvider` the app root
+listens to, bouncing to Login with a "session expired" notice. **Friendlier
+auth errors** (401 → "wrong email or password" instead of the raw backend
+string). **"Message" button** on offer/service detail now opens a direct chat
+with that provider instead of the generic chat list. **Chat opens at the
+latest message** (new scrolling `_MessageList`, was opening at the top).
+**Story viewer is truly fullscreen** (pushed on `rootNavigator: true`, was
+showing the shell's bottom bar underneath) and the bogus `"Story update"`
+caption fallback is gone. **Block reliability + polish**: `toggleBlock()` now
+reports real success/failure (was always claiming success); restyled the
+block confirm dialog and menu items; **blocking now auto-unfollows both
+directions** (backend `block.service.ts` clears any `follows` row between the
+pair); **block + report added inside the chat room** itself (Instagram-style
+"⋮" in the header). **Edit Profile's category field** is a real picker now
+(was a "coming soon" stub) — `ProfileUpdateDraft` gained `categoryId`, saved
+via `PUT /profiles/me`. **Seat "Book Now"** shows a "coming soon" notice
+instead of navigating to a disconnected, differently-styled checkout mock
+(real booking is Stripe/v2). Backend `npx tsc --noEmit` clean; mobile
+`flutter analyze` clean, 196/196 tests (2 fewer than before — the two ad-only
+tests were deleted, not broken). Full detail: `MEMORY_BANK.md` §5.
 
 **Recent (2026-07-22, "finish everything" pass):** Closed the last four v1
 gaps beyond block. **(1) Content edit/delete + My Listings:** the three Add

@@ -191,29 +191,6 @@ const _fakeDetails = [
     validUntil: '2026-08-20',
   ),
   HomeContentDetailDto(
-    id: 'ad-1',
-    type: HomeContentDetailType.ad,
-    title: 'Featured campaign spotlight',
-    description:
-        'A premium discovery placement for active campaigns that need stronger visibility during launch week.',
-    imageUrl: _demoTeamImage,
-    badge: 'Featured placement',
-    provider: HomeContentProviderDto(
-      id: 'profile-saffron-social',
-      name: 'Saffron Social Studio',
-      username: 'saffron.social',
-      accountType: 'company',
-      isVerified: true,
-    ),
-    categoryName: 'Digital Marketing',
-    tags: ['Spotlight', 'Campaign'],
-    price: 900,
-    currency: 'AED',
-    location: 'Dubai',
-    terms:
-        'Placement details are confirmed with the provider before activation.',
-  ),
-  HomeContentDetailDto(
     id: 'offer-6',
     type: HomeContentDetailType.offer,
     title: 'Restaurant reel boost',

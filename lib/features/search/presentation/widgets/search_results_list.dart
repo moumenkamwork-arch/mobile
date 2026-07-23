@@ -11,14 +11,12 @@ class SearchResultsList extends StatelessWidget {
     required this.onProfileSelected,
     this.onServiceSelected,
     this.onOfferSelected,
-    this.onAdSelected,
   });
 
   final List<SearchResult> results;
   final ValueChanged<SearchProfileResult> onProfileSelected;
   final ValueChanged<SearchServiceResult>? onServiceSelected;
   final ValueChanged<SearchOfferResult>? onOfferSelected;
-  final ValueChanged<SearchAdResult>? onAdSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +39,6 @@ class SearchResultsList extends StatelessWidget {
     }
     if (result is SearchOfferResult && onOfferSelected != null) {
       return () => onOfferSelected!(result);
-    }
-    if (result is SearchAdResult && onAdSelected != null) {
-      return () => onAdSelected!(result);
     }
     return null;
   }

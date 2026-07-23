@@ -175,9 +175,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAddOffer => 'Add New Offer';
 
   @override
-  String get menuAddAd => 'Add New Ad';
-
-  @override
   String get menuAddService => 'Add New Service';
 
   @override
@@ -235,16 +232,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myListingsEmptyMessage =>
-      'Offers, services, and ads you publish will appear here.';
+      'Offers and services you publish will appear here.';
 
   @override
   String get myListingsOffersSection => 'Offers';
 
   @override
   String get myListingsServicesSection => 'Services';
-
-  @override
-  String get myListingsAdsSection => 'Ads';
 
   @override
   String get myListingsEditTooltip => 'Edit';
@@ -537,9 +531,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeDetailTypeOffer => 'Offer';
 
   @override
-  String get homeDetailTypeAd => 'Promotion';
-
-  @override
   String get homeDetailTypeUnknown => 'Promoo item';
 
   @override
@@ -702,6 +693,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seatsMoreSeatsOpeningSoon => 'More seats are opening soon.';
+
+  @override
+  String get seatsBookingComingSoon =>
+      'Seat booking & payment are coming in the next phase.';
 
   @override
   String get seatsBookSeatLabel => 'Book Seat';
@@ -1220,16 +1215,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addServiceEditTitle => 'Edit Service';
 
   @override
-  String get addAdEditTitle => 'Edit Ad';
-
-  @override
   String get addOfferUpdated => 'Offer updated';
 
   @override
   String get addServiceUpdated => 'Service updated';
-
-  @override
-  String get addAdUpdated => 'Ad updated';
 
   @override
   String get addCommonValidationTitle => 'Please complete the required fields.';
@@ -1244,9 +1233,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addServicePublished => 'Service published.';
-
-  @override
-  String get addAdPublished => 'Ad submitted.';
 
   @override
   String get addOfferCreateButton => 'Create Offer';
@@ -1342,124 +1328,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addServiceReadySnackbar =>
       'Your service is ready! Publishing will be enabled in the next phase.';
-
-  @override
-  String get addAdScreenTitle => 'Add New AD';
-
-  @override
-  String get addAdStepBasic => 'Basic Ad Details';
-
-  @override
-  String get addAdStepLocation => 'Location Information';
-
-  @override
-  String get addAdStepContact => 'Contact Information';
-
-  @override
-  String get addAdStepPricing => 'Pricing Information';
-
-  @override
-  String get addAdTitleLabel => 'Ad Title';
-
-  @override
-  String get addAdUploadImagesLabel => 'Upload additional images';
-
-  @override
-  String get addAdPostDateLabel => 'Post Date';
-
-  @override
-  String get addAdSelectDateCap => 'Select Date';
-
-  @override
-  String get addAdTagsHint => 'Add Tags';
-
-  @override
-  String get addAdCityLabel => 'City';
-
-  @override
-  String get addAdSelectCity => 'Select City';
-
-  @override
-  String get addAdAreaLabel => 'Area';
-
-  @override
-  String get addAdSelectArea => 'Select Area';
-
-  @override
-  String get addAdFullAddressLabel => 'full Address';
-
-  @override
-  String get addAdFullAddressHint => 'Full Address';
-
-  @override
-  String get addAdLocationMapLabel => 'Location Map';
-
-  @override
-  String get addAdUploadLocationMap => 'Upload Location Map';
-
-  @override
-  String get addAdLocationMapCaption => 'Please upload location map';
-
-  @override
-  String get addAdPhoneLabel => 'Phone Number';
-
-  @override
-  String get addAdWhatsappLabel => 'Whatsapp Number';
-
-  @override
-  String get addAdInstagramLabel => 'Instagram Link';
-
-  @override
-  String get addAdCurrencyLabel => 'Currency';
-
-  @override
-  String get addAdSelectCurrency => 'Select Currency';
-
-  @override
-  String get addAdServiceProductLabel => 'Service / Product';
-
-  @override
-  String get addAdSelectType => 'Select Type';
-
-  @override
-  String get addAdPaymentMethodLabel => 'Payment Method';
-
-  @override
-  String get addAdSelectPaymentMethod => 'Select Payment Method';
-
-  @override
-  String get addAdNextButton => 'Next';
-
-  @override
-  String get addAdCreateButton => 'Create AD';
-
-  @override
-  String get addAdReadySnackbar =>
-      'Your ad is ready! Publishing will be enabled in the next phase.';
-
-  @override
-  String get addAdCityDubai => 'Dubai';
-
-  @override
-  String get addAdCityAbuDhabi => 'Abu Dhabi';
-
-  @override
-  String get addAdCitySharjah => 'Sharjah';
-
-  @override
-  String get addAdCityAjman => 'Ajman';
-
-  @override
-  String get addAdCityRasAlKhaimah => 'Ras Al Khaimah';
-
-  @override
-  String get addAdCityFujairah => 'Fujairah';
-
-  @override
-  String get addAdCityUmmAlQuwain => 'Umm Al Quwain';
-
-  @override
-  String get addAdCityAlAin => 'Al Ain';
 
   @override
   String get commonSomethingWentWrongShort => 'Something went wrong.';

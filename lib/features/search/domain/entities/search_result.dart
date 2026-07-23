@@ -1,6 +1,6 @@
-enum SearchResultType { profile, service, offer, ad, unknown }
+enum SearchResultType { profile, service, offer, unknown }
 
-enum SearchFilterType { all, profiles, influencers, services, offers, ads }
+enum SearchFilterType { all, profiles, influencers, services, offers }
 
 extension SearchFilterTypeValue on SearchFilterType {
   String get label {
@@ -10,7 +10,6 @@ extension SearchFilterTypeValue on SearchFilterType {
       SearchFilterType.influencers => 'Influencers',
       SearchFilterType.services => 'Services',
       SearchFilterType.offers => 'Offers',
-      SearchFilterType.ads => 'Ads',
     };
   }
 
@@ -21,7 +20,6 @@ extension SearchFilterTypeValue on SearchFilterType {
       SearchFilterType.influencers => 'profiles',
       SearchFilterType.services => 'services',
       SearchFilterType.offers => 'offers',
-      SearchFilterType.ads => 'ads',
     };
   }
 
@@ -35,7 +33,6 @@ extension SearchFilterTypeValue on SearchFilterType {
       SearchFilterType.influencers => SearchResultType.profile,
       SearchFilterType.services => SearchResultType.service,
       SearchFilterType.offers => SearchResultType.offer,
-      SearchFilterType.ads => SearchResultType.ad,
       SearchFilterType.all => SearchResultType.unknown,
     };
   }
@@ -130,16 +127,6 @@ class SearchOfferResult extends SearchResult {
   final SearchResultPrice? price;
   final String? categoryName;
   final bool isFeatured;
-}
-
-class SearchAdResult extends SearchResult {
-  const SearchAdResult({
-    required super.id,
-    required super.title,
-    super.description,
-    super.imageUrl,
-    super.provider,
-  }) : super(type: SearchResultType.ad, subtitle: 'Ad');
 }
 
 class SearchUnknownResult extends SearchResult {

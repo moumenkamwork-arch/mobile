@@ -175,9 +175,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuAddOffer => 'إضافة عرض جديد';
 
   @override
-  String get menuAddAd => 'إضافة إعلان جديد';
-
-  @override
   String get menuAddService => 'إضافة خدمة جديدة';
 
   @override
@@ -233,17 +230,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myListingsEmptyTitle => 'لا يوجد شيء منشور بعد';
 
   @override
-  String get myListingsEmptyMessage =>
-      'العروض والخدمات والإعلانات التي تنشرها ستظهر هنا.';
+  String get myListingsEmptyMessage => 'العروض والخدمات التي تنشرها ستظهر هنا.';
 
   @override
   String get myListingsOffersSection => 'العروض';
 
   @override
   String get myListingsServicesSection => 'الخدمات';
-
-  @override
-  String get myListingsAdsSection => 'الإعلانات';
 
   @override
   String get myListingsEditTooltip => 'تعديل';
@@ -534,9 +527,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeDetailTypeOffer => 'عرض';
 
   @override
-  String get homeDetailTypeAd => 'إعلان ترويجي';
-
-  @override
   String get homeDetailTypeUnknown => 'عنصر بروموو';
 
   @override
@@ -709,6 +699,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get seatsMoreSeatsOpeningSoon => 'مقاعد إضافية ستُفتح قريباً.';
+
+  @override
+  String get seatsBookingComingSoon =>
+      'حجز المقعد والدفع قريباً بالمرحلة الجاية.';
 
   @override
   String get seatsBookSeatLabel => 'احجز مقعد';
@@ -1221,16 +1215,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addServiceEditTitle => 'تعديل الخدمة';
 
   @override
-  String get addAdEditTitle => 'تعديل الإعلان';
-
-  @override
   String get addOfferUpdated => 'تم تحديث العرض';
 
   @override
   String get addServiceUpdated => 'تم تحديث الخدمة';
-
-  @override
-  String get addAdUpdated => 'تم تحديث الإعلان';
 
   @override
   String get addCommonValidationTitle => 'يرجى إكمال الحقول المطلوبة.';
@@ -1245,9 +1233,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addServicePublished => 'تم نشر الخدمة.';
-
-  @override
-  String get addAdPublished => 'تم إرسال الإعلان.';
 
   @override
   String get addOfferCreateButton => 'إنشاء عرض';
@@ -1341,124 +1326,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get addServiceReadySnackbar =>
       'خدمتك جاهزة! سيُفعّل النشر بالمرحلة القادمة.';
-
-  @override
-  String get addAdScreenTitle => 'إضافة إعلان جديد';
-
-  @override
-  String get addAdStepBasic => 'تفاصيل الإعلان الأساسية';
-
-  @override
-  String get addAdStepLocation => 'معلومات الموقع';
-
-  @override
-  String get addAdStepContact => 'معلومات التواصل';
-
-  @override
-  String get addAdStepPricing => 'معلومات التسعير';
-
-  @override
-  String get addAdTitleLabel => 'عنوان الإعلان';
-
-  @override
-  String get addAdUploadImagesLabel => 'رفع صور إضافية';
-
-  @override
-  String get addAdPostDateLabel => 'تاريخ النشر';
-
-  @override
-  String get addAdSelectDateCap => 'اختر التاريخ';
-
-  @override
-  String get addAdTagsHint => 'أضف وسوماً';
-
-  @override
-  String get addAdCityLabel => 'المدينة';
-
-  @override
-  String get addAdSelectCity => 'اختر المدينة';
-
-  @override
-  String get addAdAreaLabel => 'المنطقة';
-
-  @override
-  String get addAdSelectArea => 'اختر المنطقة';
-
-  @override
-  String get addAdFullAddressLabel => 'العنوان الكامل';
-
-  @override
-  String get addAdFullAddressHint => 'العنوان الكامل';
-
-  @override
-  String get addAdLocationMapLabel => 'خريطة الموقع';
-
-  @override
-  String get addAdUploadLocationMap => 'رفع خريطة الموقع';
-
-  @override
-  String get addAdLocationMapCaption => 'يرجى رفع خريطة الموقع';
-
-  @override
-  String get addAdPhoneLabel => 'رقم الهاتف';
-
-  @override
-  String get addAdWhatsappLabel => 'رقم واتساب';
-
-  @override
-  String get addAdInstagramLabel => 'رابط إنستغرام';
-
-  @override
-  String get addAdCurrencyLabel => 'العملة';
-
-  @override
-  String get addAdSelectCurrency => 'اختر العملة';
-
-  @override
-  String get addAdServiceProductLabel => 'خدمة / منتج';
-
-  @override
-  String get addAdSelectType => 'اختر النوع';
-
-  @override
-  String get addAdPaymentMethodLabel => 'طريقة الدفع';
-
-  @override
-  String get addAdSelectPaymentMethod => 'اختر طريقة الدفع';
-
-  @override
-  String get addAdNextButton => 'التالي';
-
-  @override
-  String get addAdCreateButton => 'إنشاء الإعلان';
-
-  @override
-  String get addAdReadySnackbar =>
-      'إعلانك جاهز! سيُفعّل النشر بالمرحلة القادمة.';
-
-  @override
-  String get addAdCityDubai => 'دبي';
-
-  @override
-  String get addAdCityAbuDhabi => 'أبوظبي';
-
-  @override
-  String get addAdCitySharjah => 'الشارقة';
-
-  @override
-  String get addAdCityAjman => 'عجمان';
-
-  @override
-  String get addAdCityRasAlKhaimah => 'رأس الخيمة';
-
-  @override
-  String get addAdCityFujairah => 'الفجيرة';
-
-  @override
-  String get addAdCityUmmAlQuwain => 'أم القيوين';
-
-  @override
-  String get addAdCityAlAin => 'العين';
 
   @override
   String get commonSomethingWentWrongShort => 'حدث خطأ ما.';

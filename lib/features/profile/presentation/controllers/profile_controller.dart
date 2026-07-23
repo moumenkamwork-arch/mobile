@@ -177,10 +177,14 @@ class ProfileController extends Notifier<ProfileState> {
     }
 
     final wasBlocked = state.isBlocked;
+    final wasFollowing = state.isFollowing;
     state = ProfileState.success(
       profile: profile,
       packages: state.packages,
-      isFollowing: state.isFollowing,
+      // Blocking severs the follow relationship both ways server-side
+      // (`block.service.ts`) — reflect that immediately instead of leaving a
+      // stale "Following" button until the next full reload.
+      isFollowing: wasBlocked ? wasFollowing : false,
       isBlocked: !wasBlocked,
     );
 
@@ -199,7 +203,7 @@ class ProfileController extends Notifier<ProfileState> {
           state = ProfileState.success(
             profile: state.profile!,
             packages: state.packages,
-            isFollowing: state.isFollowing,
+            isFollowing: wasFollowing,
             isBlocked: wasBlocked,
           );
         }
