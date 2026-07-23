@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_failure.dart';
+import '../../../../core/utils/cache_clear.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_session.dart';
 
@@ -156,6 +157,7 @@ class AuthController extends Notifier<AuthState> {
     final previousSession = state.session;
     state = AuthState.loggingOut(previousSession);
     final result = await ref.read(authRepositoryProvider).logout();
+    clearUserSessionCaches(ref);
     if (_disposed) {
       return;
     }
@@ -174,6 +176,7 @@ class AuthController extends Notifier<AuthState> {
     if (_disposed) {
       return;
     }
+    clearUserSessionCaches(ref);
     state = const AuthState.sessionExpired();
   }
 
@@ -204,6 +207,7 @@ class AuthController extends Notifier<AuthState> {
 
   AuthState _stateForSession(AuthSession session) {
     if (session.isAuthenticated) {
+      clearUserSessionCaches(ref);
       return AuthState.authenticated(session);
     }
 

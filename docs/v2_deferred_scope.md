@@ -167,6 +167,14 @@ These are not "features" but stray MVP fields with no backing data. Hide them wh
 
 ---
 
+## 11. Content Moderation & Statuses (v2 enhancements)
+
+| Item | Backend support | v1 behaviour |
+| --- | --- | --- |
+| Services `rejected` status | Supabase `services` table check constraint currently enforces `active`, `paused`, `deleted`. | **Deferred to v2.** In v1, services in the Dashboard & API use `active` (live) and `paused` (hidden/suspended), plus deletion. Adding a formal `rejected` status to `services` requires a DB constraint migration in v2. |
+
+---
+
 ## Cross-reference
 
 - Everything **kept and wired later** (follow, saved, add offer/ad, profile edit, uploads, categories, auth wiring, token persistence, base URL) lives in [build_plan.md](build_plan.md) **Phase B**.

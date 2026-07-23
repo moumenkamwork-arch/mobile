@@ -48,6 +48,7 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
   String? _mainImageUrl;
   String? _additionalImageUrl;
   bool _isSubmitting = false;
+  bool _hasSubmitted = false;
 
   bool get _isEditing => widget.editing != null;
 
@@ -126,6 +127,8 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                   controller: _titleController,
                   hint: l10n.addOfferTitleHint,
                   textInputAction: TextInputAction.next,
+                  isError: _hasSubmitted && _titleController.text.trim().length < 3,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonDescriptionLabel),
@@ -134,12 +137,15 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                   hint: l10n.addOfferDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
+                  isError: _hasSubmitted && _descriptionController.text.trim().length < 10,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonCategoryLabel),
                 AddFormPickerField(
                   hint: _category?.name ?? l10n.commonSelectCategory,
                   isPlaceholder: _category == null,
+                  isError: _hasSubmitted && _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
                 ),
@@ -173,6 +179,12 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                               decimal: true,
                             ),
                             suffixIcon: const AddFormAdornment('AED'),
+                            isError: _hasSubmitted &&
+                                (num.tryParse(_originalPriceController.text.trim()) != null &&
+                                    num.tryParse(_offerPriceController.text.trim()) != null &&
+                                    num.tryParse(_offerPriceController.text.trim())! >=
+                                        num.tryParse(_originalPriceController.text.trim())!),
+                            onChanged: (_) => setState(() {}),
                           ),
                         ],
                       ),
@@ -190,6 +202,13 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                               decimal: true,
                             ),
                             suffixIcon: const AddFormAdornment('AED'),
+                            isError: _hasSubmitted &&
+                                (num.tryParse(_offerPriceController.text.trim()) == null ||
+                                    num.tryParse(_offerPriceController.text.trim())! <= 0 ||
+                                    (num.tryParse(_originalPriceController.text.trim()) != null &&
+                                        num.tryParse(_offerPriceController.text.trim())! >=
+                                            num.tryParse(_originalPriceController.text.trim())!)),
+                            onChanged: (_) => setState(() {}),
                           ),
                         ],
                       ),
@@ -377,6 +396,8 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
     final offerPrice = num.tryParse(_offerPriceController.text.trim());
     final originalPrice = num.tryParse(_originalPriceController.text.trim());
     final discount = int.tryParse(_discountController.text.trim());
+
+    setState(() => _hasSubmitted = true);
 
     // Mirror `createOfferSchema` so we fail fast in the UI instead of on a 400.
     if (category == null ||

@@ -4,23 +4,11 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-23 (**Ads removed entirely from the mobile app** —
-> the client's original prototype only ever had Offers + Services; Ads was
-> scope creep from an earlier build pass, discovered when the owner went
-> looking for Ads content on Home and found none. Every trace deleted from
-> Flutter (`lib/features/ads/`, the wizard screen, its route/menu row, My
-> Listings' Ads section, the `ad` branch of 4 different enums, ~50 dead l10n
-> keys) — **backend `ads` table/routes untouched**, kept dormant for v2.
-> `influencer` (Ads' only user) now gets Add Offer instead
-> (`requireAccountType` on `POST /offers` gained `influencer`). Same day:
-> a **live-device bug-fix pass** — expired-session lockup (the app used to
-> stay on Home believing it was signed in while every request silently
-> 401'd), friendlier login errors, chat "Message" button opens a direct
-> chat with the right provider, chat opens at the latest message, story
-> viewer is truly fullscreen with the bogus "Story update" caption gone,
-> block now reports real success/failure and auto-unfollows both
-> directions, block+report added inside the chat room, and Edit Profile's
-> category field is a real picker. See §5 top entries.) Before that:
+> Last updated: 2026-07-23 (**Caching Strategy, Red Borders & Instant Profile Avatar Sync** —
+> (1) **Full Caching Strategy implemented**: `cached_network_image` integrated into `PromooImage` for automatic disk caching of all network images; `serviceCategoriesProvider` made a permanent `FutureProvider` for session-wide reference data caching; `clearUserSessionCaches` utility created to invalidate user-specific providers on logout/expiry.
+> (2) **Form Validation Error Styling**: added `isError` prop with red border highlighting to `PromooTextField` and `AddFormPickerField` across Add Offer / Add Service forms.
+> (3) **Instant Profile Avatar Sync**: `auth_controller.dart` calls `clearUserSessionCaches` on login/logout/expiry so avatar and profile update immediately without restarting the app.
+> Earlier same day: Ads removed entirely from mobile, Admin Services status & delete endpoints added, formal `rejected` status for services deferred to v2 in `v2_deferred_scope.md` §11.) Before that:
 > 2026-07-22 (**"Finish everything" pass — last four v1 gaps
 > closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an
 > `editing:` arg and submit `PUT /…/:id`; new **My Listings** screen lists own

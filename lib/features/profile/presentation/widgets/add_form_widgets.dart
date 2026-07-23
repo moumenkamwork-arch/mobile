@@ -132,12 +132,14 @@ class AddFormPickerField extends StatelessWidget {
     required this.trailing,
     required this.onTap,
     this.isPlaceholder = true,
+    this.isError = false,
   });
 
   final String hint;
   final IconData trailing;
   final VoidCallback onTap;
   final bool isPlaceholder;
+  final bool isError;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +147,17 @@ class AddFormPickerField extends StatelessWidget {
       onTap: onTap,
       borderRadius: AppRadius.input,
       child: InputDecorator(
-        decoration: const InputDecoration(),
+        decoration: InputDecoration(
+          enabledBorder: isError
+              ? OutlineInputBorder(
+                  borderRadius: AppRadius.input,
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.error,
+                    width: 1.5,
+                  ),
+                )
+              : null,
+        ),
         child: Row(
           children: [
             Expanded(

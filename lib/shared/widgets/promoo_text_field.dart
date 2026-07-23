@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_radius.dart';
+
 class PromooTextField extends StatelessWidget {
   const PromooTextField({
     super.key,
@@ -12,6 +14,7 @@ class PromooTextField extends StatelessWidget {
     this.textInputAction,
     this.obscureText = false,
     this.enabled = true,
+    this.isError = false,
     this.onChanged,
     this.onSubmitted,
   });
@@ -25,6 +28,7 @@ class PromooTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final bool obscureText;
   final bool enabled;
+  final bool isError;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
@@ -43,6 +47,15 @@ class PromooTextField extends StatelessWidget {
         hintText: hint,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        enabledBorder: isError
+            ? OutlineInputBorder(
+                borderRadius: AppRadius.input,
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.error,
+                  width: 1.5,
+                ),
+              )
+            : null,
       ),
     );
   }

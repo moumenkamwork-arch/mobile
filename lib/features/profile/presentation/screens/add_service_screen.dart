@@ -40,6 +40,7 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
   ServiceCategory? _category;
   String? _imageUrl;
   bool _isSubmitting = false;
+  bool _hasSubmitted = false;
 
   bool get _isEditing => widget.editing != null;
 
@@ -106,6 +107,8 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                   controller: _titleController,
                   hint: l10n.addServiceTitleHint,
                   textInputAction: TextInputAction.next,
+                  isError: _hasSubmitted && _titleController.text.trim().length < 5,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonDescriptionLabel),
@@ -114,12 +117,15 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                   hint: l10n.addServiceDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
+                  isError: _hasSubmitted && _descriptionController.text.trim().length < 10,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
                 AddFormFieldLabel(l10n.addCommonCategoryLabel),
                 AddFormPickerField(
                   hint: _category?.name ?? l10n.commonSelectCategory,
                   isPlaceholder: _category == null,
+                  isError: _hasSubmitted && _category == null,
                   trailing: Icons.keyboard_arrow_down_rounded,
                   onTap: _pickCategory,
                 ),
@@ -150,6 +156,10 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                           decimal: true,
                         ),
                         suffixIcon: const AddFormAdornment('AED'),
+                        isError: _hasSubmitted &&
+                            (num.tryParse(_priceController.text.trim()) == null ||
+                                num.tryParse(_priceController.text.trim())! <= 0),
+                        onChanged: (_) => setState(() {}),
                       ),
                     ],
                   ),
@@ -165,6 +175,10 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                         hint: l10n.addServiceDeliveryHint,
                         keyboardType: TextInputType.number,
                         suffixIcon: AddFormAdornment(l10n.addServiceDaysSuffix),
+                        isError: _hasSubmitted &&
+                            (int.tryParse(_deliveryController.text.trim()) == null ||
+                                int.tryParse(_deliveryController.text.trim())! <= 0),
+                        onChanged: (_) => setState(() {}),
                       ),
                     ],
                   ),
@@ -249,6 +263,8 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
     final description = _descriptionController.text.trim();
     final price = num.tryParse(_priceController.text.trim());
     final deliveryDays = int.tryParse(_deliveryController.text.trim());
+
+    setState(() => _hasSubmitted = true);
 
     // Mirror `createServiceSchema`: title >= 5, description >= 10, price > 0,
     // delivery_days a positive int, category required.

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
@@ -28,27 +29,21 @@ class PromooImage extends StatelessWidget {
 
     final uri = Uri.tryParse(source);
     if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
-      return Image.network(
-        source,
+      return CachedNetworkImage(
+        imageUrl: source,
         fit: fit,
-        alignment: alignment,
-        semanticLabel: semanticLabel,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          }
-          return _ImageFallback(
-            icon: fallbackIcon,
-            semanticLabel: semanticLabel,
-            showPulse: true,
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _ImageFallback(
-            icon: fallbackIcon,
-            semanticLabel: semanticLabel,
-          );
-        },
+        alignment: alignment is Alignment
+            ? alignment as Alignment
+            : Alignment.center,
+        placeholder: (context, url) => _ImageFallback(
+          icon: fallbackIcon,
+          semanticLabel: semanticLabel,
+          showPulse: true,
+        ),
+        errorWidget: (context, url, error) => _ImageFallback(
+          icon: fallbackIcon,
+          semanticLabel: semanticLabel,
+        ),
       );
     }
 
