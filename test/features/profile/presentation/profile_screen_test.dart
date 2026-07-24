@@ -58,23 +58,7 @@ void main() {
     // Owner sees the Edit profile action (it routes to the edit screen).
     expect(find.text('Edit profile'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.text('Packages'),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
 
-    expect(find.text('Packages'), findsAtLeastNWidgets(1));
-    await tester.scrollUntilVisible(
-      find.text('Boutique launch campaign'),
-      180,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Boutique launch campaign'), findsOneWidget);
-    expect(find.text('2200 AED'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Media'),
@@ -163,15 +147,7 @@ void main() {
     expect(find.text('Message'), findsOneWidget);
     expect(find.text('Edit profile'), findsNothing);
 
-    await tester.scrollUntilVisible(
-      find.text('Boutique launch campaign'),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-
     expect(find.text('Profile tools'), findsNothing);
-    expect(find.text('Boutique launch campaign'), findsOneWidget);
   });
 
   testWidgets('renders error state', (tester) async {

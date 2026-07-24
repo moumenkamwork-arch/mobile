@@ -17,7 +17,6 @@ import '../widgets/profile_about_section.dart';
 import '../widgets/profile_action_bar.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_media_section.dart';
-import '../widgets/profile_packages_section.dart';
 import '../widgets/profile_stats_row.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -206,8 +205,7 @@ class _ProfileContentView extends ConsumerWidget {
                       },
                       onEditPressed: () => context.push(AppRoutes.profileEdit),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    ProfilePackagesSection(packages: state.packages),
+
                     const SizedBox(height: AppSpacing.lg),
                     ProfileMediaSection(
                       mediaUrls: profile.mediaUrls,
