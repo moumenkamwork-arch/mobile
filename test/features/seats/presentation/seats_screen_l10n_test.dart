@@ -45,7 +45,9 @@ void main() {
       expect(find.text('مقاعد فضية'), findsOneWidget);
       expect(find.text('مقاعد برونزية'), findsOneWidget);
       expect(find.text('المؤثرون'), findsOneWidget);
-      expect(find.text('المقاعد المتاحة'), findsOneWidget);
+      // No session here (guest) — only influencers see the "available seats"
+      // stat; everyone else sees occupied seats only, so the chip is hidden.
+      expect(find.text('المقاعد المتاحة'), findsNothing);
       // Arabic text, but the layout stays LTR (owner decision — no mirrored UI).
       expect(
         Directionality.of(tester.element(find.text('مقاعد ذهبية'))),

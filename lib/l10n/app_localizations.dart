@@ -1814,6 +1814,42 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get profileMediaShareLabel;
 
+  /// No description provided for @profileMediaDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete item'**
+  String get profileMediaDeleteTooltip;
+
+  /// No description provided for @profileMediaDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete item'**
+  String get profileMediaDeleteTitle;
+
+  /// No description provided for @profileMediaDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this item from your profile?'**
+  String get profileMediaDeleteConfirmMessage;
+
+  /// No description provided for @profileMediaDeleteConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get profileMediaDeleteConfirmAction;
+
+  /// No description provided for @profileMediaDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Item deleted successfully'**
+  String get profileMediaDeleteSuccess;
+
+  /// No description provided for @profileMediaDeleteFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete the item, please try again'**
+  String get profileMediaDeleteFailure;
+
   /// No description provided for @profileAboutTitle.
   ///
   /// In en, this message translates to:

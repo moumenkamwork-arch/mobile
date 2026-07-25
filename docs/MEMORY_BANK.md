@@ -4,13 +4,11 @@
 > single entry point an AI/engineer should read first. Mirrors the backend's
 > `promo_backend/docs/MEMORY_BANK.md`. Update it after every meaningful change.
 >
-> Last updated: 2026-07-23 (**Caching Strategy, Red Borders, Instant Avatar Sync & 5-Item Bottom Bar** —
-> (1) **Temporary 5-item Bottom Bar**: `PromooShell.tabsFor` now swaps `offers` for `seats` when `canViewSeats` is true (influencer / company), so every account type sees exactly 5 bottom bar items (no 6-item bar). Documented in `v2_deferred_scope.md` §11.
-> (2) **Full Caching Strategy implemented**: `cached_network_image` integrated into `PromooImage` for automatic disk caching of all network images; `serviceCategoriesProvider` made a permanent `FutureProvider` for session-wide reference data caching; `clearUserSessionCaches` utility created to invalidate user-specific providers on logout/expiry.
-> (3) **Form Validation Error Styling**: added `isError` prop with red border highlighting to `PromooTextField` and `AddFormPickerField` across Add Offer / Add Service forms.
-> (4) **Instant Profile Avatar Sync**: `auth_controller.dart` calls `clearUserSessionCaches` on login/logout/expiry so avatar and profile update immediately without restarting the app.
-> (5) **Chat Realtime Reconnection Guard**: fixed `ChatRealtimeService` listener condition to connect whenever `next.isAuthenticated && _client == null`, ensuring Supabase Realtime WebSocket stays connected even when auth state updates.
-> (6) **Profile Media Deletion Flow**: added full deletion support for profile media items (`deleteMedia` in repository/controller). Owner can long-press any media tile in `ProfileMediaSection` or tap the red trash button in `ProfileMediaViewer` to confirm and delete media items (which syncs via `DELETE /upload/media` with backend DB and storage).
+> Last updated: 2026-07-25 (**My Packages Completely Hidden/Removed, Home Story + Button Avatar Sync, Logout ANR Fix** —
+> (1) **"My Packages" (`باقاتي`) Removed Entirely from App Frontend**: Per owner request, removed `ProfilePackagesSection` from public profile (`profile_screen.dart`) and deleted `_MenuRow` for `menuPackages` from profile settings menu (`profile_menu_screen.dart`). Updated test suites (`profile_screen_test.dart`, `promoo_shell_test.dart`, `profile_screen_l10n_test.dart`). 196/196 tests passing clean.
+> (2) **Home Story + Button Avatar Fallback (`home_story_strip.dart`)**: Updated `_AddStoryTileState` to fallback to `user?.avatarUrl` from `authControllerProvider` session so the user avatar behind the story creation `+` button renders instantly upon login without requiring app restart.
+> (3) **Logout ANR / Freeze Flow Fix (`login_screen.dart`, `register_screen.dart`, `profile_menu_screen.dart`)**: `AuthSignedInPanel` guarded to only show when `AuthStatus.authenticated` (never during `loggingOut`). `_confirmLogout` now awaits `authControllerProvider.notifier.logout()` before router navigation, eliminating ANR lockups on logout.
+> Earlier: 2026-07-23 (**Caching Strategy, Red Borders, Instant Avatar Sync & 5-Item Bottom Bar**) …
 > Earlier same day: Ads removed entirely from mobile, Admin Services status & delete endpoints added, formal `rejected` status for services deferred to v2 in `v2_deferred_scope.md` §11.) Before that:
 > 2026-07-22 (**"Finish everything" pass — last four v1 gaps
 > closed**: (1) content **edit/delete** — Add Offer/Service/Ad screens take an
@@ -155,6 +153,179 @@ Bottom nav order (matches MVP): **Home · Influencer · Services**(center P, ele
 
 ## 5. Change timeline (most recent first)
 
+- **2026-07-25 — Seats: replaced the blank-cell fix with a proper compact
+  roster grid for non-influencers.** The previous fix (below) correctly
+  hid open-seat content per cell, but the owner caught the real UX problem
+  live on device: the influencer's seat map is a **fixed 12x12 arena
+  layout** — hiding content still leaves the same number of empty bordered
+  boxes sitting there, since the grid was never designed to be sparse. The
+  result looked broken (rows of blank outlined squares). Fix: added a
+  second, genuinely different widget for non-influencers —
+  `_OccupiedSeatsGrid`/`_OccupiedSeatTile`, a plain `GridView.builder`
+  (4 columns, count-sized, no fixed arena layout) that only ever receives
+  the actually-occupied seats, sorted gold→silver→bronze then by
+  `position`. `SeatsScreen._buildBody` now branches on
+  `canSeeAvailableSeats`: influencers keep the original `_SeatGrid` (full
+  arena map, unchanged) unconditionally; everyone else gets the compact
+  roster instead of a starved version of the arena map. Extracted
+  `_tierColorFor` and `_showInfluencerSheet` out of `_SeatCell` into
+  top-level functions in `seats_screen.dart` so both grids share the same
+  tap-to-view-profile sheet without duplicating it. `flutter analyze`
+  clean, 196/196 tests pass (no test changes needed beyond the prior
+  entry's — the observable text assertions didn't change, only which
+  widget produces them).
+- **2026-07-25 — Fixed own bug: seat-visibility gate was filtering the
+  wrong layer.** The earlier same-day change to hide open seats from
+  non-influencers (see the "bottom bar reduced to 5 tabs" entry below)
+  filtered `state.seats` down to occupied-only *before* handing the list to
+  `_SeatGrid`. Looked right in isolation, but the owner caught it live on
+  device: the grid still showed rows of "Book Seat" tiles for a
+  non-influencer account. Root cause: `_SeatGrid` fills a **fixed** 12x12
+  position grid per tier via a cursor over the sorted seat list — removing
+  seats from the list doesn't remove cells, it just leaves the same number
+  of cells with `seat == null`, and a null seat already rendered exactly
+  like an open, bookable one (`_AvailableContent` with a tier-default
+  price) even before any of today's changes. So the filter didn't hide
+  anything — it just swapped which cells were blank-that-render-as-
+  bookable. Fixed properly: reverted to always passing the full,
+  unfiltered seat list into `_SeatGrid` (keeps real seats' absolute grid
+  positions stable regardless of viewer role, as a side benefit), and
+  moved the gate into `_SeatCell.build()` itself — a `canSeeAvailableSeats`
+  bool now threads down from `SeatsScreen` → `_SeatGrid` → `_SeatCell`,
+  and any non-occupied cell (real open seat *or* a genuinely unallocated
+  grid slot — same treatment either way) renders `SizedBox.shrink()`
+  instead of `_AvailableContent` when the viewer isn't an influencer.
+  `seats_screen_test.dart` updated: the existing guest-context test now
+  asserts zero "Book Seat" text instead of `findsWidgets`, plus a new test
+  confirms an influencer session still sees bookable tiles. 196/196 tests
+  pass, `flutter analyze` clean.
+- **2026-07-25 — Chat/notifications realtime self-healing: subscribe-status
+  retry + app-lifecycle reconnect.** Owner reported chat "sometimes needs 2-3
+  refreshes to start working, sometimes hangs permanently" specifically under
+  weak (not dead) wifi, while every other HTTP-backed feature stayed fine.
+  Root cause (found by reading `realtime_client`'s own source, v2.11.0):
+  `ChatRealtimeService`/`NotificationsRealtimeService` called
+  `channel.subscribe()` with **no status callback**. The library's own doc
+  comment on `RealtimeChannel.subscribe` explains the exact failure mode —
+  under a shaky connection the channel join can report `subscribed` before
+  the server-side `postgres_changes` replication setup (which happens
+  async, after the join) actually comes up, and if that setup then fails
+  the only signal is a later `channelError` on the callback we never
+  passed. Same for an outright dropped socket (`closed`/`timedOut`). With
+  no callback wired, the app just believed it was "connected" forever and
+  silently received nothing — matches both symptoms exactly (a refresh
+  sometimes recovers by luck on the next raw attempt; other times the retry
+  hits the same silent failure and nothing in-app ever recovers without a
+  restart, since the *only* other reconnect trigger was an auth state
+  transition). Fixed in both services: `channel.subscribe((status, error) {
+  ... })` now resets a retry-attempt counter on `subscribed` and schedules a
+  reconnect (capped exponential backoff: 2s/4s/8s/16s/30s) on
+  `channelError`/`closed`/`timedOut`, guarded by a `_connecting` flag so
+  overlapping attempts can't race. Second gap found while investigating:
+  **zero app-lifecycle handling existed anywhere in the app**
+  (`grep -rl WidgetsBindingObserver lib/` → nothing) — a backgrounded app's
+  socket is frequently killed/stalled by the OS without either side ever
+  firing a close event, so resuming was a blind spot the backoff timer
+  alone wouldn't necessarily catch quickly. `PromooApp` converted from
+  `ConsumerWidget` to `ConsumerStatefulWidget` with `WidgetsBindingObserver`
+  (`app.dart`); on `AppLifecycleState.resumed` it calls a new
+  `ensureConnected()` on both services (reconnects only if not already
+  connected — checks `RealtimeClient.isConnected`). Also brought
+  `NotificationsRealtimeService`'s auth listener up to the same
+  `next.isAuthenticated && _client == null` check `ChatRealtimeService`
+  already had (was still the older edge-triggered `wasAuthed` pattern —
+  same class of fragility, fixed for consistency). Lower-confidence note
+  (not separately fixed, flagged for awareness): if the realtime JWT
+  expires mid-session while the socket stays nominally "open", Supabase may
+  or may not surface that as a channel error depending on config — the new
+  retry path incidentally self-heals this too since every retry re-reads
+  the current token from `authSessionStoreProvider` rather than reusing a
+  cached one, but this specific scenario wasn't isolated/confirmed
+  independently. `flutter analyze` clean, 195/195 tests pass. Needs the
+  owner's real weak-wifi retest to confirm in practice (not reproducible
+  in an automated test / this sandbox has no live Supabase realtime
+  session to exercise).
+- **2026-07-25 — Antigravity work reviewed (Claude acting as reviewer), two
+  l10n bugs fixed, Flutter SDK upgraded, bottom bar reduced to a fixed 5
+  tabs, seat visibility now role-gated.**
+  **(1) Antigravity review:** the owner used a separate AI tool
+  (Antigravity) to make changes across `promo_mobile`/`promo_backend` while
+  Claude was disconnected. Reviewed every diff since the last known-good
+  commit on both repos (git-diff-based, boundary commits `ac1e20f`
+  mobile / `29dce5f` backend). Verdict: mostly correct — session-cache
+  clearing on logout, `cached_network_image` migration, `deleteMedia` full
+  chain (checks `media`/`offers`/`services` tables, ownership-scoped),
+  auth login/register now hydrates profile fields + auto-navigates home,
+  profile media grid now includes offer/service images not just the bare
+  `media` table, rate limiter tuned (100→1000/15min, `/chat` exempted) —
+  all confirmed correct. Two real bugs found and fixed: `profile_media_viewer.dart`
+  and `profile_media_section.dart` each had a delete-confirmation dialog
+  with **hardcoded, non-localized Arabic strings** (broke bilingual support)
+  plus a typo ("ألكيد" instead of "متأكد") and two *different* wordings for
+  the same action. Fixed: added proper l10n keys
+  (`profileMediaDelete*`) to both arb files (+ manually patched the
+  generated `app_localizations*.dart`, since `flutter gen-l10n` couldn't
+  run until the SDK was fixed — see (2)), consolidated both dialogs into
+  one shared `showDeleteMediaConfirmation()` helper. Also investigated:
+  admin `content.routes.ts` dropped the `PATCH/DELETE /ads/:id` routes when
+  Services moderation was added — looked like a regression, but confirmed
+  `promo_dashboard/src/pages/Content.tsx` has zero references to `ads`
+  already, so those backend methods are just harmless orphaned dead code,
+  not a live break. **Per owner: backend stays fully untouched, including
+  that dead code — Ads may come back in v2, so nothing backend gets
+  deleted without explicit permission.**
+  **(2) Flutter SDK upgrade:** `flutter analyze`/`flutter test` couldn't
+  even compile — the sandbox's pinned SDK (Flutter 3.24.3/Dart 3.5.3,
+  `C:\flutter_sdk\flutter\bin`) was far behind `pubspec.lock`'s last
+  resolution (Dart 3.44.5-class), so third-party deps using newer Dart
+  syntax (`realtime_client`, `sqflite_common`) failed to compile. Ran
+  `flutter upgrade --force` on the pinned SDK (the "local changes" it
+  balked at were just Flutter's own gitignored build-cache files, not real
+  edits) → now Flutter 3.44.8/Dart 3.12.2, satisfies `pubspec.yaml`'s
+  `sdk: ^3.12.1` floor. `flutter analyze` and `flutter test` both run
+  clean again.
+  **(3) Bottom bar → fixed 5 tabs for every role:** Owner decision to
+  simplify further than the earlier 2026-07-23 fix (which made the bar
+  correctly show 5 tabs, but the 5th slot still varied by role — Offers
+  for non-influencers/companies, Seats for influencers/companies).
+  Now **every role sees the identical 5 tabs**: Home, Influencer (Seats),
+  Promoo, Services, Profile — **no standalone Offers tab at all**, for
+  anyone. `PromooShell.tabsFor({required canViewSeats})` replaced with a
+  plain `static const List<PromooShellTab> tabs` (no role parameter — the
+  list no longer varies). The Offers screen/route (`AppRoutes.offers`,
+  `OffersScreen`) is untouched and still works if pushed directly, but is
+  now unreachable via any nav element **except** Home's "View All" on the
+  "Promo of the Day" and "Top Offers" sections (routes to
+  `HomeSeeAllScreen(section: 'offers')` — a different, already-existing
+  screen, not the same as `OffersScreen`). Kept deliberately as dead-but-
+  harmless code per owner's literal "just delete the bottom-bar item"
+  instruction, not a full feature removal like Ads.
+  **(4) Seat visibility now role-gated inside the Seats screen:** everyone
+  can now open the Influencer/Seats tab (previously gated to
+  `influencer`/`company` via `canViewSeats`), but what they see once
+  inside differs: `influencer` accounts see the full grid (occupied +
+  bookable seats, unchanged from before); **every other role — including
+  `company`, which used to browse open seats to find someone to
+  contract — now sees occupied seats only**, empty/bookable seats are
+  filtered out of the list before it reaches the grid
+  (`SeatsScreen.build()`, reuses the existing
+  `accountCapabilitiesProvider.canBookSeat` gate that already drove the
+  booking-tap restriction). The "available seats" stat chip in
+  `_StatsStrip` is hidden entirely (not shown as a misleading 0) for
+  anyone who can't see availability. Owner was explicit this is a
+  simplification of the earlier "company browses to contract" design —
+  literal instruction, implemented as stated. `docs/roles_logic.md` §ج/§4
+  updated to match. Tests: `promoo_shell_tabs_test.dart` rewritten (one
+  unconditional 5-tab group, no more role split),
+  `promoo_shell_test.dart`/`promoo_shell_l10n_test.dart` updated
+  (`Offers`→`Influencer` tab label expectation),
+  `seats_screen_l10n_test.dart` updated (guest/non-influencer no longer
+  sees the "available seats" stat). 195/195 tests pass, `flutter analyze`
+  clean.
+- **2026-07-25 — My Packages completely hidden/removed, Home Story avatar fix, Logout ANR fix.**
+  **(1) Complete Removal of My Packages (`باقاتي`) from Mobile Frontend:** Per owner instruction to disable/hide Packages, `ProfilePackagesSection` was removed from `profile_screen.dart` (public profile) and `_MenuRow(icon: Icons.inventory_2_outlined, label: l10n.menuPackages)` was removed from `profile_menu_screen.dart` (settings menu). Test assertions updated in `profile_screen_test.dart`, `promoo_shell_test.dart`, `profile_screen_l10n_test.dart`. 196/196 tests pass.
+  **(2) Home Story + Button Avatar Fallback (`home_story_strip.dart`):** Resolved avatar delay after login by updating `_AddStoryTileState` to fallback to `user?.avatarUrl` from `authControllerProvider` session.
+  **(3) Logout ANR / Freeze Flow Fix:** Guarded `AuthSignedInPanel` in `login_screen.dart` and `register_screen.dart` to render strictly during `AuthStatus.authenticated`. Updated `_confirmLogout` in `profile_menu_screen.dart` to await `logout()` before router navigation.
 - **2026-07-23 — Ads removed entirely from the mobile app; block
   auto-unfollow; seat-booking "coming soon".** **(1) Ads removal (the big
   one):** the owner realized the client's original prototype only ever had

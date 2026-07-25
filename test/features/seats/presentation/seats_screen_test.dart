@@ -41,6 +41,22 @@ void main() {
     expect(find.text('Gold Seats'), findsOneWidget);
     expect(find.text('Silver Seats'), findsOneWidget);
     expect(find.text('Bronze Seats'), findsOneWidget);
+    // No session here (guest) — only influencers see open/bookable seats;
+    // everyone else sees occupied seats only, so "Book Seat" never renders.
+    expect(find.text('Book Seat'), findsNothing);
+    expect(find.text('Lina Atelier'), findsOneWidget);
+  });
+
+  testWidgets('influencer sees open seats as bookable in the grid', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _buildSeatsApp(
+        const _SeatsRepository(seatsResult: Result.success(_interactiveSeats)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
     expect(find.text('Book Seat'), findsWidgets);
     expect(find.text('Lina Atelier'), findsOneWidget);
   });

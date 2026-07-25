@@ -397,6 +397,12 @@
   "profileMediaCloseTooltip": "Close media",
   "profileMediaCommentsLabel": "Comments",
   "profileMediaShareLabel": "Share",
+  "profileMediaDeleteTooltip": "Delete item",
+  "profileMediaDeleteTitle": "Delete item",
+  "profileMediaDeleteConfirmMessage": "Are you sure you want to delete this item from your profile?",
+  "profileMediaDeleteConfirmAction": "Delete",
+  "profileMediaDeleteSuccess": "Item deleted successfully",
+  "profileMediaDeleteFailure": "Failed to delete the item, please try again",
 
   "profileAboutTitle": "About",
   "profileAboutFallback": "Profile details will appear here soon.",

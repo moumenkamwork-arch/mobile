@@ -91,45 +91,11 @@ class ProfileMediaSection extends ConsumerWidget {
     WidgetRef ref,
     ProfileMediaPreviewItem item,
   ) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('حذف العنصر'),
-          content: const Text('هل أنت تأكيد من رغبتك في حذف هذا العنصر النهائي من البروفايل؟'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                final success = await ref
-                    .read(profileControllerProvider.notifier)
-                    .deleteMedia(item.imageUrl);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? 'تم حذف العنصر بنجاح'
-                            : 'فشل حذف العنصر، يرجى المحاولة لاحقاً',
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              child: const Text('حذف'),
-            ),
-          ],
-        );
-      },
+    showDeleteMediaConfirmation(
+      context,
+      onDelete: () => ref
+          .read(profileControllerProvider.notifier)
+          .deleteMedia(item.imageUrl),
     );
   }
 }

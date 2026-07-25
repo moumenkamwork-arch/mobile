@@ -40,10 +40,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Footer order per owner request: the center P mark leads to the Cup page
-    // ("Promoo"); Services is a normal tab. Slot 1 is role-dependent — a guest
-    // (no session, not an influencer or company) sees the "Offers" tab there, not
-    // "Influencer"/Seats (which is influencer and company only).
-    for (final tab in ['Home', 'Offers', 'Promoo', 'Services', 'Profile']) {
+    // ("Promoo"); Services is a normal tab. Slot 1 (Influencer/Seats) is the
+    // same for every role, including a guest — what the Seats screen shows
+    // once inside is role-gated separately, not the tab's visibility.
+    for (final tab in ['Home', 'Influencer', 'Promoo', 'Services', 'Profile']) {
       expect(find.byTooltip(tab), findsOneWidget);
     }
 
@@ -62,8 +62,6 @@ void main() {
       260,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.pumpAndSettle();
-    expect(find.text('My Packages'), findsOneWidget);
     expect(find.text('Support'), findsOneWidget);
     expect(find.text('Language'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);

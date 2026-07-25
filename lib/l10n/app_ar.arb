@@ -322,6 +322,12 @@
   "profileMediaCloseTooltip": "إغلاق الوسائط",
   "profileMediaCommentsLabel": "التعليقات",
   "profileMediaShareLabel": "مشاركة",
+  "profileMediaDeleteTooltip": "حذف العنصر",
+  "profileMediaDeleteTitle": "حذف العنصر",
+  "profileMediaDeleteConfirmMessage": "هل أنت متأكد من رغبتك في حذف هذا العنصر من الملف الشخصي؟",
+  "profileMediaDeleteConfirmAction": "حذف",
+  "profileMediaDeleteSuccess": "تم حذف العنصر بنجاح",
+  "profileMediaDeleteFailure": "فشل حذف العنصر، يرجى المحاولة لاحقاً",
 
   "profileAboutTitle": "نبذة",
   "profileAboutFallback": "ستظهر تفاصيل الملف الشخصي هنا قريباً.",

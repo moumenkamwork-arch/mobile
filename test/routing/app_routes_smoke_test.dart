@@ -39,7 +39,7 @@ void main() {
     ),
     const _RouteSmokeCase(AppRoutes.cup, 'Cup'),
     const _RouteSmokeCase(AppRoutes.seats, 'Gold Seats'),
-    // The Offers tab (non-influencer slot 1) lists offers from the home feed.
+    // No longer a bottom-nav tab, but the route/screen itself still works.
     _RouteSmokeCase(AppRoutes.offers, 'Cafe opening spotlight'),
     _RouteSmokeCase(
       AppRoutes.seatCheckout(

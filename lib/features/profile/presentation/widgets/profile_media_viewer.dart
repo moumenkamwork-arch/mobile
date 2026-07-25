@@ -58,6 +58,7 @@ class ProfileMediaViewer extends StatelessWidget {
   }
 
   Widget _buildViewerBody(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Stack(
         children: [
@@ -104,7 +105,7 @@ class ProfileMediaViewer extends StatelessWidget {
               top: AppSpacing.sm,
               end: AppSpacing.sm,
               child: IconButton.filled(
-                tooltip: 'حذف العنصر',
+                tooltip: l10n.profileMediaDeleteTooltip,
                 onPressed: () => _confirmAndDelete(context),
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.error.withValues(alpha: 0.85),
@@ -135,46 +136,64 @@ class ProfileMediaViewer extends StatelessWidget {
   }
 
   void _confirmAndDelete(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('حذف العنصر'),
-          content: const Text('هل أنت ألكيد من رغبتك في حذف هذا العنصر من البروفايل؟'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                Navigator.of(context).pop();
-                final success = await onDelete?.call() ?? false;
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? 'تم حذف العنصر بنجاح'
-                            : 'فشل حذف العنصر، يرجى المحاولة لاحقاً',
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              child: const Text('حذف'),
-            ),
-          ],
-        );
-      },
+    showDeleteMediaConfirmation(
+      context,
+      onConfirmed: () => Navigator.of(context).pop(),
+      onDelete: () async => await onDelete?.call() ?? false,
     );
   }
+}
+
+/// Shared delete-confirmation dialog for a single profile media item.
+///
+/// [onConfirmed] runs right after the dialog closes and before [onDelete] —
+/// used by the full-screen viewer to pop itself, since a long-press from the
+/// grid has no extra screen to dismiss.
+Future<void> showDeleteMediaConfirmation(
+  BuildContext context, {
+  required Future<bool> Function() onDelete,
+  VoidCallback? onConfirmed,
+}) {
+  final l10n = AppLocalizations.of(context);
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: Text(l10n.profileMediaDeleteTitle),
+        content: Text(l10n.profileMediaDeleteConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              onConfirmed?.call();
+              final success = await onDelete();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? l10n.profileMediaDeleteSuccess
+                          : l10n.profileMediaDeleteFailure,
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: Text(l10n.profileMediaDeleteConfirmAction),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class _MediaEngagementRail extends StatelessWidget {

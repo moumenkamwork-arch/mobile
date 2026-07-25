@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/auth/session_expiry_signal.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
+import 'features/chat/data/realtime/chat_realtime_service.dart';
+import 'features/notifications/data/realtime/notifications_realtime_service.dart';
 import 'i18n/locale_controller.dart';
 import 'routing/app_router.dart';
 import 'routing/route_names.dart';
@@ -11,11 +13,41 @@ import 'theme/app_theme.dart';
 import 'theme/theme_mode_controller.dart';
 import 'core/push/push_notification_service.dart';
 
-class PromooApp extends ConsumerWidget {
+class PromooApp extends ConsumerStatefulWidget {
   const PromooApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PromooApp> createState() => _PromooAppState();
+}
+
+class _PromooAppState extends ConsumerState<PromooApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // A backgrounded app's realtime socket is often silently killed or
+    // stalled by the OS without either side ever firing a close event —
+    // resuming is the one moment worth actively checking rather than
+    // waiting on the library's own heartbeat to notice.
+    if (state == AppLifecycleState.resumed) {
+      ref.read(chatRealtimeServiceProvider).ensureConnected();
+      ref.read(notificationsRealtimeServiceProvider).ensureConnected();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);

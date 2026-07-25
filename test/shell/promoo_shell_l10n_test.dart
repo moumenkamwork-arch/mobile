@@ -46,11 +46,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Bottom-nav tabs (L1: promoo_shell). Slot 1 is role-dependent — a guest
-      // (not an influencer) sees "العروض" (Offers) there, not "المؤثرون".
+      // Bottom-nav tabs (L1: promoo_shell) — same slots for every role.
       for (final tab in [
         'الرئيسية',
-        'العروض',
+        'المؤثرون',
         'بروموو',
         'الخدمات',
         'حسابي',

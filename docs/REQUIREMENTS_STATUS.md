@@ -7,7 +7,7 @@
 >
 > Legend: ✅ done · 🔄 partial · ⏸️ deferred to v2 · ⬜ not started
 
-Last updated: 2026-07-23
+Last updated: 2026-07-25
 
 ---
 
@@ -18,19 +18,19 @@ Last updated: 2026-07-23
 | Splash / intro | ✅ | Animated "Promoo" reveal (visual: do not touch) → **Home if already signed in, Login otherwise** (fixed 2026-07-21 — used to always force `/login` even for a signed-in user, landing on Login's "Signed in / Continue" panel instead of skipping straight to Home). |
 | Login | ✅ | MVP layout, big new logo, Apple+Google (no Facebook), guest access |
 | Register | ✅ | Fields = backend `registerEmailSchema` (email/password/full_name/account_type) |
-| Home | ✅ | Header, Stories (create/view/delete-own, one ring per person, hold-to-pause), Services (compact), Top Offers (hero swiper ≥5), For You, Promoo of the Day; See All on all |
+| Home | ✅ | Header, Stories (create/view/delete-own, one ring per person, hold-to-pause, avatar fallback fix), Services (compact), Top Offers (hero swiper ≥5), For You, Promoo of the Day; See All on all |
 | Services (categories) | ✅ | Search box + image category grid + "No service found" |
 | Service detail | ✅ | Display/contact only; own Scaffold; hidden unsupported fields |
-| Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets (Visible to Companies and Influencers, but only Influencers can book) |
+| Influencer / Seats | ✅ | Compact stats + search + legend + 2D-overflow grid (Gold→Silver→Bronze), Book/Influencer sheets. Visible to every role via the bottom bar (no gate on the tab itself); inside, only Influencers see/book open seats — everyone else sees occupied seats only (2026-07-25). |
 | Seat checkout preview | ✅ | Display-only, no payment |
 | Cup / Leaderboard | ✅ | Header + podium + ranked list |
-| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Service (role-gated, wired live — **no Add Ad, removed 2026-07-23**), **My Listings (new 2026-07-22 — edit/delete own content)**, Saved, My Packages, Following + Followers + Blocked Users, Support, Language, Theme Mode, Logout, **Delete Account (new 2026-07-22, red row + confirm → `DELETE /profiles/me`)**, legal links. **Fully localized.** |
+| Profile tab (settings) | ✅ | Profile Management, Add New Offer/Service (role-gated, wired live — **no Add Ad, removed 2026-07-23**), **My Listings (new 2026-07-22 — edit/delete own content)**, Saved, Following + Followers + Blocked Users, Support, Language, Theme Mode, Logout, **Delete Account (new 2026-07-22, red row + confirm → `DELETE /profiles/me`)**, legal links. (**My Packages removed 2026-07-25**). **Fully localized.** |
 | Light theme (all screens) | ✅ | 2026-07-08: token system (`context.colors`), AA contrast, black brand chrome, dark-locked auth/splash/media viewers |
 | Back navigation (system + in-app) | ✅ | 2026-07-08: step-wise everywhere — details → list → categories → Home → double-press exit; push-based details; Services results layer intercepts back |
 | Edit Profile | ✅ | Fields = `updateProfileSchema`; local only. Media grid reuses the same `ProfileMediaSection` component as the public profile (fixed 2026-07-13 — it used to be a separate, poorer copy with no likes/comments/share). Avatar wired live 2026-07-20 (camera/gallery → `POST /upload/image` → `POST /profiles/me/avatar`); cover still not wired (no UI yet). |
 | ~~Add New Ad (wizard)~~ | ⛔ | **Removed entirely 2026-07-23** — the original client prototype only ever had Offers + Services; Ads was scope creep from an earlier build pass. All mobile code deleted (screen, route, repository, DTOs); backend `ads` table/routes untouched for a possible v2. `influencer` (Ads' only user) now uses Add Offer instead — backend added `influencer` to `POST /offers`'s allowed roles. Add Offer/Service screens kept their `editing:` param (edit mode via My Listings). |
 | My Listings | ✅ | **New 2026-07-22, Ads section removed 2026-07-23.** Lists the signed-in user's own offers/services (all statuses) from `GET /offers\|/services/profile/:myId`; edit reuses the Add screens pre-filled, delete is confirm + optimistic (`DELETE /...`). Backend gap filled: `GET /services/profile/:id` didn't exist and was added (`deleteAd` was also added 2026-07-22 but is now unused mobile-side). |
-| MyPackages | ✅ | Display-only (no backend package entity — v2) |
+| MyPackages | ⛔ | **Disabled / Hidden 2026-07-25** — removed from profile page & profile menu screen per owner decision (no backend package entity — v2) |
 | Saved / Following / Followers | ✅ | **Wired live** — `GET/POST /saved` + `DELETE /saved/:id` (bookmark button on offer/ad/service detail, 2026-07-22), `GET /follows/following|followers/:id` (Followers screen new, 2026-07-22) |
 | Support / About / Terms / Privacy | ✅ | Static/safe pages |
 | Public profile | ✅ | Back button; Instagram-style stats; **distinct per-id profiles**; **Follow toggle** (`POST/DELETE /follows/:id`), **Message → chat**, header "⋮" menu with **Block/Unblock** (`POST/DELETE /blocks/:id`) and **Report** (`POST /reports`, new 2026-07-22), Edit → edit screen; packages + media |

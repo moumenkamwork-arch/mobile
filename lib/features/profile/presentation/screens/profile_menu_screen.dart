@@ -319,11 +319,7 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
       label: l10n.menuSaved,
       onTap: () => context.push(AppRoutes.profileSaved),
     ),
-    _MenuRow(
-      icon: Icons.inventory_2_outlined,
-      label: l10n.menuPackages,
-      onTap: () => context.push(AppRoutes.profilePackages),
-    ),
+
     // Following sits just above Support per owner request.
     _MenuRow(
       icon: Icons.star_rounded,

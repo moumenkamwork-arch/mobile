@@ -979,6 +979,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileMediaShareLabel => 'Share';
 
   @override
+  String get profileMediaDeleteTooltip => 'Delete item';
+
+  @override
+  String get profileMediaDeleteTitle => 'Delete item';
+
+  @override
+  String get profileMediaDeleteConfirmMessage =>
+      'Are you sure you want to delete this item from your profile?';
+
+  @override
+  String get profileMediaDeleteConfirmAction => 'Delete';
+
+  @override
+  String get profileMediaDeleteSuccess => 'Item deleted successfully';
+
+  @override
+  String get profileMediaDeleteFailure =>
+      'Failed to delete the item, please try again';
+
+  @override
   String get profileAboutTitle => 'About';
 
   @override

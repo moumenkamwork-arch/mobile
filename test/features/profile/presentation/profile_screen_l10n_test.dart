@@ -51,16 +51,8 @@ void main() {
       // Owner view shows the translated Edit profile action.
       expect(find.text('تعديل الملف الشخصي'), findsOneWidget);
 
-      await tester.scrollUntilVisible(
-        find.text('الباقات'),
-        260,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('الباقات'), findsAtLeastNWidgets(1));
-
       expect(
-        Directionality.of(tester.element(find.text('الباقات').first)),
+        Directionality.of(tester.element(find.text('المتابعون').first)),
         TextDirection.ltr,
       );
     },

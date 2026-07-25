@@ -983,6 +983,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileMediaShareLabel => 'مشاركة';
 
   @override
+  String get profileMediaDeleteTooltip => 'حذف العنصر';
+
+  @override
+  String get profileMediaDeleteTitle => 'حذف العنصر';
+
+  @override
+  String get profileMediaDeleteConfirmMessage =>
+      'هل أنت متأكد من رغبتك في حذف هذا العنصر من الملف الشخصي؟';
+
+  @override
+  String get profileMediaDeleteConfirmAction => 'حذف';
+
+  @override
+  String get profileMediaDeleteSuccess => 'تم حذف العنصر بنجاح';
+
+  @override
+  String get profileMediaDeleteFailure =>
+      'فشل حذف العنصر، يرجى المحاولة لاحقاً';
+
+  @override
   String get profileAboutTitle => 'نبذة';
 
   @override

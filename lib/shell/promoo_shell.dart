@@ -6,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/auth/domain/entities/auth_session.dart';
-import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../routing/back_interceptors.dart';
 import '../routing/route_names.dart';
 import '../shared/state/shell_scroll_provider.dart';
@@ -45,11 +43,9 @@ class PromooShellTab {
   final IconData icon;
 }
 
-/// Maps the current shell route to the *logical* tab it belongs to, independent
-/// of how many tabs the current role sees. The shell resolves this to an actual
-/// index against its role-aware [PromooShell.tabsFor] list — so the highlight and
-/// the floating P mark stay correct whether the bar has 5 tabs (user / provider /
-/// guest) or 6 (influencer / company, who also get the Seats tab).
+/// Maps the current shell route to the *logical* tab it belongs to. The shell
+/// resolves this to an actual index against [PromooShell.tabs] so the
+/// highlight and the floating P mark stay correct.
 PromooShellTabId selectedShellTabForPath(String path) {
   if (path == AppRoutes.cup) return PromooShellTabId.promoo;
   if (path == AppRoutes.services || path.startsWith('/services/')) {
@@ -76,62 +72,42 @@ class PromooShell extends ConsumerStatefulWidget {
   final Widget child;
 
   /// The current shell location (`state.uri.path`). The shell derives the
-  /// selected tab index from this against its role-aware tab list, so the
-  /// index is always correct for a 5- or 6-tab bar.
+  /// selected tab index from this against [tabs], so the index is always
+  /// correct.
   final String currentPath;
 
-  /// The five bottom-nav slots. Slot 1 is role-dependent:
-  /// - Accounts with `canViewSeats` (influencers & companies) get the Seats tab (`influencer`).
-  /// - All other accounts (users, service_providers, guests) get the `offers` tab.
-  /// Temporarily, `offers` is hidden for influencers/companies so every role has 5 items.
-  static List<PromooShellTab> tabsFor({required bool canViewSeats}) {
-    final list = <PromooShellTab>[
-      const PromooShellTab(
-        id: PromooShellTabId.home,
-        route: AppRoutes.home,
-        icon: Icons.home_rounded,
-      ),
-    ];
-
-    if (canViewSeats) {
-      list.add(
-        const PromooShellTab(
-          id: PromooShellTabId.influencer,
-          route: AppRoutes.seats,
-          icon: Icons.event_seat_rounded,
-        ),
-      );
-    } else {
-      list.add(
-        const PromooShellTab(
-          id: PromooShellTabId.offers,
-          route: AppRoutes.offers,
-          icon: Icons.local_offer_rounded,
-        ),
-      );
-    }
-
-    list.addAll(const [
-      // The elevated P mark. Leads to the Cup page and is labelled "Promoo".
-      PromooShellTab(
-        id: PromooShellTabId.promoo,
-        route: AppRoutes.cup,
-        icon: Icons.emoji_events_rounded,
-      ),
-      PromooShellTab(
-        id: PromooShellTabId.services,
-        route: AppRoutes.services,
-        icon: Icons.storefront_rounded,
-      ),
-      PromooShellTab(
-        id: PromooShellTabId.profile,
-        route: AppRoutes.profile,
-        icon: Icons.person_rounded,
-      ),
-    ]);
-
-    return list;
-  }
+  /// The five bottom-nav slots, identical for every role: Home, Influencer
+  /// (the Seats screen — everyone can open it; what it shows once inside
+  /// is role-gated, see `SeatsScreen`), Promoo, Services, Profile. There is
+  /// no standalone Offers tab — offers stay reachable via Home's "See all".
+  static const List<PromooShellTab> tabs = [
+    PromooShellTab(
+      id: PromooShellTabId.home,
+      route: AppRoutes.home,
+      icon: Icons.home_rounded,
+    ),
+    PromooShellTab(
+      id: PromooShellTabId.influencer,
+      route: AppRoutes.seats,
+      icon: Icons.event_seat_rounded,
+    ),
+    // The elevated P mark. Leads to the Cup page and is labelled "Promoo".
+    PromooShellTab(
+      id: PromooShellTabId.promoo,
+      route: AppRoutes.cup,
+      icon: Icons.emoji_events_rounded,
+    ),
+    PromooShellTab(
+      id: PromooShellTabId.services,
+      route: AppRoutes.services,
+      icon: Icons.storefront_rounded,
+    ),
+    PromooShellTab(
+      id: PromooShellTabId.profile,
+      route: AppRoutes.profile,
+      icon: Icons.person_rounded,
+    ),
+  ];
 
   @override
   ConsumerState<PromooShell> createState() => _PromooShellState();
@@ -159,18 +135,10 @@ class _PromooShellState extends ConsumerState<PromooShell> {
   Widget build(BuildContext context) {
     final canPop = context.canPop();
     final isScrolled = ref.watch(shellScrolledProvider);
-    // The Seats tab is shown to influencers AND companies (companies browse the
-    // seat map to find and contract influencers; only influencers can book —
-    // enforced separately in the Seats screen). Recomputes on login/logout.
-    final session = ref.watch(authControllerProvider).session;
-    final canViewSeats =
-        session?.user.accountType == AuthAccountType.influencer ||
-        session?.user.accountType == AuthAccountType.company;
-    final tabs = PromooShell.tabsFor(canViewSeats: canViewSeats);
+    final tabs = PromooShell.tabs;
 
-    // Resolve the selected index against THIS role's tab list, so the highlight
-    // and the P mark are correct for a 5- or 6-tab bar (was a static path→index
-    // map that broke once the bar could hold 6 tabs).
+    // Resolve the selected index against the tab list, so the highlight and
+    // the P mark are always correct.
     final selectedTabId = selectedShellTabForPath(widget.currentPath);
     final resolvedIndex = tabs.indexWhere((tab) => tab.id == selectedTabId);
     final selectedIndex = resolvedIndex < 0 ? 0 : resolvedIndex;
