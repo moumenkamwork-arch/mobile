@@ -1,4 +1,4 @@
-package com.MO2MIN.promoo_app
+package com.promoo.app
 
 import io.flutter.embedding.android.FlutterActivity
 
