@@ -8,13 +8,13 @@
 
 ### The premium marketplace for companies, influencers & service providers
 
-Discover offers · Book influencer "seats" · Promote with ads · Climb the Cup leaderboard
+Discover offers · Book influencer "seats" · Browse services · Climb the Cup leaderboard
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![State management](https://img.shields.io/badge/State-Riverpod-4CAF50)](https://riverpod.dev)
 [![Localization](https://img.shields.io/badge/i18n-Arabic%20%2F%20English-FFE604?labelColor=000000)](#-localization)
-[![Tests](https://img.shields.io/badge/tests-176%20passing-brightgreen)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-196%20passing-brightgreen)](#-testing)
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey)](#)
 
 </div>
@@ -27,7 +27,7 @@ Discover offers · Book influencer "seats" · Promote with ads · Climb the Cup 
 
 | Who | What they do on Promoo |
 | --- | --- |
-| 🏢 **Companies** | Publish offers, run ads, get discovered |
+| 🏢 **Companies** | Publish offers, list services, get discovered |
 | 🌟 **Influencers** | Book visibility "seats", grow their following, climb the Cup |
 | 🛠️ **Service providers** | List services, manage packages, chat with clients |
 | 🙋 **Users** | Browse offers & services, follow profiles, chat, save favorites |
@@ -64,7 +64,7 @@ Instagram-style stats (Followers / Likes / Posts / Views), packages, media grid 
 1:1 conversations with live unread badges, delivery states, and a notifications center with mark-all-read.
 
 **📝 Creation Wizards**
-Role-gated "Add Offer", "Add Service", and a 4-step "Add Ad" wizard — each mapped 1:1 to its backend payload.
+Role-gated "Add Offer" and "Add Service" flows — each mapped 1:1 to its backend payload, with inline validation matching the server's own rules.
 
 **🎨 Theming & 🌍 Localization**
 Full Black/Light theme toggle and complete Arabic/English translation — see below for the interesting part.
@@ -104,7 +104,7 @@ builder: (context, child) {
 | Error handling | Typed `Result<T, AppFailure>` — no exceptions leaking into the UI |
 | Localization | Flutter `l10n` / ARB + `intl`, ICU `plural` & `select` |
 | Design system | Centralized `ThemeExtension` tokens — colors, spacing, radius, typography |
-| Testing | `flutter_test` — **176 widget/unit tests**, zero `flutter analyze` warnings |
+| Testing | `flutter_test` — **196 widget/unit tests**, zero `flutter analyze` warnings |
 
 ---
 
@@ -121,7 +121,7 @@ lib/
 │   ├── services/              # Marketplace search + service detail
 │   ├── seats/                 # Influencer seat grid + checkout preview
 │   ├── leaderboard/            # Cup — podium + ranked list
-│   ├── profile/                # Public profile, settings, edit, add-offer/ad/service wizards
+│   ├── profile/                # Public profile, settings, edit, add-offer/service wizards
 │   ├── chat/                  # Chat list + rooms
 │   └── notifications/          # Notifications center
 │       └── <feature>/
@@ -136,7 +136,7 @@ lib/
 └── routing/                   # go_router config + route names
 ```
 
-Every repository is backed by a fake/local data source today (see [Status & Roadmap](#-status--roadmap)) but is shaped 1:1 against the real backend contract, so wiring a real network layer back in is a scoped, per-feature change — not a rewrite.
+Every repository is wired to the real backend contract over REST (Dio + a typed `Result<T, AppFailure>`), with a fake/local data source kept alongside each one purely for widget tests and offline demos — never the default at runtime.
 
 ---
 
@@ -165,8 +165,11 @@ git clone <this-repo-url>
 cd promo_mobile
 flutter pub get
 
-# Runs entirely on local/fake data — no backend required
-flutter run --dart-define=PROMOO_USE_MOCKS=true
+# Point the app at your backend (defaults to http://localhost:3000/api/v1
+# if you skip this — see .env.example for every variable, including Supabase)
+cp .env.example .env
+
+flutter run
 ```
 
 ### Useful commands
@@ -186,16 +189,17 @@ flutter gen-l10n            # regenerate AppLocalizations after editing lib/l10n
 flutter test
 ```
 
-**176 tests**, covering controllers, repositories, and full widget flows — including dedicated `*_l10n_test.dart` suites that prove every localized screen renders correct Arabic text while asserting the layout stays fixed left-to-right.
+**196 tests**, covering controllers, repositories, and full widget flows — including dedicated `*_l10n_test.dart` suites that prove every localized screen renders correct Arabic text while asserting the layout stays fixed left-to-right.
 
 ---
 
 ## 🗺️ Status & Roadmap
 
-Promoo is built **frontend-first**: the entire app is complete against a real backend API contract, currently running on local fake data sources so the UI can be demoed and iterated on independently.
+Promoo shipped **frontend-first**, then wired feature-by-feature to the live backend — the app now runs end to end against the real [Promoo API](../promo_backend), deployed and reachable, not local fake data.
 
-- ✅ **Phase A — Frontend** — every screen, flow, theme, and the full Arabic/English localization pass are complete.
-- 🔜 **Phase B — Integration** — wiring each feature to the live REST API (auth, follows, uploads, payments, push notifications) is next, one feature at a time.
+- ✅ **Phase A — Frontend** — every screen, flow, theme, and the full Arabic/English localization pass, complete.
+- ✅ **Phase B — Integration** — every feature (auth, follows, chat, uploads, payments, push notifications, realtime) wired to the live REST API + Supabase Realtime.
+- 🔜 **Store release** — Android signing + Play Console listing in progress; iOS pending a build machine (Codemagic/Mac).
 
 ---
 
