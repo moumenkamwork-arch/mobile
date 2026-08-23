@@ -860,6 +860,42 @@ abstract class AppLocalizations {
   /// **'Password must be at least 8 characters.'**
   String get authValidationPasswordTooShort;
 
+  /// No description provided for @authAgreePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the '**
+  String get authAgreePrefix;
+
+  /// No description provided for @authTermsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get authTermsOfUse;
+
+  /// No description provided for @authAgreeAnd.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get authAgreeAnd;
+
+  /// No description provided for @authPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get authPrivacyPolicy;
+
+  /// No description provided for @authAgreeSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get authAgreeSuffix;
+
+  /// No description provided for @authAgreeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please agree to the Terms of Use and Privacy Policy to continue.'**
+  String get authAgreeRequired;
+
   /// No description provided for @authRegistrationPendingVerification.
   ///
   /// In en, this message translates to:

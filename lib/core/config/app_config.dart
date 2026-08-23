@@ -20,7 +20,10 @@ class AppConfig {
     this.supabaseAnonKey = defaultSupabaseAnonKey,
   });
 
-  static const defaultBaseUrl = 'http://localhost:3000/api/v1';
+  /// Production API base URL — owned in core, not `.env`.
+  /// Override at build time with `--dart-define=PROMOO_BASE_URL=...` if needed.
+  static const defaultBaseUrl =
+      'https://promobackend-production-93d8.up.railway.app/api/v1';
   static const defaultFallbackCurrency = 'AED';
   // The anon key is meant to be public/client-embeddable — Row Level
   // Security on the underlying tables is the real access boundary (already
@@ -45,11 +48,12 @@ class AppConfig {
     return baseUrl;
   }
 
-  /// Priority: `.env` (via `flutter_dotenv`, loaded in `main()`) > `--dart-define`
-  /// (for CI/build-time overrides where bundling a `.env` isn't practical) >
-  /// the hardcoded dev default. `--dart-define` reads must stay literal
-  /// compile-time consts (Dart requirement), so each is inlined here rather
-  /// than going through a shared helper.
+  /// `baseUrl` comes from core ([defaultBaseUrl]) or optional `--dart-define`
+  /// `PROMOO_BASE_URL` — not from `.env`.
+  ///
+  /// Other keys: `.env` (via `flutter_dotenv`, loaded in `main()`) >
+  /// `--dart-define` > hardcoded defaults. `--dart-define` reads must stay
+  /// literal compile-time consts (Dart requirement).
   factory AppConfig.fromEnvironment() {
     const defineBaseUrl = String.fromEnvironment(
       'PROMOO_BASE_URL',
@@ -69,7 +73,7 @@ class AppConfig {
     );
 
     return AppConfig(
-      baseUrl: _dotenvGet('PROMOO_BASE_URL') ?? defineBaseUrl,
+      baseUrl: defineBaseUrl,
       fallbackCurrency:
           _dotenvGet('PROMOO_FALLBACK_CURRENCY') ?? defineFallbackCurrency,
       supabaseUrl: _dotenvGet('SUPABASE_URL') ?? defineSupabaseUrl,

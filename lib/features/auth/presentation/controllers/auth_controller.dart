@@ -119,6 +119,9 @@ class AuthController extends Notifier<AuthState> {
     }
 
     state = result.when(success: _stateForSession, failure: AuthState.error);
+    if (state.isAuthenticated) {
+      _scheduleClearUserSessionCaches();
+    }
   }
 
   Future<void> registerWithEmail({
@@ -151,13 +154,15 @@ class AuthController extends Notifier<AuthState> {
     }
 
     state = result.when(success: _stateForSession, failure: AuthState.error);
+    if (state.isAuthenticated) {
+      _scheduleClearUserSessionCaches();
+    }
   }
 
   Future<void> logout() async {
     final previousSession = state.session;
     state = AuthState.loggingOut(previousSession);
     final result = await ref.read(authRepositoryProvider).logout();
-    clearUserSessionCaches(ref);
     if (_disposed) {
       return;
     }
@@ -166,6 +171,7 @@ class AuthController extends Notifier<AuthState> {
       success: (_) => const AuthState.unauthenticated(),
       failure: AuthState.error,
     );
+    _scheduleClearUserSessionCaches();
   }
 
   /// Called (via the app-root listener on `sessionExpiredSignalProvider`) when
@@ -176,8 +182,8 @@ class AuthController extends Notifier<AuthState> {
     if (_disposed) {
       return;
     }
-    clearUserSessionCaches(ref);
     state = const AuthState.sessionExpired();
+    _scheduleClearUserSessionCaches();
   }
 
   void clearMessage() {
@@ -207,11 +213,23 @@ class AuthController extends Notifier<AuthState> {
 
   AuthState _stateForSession(AuthSession session) {
     if (session.isAuthenticated) {
-      clearUserSessionCaches(ref);
       return AuthState.authenticated(session);
     }
 
     return const AuthState.unauthenticated(registrationPending: true);
+  }
+
+  /// Providers like [chatRealtimeServiceProvider] listen to this controller.
+  /// Invalidating them *while* auth state is still being written creates a
+  /// Riverpod circular dependency — schedule the wipe for the next microtask
+  /// so the auth update finishes first.
+  void _scheduleClearUserSessionCaches() {
+    Future.microtask(() {
+      if (_disposed) {
+        return;
+      }
+      clearUserSessionCaches(ref);
+    });
   }
 
   AuthValidationIssue? _validateEmailPassword({

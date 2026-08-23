@@ -1,6 +1,7 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 import 'core/auth/session_expiry_signal.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -22,10 +23,26 @@ class PromooApp extends ConsumerStatefulWidget {
 
 class _PromooAppState extends ConsumerState<PromooApp>
     with WidgetsBindingObserver {
+  final ShorebirdUpdater _shorebirdUpdater = ShorebirdUpdater();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkShorebirdUpdateInBackground();
+  }
+
+  Future<void> _checkShorebirdUpdateInBackground() async {
+    if (!_shorebirdUpdater.isAvailable) return;
+
+    try {
+      final status = await _shorebirdUpdater.checkForUpdate();
+      if (status != UpdateStatus.outdated) return;
+
+      await _shorebirdUpdater.update();
+    } on Object catch (e) {
+      debugPrint('Shorebird update check failed: $e');
+    }
   }
 
   @override

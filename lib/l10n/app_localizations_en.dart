@@ -404,6 +404,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Password must be at least 8 characters.';
 
   @override
+  String get authAgreePrefix => 'I agree to the ';
+
+  @override
+  String get authTermsOfUse => 'Terms of Use';
+
+  @override
+  String get authAgreeAnd => ' and ';
+
+  @override
+  String get authPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get authAgreeSuffix => '.';
+
+  @override
+  String get authAgreeRequired =>
+      'Please agree to the Terms of Use and Privacy Policy to continue.';
+
+  @override
   String get authRegistrationPendingVerification =>
       'Registration created. Please verify your account before signing in.';
 

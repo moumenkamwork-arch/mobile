@@ -40,26 +40,19 @@ void main() {
       _promooLogoWithLabel('Promoo auth logo'),
     );
     expect(authLogo.height, 96);
+    expect(find.textContaining('Terms of Use'), findsOneWidget);
+    expect(find.textContaining('Privacy Policy'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.byTooltip('Google'),
-      160,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Apple'), findsOneWidget);
-    expect(find.byTooltip('Google'), findsOneWidget);
-    expect(find.byTooltip('Facebook'), findsNothing);
-
-    await tester.tap(find.byTooltip('Google'));
-    await tester.pumpAndSettle();
-    expect(find.text('Google sign-in coming soon'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.widgetWithText(ElevatedButton, 'Login'),
-      -160,
-      scrollable: find.byType(Scrollable).first,
+    expect(
+      find.text(
+        'Please agree to the Terms of Use and Privacy Policy to continue.',
+      ),
+      findsOneWidget,
     );
+
+    await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
@@ -120,6 +113,8 @@ void main() {
       find.widgetWithText(TextField, 'Password'),
       'password123',
     );
+    await tester.tap(find.byType(Checkbox));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
 
@@ -138,16 +133,9 @@ void main() {
     expect(find.text('Account type'), findsOneWidget);
     expect(find.text('Company'), findsOneWidget);
     expect(find.text('Influencer'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.byTooltip('Apple'),
-      180,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    expect(find.byTooltip('Apple'), findsOneWidget);
-    expect(find.byTooltip('Google'), findsOneWidget);
-    expect(find.byTooltip('Facebook'), findsNothing);
+    expect(find.textContaining('Terms of Use'), findsOneWidget);
+    expect(find.textContaining('Privacy Policy'), findsOneWidget);
+    expect(find.byType(Checkbox), findsOneWidget);
   });
 
   testWidgets('profile Message action opens a chat room', (tester) async {

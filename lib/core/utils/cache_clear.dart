@@ -12,6 +12,12 @@ import '../../features/saved/presentation/controllers/saved_controller.dart';
 /// Centralized utility to clear/invalidate ALL user-specific in-memory caches
 /// when auth state changes (login, logout, session expiry).
 ///
+/// Do **not** call this synchronously from inside an [AuthController] state
+/// write. Several targets (chat / notifications) listen to
+/// `authControllerProvider`, so invalidating them mid-update trips Riverpod's
+/// circular-dependency assert. Callers must schedule this after auth state
+/// settles (see `AuthController._scheduleClearUserSessionCaches`).
+///
 /// Strategy:
 /// - [profileControllerProvider] holds the current user's profile state.
 /// - [editProfileSourceProvider] is `autoDispose` so it self-clears when the

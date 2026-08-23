@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
 
 void main() {
-  test('fromEnvironment uses the local development default', () {
+  test('fromEnvironment uses the core defaultBaseUrl', () {
     final config = AppConfig.fromEnvironment();
 
     expect(config.baseUrl, AppConfig.defaultBaseUrl);

@@ -402,6 +402,25 @@ class AppLocalizationsAr extends AppLocalizations {
       'يجب أن تتكوّن كلمة المرور من 8 أحرف على الأقل.';
 
   @override
+  String get authAgreePrefix => 'أوافق على ';
+
+  @override
+  String get authTermsOfUse => 'شروط الاستخدام';
+
+  @override
+  String get authAgreeAnd => ' و';
+
+  @override
+  String get authPrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get authAgreeSuffix => '.';
+
+  @override
+  String get authAgreeRequired =>
+      'الرجاء الموافقة على شروط الاستخدام وسياسة الخصوصية للمتابعة.';
+
+  @override
   String get authRegistrationPendingVerification =>
       'تم إنشاء الحساب. الرجاء تفعيل حسابك قبل تسجيل الدخول.';
 
