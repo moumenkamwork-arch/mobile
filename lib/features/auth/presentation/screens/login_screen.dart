@@ -10,7 +10,6 @@ import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_spacing.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_form_field.dart';
-import '../widgets/auth_legal_consent.dart';
 import '../widgets/auth_message_banner.dart';
 import '../widgets/auth_messages.dart';
 import '../widgets/auth_screen_frame.dart';
@@ -26,8 +25,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
-  bool _agreedToLegal = false;
-  String? _consentError;
 
   @override
   void initState() {
@@ -73,16 +70,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               state: state,
               emailController: _emailController,
               passwordController: _passwordController,
-              agreedToLegal: _agreedToLegal,
-              consentError: _consentError,
-              onAgreedChanged: (value) {
-                setState(() {
-                  _agreedToLegal = value;
-                  if (value) {
-                    _consentError = null;
-                  }
-                });
-              },
               onSubmit: _submit,
               onClearMessage: () =>
                   ref.read(authControllerProvider.notifier).clearMessage(),
@@ -91,14 +78,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _submit() {
-    if (!_agreedToLegal) {
-      setState(() {
-        _consentError = AppLocalizations.of(context).authAgreeRequired;
-      });
-      return;
-    }
-
-    setState(() => _consentError = null);
     ref
         .read(authControllerProvider.notifier)
         .loginWithEmail(
@@ -113,9 +92,6 @@ class _LoginForm extends StatelessWidget {
     required this.state,
     required this.emailController,
     required this.passwordController,
-    required this.agreedToLegal,
-    required this.consentError,
-    required this.onAgreedChanged,
     required this.onSubmit,
     required this.onClearMessage,
   });
@@ -123,9 +99,6 @@ class _LoginForm extends StatelessWidget {
   final AuthState state;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final bool agreedToLegal;
-  final String? consentError;
-  final ValueChanged<bool> onAgreedChanged;
   final VoidCallback onSubmit;
   final VoidCallback onClearMessage;
 
@@ -162,21 +135,6 @@ class _LoginForm extends StatelessWidget {
             controller: passwordController,
             onSubmitted: (_) => state.isBusy ? null : onSubmit(),
           ),
-          const SizedBox(height: AppSpacing.md),
-          AuthLegalConsent(
-            value: agreedToLegal,
-            enabled: !state.isBusy,
-            onChanged: onAgreedChanged,
-          ),
-          if (consentError != null) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              consentError!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ],
           const SizedBox(height: AppSpacing.lg),
           PromooButton.primary(
             label: state.isBusy ? l10n.authLoggingIn : l10n.authLogin,
@@ -184,13 +142,18 @@ class _LoginForm extends StatelessWidget {
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.lg),
+          // Divider colour comes from the theme so it stays visible in both
+          // light and black modes; a hardcoded grey disappears in one of them.
           Row(
             children: [
-              Expanded(child: Divider(color: Colors.grey[300])),
+              const Expanded(child: Divider()),
               const SizedBox(width: AppSpacing.lg),
-              const Text('Or'),
+              Text(
+                l10n.commonOr,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(width: AppSpacing.lg),
-              Expanded(child: Divider(color: Colors.grey[300])),
+              const Expanded(child: Divider()),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),

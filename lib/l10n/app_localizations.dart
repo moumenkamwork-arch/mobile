@@ -134,6 +134,12 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get commonDismiss;
 
+  /// No description provided for @commonOr.
+  ///
+  /// In en, this message translates to:
+  /// **'Or'**
+  String get commonOr;
+
   /// No description provided for @commonComingSoon.
   ///
   /// In en, this message translates to:

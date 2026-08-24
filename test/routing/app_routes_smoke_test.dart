@@ -50,7 +50,9 @@ void main() {
       ),
       'Checkout preview',
     ),
-    const _RouteSmokeCase(AppRoutes.profile, 'Profile Management'),
+    // Rendered without a session, so the account-only rows are hidden by
+    // design. Support is the one menu row a guest still gets.
+    const _RouteSmokeCase(AppRoutes.profile, 'Support'),
     _RouteSmokeCase(
       AppRoutes.profileById('saffron.social'),
       'Saffron Social Studio',

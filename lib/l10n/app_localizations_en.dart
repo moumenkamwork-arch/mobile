@@ -27,6 +27,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDismiss => 'Dismiss';
 
   @override
+  String get commonOr => 'Or';
+
+  @override
   String commonComingSoon(String feature) {
     return '$feature coming soon';
   }

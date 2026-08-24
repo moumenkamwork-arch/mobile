@@ -65,7 +65,9 @@ class ProfileMenuScreen extends ConsumerWidget {
                 padding: const EdgeInsetsDirectional.symmetric(
                   vertical: AppSpacing.xs,
                 ),
-                child: Column(children: _menuRows(context, caps)),
+                child: Column(
+                  children: _menuRows(context, caps, isSignedIn: user != null),
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               PromooCard(
@@ -111,24 +113,38 @@ class ProfileMenuScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              PromooCard(
-                padding: EdgeInsets.zero,
-                child: _MenuRow(
-                  icon: Icons.logout_rounded,
-                  label: l10n.settingsLogout,
-                  onTap: () => _confirmLogout(context, ref),
+              // Logout and Delete Account are meaningless without a session and
+              // both hit authenticated endpoints, so a guest tapping them just
+              // gets a 401. Offer sign-in instead.
+              if (user == null)
+                PromooCard(
+                  padding: EdgeInsets.zero,
+                  child: _MenuRow(
+                    icon: Icons.login_rounded,
+                    label: l10n.authLogin,
+                    onTap: () => context.push(AppRoutes.login),
+                  ),
+                )
+              else ...[
+                PromooCard(
+                  padding: EdgeInsets.zero,
+                  child: _MenuRow(
+                    icon: Icons.logout_rounded,
+                    label: l10n.settingsLogout,
+                    onTap: () => _confirmLogout(context, ref),
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              PromooCard(
-                padding: EdgeInsets.zero,
-                child: _MenuRow(
-                  icon: Icons.delete_forever_rounded,
-                  label: l10n.settingsDeleteAccount,
-                  labelColor: Colors.redAccent,
-                  onTap: () => _confirmDeleteAccount(context, ref),
+                const SizedBox(height: AppSpacing.sm),
+                PromooCard(
+                  padding: EdgeInsets.zero,
+                  child: _MenuRow(
+                    icon: Icons.delete_forever_rounded,
+                    label: l10n.settingsDeleteAccount,
+                    labelColor: Colors.redAccent,
+                    onTap: () => _confirmDeleteAccount(context, ref),
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -288,14 +304,22 @@ class _WelcomeCard extends StatelessWidget {
 /// mirroring the backend's `requireAccountType` guards (see roles_logic.md):
 /// Offer = company/service_provider · Ad = company/influencer ·
 /// Service = company/service_provider. A guest or regular `user` sees none.
-List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
+/// Every row except Support reads or writes the signed-in user's own data, so
+/// for a guest they would each fail with a 401 the moment they are tapped.
+/// [isSignedIn] hides them rather than letting a guest walk into an error.
+List<Widget> _menuRows(
+  BuildContext context,
+  AccountCapabilities caps, {
+  required bool isSignedIn,
+}) {
   final l10n = AppLocalizations.of(context);
   final rows = <Widget>[
-    _MenuRow(
-      icon: Icons.group_outlined,
-      label: l10n.menuProfileManagement,
-      onTap: () => context.push(AppRoutes.profileEdit),
-    ),
+    if (isSignedIn)
+      _MenuRow(
+        icon: Icons.group_outlined,
+        label: l10n.menuProfileManagement,
+        onTap: () => context.push(AppRoutes.profileEdit),
+      ),
     if (caps.canAddOffer)
       _MenuRow(
         icon: Icons.local_offer_outlined,
@@ -314,28 +338,32 @@ List<Widget> _menuRows(BuildContext context, AccountCapabilities caps) {
         label: l10n.menuMyListings,
         onTap: () => context.push(AppRoutes.profileMyListings),
       ),
-    _MenuRow(
-      icon: Icons.bookmark_rounded,
-      label: l10n.menuSaved,
-      onTap: () => context.push(AppRoutes.profileSaved),
-    ),
+    if (isSignedIn)
+      _MenuRow(
+        icon: Icons.bookmark_rounded,
+        label: l10n.menuSaved,
+        onTap: () => context.push(AppRoutes.profileSaved),
+      ),
 
     // Following sits just above Support per owner request.
-    _MenuRow(
-      icon: Icons.star_rounded,
-      label: l10n.menuFollowing,
-      onTap: () => context.push(AppRoutes.profileFollowing),
-    ),
-    _MenuRow(
-      icon: Icons.groups_rounded,
-      label: l10n.menuFollowers,
-      onTap: () => context.push(AppRoutes.profileFollowers),
-    ),
-    _MenuRow(
-      icon: Icons.block_rounded,
-      label: l10n.menuBlockedUsers,
-      onTap: () => context.push(AppRoutes.profileBlockedUsers),
-    ),
+    if (isSignedIn)
+      _MenuRow(
+        icon: Icons.star_rounded,
+        label: l10n.menuFollowing,
+        onTap: () => context.push(AppRoutes.profileFollowing),
+      ),
+    if (isSignedIn)
+      _MenuRow(
+        icon: Icons.groups_rounded,
+        label: l10n.menuFollowers,
+        onTap: () => context.push(AppRoutes.profileFollowers),
+      ),
+    if (isSignedIn)
+      _MenuRow(
+        icon: Icons.block_rounded,
+        label: l10n.menuBlockedUsers,
+        onTap: () => context.push(AppRoutes.profileBlockedUsers),
+      ),
     _MenuRow(
       icon: Icons.support_agent_rounded,
       label: l10n.menuSupport,

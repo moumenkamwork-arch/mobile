@@ -219,13 +219,18 @@ class _RegisterForm extends StatelessWidget {
             onPressed: state.isBusy ? null : onSubmit,
           ),
           const SizedBox(height: AppSpacing.sm),
+          // Divider colour comes from the theme so it stays visible in both
+          // light and black modes; a hardcoded grey disappears in one of them.
           Row(
             children: [
-              Expanded(child: Divider(color: Colors.grey[300])),
+              const Expanded(child: Divider()),
               const SizedBox(width: AppSpacing.lg),
-              const Text('Or'),
+              Text(
+                l10n.commonOr,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(width: AppSpacing.lg),
-              Expanded(child: Divider(color: Colors.grey[300])),
+              const Expanded(child: Divider()),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),

@@ -40,20 +40,12 @@ void main() {
       _promooLogoWithLabel('Promoo auth logo'),
     );
     expect(authLogo.height, 96);
-    expect(find.textContaining('Terms of Use'), findsOneWidget);
-    expect(find.textContaining('Privacy Policy'), findsOneWidget);
+    // Login carries no legal-consent gate — only Register does, since that's
+    // the point at which an account (and its data processing) is created.
+    expect(find.textContaining('Terms of Use'), findsNothing);
+    expect(find.textContaining('Privacy Policy'), findsNothing);
+    expect(find.byType(Checkbox), findsNothing);
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
-    await tester.pumpAndSettle();
-    expect(
-      find.text(
-        'Please agree to the Terms of Use and Privacy Policy to continue.',
-      ),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.byType(Checkbox));
-    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
 
@@ -113,8 +105,6 @@ void main() {
       find.widgetWithText(TextField, 'Password'),
       'password123',
     );
-    await tester.tap(find.byType(Checkbox));
-    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
 

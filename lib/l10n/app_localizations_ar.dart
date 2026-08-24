@@ -27,6 +27,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonDismiss => 'إغلاق';
 
   @override
+  String get commonOr => 'أو';
+
+  @override
   String commonComingSoon(String feature) {
     return '$feature قريباً';
   }

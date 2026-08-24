@@ -47,11 +47,18 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            // Never silently fall back to the debug key here. Play rejects
+            // debug-signed uploads, and because key.properties is gitignored a
+            // fresh clone would otherwise produce a debug-signed release build
+            // that only fails at upload time, with no hint as to why.
+            if (!keystorePropertiesFile.exists()) {
+                throw GradleException(
+                    "Release build requires android/key.properties (and the " +
+                        "keystore it points at). Copy them from your secure " +
+                        "backup before running a release build."
+                )
             }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

@@ -93,8 +93,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # NOTE: `.env` is deliberately NOT bundled. It is gitignored, so listing it
+  # here makes `flutter build` fail outright on any fresh clone. Every value it
+  # used to carry now has a default in `AppConfig` (and can still be overridden
+  # at build time with --dart-define), so nothing is lost. Keeping config in
+  # Dart also means Shorebird can patch it; bundled assets are not code.
   assets:
-    - .env
     - assets/brand/
     - assets/brand/icons/
     - assets/brand/social/
