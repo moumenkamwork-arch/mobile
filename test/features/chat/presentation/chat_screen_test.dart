@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/utils/result.dart';
+import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
+import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 import 'package:promoo_app/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:promoo_app/features/chat/domain/entities/chat.dart';
 import 'package:promoo_app/features/chat/domain/repositories/chat_repository.dart';
@@ -33,6 +35,12 @@ void main() {
         overrides: [
           chatRepositoryProvider.overrideWithValue(
             _ChatRepository(rooms: [_room], messages: [_message]),
+          ),
+          // /chats is guest-gated (router-level auth guard) — a session is
+          // required just to land on it now, unrelated to what this test is
+          // actually verifying (chat list -> room navigation).
+          authSessionStoreProvider.overrideWithValue(
+            InMemoryAuthSessionStore()..write(_signedInSession),
           ),
         ],
         child: MaterialApp.router(
@@ -99,6 +107,11 @@ Widget _buildChatListScreen(ChatRepository repository) {
 const _participant = ChatParticipant(
   id: 'profile-saffron-social',
   displayName: 'Saffron Social Studio',
+);
+
+const _signedInSession = AuthSession(
+  user: AuthUser(id: 'user-1', email: 'test@promoo.app', fullName: 'Test'),
+  tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
 );
 
 final _message = ChatMessage(

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/auth/data/session/auth_session_store.dart';
+import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/chat/presentation/screens/chat_list_screen.dart';
@@ -38,9 +42,120 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return createAppRouter();
 });
 
+/// Every one of these hits an endpoint scoped to the signed-in user (own
+/// chats, own notifications, editing/publishing as that account, own
+/// saved/following/followers/blocked/listings) — a guest would only ever get
+/// a 401 past this point. Matched as path prefixes against
+/// [GoRouterState.matchedLocation], so `/chats` also covers `/chats/:roomId`.
+///
+/// Deliberately NOT here: `/profile` (the menu itself renders a reduced,
+/// guest-safe view — see `ProfileMenuScreen`), `/profile/support`,
+/// `/profile/info/:topic`, `/profiles/:id`, and every browse/detail screen
+/// (Home, Services, Cup, Seats, Search, offer/service detail) — those are
+/// public by design; only the authenticated actions embedded in them
+/// (follow/save/message/report) are gated, individually, at the point of use.
+const _protectedPathPrefixes = <String>[
+  AppRoutes.chats,
+  AppRoutes.notifications,
+  AppRoutes.profileEdit,
+  AppRoutes.profileAddOffer,
+  AppRoutes.profileAddService,
+  AppRoutes.profileSaved,
+  AppRoutes.profilePackages,
+  AppRoutes.profileFollowing,
+  AppRoutes.profileFollowers,
+  AppRoutes.profileBlockedUsers,
+  AppRoutes.profileMyListings,
+];
+
+bool _isProtectedLocation(String location) {
+  return _protectedPathPrefixes.any(
+    (prefix) => location == prefix || location.startsWith('$prefix/'),
+  );
+}
+
+/// Bridges Riverpod's auth state into GoRouter's `refreshListenable`, so a
+/// mid-session change (logout, or a session-restore that resolves shortly
+/// after the very first redirect check — see [_authGuardRedirect]) makes the
+/// router re-run redirect for whatever page is current, instead of only ever
+/// checking once at initial navigation.
+class _AuthRefreshListenable extends ChangeNotifier {
+  ProviderSubscription<AuthState>? _subscription;
+
+  /// Idempotent — the first redirect call binds this to the container that
+  /// is actually in scope (the app's real container, or a test's), since
+  /// [createAppRouter] itself is called before any `ProviderScope` exists.
+  void bindOnce(ProviderContainer container) {
+    if (_subscription != null) {
+      return;
+    }
+    _subscription = container.listen<AuthState>(authControllerProvider, (
+      previous,
+      next,
+    ) {
+      if (previous?.isAuthenticated != next.isAuthenticated) {
+        notifyListeners();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.close();
+    super.dispose();
+  }
+}
+
+/// Guards every path in [_protectedPathPrefixes], sending a guest to Login
+/// instead of letting them render a screen that only 401s.
+///
+/// Checks the live [authControllerProvider] state first (the common case —
+/// by the time a user taps into a protected screen, session restore has long
+/// since settled). Falls back to reading [authSessionStoreProvider] directly
+/// when the controller still reports unauthenticated, so a deep link straight
+/// to a protected route on cold boot doesn't get bounced to Login just
+/// because `AuthController`'s own async restore hasn't resolved yet.
+///
+/// Returns synchronously (no `Future` wrapping) whenever the destination
+/// isn't protected — i.e. for almost every navigation in the app. GoRouter
+/// awaits whatever `redirect` returns before building the destination page,
+/// so an unconditionally-`async` version here would add a microtask of
+/// latency to *every* navigation, not just the guarded ones — enough for a
+/// bare `pumpWidget()` (no trailing `pump`/`pumpAndSettle`) to still be
+/// showing the pre-navigation frame, which is exactly what broke the search
+/// → detail navigation tests the first time this was wired up as `async`.
+FutureOr<String?> _authGuardRedirect(BuildContext context, GoRouterState state) {
+  if (!_isProtectedLocation(state.matchedLocation)) {
+    return null;
+  }
+
+  final container = ProviderScope.containerOf(context, listen: false);
+  if (container.read(authControllerProvider).isAuthenticated) {
+    return null;
+  }
+
+  return _resolveFromPersistedSession(container);
+}
+
+Future<String?> _resolveFromPersistedSession(ProviderContainer container) async {
+  final stored = await container.read(authSessionStoreProvider).read();
+  if (stored != null && stored.isAuthenticated) {
+    return null;
+  }
+
+  return AppRoutes.login;
+}
+
 GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
+  final authRefresh = _AuthRefreshListenable();
+
   return GoRouter(
     initialLocation: initialLocation,
+    refreshListenable: authRefresh,
+    redirect: (context, state) {
+      authRefresh.bindOnce(ProviderScope.containerOf(context, listen: false));
+      return _authGuardRedirect(context, state);
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,

@@ -1,6 +1,8 @@
 import 'package:promoo_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/legal/legal_urls.dart';
 import '../../../../shared/widgets/promoo_button.dart';
 import '../../../../shared/widgets/promoo_card.dart';
 import '../../../../shared/widgets/promoo_subpage_scaffold.dart';
@@ -8,8 +10,10 @@ import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
 
-/// "Support" page: 24/7 contact entry points and a message form.
-/// Phase A: local-only; sending connects to support tooling later.
+/// "Support" page: the one official contact address, and a message box that
+/// opens the device's mail app pre-addressed to it (there is no in-app
+/// support-ticket backend, so this — not a fake "chat with support" — is the
+/// real channel).
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
 
@@ -63,25 +67,10 @@ class _SupportScreenState extends State<SupportScreen> {
           const SizedBox(height: AppSpacing.md),
           PromooCard(
             padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _ContactRow(
-                  icon: Icons.mail_outline_rounded,
-                  label: 'support@promoo.app',
-                  onTap: () => _showNotice(context),
-                ),
-                const Padding(
-                  padding: EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.md,
-                  ),
-                  child: Divider(height: 1),
-                ),
-                _ContactRow(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  label: l10n.profileSupportChatLabel,
-                  onTap: () => _showNotice(context),
-                ),
-              ],
+            child: _ContactRow(
+              icon: Icons.mail_outline_rounded,
+              label: LegalUrls.supportEmail,
+              onTap: () => _openMailApp(context),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -102,7 +91,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 PromooButton.primary(
                   label: l10n.profileSupportSendButton,
                   fullWidth: true,
-                  onPressed: () => _showNotice(context),
+                  onPressed: () => _sendMessage(context),
                 ),
               ],
             ),
@@ -112,14 +101,54 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  void _showNotice(BuildContext context) {
+  Future<void> _openMailApp(BuildContext context) => _launchMailto(
+    context,
+    subject: 'Promoo support',
+  );
+
+  /// No support-ticket backend exists, so "sending" hands the message off to
+  /// the device's own mail app, pre-addressed and pre-filled — the user still
+  /// presses Send there themselves, same as tapping the email row directly.
+  Future<void> _sendMessage(BuildContext context) async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) {
+      return;
+    }
+
+    final sent = await _launchMailto(
+      context,
+      subject: 'Promoo support',
+      body: message,
+    );
+    if (sent && mounted) {
+      _messageController.clear();
+    }
+  }
+
+  Future<bool> _launchMailto(
+    BuildContext context, {
+    required String subject,
+    String? body,
+  }) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: LegalUrls.supportEmail,
+      query: Uri(
+        queryParameters: {'subject': subject, 'body': body ?? ''},
+      ).query,
+    );
+
+    final launched = await launchUrl(uri);
+    if (!launched && context.mounted) {
+      _showNotice(context, AppLocalizations.of(context).profileSupportMailAppMissing);
+    }
+    return launched;
+  }
+
+  void _showNotice(BuildContext context, String text) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).profileSupportComingSoon),
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(text)));
   }
 }
 

@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Or'**
   String get commonOr;
 
+  /// No description provided for @commonSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to do that.'**
+  String get commonSignInRequired;
+
   /// No description provided for @commonComingSoon.
   ///
   /// In en, this message translates to:
@@ -2144,12 +2150,6 @@ abstract class AppLocalizations {
   /// **'Questions about offers, seats, or your account? Reach the Promoo team any time.'**
   String get profileSupportHeroBody;
 
-  /// No description provided for @profileSupportChatLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat with support'**
-  String get profileSupportChatLabel;
-
   /// No description provided for @profileSupportMessageTitle.
   ///
   /// In en, this message translates to:
@@ -2168,11 +2168,11 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get profileSupportSendButton;
 
-  /// No description provided for @profileSupportComingSoon.
+  /// No description provided for @profileSupportMailAppMissing.
   ///
   /// In en, this message translates to:
-  /// **'Support messaging will be connected in the next phase.'**
-  String get profileSupportComingSoon;
+  /// **'No mail app found — email us directly at info@promooportal.com.'**
+  String get profileSupportMailAppMissing;
 
   /// No description provided for @staticInfoAboutBody.
   ///

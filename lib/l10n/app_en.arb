@@ -8,6 +8,7 @@
   "commonBack": "Back",
   "commonDismiss": "Dismiss",
   "commonOr": "Or",
+  "commonSignInRequired": "Sign in to do that.",
   "commonComingSoon": "{feature} coming soon",
   "@commonComingSoon": {
     "placeholders": {
@@ -458,11 +459,10 @@
 
   "profileSupportHeroTitle": "We are here 24/7",
   "profileSupportHeroBody": "Questions about offers, seats, or your account? Reach the Promoo team any time.",
-  "profileSupportChatLabel": "Chat with support",
   "profileSupportMessageTitle": "Send us a message",
   "profileSupportMessageHint": "Describe your issue or question",
   "profileSupportSendButton": "Send",
-  "profileSupportComingSoon": "Support messaging will be connected in the next phase.",
+  "profileSupportMailAppMissing": "No mail app found — email us directly at info@promooportal.com.",
 
   "staticInfoAboutBody": "Promoo is a premium marketplace connecting companies, influencers, and service providers across the UAE.\n\nDiscover offers, book influencer seats, promote your brand, and grow your reach — all in one place, in AED.",
   "staticInfoTermsTitle": "Terms And Condition",

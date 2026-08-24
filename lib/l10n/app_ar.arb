@@ -8,6 +8,7 @@
   "commonBack": "رجوع",
   "commonDismiss": "إغلاق",
   "commonOr": "أو",
+  "commonSignInRequired": "سجّل دخول حتى تقدر تعمل هيك.",
   "commonComingSoon": "{feature} قريباً",
   "commonSeeAll": "عرض الكل",
   "commonSomethingWentWrong": "حدث خطأ ما. حاول مرة أخرى.",
@@ -383,11 +384,10 @@
 
   "profileSupportHeroTitle": "نحن هنا على مدار الساعة",
   "profileSupportHeroBody": "لديك أسئلة حول العروض أو المقاعد أو حسابك؟ تواصل مع فريق بروموو في أي وقت.",
-  "profileSupportChatLabel": "محادثة مع الدعم",
   "profileSupportMessageTitle": "أرسل لنا رسالة",
   "profileSupportMessageHint": "صف مشكلتك أو سؤالك",
   "profileSupportSendButton": "إرسال",
-  "profileSupportComingSoon": "مراسلة الدعم ستُربط بالمرحلة القادمة.",
+  "profileSupportMailAppMissing": "ما في تطبيق بريد على جهازك — راسلنا مباشرة على info@promooportal.com.",
 
   "staticInfoAboutBody": "بروموو هي سوق متميز يربط الشركات والمؤثرين ومزوّدي الخدمات في جميع أنحاء الإمارات.\n\nاكتشف العروض، واحجز مقاعد المؤثرين، وروّج لعلامتك التجارية، ووسّع انتشارك — كل ذلك في مكان واحد، بالدرهم الإماراتي.",
   "staticInfoTermsTitle": "الشروط والأحكام",

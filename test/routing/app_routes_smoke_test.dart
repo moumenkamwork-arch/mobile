@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/config/app_config.dart';
 import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
+import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 import 'package:promoo_app/features/chat/data/datasources/chat_fake_data_source.dart';
 import 'package:promoo_app/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:promoo_app/features/home/data/datasources/home_fake_data_source.dart';
@@ -60,9 +61,19 @@ void main() {
     const _RouteSmokeCase(AppRoutes.search, 'Search Promoo'),
     const _RouteSmokeCase(AppRoutes.login, 'Continue as Guest'),
     const _RouteSmokeCase(AppRoutes.register, 'Continue as Guest'),
-    const _RouteSmokeCase(AppRoutes.chats, 'Chats'),
-    _RouteSmokeCase(AppRoutes.chatRoom('chat-room-1'), 'Conversation'),
-    const _RouteSmokeCase(AppRoutes.notifications, 'Notifications'),
+    // /chats, /chats/:roomId, and /notifications are guest-gated
+    // (router-level auth guard) — need a seeded session to even land on them.
+    const _RouteSmokeCase(AppRoutes.chats, 'Chats', signedIn: true),
+    _RouteSmokeCase(
+      AppRoutes.chatRoom('chat-room-1'),
+      'Conversation',
+      signedIn: true,
+    ),
+    const _RouteSmokeCase(
+      AppRoutes.notifications,
+      'Notifications',
+      signedIn: true,
+    ),
   ];
 
   for (final routeCase in routeCases) {
@@ -75,10 +86,14 @@ void main() {
           overrides: [
             appConfigProvider.overrideWithValue(mockConfig),
             // Chat/Notifications read the session store for the access
-            // token; the real SecureAuthSessionStore's platform channel
-            // call never resolves under testWidgets.
+            // token; the real SecureAuthSessionStore's platform channel call
+            // never resolves under testWidgets. Also the guard's signal for
+            // the guest-gated routes above — empty for every other case, so
+            // e.g. /login and /profile still render their guest view.
             authSessionStoreProvider.overrideWithValue(
-              InMemoryAuthSessionStore(),
+              routeCase.signedIn
+                  ? (InMemoryAuthSessionStore()..write(_signedInSession))
+                  : InMemoryAuthSessionStore(),
             ),
             // Profile screens (Profile Management + public profile) now hit
             // the real profile repository by default.
@@ -149,8 +164,17 @@ void main() {
 }
 
 class _RouteSmokeCase {
-  const _RouteSmokeCase(this.path, this.expectedText);
+  const _RouteSmokeCase(this.path, this.expectedText, {this.signedIn = false});
 
   final String path;
   final String expectedText;
+
+  /// True for the guest-gated routes (router-level auth guard) — a session
+  /// has to be seeded in [authSessionStoreProvider] just to reach them.
+  final bool signedIn;
 }
+
+const _signedInSession = AuthSession(
+  user: AuthUser(id: 'user-1', email: 'test@promoo.app', fullName: 'Test'),
+  tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
+);

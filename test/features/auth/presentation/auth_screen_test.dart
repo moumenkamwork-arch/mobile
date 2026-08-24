@@ -146,8 +146,13 @@ void main() {
           ),
           // The chat room this test navigates into reads the session store
           // for the access token; the real SecureAuthSessionStore's platform
-          // channel call never resolves under testWidgets.
-          authSessionStoreProvider.overrideWithValue(InMemoryAuthSessionStore()),
+          // channel call never resolves under testWidgets. Also now doubles
+          // as the guard's signal that a session exists — /chats is
+          // guest-gated (router-level auth guard), and the Message button
+          // below pushes into it.
+          authSessionStoreProvider.overrideWithValue(
+            InMemoryAuthSessionStore()..write(_session),
+          ),
           // Chat now hits the real backend by default (Phase 9) — keep this
           // navigation test on the fake.
           chatRepositoryProvider.overrideWithValue(

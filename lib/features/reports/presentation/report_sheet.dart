@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/widgets/promoo_button.dart';
+import '../../../shared/widgets/promoo_sign_in_prompt.dart';
 import '../../../shared/widgets/promoo_text_field.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_radius.dart';
 import '../../../theme/app_spacing.dart';
+import '../../auth/presentation/controllers/auth_controller.dart';
 import '../data/repositories/reports_repository_impl.dart';
 import '../domain/entities/report_draft.dart';
 
@@ -22,6 +24,11 @@ Future<void> showReportSheet(
   required String reportedId,
   required ReportedType reportedType,
 }) async {
+  if (!ref.read(authControllerProvider).isAuthenticated) {
+    showSignInRequiredSnackBar(context);
+    return;
+  }
+
   final l10n = AppLocalizations.of(context);
 
   final submitted = await showModalBottomSheet<bool>(

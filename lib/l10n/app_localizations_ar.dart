@@ -30,6 +30,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonOr => 'أو';
 
   @override
+  String get commonSignInRequired => 'سجّل دخول حتى تقدر تعمل هيك.';
+
+  @override
   String commonComingSoon(String feature) {
     return '$feature قريباً';
   }
@@ -1161,9 +1164,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'لديك أسئلة حول العروض أو المقاعد أو حسابك؟ تواصل مع فريق بروموو في أي وقت.';
 
   @override
-  String get profileSupportChatLabel => 'محادثة مع الدعم';
-
-  @override
   String get profileSupportMessageTitle => 'أرسل لنا رسالة';
 
   @override
@@ -1173,8 +1173,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileSupportSendButton => 'إرسال';
 
   @override
-  String get profileSupportComingSoon =>
-      'مراسلة الدعم ستُربط بالمرحلة القادمة.';
+  String get profileSupportMailAppMissing =>
+      'ما في تطبيق بريد على جهازك — راسلنا مباشرة على info@promooportal.com.';
 
   @override
   String get staticInfoAboutBody =>
