@@ -7,8 +7,9 @@ import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/repositories/saved_repository_impl.dart';
 import '../../domain/entities/saved_item.dart';
 
-final savedControllerProvider =
-    NotifierProvider<SavedController, SavedState>(SavedController.new);
+final savedControllerProvider = NotifierProvider<SavedController, SavedState>(
+  SavedController.new,
+);
 
 enum SavedStatus { loading, success, empty, error }
 
@@ -131,13 +132,16 @@ class SavedController extends Notifier<SavedState> {
     final current = state;
     if (current.status != SavedStatus.success) return;
 
-    final remaining =
-        current.items.where((item) => item.id != savedId).toList();
+    final remaining = current.items
+        .where((item) => item.id != savedId)
+        .toList();
     state = remaining.isEmpty
         ? const SavedState.empty()
         : SavedState.success(remaining);
 
-    final result = await ref.read(savedRepositoryProvider).removeSavedItem(savedId);
+    final result = await ref
+        .read(savedRepositoryProvider)
+        .removeSavedItem(savedId);
     if (_disposed) return;
 
     result.when(

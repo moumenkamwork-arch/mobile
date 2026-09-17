@@ -61,23 +61,19 @@ void main() {
     expect(find.text('Saffron Social Studio'), findsWidgets);
     expect(find.text('Dubai'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.text('Contact provider'),
+      find.text('Message'),
       240,
       scrollable: find.byType(Scrollable),
     );
-    await tester.ensureVisible(
-      find.widgetWithText(ElevatedButton, 'Contact provider'),
-    );
     await tester.drag(find.byType(Scrollable), const Offset(0, -160));
     await tester.pumpAndSettle();
-    expect(find.text('Contact provider'), findsOneWidget);
     expect(find.text('Message'), findsOneWidget);
     expect(find.text('View provider profile'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Contact provider'));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Contact flow coming soon'), findsOneWidget);
+    // The unimplemented phone-contact flow is gone, so neither the button
+    // nor its "coming soon" notice can reach the user.
+    expect(find.text('Contact provider'), findsNothing);
+    expect(find.textContaining('Contact flow coming soon'), findsNothing);
   });
 
   testWidgets('renders error state', (tester) async {

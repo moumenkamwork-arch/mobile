@@ -10,7 +10,6 @@ class RouteNames {
   static const cup = 'cup';
   static const seats = 'seats';
   static const offers = 'offers';
-  static const seatCheckoutPreview = 'seatCheckoutPreview';
   static const profile = 'profile';
   static const profileDetail = 'profileDetail';
   static const profileEdit = 'profileEdit';
@@ -18,7 +17,6 @@ class RouteNames {
   static const profileAddService = 'profileAddService';
   static const homeSeeAll = 'homeSeeAll';
   static const profileSaved = 'profileSaved';
-  static const profilePackages = 'profilePackages';
   static const profileFollowing = 'profileFollowing';
   static const profileFollowers = 'profileFollowers';
   static const profileBlockedUsers = 'profileBlockedUsers';
@@ -45,14 +43,12 @@ class AppRoutes {
   static const cup = '/cup';
   static const seats = '/seats';
   static const offers = '/offers';
-  static const seatCheckoutPreview = '/seats/checkout';
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';
   static const profileAddOffer = '/profile/add-offer';
   static const profileAddService = '/profile/add-service';
   static const homeSeeAllPath = '/home/see-all/:section';
   static const profileSaved = '/profile/saved';
-  static const profilePackages = '/profile/packages';
   static const profileFollowing = '/profile/following';
   static const profileFollowers = '/profile/followers';
   static const profileBlockedUsers = '/profile/blocked';
@@ -78,23 +74,6 @@ class AppRoutes {
   }
 
   static String serviceById(String id) => '/services/$id';
-
-  static String seatCheckout({
-    required String seatId,
-    required String title,
-    required String tier,
-    required String price,
-  }) {
-    final query = Uri(
-      queryParameters: {
-        'seatId': seatId,
-        'title': title,
-        'tier': tier,
-        'price': price,
-      },
-    ).query;
-    return '$seatCheckoutPreview?$query';
-  }
 
   static String chatRoom(String roomId) => '/chats/$roomId';
 

@@ -49,10 +49,7 @@ final chatRealtimeServiceProvider = Provider<ChatRealtimeService>((ref) {
 
 class ChatRealtimeService {
   ChatRealtimeService(this._ref) {
-    _authSub = _ref.listen<AuthState>(authControllerProvider, (
-      previous,
-      next,
-    ) {
+    _authSub = _ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (next.isAuthenticated && _client == null) {
         unawaited(_connect());
       } else if (!next.isAuthenticated) {
@@ -166,10 +163,11 @@ class ChatRealtimeService {
   void _scheduleRetry() {
     if (_disposed) return;
     _retryTimer?.cancel();
-    final delay = _retryDelaysSeconds[_retryAttempt.clamp(
-      0,
-      _retryDelaysSeconds.length - 1,
-    )];
+    final delay =
+        _retryDelaysSeconds[_retryAttempt.clamp(
+          0,
+          _retryDelaysSeconds.length - 1,
+        )];
     _retryAttempt++;
     _retryTimer = Timer(Duration(seconds: delay), () {
       if (_disposed) return;

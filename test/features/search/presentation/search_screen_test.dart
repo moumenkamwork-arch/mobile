@@ -200,7 +200,6 @@ void main() {
     expect(find.text('Cafe opening spotlight'), findsOneWidget);
     expect(find.text('1500 AED'), findsOneWidget);
   });
-
 }
 
 Widget _buildSearchScreen(SearchRepository repository) {

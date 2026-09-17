@@ -23,14 +23,12 @@ import '../features/my_listings/presentation/screens/my_listings_screen.dart';
 import '../features/profile/presentation/screens/blocked_users_screen.dart';
 import '../features/profile/presentation/screens/followers_screen.dart';
 import '../features/profile/presentation/screens/following_screen.dart';
-import '../features/profile/presentation/screens/my_packages_screen.dart';
 import '../features/profile/presentation/screens/profile_menu_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/profile/presentation/screens/saved_items_screen.dart';
 import '../features/profile/presentation/screens/static_info_screen.dart';
 import '../features/profile/presentation/screens/support_screen.dart';
 import '../features/search/presentation/screens/search_screen.dart';
-import '../features/seats/presentation/screens/seat_checkout_preview_screen.dart';
 import '../features/seats/presentation/screens/seats_screen.dart';
 import '../features/services/presentation/screens/service_detail_screen.dart';
 import '../features/services/presentation/screens/services_screen.dart';
@@ -61,7 +59,6 @@ const _protectedPathPrefixes = <String>[
   AppRoutes.profileAddOffer,
   AppRoutes.profileAddService,
   AppRoutes.profileSaved,
-  AppRoutes.profilePackages,
   AppRoutes.profileFollowing,
   AppRoutes.profileFollowers,
   AppRoutes.profileBlockedUsers,
@@ -124,7 +121,10 @@ class _AuthRefreshListenable extends ChangeNotifier {
 /// bare `pumpWidget()` (no trailing `pump`/`pumpAndSettle`) to still be
 /// showing the pre-navigation frame, which is exactly what broke the search
 /// → detail navigation tests the first time this was wired up as `async`.
-FutureOr<String?> _authGuardRedirect(BuildContext context, GoRouterState state) {
+FutureOr<String?> _authGuardRedirect(
+  BuildContext context,
+  GoRouterState state,
+) {
   if (!_isProtectedLocation(state.matchedLocation)) {
     return null;
   }
@@ -137,7 +137,9 @@ FutureOr<String?> _authGuardRedirect(BuildContext context, GoRouterState state) 
   return _resolveFromPersistedSession(container);
 }
 
-Future<String?> _resolveFromPersistedSession(ProviderContainer container) async {
+Future<String?> _resolveFromPersistedSession(
+  ProviderContainer container,
+) async {
   final stored = await container.read(authSessionStoreProvider).read();
   if (stored != null && stored.isAuthenticated) {
     return null;
@@ -195,7 +197,8 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         builder: (context, state) {
           final roomId = state.pathParameters['roomId'] ?? '';
           if (roomId == 'new') {
-            final participantId = state.uri.queryParameters['participant'] ?? '';
+            final participantId =
+                state.uri.queryParameters['participant'] ?? '';
             return ChatRoomScreen.newChat(participantId: participantId);
           }
           return ChatRoomScreen(roomId: roomId);
@@ -225,11 +228,6 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         path: AppRoutes.profileSaved,
         name: RouteNames.profileSaved,
         builder: (context, state) => const SavedItemsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.profilePackages,
-        name: RouteNames.profilePackages,
-        builder: (context, state) => const MyPackagesScreen(),
       ),
       GoRoute(
         path: AppRoutes.profileFollowing,
@@ -299,19 +297,6 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
         builder: (context, state) => const SearchScreen(),
       ),
       GoRoute(
-        path: AppRoutes.seatCheckoutPreview,
-        name: RouteNames.seatCheckoutPreview,
-        builder: (context, state) {
-          final query = state.uri.queryParameters;
-          return SeatCheckoutPreviewScreen(
-            seatId: query['seatId'] ?? '',
-            title: query['title'] ?? '',
-            tierLabel: query['tier'] ?? '',
-            priceLabel: query['price'] ?? '',
-          );
-        },
-      ),
-      GoRoute(
         path: AppRoutes.profileDetail,
         name: RouteNames.profileDetail,
         builder: (context, state) {
@@ -365,4 +350,3 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.splash}) {
     ],
   );
 }
-

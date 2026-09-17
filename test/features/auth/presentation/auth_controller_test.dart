@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:promoo_app/core/errors/app_failure.dart';
 import 'package:promoo_app/core/utils/result.dart';
 import 'package:promoo_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:promoo_app/features/auth/data/session/auth_session_store.dart';
 import 'package:promoo_app/features/auth/domain/entities/auth_session.dart';
 import 'package:promoo_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:promoo_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:promoo_app/features/chat/data/realtime/chat_realtime_service.dart';
+import 'package:promoo_app/features/notifications/data/realtime/notifications_realtime_service.dart';
 
 void main() {
   test('starts unauthenticated', () async {
@@ -128,6 +131,39 @@ void main() {
       AuthStatus.unauthenticated,
     );
   });
+
+  test(
+    'login cache wipe does not trip a circular dependency when realtime is live',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(
+            const _AuthRepository(storedSessionResult: Result.success(null)),
+          ),
+          authSessionStoreProvider.overrideWithValue(
+            InMemoryAuthSessionStore(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      // Warm auth and the realtime services so they listen to auth — the
+      // exact graph that used to throw CircularDependencyError on login.
+      container.read(authControllerProvider);
+      container.read(chatRealtimeServiceProvider);
+      container.read(notificationsRealtimeServiceProvider);
+
+      await container
+          .read(authControllerProvider.notifier)
+          .loginWithEmail(email: 'alya@promoo.app', password: 'password123');
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        container.read(authControllerProvider).status,
+        AuthStatus.authenticated,
+      );
+    },
+  );
 }
 
 const _session = AuthSession(

@@ -91,7 +91,10 @@ void main() {
       final content = dto.toDomain();
 
       expect(content.highlight?.imageUrl, 'https://example.com/highlight.jpg');
-      expect(content.services.single.imageUrl, 'https://example.com/service.jpg');
+      expect(
+        content.services.single.imageUrl,
+        'https://example.com/service.jpg',
+      );
     },
   );
 

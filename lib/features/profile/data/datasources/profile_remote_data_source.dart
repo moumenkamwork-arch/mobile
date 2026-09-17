@@ -96,10 +96,7 @@ class ProfileRemoteDataSource implements ProfileDataSource {
 
   @override
   Future<void> followProfile(String profileId) async {
-    await _apiClient.post<void>(
-      ApiEndpoints.follow(profileId),
-      decode: (_) {},
-    );
+    await _apiClient.post<void>(ApiEndpoints.follow(profileId), decode: (_) {});
   }
 
   @override
@@ -142,10 +139,7 @@ class ProfileRemoteDataSource implements ProfileDataSource {
 
   @override
   Future<void> blockProfile(String profileId) async {
-    await _apiClient.post<void>(
-      ApiEndpoints.block(profileId),
-      decode: (_) {},
-    );
+    await _apiClient.post<void>(ApiEndpoints.block(profileId), decode: (_) {});
   }
 
   @override
@@ -183,9 +177,7 @@ class ProfileRemoteDataSource implements ProfileDataSource {
   /// (followers use `follower`, `GET /blocks` uses `blocked`) — pull the
   /// nested profile defensively.
   static List<FollowUser> _parseFollowUsers(Object? data) {
-    final list = data is List
-        ? data
-        : (data is Map ? data['data'] : null);
+    final list = data is List ? data : (data is Map ? data['data'] : null);
     if (list is! List) return const [];
 
     final users = <FollowUser>[];
@@ -206,8 +198,9 @@ class ProfileRemoteDataSource implements ProfileDataSource {
       users.add(
         FollowUser(
           id: id,
-          name: (profile['full_name'] ?? profile['username'] ?? 'Promoo user')
-              as String,
+          name:
+              (profile['full_name'] ?? profile['username'] ?? 'Promoo user')
+                  as String,
           username: profile['username'] as String?,
           avatarUrl: profile['avatar_url'] as String?,
           accountType: profile['account_type'] as String?,

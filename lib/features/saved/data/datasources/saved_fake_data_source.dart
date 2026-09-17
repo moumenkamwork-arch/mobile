@@ -39,7 +39,12 @@ class SavedFakeDataSource implements SavedDataSource {
     required String itemType,
   }) async {
     final id = 'saved-${_rows.length + 1}';
-    _rows.add({'id': id, 'item_id': itemId, 'item_type': itemType, 'item': null});
+    _rows.add({
+      'id': id,
+      'item_id': itemId,
+      'item_type': itemType,
+      'item': null,
+    });
     return id;
   }
 

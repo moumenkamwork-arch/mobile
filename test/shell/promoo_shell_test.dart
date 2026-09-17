@@ -15,10 +15,7 @@ import 'package:flutter/material.dart';
 /// seeded into the store, because the account-only menu rows (Profile
 /// Management, Saved, Following, Logout, Delete Account) are hidden for
 /// guests — every one of them would 401 without a token.
-Widget _buildShellApp(
-  RouterConfig<Object> router, {
-  required bool signedIn,
-}) {
+Widget _buildShellApp(RouterConfig<Object> router, {required bool signedIn}) {
   return ProviderScope(
     overrides: [
       // The Profile tab now hits the real profile repository by default; keep
@@ -31,18 +28,17 @@ Widget _buildShellApp(
       ),
       if (signedIn)
         authSessionStoreProvider.overrideWithValue(
-          InMemoryAuthSessionStore()
-            ..write(
-              const AuthSession(
-                user: AuthUser(
-                  id: '123',
-                  email: 'test@test.com',
-                  fullName: 'Test',
-                  accountType: AuthAccountType.user,
-                ),
-                tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
+          InMemoryAuthSessionStore()..write(
+            const AuthSession(
+              user: AuthUser(
+                id: '123',
+                email: 'test@test.com',
+                fullName: 'Test',
+                accountType: AuthAccountType.user,
               ),
+              tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
             ),
+          ),
         ),
     ],
     child: MaterialApp.router(
@@ -61,9 +57,7 @@ void main() {
     final router = createAppRouter(initialLocation: AppRoutes.profile);
     addTearDown(router.dispose);
 
-    await tester.pumpWidget(
-      _buildShellApp(router, signedIn: true),
-    );
+    await tester.pumpWidget(_buildShellApp(router, signedIn: true));
     await tester.pumpAndSettle();
 
     // Footer order per owner request: the center P mark leads to the Cup page
@@ -139,7 +133,11 @@ void main() {
       'Logout',
       'Delete Account',
     ]) {
-      expect(find.text(hidden), findsNothing, reason: '"$hidden" leaked to a guest');
+      expect(
+        find.text(hidden),
+        findsNothing,
+        reason: '"$hidden" leaked to a guest',
+      );
     }
 
     // Support and the legal pages are static, so they stay available.

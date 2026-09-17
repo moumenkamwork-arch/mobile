@@ -104,10 +104,7 @@ class ServicesRemoteDataSource implements ServicesDataSource {
 
   @override
   Future<void> deleteService(String id) async {
-    await _apiClient.delete<void>(
-      ApiEndpoints.serviceById(id),
-      decode: (_) {},
-    );
+    await _apiClient.delete<void>(ApiEndpoints.serviceById(id), decode: (_) {});
   }
 
   @override

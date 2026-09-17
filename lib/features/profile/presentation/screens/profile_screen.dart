@@ -199,9 +199,7 @@ class _ProfileContentView extends ConsumerWidget {
                           );
                           return;
                         }
-                        context.push(
-                          AppRoutes.chatWithParticipant(profile.id),
-                        );
+                        context.push(AppRoutes.chatWithParticipant(profile.id));
                       },
                       onEditPressed: () => context.push(AppRoutes.profileEdit),
                     ),

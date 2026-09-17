@@ -37,7 +37,6 @@ class UploadRemoteDataSource {
       data: formData,
       decode: UploadedMedia.fromJson,
     );
-    return response.data ??
-        const UploadedMedia(id: '', fileUrl: '');
+    return response.data ?? const UploadedMedia(id: '', fileUrl: '');
   }
 }

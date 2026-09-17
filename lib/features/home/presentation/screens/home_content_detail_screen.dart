@@ -11,7 +11,6 @@ import '../../../../shared/widgets/promoo_detail_chip.dart';
 import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
-import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_metric.dart';
 import '../../../reports/domain/entities/report_draft.dart';
@@ -77,8 +76,6 @@ class _HomeContentDetailBody extends ConsumerStatefulWidget {
 
 class _HomeContentDetailBodyState
     extends ConsumerState<_HomeContentDetailBody> {
-  String? _noticeMessage;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -99,13 +96,7 @@ class _HomeContentDetailBodyState
       ),
       HomeContentDetailStatus.success => _HomeContentDetailContent(
         detail: state.detail!,
-        noticeMessage: _noticeMessage,
         onBack: () => _goBack(context),
-        onContactPressed: () {
-          setState(() {
-            _noticeMessage = l10n.commonContactFlowComingSoon;
-          });
-        },
         // "Message" opens a DIRECT chat with this provider (like the profile
         // Message button), not the generic chat list. Falls back to the list
         // only when there's no provider to message. Push keeps the stack
@@ -115,23 +106,11 @@ class _HomeContentDetailBodyState
               ? AppRoutes.chats
               : AppRoutes.chatWithParticipant(state.detail!.provider!.id),
         ),
-        onLocationPressed: state.detail!.location == null
-            ? null
-            : () {
-                setState(() {
-                  _noticeMessage = l10n.homeDetailLocationComingSoon(
-                    state.detail!.location!,
-                  );
-                });
-              },
         onViewProfilePressed: state.detail!.provider == null
             ? null
             : () => context.push(
                 AppRoutes.profileById(state.detail!.provider!.id),
               ),
-        onDismissNotice: () {
-          setState(() => _noticeMessage = null);
-        },
       ),
     };
   }
@@ -141,22 +120,14 @@ class _HomeContentDetailContent extends StatelessWidget {
   const _HomeContentDetailContent({
     required this.detail,
     required this.onBack,
-    required this.onContactPressed,
     required this.onOpenChatsPressed,
-    required this.onDismissNotice,
-    this.noticeMessage,
-    this.onLocationPressed,
     this.onViewProfilePressed,
   });
 
   final HomeContentDetail detail;
-  final String? noticeMessage;
   final VoidCallback onBack;
-  final VoidCallback onContactPressed;
   final VoidCallback onOpenChatsPressed;
-  final VoidCallback? onLocationPressed;
   final VoidCallback? onViewProfilePressed;
-  final VoidCallback onDismissNotice;
 
   @override
   Widget build(BuildContext context) {
@@ -210,14 +181,9 @@ class _HomeContentDetailContent extends StatelessWidget {
               ],
               const SizedBox(height: AppSpacing.lg),
               _ActionSection(
-                noticeMessage: noticeMessage,
                 hasProfile: onViewProfilePressed != null,
-                hasLocation: onLocationPressed != null,
-                onContactPressed: onContactPressed,
                 onOpenChatsPressed: onOpenChatsPressed,
-                onLocationPressed: onLocationPressed,
                 onViewProfilePressed: onViewProfilePressed,
-                onDismissNotice: onDismissNotice,
               ),
             ],
           ),
@@ -486,23 +452,13 @@ class _DetailsSection extends StatelessWidget {
 class _ActionSection extends StatelessWidget {
   const _ActionSection({
     required this.hasProfile,
-    required this.hasLocation,
-    required this.onContactPressed,
     required this.onOpenChatsPressed,
-    required this.onDismissNotice,
-    this.noticeMessage,
-    this.onLocationPressed,
     this.onViewProfilePressed,
   });
 
-  final String? noticeMessage;
   final bool hasProfile;
-  final bool hasLocation;
-  final VoidCallback onContactPressed;
   final VoidCallback onOpenChatsPressed;
-  final VoidCallback? onLocationPressed;
   final VoidCallback? onViewProfilePressed;
-  final VoidCallback onDismissNotice;
 
   @override
   Widget build(BuildContext context) {
@@ -515,21 +471,9 @@ class _ActionSection extends StatelessWidget {
           subtitle: l10n.homeDetailNextStepSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
-        if (noticeMessage != null) ...[
-          PromooInlineNotice(
-            message: noticeMessage!,
-            onDismiss: onDismissNotice,
-          ),
-          const SizedBox(height: AppSpacing.md),
-        ],
+        // In-app messaging is the only contact channel that actually works,
+        // so it carries the primary action here.
         PromooButton.primary(
-          label: l10n.homeDetailContact,
-          icon: Icons.phone_in_talk_rounded,
-          fullWidth: true,
-          onPressed: onContactPressed,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        PromooButton.secondary(
           label: l10n.profileActionMessage,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,
@@ -542,15 +486,6 @@ class _ActionSection extends StatelessWidget {
             icon: Icons.person_rounded,
             fullWidth: true,
             onPressed: onViewProfilePressed,
-          ),
-        ],
-        if (hasLocation) ...[
-          const SizedBox(height: AppSpacing.sm),
-          PromooButton.tertiary(
-            label: l10n.homeDetailLocation,
-            icon: Icons.place_outlined,
-            fullWidth: true,
-            onPressed: onLocationPressed,
           ),
         ],
       ],

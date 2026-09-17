@@ -63,23 +63,21 @@ void main() {
     expect(find.text('Sharjah'), findsWidgets);
 
     await tester.scrollUntilVisible(
-      find.text('Contact'),
+      find.text('Message'),
       240,
       scrollable: find.byType(Scrollable),
     );
-    await tester.ensureVisible(find.text('Contact'));
+    await tester.ensureVisible(find.text('Message'));
     await tester.pumpAndSettle();
     expect(find.text('Message'), findsOneWidget);
     expect(find.text('View provider profile'), findsOneWidget);
-    expect(find.text('Location'), findsOneWidget);
 
-    await tester.tap(find.text('Contact'), warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Contact flow coming soon'), findsOneWidget);
-
-    await tester.tap(find.text('Location'), warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Location details coming soon'), findsOneWidget);
+    // Contact and Location only ever showed a "coming soon" notice, so both
+    // are removed rather than shown as dead actions.
+    expect(find.text('Contact'), findsNothing);
+    expect(find.text('Location'), findsNothing);
+    expect(find.textContaining('Contact flow coming soon'), findsNothing);
+    expect(find.textContaining('Location details coming soon'), findsNothing);
   });
 
   testWidgets('renders error state', (tester) async {

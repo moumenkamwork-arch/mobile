@@ -34,10 +34,9 @@ class AuthLegalConsent extends StatelessWidget {
       decoration: TextDecoration.underline,
       decorationColor: colors.primaryYellow,
     );
-    final bodyStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: colors.textSecondary,
-      height: 1.35,
-    );
+    final bodyStyle = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: colors.textSecondary, height: 1.35);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,9 +67,7 @@ class AuthLegalConsent extends StatelessWidget {
                 ),
                 Text(l10n.authAgreeAnd, style: bodyStyle),
                 GestureDetector(
-                  onTap: enabled
-                      ? () => _open(LegalUrls.privacyPolicy)
-                      : null,
+                  onTap: enabled ? () => _open(LegalUrls.privacyPolicy) : null,
                   child: Text(l10n.authPrivacyPolicy, style: linkStyle),
                 ),
                 Text(l10n.authAgreeSuffix, style: bodyStyle),

@@ -308,9 +308,10 @@ class _ConversationBody extends StatelessWidget {
                 message: _isSelfChatError(state.failure?.message)
                     ? 'لا يمكنك بدء محادثة مع نفسك'
                     : (state.failure?.message ??
-                        l10n.commonSomethingWentWrongShort),
-                onRetry:
-                    _isSelfChatError(state.failure?.message) ? null : onRetry,
+                          l10n.commonSomethingWentWrongShort),
+                onRetry: _isSelfChatError(state.failure?.message)
+                    ? null
+                    : onRetry,
               ),
       ChatRoomStatus.success ||
       ChatRoomStatus.refreshing => _MessageList(messages: state.messages),

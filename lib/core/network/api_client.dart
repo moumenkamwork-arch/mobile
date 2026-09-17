@@ -42,13 +42,18 @@ final dioProvider = Provider<Dio>((ref) {
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }
-        options.headers['Accept-Language'] = ref.read(localeProvider).languageCode;
+        options.headers['Accept-Language'] = ref
+            .read(localeProvider)
+            .languageCode;
         handler.next(options);
       },
       onError: (error, handler) async {
-        final alreadyRetried = error.requestOptions.extra['promooRetried'] == true;
+        final alreadyRetried =
+            error.requestOptions.extra['promooRetried'] == true;
         final isRefreshCall = error.requestOptions.path == _refreshPath;
-        if (error.response?.statusCode != 401 || alreadyRetried || isRefreshCall) {
+        if (error.response?.statusCode != 401 ||
+            alreadyRetried ||
+            isRefreshCall) {
           return handler.next(error);
         }
 
@@ -339,7 +344,9 @@ AuthTokens? _extractRefreshedTokens(Object? body) {
         ? map['refresh_token'] as String
         : null,
     tokenType: map['token_type'] is String ? map['token_type'] as String : null,
-    expiresIn: map['expires_in'] is num ? (map['expires_in']! as num).toInt() : null,
+    expiresIn: map['expires_in'] is num
+        ? (map['expires_in']! as num).toInt()
+        : null,
     expiresAt: expiresAt is String ? DateTime.tryParse(expiresAt) : null,
   );
 }

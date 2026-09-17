@@ -41,15 +41,13 @@ void main() {
     expect(find.text('Gold Seats'), findsOneWidget);
     expect(find.text('Silver Seats'), findsOneWidget);
     expect(find.text('Bronze Seats'), findsOneWidget);
-    // No session here (guest) — only influencers see open/bookable seats;
-    // everyone else sees occupied seats only, so "Book Seat" never renders.
+    // The page is a read-only directory of seated influencers — open seats
+    // are never offered for booking, in any role.
     expect(find.text('Book Seat'), findsNothing);
     expect(find.text('Lina Atelier'), findsOneWidget);
   });
 
-  testWidgets('influencer sees open seats as bookable in the grid', (
-    tester,
-  ) async {
+  testWidgets('influencer sees no booking surface either', (tester) async {
     await tester.pumpWidget(
       _buildSeatsApp(
         const _SeatsRepository(seatsResult: Result.success(_interactiveSeats)),
@@ -57,7 +55,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Book Seat'), findsWidgets);
+    expect(find.text('Book Seat'), findsNothing);
+    expect(find.text('Book Now'), findsNothing);
     expect(find.text('Lina Atelier'), findsOneWidget);
   });
 
@@ -94,35 +93,7 @@ void main() {
     expect(find.text('Lina Atelier'), findsWidgets);
     expect(find.text('Silver Seat'), findsOneWidget);
     expect(find.text('View profile'), findsOneWidget);
-    expect(find.text('Follow'), findsOneWidget);
-  });
-
-  testWidgets('available seat opens tier sheet and shows booking-soon notice', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _buildSeatsApp(
-        const _SeatsRepository(seatsResult: Result.success(_interactiveSeats)),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Book Seat').first);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gold Seat'), findsOneWidget);
-    expect(find.text('Book Now'), findsOneWidget);
-    expect(find.textContaining('Gold seats provide'), findsOneWidget);
-
-    // Real booking/payment is Stripe/v2 — Book Now shows a "coming soon"
-    // notice instead of dropping onto the disconnected checkout-preview mock.
-    await tester.tap(find.text('Book Now'));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Seat booking & payment are coming in the next phase.'),
-      findsOneWidget,
-    );
+    expect(find.text('Follow'), findsNothing);
   });
 }
 
@@ -145,18 +116,17 @@ Widget _buildSeatsApp(SeatsRepository repository) {
       appConfigProvider.overrideWithValue(_mockConfig),
       seatsRepositoryProvider.overrideWithValue(repository),
       authSessionStoreProvider.overrideWithValue(
-        InMemoryAuthSessionStore()
-          ..write(
-            const AuthSession(
-              user: AuthUser(
-                id: '123',
-                email: 'test@test.com',
-                fullName: 'Test',
-                accountType: AuthAccountType.influencer,
-              ),
-              tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
+        InMemoryAuthSessionStore()..write(
+          const AuthSession(
+            user: AuthUser(
+              id: '123',
+              email: 'test@test.com',
+              fullName: 'Test',
+              accountType: AuthAccountType.influencer,
             ),
+            tokens: AuthTokens(accessToken: 'a', refreshToken: 'b'),
           ),
+        ),
       ),
     ],
     child: MaterialApp.router(

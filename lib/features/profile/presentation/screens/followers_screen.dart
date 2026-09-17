@@ -70,8 +70,9 @@ class _FollowersScreenBody extends ConsumerWidget {
             for (final user in state.users) ...[
               _FollowerRow(
                 user: user,
-                onOpenProfile: () =>
-                    context.push(AppRoutes.profileById(user.username ?? user.id)),
+                onOpenProfile: () => context.push(
+                  AppRoutes.profileById(user.username ?? user.id),
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
             ],
@@ -131,9 +132,9 @@ class _FollowerRow extends StatelessWidget {
                     if (type.isNotEmpty)
                       Text(
                         type,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.accent,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: colors.accent),
                       ),
                   ],
                 ),

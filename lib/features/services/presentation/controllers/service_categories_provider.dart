@@ -11,12 +11,12 @@ import '../../domain/entities/promoo_service.dart';
 /// Kept a plain FutureProvider (cached permanently for the session) since
 /// categories are static reference data (cheap, admin-only). Pull-to-refresh
 /// on Services tab calls `ref.invalidate(serviceCategoriesProvider)` if fresh.
-final serviceCategoriesProvider = FutureProvider<List<ServiceCategory>>(
-  (ref) async {
-    final result = await ref.watch(servicesRepositoryProvider).getCategories();
-    return switch (result) {
-      Success(data: final categories) => categories,
-      Failure(failure: final failure) => throw failure,
-    };
-  },
-);
+final serviceCategoriesProvider = FutureProvider<List<ServiceCategory>>((
+  ref,
+) async {
+  final result = await ref.watch(servicesRepositoryProvider).getCategories();
+  return switch (result) {
+    Success(data: final categories) => categories,
+    Failure(failure: final failure) => throw failure,
+  };
+});

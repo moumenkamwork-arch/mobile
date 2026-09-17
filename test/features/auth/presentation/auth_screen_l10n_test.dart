@@ -101,5 +101,4 @@ class _AuthRepository implements AuthRepository {
   Future<Result<void>> logout() async {
     return const Result.success(null);
   }
-
 }

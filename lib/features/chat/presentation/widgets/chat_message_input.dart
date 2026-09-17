@@ -6,7 +6,11 @@ import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_spacing.dart';
 
 class ChatMessageInput extends StatefulWidget {
-  const ChatMessageInput({super.key, required this.onSend, this.enabled = true});
+  const ChatMessageInput({
+    super.key,
+    required this.onSend,
+    this.enabled = true,
+  });
 
   final ValueChanged<String> onSend;
   final bool enabled;

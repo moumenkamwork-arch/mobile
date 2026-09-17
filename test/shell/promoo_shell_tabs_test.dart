@@ -19,16 +19,13 @@ void main() {
 
     test('has 5 tabs in the expected order', () {
       expect(tabs.length, 5);
-      expect(
-        tabs.map((t) => t.id).toList(),
-        const [
-          PromooShellTabId.home,
-          PromooShellTabId.influencer,
-          PromooShellTabId.promoo,
-          PromooShellTabId.services,
-          PromooShellTabId.profile,
-        ],
-      );
+      expect(tabs.map((t) => t.id).toList(), const [
+        PromooShellTabId.home,
+        PromooShellTabId.influencer,
+        PromooShellTabId.promoo,
+        PromooShellTabId.services,
+        PromooShellTabId.profile,
+      ]);
     });
 
     test('has no standalone Offers tab', () {

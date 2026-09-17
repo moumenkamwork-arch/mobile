@@ -320,7 +320,10 @@ class _HomeStoryViewerState extends ConsumerState<HomeStoryViewer>
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+                leading: const Icon(
+                  Icons.flag_outlined,
+                  color: AppColors.error,
+                ),
                 title: Text(
                   l10n.reportAction,
                   style: const TextStyle(color: AppColors.error),
@@ -507,7 +510,8 @@ class _StoryProgressBars extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: _valueForIndex(index),
                     minHeight: 3,
-                    backgroundColor: AppColors.dark.textPrimary.withValues(alpha: 0.28,
+                    backgroundColor: AppColors.dark.textPrimary.withValues(
+                      alpha: 0.28,
                     ),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.brandYellow,

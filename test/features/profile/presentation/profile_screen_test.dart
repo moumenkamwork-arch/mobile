@@ -58,8 +58,6 @@ void main() {
     // Owner sees the Edit profile action (it routes to the edit screen).
     expect(find.text('Edit profile'), findsOneWidget);
 
-
-
     await tester.scrollUntilVisible(
       find.text('Media'),
       260,
@@ -74,8 +72,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('profile-media-viewer')), findsOneWidget);
-    expect(find.text('Likes'), findsOneWidget);
-    expect(find.text('Comments'), findsOneWidget);
+    expect(find.text('Launch campaign spotlight'), findsOneWidget);
+    // The like/comment/share rail was decorative — tapping it did nothing —
+    // so the viewer now shows only the caption and the author.
+    expect(find.text('Likes'), findsNothing);
+    expect(find.text('Comments'), findsNothing);
 
     await tester.tap(find.byTooltip('Close media'));
     await tester.pumpAndSettle();

@@ -151,7 +151,11 @@ class _PodiumPlace extends StatelessWidget {
     final start = 0.12 * order;
     final animation = CurvedAnimation(
       parent: controller,
-      curve: Interval(start, (start + 0.7).clamp(0.0, 1.0), curve: Curves.easeOutCubic),
+      curve: Interval(
+        start,
+        (start + 0.7).clamp(0.0, 1.0),
+        curve: Curves.easeOutCubic,
+      ),
     );
 
     return AnimatedBuilder(
@@ -177,8 +181,11 @@ class _PodiumPlace extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_isChampion)
-                Icon(Icons.workspace_premium_rounded,
-                    color: tier.sheen, size: 26)
+                Icon(
+                  Icons.workspace_premium_rounded,
+                  color: tier.sheen,
+                  size: 26,
+                )
               else
                 const SizedBox(height: 26),
               const SizedBox(height: AppSpacing.xs),
@@ -194,10 +201,11 @@ class _PodiumPlace extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: (_isChampion
-                        ? Theme.of(context).textTheme.titleMedium
-                        : Theme.of(context).textTheme.bodyLarge)
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style:
+                    (_isChampion
+                            ? Theme.of(context).textTheme.titleMedium
+                            : Theme.of(context).textTheme.bodyLarge)
+                        ?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: AppSpacing.xxxs),
               Text(
@@ -377,8 +385,9 @@ class _PodiumBlock extends StatelessWidget {
                   return Text(
                     '${_rankForTier(tier)}',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: (isLight ? tier.shade : tier.sheen)
-                          .withValues(alpha: isLight ? 0.42 : 0.24),
+                      color: (isLight ? tier.shade : tier.sheen).withValues(
+                        alpha: isLight ? 0.42 : 0.24,
+                      ),
                       fontWeight: FontWeight.w900,
                       fontSize: tier == MedalTier.gold ? 46 : 34,
                       height: 1,

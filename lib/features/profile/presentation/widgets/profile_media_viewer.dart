@@ -11,19 +11,11 @@ class ProfileMediaPreviewItem {
   const ProfileMediaPreviewItem({
     required this.imageUrl,
     required this.caption,
-    required this.likesLabel,
-    required this.commentsLabel,
-    required this.sharesLabel,
-    required this.viewsLabel,
     this.isVideo = false,
   });
 
   final String imageUrl;
   final String caption;
-  final String likesLabel;
-  final String commentsLabel;
-  final String sharesLabel;
-  final String viewsLabel;
   final bool isVideo;
 }
 
@@ -115,12 +107,6 @@ class ProfileMediaViewer extends StatelessWidget {
               ),
             ),
           PositionedDirectional(
-            top: AppSpacing.lg,
-            end: AppSpacing.md,
-            bottom: 118,
-            child: _MediaEngagementRail(item: item),
-          ),
-          PositionedDirectional(
             start: AppSpacing.md,
             end: AppSpacing.md,
             bottom: AppSpacing.lg,
@@ -194,96 +180,6 @@ Future<void> showDeleteMediaConfirmation(
       );
     },
   );
-}
-
-class _MediaEngagementRail extends StatelessWidget {
-  const _MediaEngagementRail({required this.item});
-
-  final ProfileMediaPreviewItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _EngagementAction(
-          icon: Icons.favorite_rounded,
-          label: l10n.profileStatsLikes,
-          value: item.likesLabel,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _EngagementAction(
-          icon: Icons.chat_bubble_rounded,
-          label: l10n.profileMediaCommentsLabel,
-          value: item.commentsLabel,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _EngagementAction(
-          icon: Icons.ios_share_rounded,
-          label: l10n.profileMediaShareLabel,
-          value: item.sharesLabel,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _EngagementAction(
-          icon: Icons.visibility_rounded,
-          label: l10n.profileStatsViews,
-          value: item.viewsLabel,
-        ),
-      ],
-    );
-  }
-}
-
-class _EngagementAction extends StatelessWidget {
-  const _EngagementAction({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: '$label $value',
-      child: Column(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.overlay,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.textPrimary.withValues(alpha: 0.18),
-              ),
-            ),
-            child: Icon(icon, color: AppColors.textPrimary, size: 20),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _MediaCaption extends StatelessWidget {

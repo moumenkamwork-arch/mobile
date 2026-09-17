@@ -110,7 +110,9 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
       bottomBar: _FormActions(
         submitLabel: _isSubmitting
             ? (_isEditing ? l10n.addCommonSaving : l10n.addCommonPublishing)
-            : (_isEditing ? l10n.addCommonSaveButton : l10n.addOfferCreateButton),
+            : (_isEditing
+                  ? l10n.addCommonSaveButton
+                  : l10n.addOfferCreateButton),
         onSubmit: _isSubmitting ? null : _submit,
         onCancel: () => Navigator.of(context).maybePop(),
       ),
@@ -127,7 +129,8 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                   controller: _titleController,
                   hint: l10n.addOfferTitleHint,
                   textInputAction: TextInputAction.next,
-                  isError: _hasSubmitted && _titleController.text.trim().length < 3,
+                  isError:
+                      _hasSubmitted && _titleController.text.trim().length < 3,
                   onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
@@ -137,7 +140,9 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                   hint: l10n.addOfferDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
-                  isError: _hasSubmitted && _descriptionController.text.trim().length < 10,
+                  isError:
+                      _hasSubmitted &&
+                      _descriptionController.text.trim().length < 10,
                   onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
@@ -179,11 +184,22 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                               decimal: true,
                             ),
                             suffixIcon: const AddFormAdornment('AED'),
-                            isError: _hasSubmitted &&
-                                (num.tryParse(_originalPriceController.text.trim()) != null &&
-                                    num.tryParse(_offerPriceController.text.trim()) != null &&
-                                    num.tryParse(_offerPriceController.text.trim())! >=
-                                        num.tryParse(_originalPriceController.text.trim())!),
+                            isError:
+                                _hasSubmitted &&
+                                (num.tryParse(
+                                          _originalPriceController.text.trim(),
+                                        ) !=
+                                        null &&
+                                    num.tryParse(
+                                          _offerPriceController.text.trim(),
+                                        ) !=
+                                        null &&
+                                    num.tryParse(
+                                          _offerPriceController.text.trim(),
+                                        )! >=
+                                        num.tryParse(
+                                          _originalPriceController.text.trim(),
+                                        )!),
                             onChanged: (_) => setState(() {}),
                           ),
                         ],
@@ -202,12 +218,28 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                               decimal: true,
                             ),
                             suffixIcon: const AddFormAdornment('AED'),
-                            isError: _hasSubmitted &&
-                                (num.tryParse(_offerPriceController.text.trim()) == null ||
-                                    num.tryParse(_offerPriceController.text.trim())! <= 0 ||
-                                    (num.tryParse(_originalPriceController.text.trim()) != null &&
-                                        num.tryParse(_offerPriceController.text.trim())! >=
-                                            num.tryParse(_originalPriceController.text.trim())!)),
+                            isError:
+                                _hasSubmitted &&
+                                (num.tryParse(
+                                          _offerPriceController.text.trim(),
+                                        ) ==
+                                        null ||
+                                    num.tryParse(
+                                          _offerPriceController.text.trim(),
+                                        )! <=
+                                        0 ||
+                                    (num.tryParse(
+                                              _originalPriceController.text
+                                                  .trim(),
+                                            ) !=
+                                            null &&
+                                        num.tryParse(
+                                              _offerPriceController.text.trim(),
+                                            )! >=
+                                            num.tryParse(
+                                              _originalPriceController.text
+                                                  .trim(),
+                                            )!)),
                             onChanged: (_) => setState(() {}),
                           ),
                         ],
@@ -334,7 +366,10 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
                   ListTile(
                     title: Text(option.name),
                     trailing: option.id == _category?.id
-                        ? Icon(Icons.check_rounded, color: sheetContext.colors.accent)
+                        ? Icon(
+                            Icons.check_rounded,
+                            color: sheetContext.colors.accent,
+                          )
                         : null,
                     onTap: () => Navigator.of(sheetContext).pop(option),
                   ),
@@ -410,10 +445,7 @@ class _AddOfferScreenState extends ConsumerState<AddOfferScreen> {
       return;
     }
 
-    final mediaUrls = [
-      ?_mainImageUrl,
-      ?_additionalImageUrl,
-    ];
+    final mediaUrls = [?_mainImageUrl, ?_additionalImageUrl];
     final tags = _tagsController.text
         .split(',')
         .map((t) => t.trim())

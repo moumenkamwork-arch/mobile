@@ -29,8 +29,9 @@ import '../widgets/profile_media_section.dart';
 /// widget is watching it (i.e. every time the screen is popped). This
 /// guarantees the form always shows the **current** user's fresh data — no
 /// risk of a previous user's profile leaking across logout/login cycles.
-final editProfileSourceProvider =
-    FutureProvider.autoDispose<PromooProfile>((ref) async {
+final editProfileSourceProvider = FutureProvider.autoDispose<PromooProfile>((
+  ref,
+) async {
   final result = await ref.watch(profileRepositoryProvider).getDemoProfile();
   return switch (result) {
     Success(data: final profile) => profile,
@@ -135,7 +136,10 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
                     // Brand ring around the photo — yellow in both themes.
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.brandYellow, width: 3),
+                      border: Border.all(
+                        color: AppColors.brandYellow,
+                        width: 3,
+                      ),
                     ),
                     child: ClipOval(
                       child: PromooImage(
@@ -279,7 +283,9 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
         ),
         const SizedBox(height: AppSpacing.lg),
         PromooButton.primary(
-          label: _isSaving ? l10n.profileEditSaving : l10n.profileEditSaveButton,
+          label: _isSaving
+              ? l10n.profileEditSaving
+              : l10n.profileEditSaveButton,
           fullWidth: true,
           onPressed: _isSaving ? null : () => _handleSave(l10n),
         ),

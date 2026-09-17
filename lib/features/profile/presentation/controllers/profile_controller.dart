@@ -218,8 +218,9 @@ class ProfileController extends Notifier<ProfileState> {
       return false;
     }
 
-    final updatedMediaUrls =
-        profile.mediaUrls.where((url) => url != imageUrl).toList();
+    final updatedMediaUrls = profile.mediaUrls
+        .where((url) => url != imageUrl)
+        .toList();
     final updatedProfile = profile.copyWith(mediaUrls: updatedMediaUrls);
 
     state = ProfileState.success(
@@ -306,9 +307,7 @@ class ProfileController extends Notifier<ProfileState> {
             failure: (_) => false,
           );
 
-          final blockStatusResult = await repository.getBlockStatus(
-            profile.id,
-          );
+          final blockStatusResult = await repository.getBlockStatus(profile.id);
           if (_disposed) {
             return;
           }

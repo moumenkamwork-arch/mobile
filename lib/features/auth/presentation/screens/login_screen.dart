@@ -148,10 +148,7 @@ class _LoginForm extends StatelessWidget {
             children: [
               const Expanded(child: Divider()),
               const SizedBox(width: AppSpacing.lg),
-              Text(
-                l10n.commonOr,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(l10n.commonOr, style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: AppSpacing.lg),
               const Expanded(child: Divider()),
             ],

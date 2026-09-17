@@ -164,7 +164,10 @@ class _ListingActions extends StatelessWidget {
         IconButton(
           tooltip: l10n.myListingsDeleteTooltip,
           onPressed: onDelete,
-          icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+          icon: const Icon(
+            Icons.delete_outline_rounded,
+            color: Colors.redAccent,
+          ),
         ),
       ],
     );
@@ -213,9 +216,7 @@ class _OfferRow extends ConsumerWidget {
           ),
           _ListingActions(
             onEdit: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AddOfferScreen(editing: offer),
-              ),
+              MaterialPageRoute(builder: (_) => AddOfferScreen(editing: offer)),
             ),
             onDelete: () => _confirmAndDelete(
               context,

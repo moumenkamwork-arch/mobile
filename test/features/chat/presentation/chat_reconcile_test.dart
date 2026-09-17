@@ -28,43 +28,58 @@ void main() {
         status: ChatMessageStatus.unknown,
       );
 
-  test('send response upgrades the optimistic bubble in place (no duplicate)', () {
-    final list = appendSortedMessage(const [], optimistic('pending-1', 'hi'));
-    expect(list, hasLength(1));
-    expect(list.single.status, ChatMessageStatus.sending);
+  test(
+    'send response upgrades the optimistic bubble in place (no duplicate)',
+    () {
+      final list = appendSortedMessage(const [], optimistic('pending-1', 'hi'));
+      expect(list, hasLength(1));
+      expect(list.single.status, ChatMessageStatus.sending);
 
-    final reconciled = reconcileConfirmedMessage(
-      list,
-      confirmed('real-1', 'hi'),
-      tempId: 'pending-1',
-    );
+      final reconciled = reconcileConfirmedMessage(
+        list,
+        confirmed('real-1', 'hi'),
+        tempId: 'pending-1',
+      );
 
-    expect(reconciled, hasLength(1), reason: 'must not duplicate');
-    expect(reconciled.single.id, 'real-1');
-    expect(reconciled.single.status, ChatMessageStatus.sent);
-  });
+      expect(reconciled, hasLength(1), reason: 'must not duplicate');
+      expect(reconciled.single.id, 'real-1');
+      expect(reconciled.single.status, ChatMessageStatus.sent);
+    },
+  );
 
-  test('realtime echo arriving BEFORE the send response — still one bubble', () {
-    final list = appendSortedMessage(const [], optimistic('pending-1', 'hi'));
+  test(
+    'realtime echo arriving BEFORE the send response — still one bubble',
+    () {
+      final list = appendSortedMessage(const [], optimistic('pending-1', 'hi'));
 
-    // Echo (real id, my message, same text) lands first with no tempId.
-    final afterEcho = reconcileConfirmedMessage(list, confirmed('real-1', 'hi'));
-    expect(afterEcho, hasLength(1), reason: 'echo reconciles the pending row');
-    expect(afterEcho.single.id, 'real-1');
-    expect(afterEcho.single.status, ChatMessageStatus.sent);
+      // Echo (real id, my message, same text) lands first with no tempId.
+      final afterEcho = reconcileConfirmedMessage(
+        list,
+        confirmed('real-1', 'hi'),
+      );
+      expect(
+        afterEcho,
+        hasLength(1),
+        reason: 'echo reconciles the pending row',
+      );
+      expect(afterEcho.single.id, 'real-1');
+      expect(afterEcho.single.status, ChatMessageStatus.sent);
 
-    // Then the send response arrives for the same message.
-    final afterResponse = reconcileConfirmedMessage(
-      afterEcho,
-      confirmed('real-1', 'hi'),
-      tempId: 'pending-1',
-    );
-    expect(afterResponse, hasLength(1), reason: 'no second bubble');
-    expect(afterResponse.single.id, 'real-1');
-  });
+      // Then the send response arrives for the same message.
+      final afterResponse = reconcileConfirmedMessage(
+        afterEcho,
+        confirmed('real-1', 'hi'),
+        tempId: 'pending-1',
+      );
+      expect(afterResponse, hasLength(1), reason: 'no second bubble');
+      expect(afterResponse.single.id, 'real-1');
+    },
+  );
 
   test('a read-receipt update never downgrades a delivered/read bubble', () {
-    final sent = [confirmed('real-1', 'hi').copyWith(status: ChatMessageStatus.read)];
+    final sent = [
+      confirmed('real-1', 'hi').copyWith(status: ChatMessageStatus.read),
+    ];
 
     // A duplicate INSERT-style event (status sent) must not undo "read".
     final merged = reconcileConfirmedMessage(sent, confirmed('real-1', 'hi'));

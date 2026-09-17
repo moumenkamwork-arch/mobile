@@ -21,16 +21,19 @@ void main() {
     tokens: AuthTokens(accessToken: 'tok-123', refreshToken: 'ref-123'),
   );
 
-  test('read returns the just-written session even when secure storage is unavailable', () async {
-    const store = SecureAuthSessionStore();
-    await store.clear();
+  test(
+    'read returns the just-written session even when secure storage is unavailable',
+    () async {
+      const store = SecureAuthSessionStore();
+      await store.clear();
 
-    await store.write(session);
-    final read = await store.read();
+      await store.write(session);
+      final read = await store.read();
 
-    // The interceptor reads exactly this to build the Bearer header.
-    expect(read?.tokens?.accessToken, 'tok-123');
-  });
+      // The interceptor reads exactly this to build the Bearer header.
+      expect(read?.tokens?.accessToken, 'tok-123');
+    },
+  );
 
   test('clear() drops the cached session', () async {
     const store = SecureAuthSessionStore();

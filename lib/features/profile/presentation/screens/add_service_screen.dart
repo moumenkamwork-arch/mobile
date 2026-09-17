@@ -107,7 +107,8 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                   controller: _titleController,
                   hint: l10n.addServiceTitleHint,
                   textInputAction: TextInputAction.next,
-                  isError: _hasSubmitted && _titleController.text.trim().length < 5,
+                  isError:
+                      _hasSubmitted && _titleController.text.trim().length < 5,
                   onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
@@ -117,7 +118,9 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                   hint: l10n.addServiceDescriptionHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
-                  isError: _hasSubmitted && _descriptionController.text.trim().length < 10,
+                  isError:
+                      _hasSubmitted &&
+                      _descriptionController.text.trim().length < 10,
                   onChanged: (_) => setState(() {}),
                 ),
                 const AddFormFieldGap(),
@@ -156,9 +159,12 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                           decimal: true,
                         ),
                         suffixIcon: const AddFormAdornment('AED'),
-                        isError: _hasSubmitted &&
-                            (num.tryParse(_priceController.text.trim()) == null ||
-                                num.tryParse(_priceController.text.trim())! <= 0),
+                        isError:
+                            _hasSubmitted &&
+                            (num.tryParse(_priceController.text.trim()) ==
+                                    null ||
+                                num.tryParse(_priceController.text.trim())! <=
+                                    0),
                         onChanged: (_) => setState(() {}),
                       ),
                     ],
@@ -175,9 +181,14 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                         hint: l10n.addServiceDeliveryHint,
                         keyboardType: TextInputType.number,
                         suffixIcon: AddFormAdornment(l10n.addServiceDaysSuffix),
-                        isError: _hasSubmitted &&
-                            (int.tryParse(_deliveryController.text.trim()) == null ||
-                                int.tryParse(_deliveryController.text.trim())! <= 0),
+                        isError:
+                            _hasSubmitted &&
+                            (int.tryParse(_deliveryController.text.trim()) ==
+                                    null ||
+                                int.tryParse(
+                                      _deliveryController.text.trim(),
+                                    )! <=
+                                    0),
                         onChanged: (_) => setState(() {}),
                       ),
                     ],
@@ -240,7 +251,10 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
                   ListTile(
                     title: Text(option.name),
                     trailing: option.id == _category?.id
-                        ? Icon(Icons.check_rounded, color: sheetContext.colors.accent)
+                        ? Icon(
+                            Icons.check_rounded,
+                            color: sheetContext.colors.accent,
+                          )
                         : null,
                     onTap: () => Navigator.of(sheetContext).pop(option),
                   ),
@@ -312,7 +326,9 @@ class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
     setState(() => _isSubmitting = false);
 
     if (failure == null) {
-      _showNotice(_isEditing ? l10n.addServiceUpdated : l10n.addServicePublished);
+      _showNotice(
+        _isEditing ? l10n.addServiceUpdated : l10n.addServicePublished,
+      );
       Navigator.of(context).maybePop();
     } else {
       _showNotice(l10n.addCommonSubmitFailed(failure.message));

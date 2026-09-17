@@ -73,8 +73,7 @@ class FollowingController extends Notifier<FollowingState> {
     final current = state;
     if (current.status != FollowingStatus.success) return;
 
-    final remaining =
-        current.users.where((u) => u.id != profileId).toList();
+    final remaining = current.users.where((u) => u.id != profileId).toList();
     state = remaining.isEmpty
         ? const FollowingState.empty()
         : FollowingState.success(remaining);

@@ -13,7 +13,7 @@
 | الموضوع | الحالة |
 |---|---|
 | **Bundle Identifier** | ✅ **خلص فعلياً** — تغيّر من `com.example.promooApp` لـ `com.promoo.app` بملف `ios/Runner.xcodeproj/project.pbxproj` مباشرة (كل الـ 6 مواضع: Runner + RunnerTests، كل الـ build configs). ما احتجنا Xcode لهالتعديل بالذات لأنو تبديل نص بسيط. |
-| **Firebase iOS** | 🔄 **قيد التنفيذ** — نفس مشروع Firebase (`promoo-9d3f1`) يلي فيه تطبيق أندرويد، بتضيفله تطبيق iOS بـBundle ID `com.promoo.app` وتنزّل `GoogleService-Info.plist`. لسا ما انربط فعلياً بمشروع Xcode (هاد الجزء **لازم Xcode**، مش بس نسخ ملف). |
+| **Firebase iOS** | ✅ **ملف `GoogleService-Info.plist` مربوط بمشروع Xcode** (Bundle ID `com.promoo.app`). باقي: رفع مفتاح **APNs** لـ Firebase Cloud Messaging. |
 | **حساب Apple Developer Program** | ⬜ لسا ما اتعمل. |
 | **قرار حل الـ"بدون Mac"** | تقرر: **Codemagic** (بدل استئجار Mac) — شوف قسم 0 تحت، صار موصى فيه كـ**الحل الأساسي** مو مجرد بديل. |
 
@@ -42,7 +42,7 @@
 | الموضوع | الوضع الحالي | ليش مشكلة |
 |---|---|---|
 | ~~**Bundle Identifier**~~ | ✅ **خلص** — `com.promoo.app` | — |
-| **GoogleService-Info.plist** (Firebase لـ iOS) | 🔄 قيد التسجيل بـFirebase Console (نفس مشروع `promoo-9d3f1`) | لسا ما انربط بمشروع Xcode فعلياً — هاي الخطوة (السحب جوا Xcode) لازم تصير عبر Codemagic أو Mac، مش نسخ-لصق عادي. |
+| **GoogleService-Info.plist** (Firebase لـ iOS) | ✅ مربوط بـ Runner Resources + `UIBackgroundModes=remote-notification` + APNs register في AppDelegate | ارفع مفتاح APNs (.p8) في Firebase → Project settings → Cloud Messaging |
 | **أيقونة التطبيق** | ✅ موجودة بكل المقاسات المطلوبة (`Assets.xcassets/AppIcon.appiconset`) | تمام. |
 | **أوصاف الصلاحيات (Usage Descriptions)** | ✅ موجودة لـ Camera و Photo Library بـ `Info.plist` | تمام — Apple بترفض التطبيق فوراً لو استخدم صلاحية بدون وصف نصي، وعندك هيك موجودين. |
 | **اسم التطبيق المعروض** | `CFBundleDisplayName` = "Promoo App" | راجعو، ممكن تفضل "Promoo" بس بدون "App" — قرار تسويقي بسيط. |

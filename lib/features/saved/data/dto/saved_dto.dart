@@ -5,12 +5,7 @@ import '../../domain/entities/saved_item.dart';
 /// joins it — see `saved.service.ts`). Reads defensively so any of those shapes
 /// map to a common card.
 class SavedItemDto {
-  const SavedItemDto({
-    this.id,
-    this.itemId,
-    this.itemType,
-    this.item,
-  });
+  const SavedItemDto({this.id, this.itemId, this.itemType, this.item});
 
   final String? id;
   final String? itemId;
@@ -38,11 +33,9 @@ class SavedItemDto {
     final title =
         _string(data, const ['title', 'full_name', 'fullName', 'name']) ??
         'Saved item';
-    final image = _string(data, const [
-      'media_url',
-      'avatar_url',
-      'avatarUrl',
-    ]) ?? _firstMediaUrl(data['media_urls']);
+    final image =
+        _string(data, const ['media_url', 'avatar_url', 'avatarUrl']) ??
+        _firstMediaUrl(data['media_urls']);
 
     return SavedItem(
       id: rowId,

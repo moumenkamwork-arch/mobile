@@ -11,7 +11,6 @@ import '../../../../shared/widgets/promoo_detail_chip.dart';
 import '../../../../shared/widgets/promoo_detail_header.dart';
 import '../../../../shared/widgets/promoo_error_state.dart';
 import '../../../../shared/widgets/promoo_image.dart';
-import '../../../../shared/widgets/promoo_inline_notice.dart';
 import '../../../../shared/widgets/promoo_loading_indicator.dart';
 import '../../../../shared/widgets/promoo_metric.dart';
 import '../../../reports/domain/entities/report_draft.dart';
@@ -51,8 +50,6 @@ class _ServiceDetailBody extends ConsumerStatefulWidget {
 }
 
 class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
-  var _showContactNotice = false;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -71,11 +68,7 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
       ),
       ServiceDetailStatus.success => _ServiceDetailContent(
         service: state.service!,
-        showContactNotice: _showContactNotice,
         onBack: () => _goBack(context),
-        onContactPressed: () {
-          setState(() => _showContactNotice = true);
-        },
         // "Message" opens a DIRECT chat with this provider (like the profile
         // Message button), not the generic chat list. Push keeps the stack
         // intact so back returns to these details.
@@ -89,9 +82,6 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
             : () => context.push(
                 AppRoutes.profileById(state.service!.provider!.id),
               ),
-        onDismissContactNotice: () {
-          setState(() => _showContactNotice = false);
-        },
       ),
     };
   }
@@ -100,21 +90,15 @@ class _ServiceDetailBodyState extends ConsumerState<_ServiceDetailBody> {
 class _ServiceDetailContent extends StatelessWidget {
   const _ServiceDetailContent({
     required this.service,
-    required this.showContactNotice,
     required this.onBack,
-    required this.onContactPressed,
     required this.onOpenChatsPressed,
-    required this.onDismissContactNotice,
     this.onViewProfilePressed,
   });
 
   final PromooService service;
-  final bool showContactNotice;
   final VoidCallback onBack;
-  final VoidCallback onContactPressed;
   final VoidCallback onOpenChatsPressed;
   final VoidCallback? onViewProfilePressed;
-  final VoidCallback onDismissContactNotice;
 
   @override
   Widget build(BuildContext context) {
@@ -168,12 +152,9 @@ class _ServiceDetailContent extends StatelessWidget {
               _ProviderSummary(provider: service.provider),
               const SizedBox(height: AppSpacing.lg),
               _ContactSection(
-                showNotice: showContactNotice,
                 hasProfile: onViewProfilePressed != null,
-                onContactPressed: onContactPressed,
                 onOpenChatsPressed: onOpenChatsPressed,
                 onViewProfilePressed: onViewProfilePressed,
-                onDismissNotice: onDismissContactNotice,
               ),
             ],
           ),
@@ -442,20 +423,14 @@ class _ProviderSummary extends StatelessWidget {
 
 class _ContactSection extends StatelessWidget {
   const _ContactSection({
-    required this.showNotice,
     required this.hasProfile,
-    required this.onContactPressed,
     required this.onOpenChatsPressed,
-    required this.onDismissNotice,
     this.onViewProfilePressed,
   });
 
-  final bool showNotice;
   final bool hasProfile;
-  final VoidCallback onContactPressed;
   final VoidCallback onOpenChatsPressed;
   final VoidCallback? onViewProfilePressed;
-  final VoidCallback onDismissNotice;
 
   @override
   Widget build(BuildContext context) {
@@ -468,21 +443,9 @@ class _ContactSection extends StatelessWidget {
           subtitle: l10n.serviceDetailContactSubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
-        if (showNotice) ...[
-          PromooInlineNotice(
-            message: l10n.commonContactFlowComingSoon,
-            onDismiss: onDismissNotice,
-          ),
-          const SizedBox(height: AppSpacing.md),
-        ],
+        // In-app messaging is the only contact channel that actually works,
+        // so it carries the primary action here.
         PromooButton.primary(
-          label: l10n.serviceDetailContactProvider,
-          icon: Icons.phone_in_talk_rounded,
-          fullWidth: true,
-          onPressed: onContactPressed,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        PromooButton.secondary(
           label: l10n.profileActionMessage,
           icon: Icons.chat_bubble_outline_rounded,
           fullWidth: true,

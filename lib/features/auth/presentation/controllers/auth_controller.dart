@@ -219,10 +219,11 @@ class AuthController extends Notifier<AuthState> {
     return const AuthState.unauthenticated(registrationPending: true);
   }
 
-  /// Providers like [chatRealtimeServiceProvider] listen to this controller.
-  /// Invalidating them *while* auth state is still being written creates a
-  /// Riverpod circular dependency — schedule the wipe for the next microtask
-  /// so the auth update finishes first.
+  /// Providers like chat/notifications realtime listen to this controller.
+  /// Invalidating them *while* auth state is still being written is unsafe, so
+  /// the wipe runs on the next microtask. The wipe itself must use
+  /// `ProviderContainer.invalidate` (see [clearUserSessionCaches]) — Riverpod 3
+  /// treats `ref.invalidate` of an auth-listener as a circular dependency.
   void _scheduleClearUserSessionCaches() {
     Future.microtask(() {
       if (_disposed) {

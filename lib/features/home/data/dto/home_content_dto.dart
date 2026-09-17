@@ -705,10 +705,12 @@ class HomeStoryDto {
           _readString(row, const ['profile_id']) ??
           _readString(row, const ['id']) ??
           'unknown';
-      byAuthor.putIfAbsent(key, () {
-        order.add(key);
-        return <Map<String, Object?>>[];
-      }).add(row);
+      byAuthor
+          .putIfAbsent(key, () {
+            order.add(key);
+            return <Map<String, Object?>>[];
+          })
+          .add(row);
     }
 
     return [for (final key in order) _fromGroup(key, byAuthor[key]!)];
@@ -720,11 +722,12 @@ class HomeStoryDto {
   ) {
     // Oldest first within a person's ring — natural viewing progression,
     // matching the backend's own `getUserStories()` ordering.
-    final sorted = [...rows]..sort((a, b) {
-      final aTime = _readString(a, const ['created_at']) ?? '';
-      final bTime = _readString(b, const ['created_at']) ?? '';
-      return aTime.compareTo(bTime);
-    });
+    final sorted = [...rows]
+      ..sort((a, b) {
+        final aTime = _readString(a, const ['created_at']) ?? '';
+        final bTime = _readString(b, const ['created_at']) ?? '';
+        return aTime.compareTo(bTime);
+      });
 
     final first = sorted.first;
     final profile = _mapFrom(first['profile']);

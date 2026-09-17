@@ -52,8 +52,12 @@ class AppNotification {
 
   /// The profile to open when a follow notification is tapped — the person who
   /// started following you (`data.follower_id`), or a generic `profile_id`.
-  String? get profileId =>
-      _stringData(const ['follower_id', 'followerId', 'profile_id', 'profileId']);
+  String? get profileId => _stringData(const [
+    'follower_id',
+    'followerId',
+    'profile_id',
+    'profileId',
+  ]);
 
   String? _stringData(List<String> keys) {
     for (final key in keys) {

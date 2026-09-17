@@ -9,12 +9,10 @@ import '../../domain/entities/promoo_service.dart';
 // autoDispose: see chatRoomControllerProvider — without it, revisiting a
 // service you already opened this session reuses its stale cached state
 // instead of refetching current data.
-final serviceDetailControllerProvider =
-    NotifierProvider.autoDispose.family<
-      ServiceDetailController,
-      ServiceDetailState,
-      String
-    >(ServiceDetailController.new);
+final serviceDetailControllerProvider = NotifierProvider.autoDispose
+    .family<ServiceDetailController, ServiceDetailState, String>(
+      ServiceDetailController.new,
+    );
 
 enum ServiceDetailStatus { loading, success, error }
 

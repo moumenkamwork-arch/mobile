@@ -41,9 +41,11 @@ class ApiEndpoints {
 
   static String offerById(String id) => '/offers/$id';
 
-  static String offersByProfile(String profileId) => '/offers/profile/$profileId';
+  static String offersByProfile(String profileId) =>
+      '/offers/profile/$profileId';
 
-  static String servicesByProfile(String profileId) => '/services/profile/$profileId';
+  static String servicesByProfile(String profileId) =>
+      '/services/profile/$profileId';
 
   static String bookSeat(String id) => '/seats/$id/book';
 
@@ -58,9 +60,11 @@ class ApiEndpoints {
 
   static String followStatus(String profileId) => '/follows/$profileId/status';
 
-  static String followingList(String profileId) => '/follows/following/$profileId';
+  static String followingList(String profileId) =>
+      '/follows/following/$profileId';
 
-  static String followersList(String profileId) => '/follows/followers/$profileId';
+  static String followersList(String profileId) =>
+      '/follows/followers/$profileId';
 
   static const blocks = '/blocks';
 

@@ -48,7 +48,8 @@ AuthDisplayMessage? resolveAuthMessage(AppLocalizations l10n, AuthState state) {
 String _failureText(AppLocalizations l10n, AppFailure failure) {
   return switch (failure.type) {
     AppFailureType.unauthorized => l10n.authErrorInvalidCredentials,
-    AppFailureType.network || AppFailureType.timeout => l10n.authErrorNoConnection,
+    AppFailureType.network ||
+    AppFailureType.timeout => l10n.authErrorNoConnection,
     AppFailureType.validation =>
       failure.message.isNotEmpty ? failure.message : l10n.authErrorGeneric,
     _ => l10n.authErrorGeneric,

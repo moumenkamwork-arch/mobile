@@ -71,7 +71,8 @@ class ChatRemoteDataSource implements ChatDataSource {
     final response = await _apiClient.post<ChatMessageDto>(
       ApiEndpoints.chatMessages(roomId),
       data: {'content': content},
-      decode: (data) => ChatMessageDto.fromJson(_asMap(data), fallbackRoomId: roomId),
+      decode: (data) =>
+          ChatMessageDto.fromJson(_asMap(data), fallbackRoomId: roomId),
     );
     return response.data ?? const ChatMessageDto();
   }

@@ -101,10 +101,8 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  Future<void> _openMailApp(BuildContext context) => _launchMailto(
-    context,
-    subject: 'Promoo support',
-  );
+  Future<void> _openMailApp(BuildContext context) =>
+      _launchMailto(context, subject: 'Promoo support');
 
   /// No support-ticket backend exists, so "sending" hands the message off to
   /// the device's own mail app, pre-addressed and pre-filled — the user still
@@ -140,7 +138,10 @@ class _SupportScreenState extends State<SupportScreen> {
 
     final launched = await launchUrl(uri);
     if (!launched && context.mounted) {
-      _showNotice(context, AppLocalizations.of(context).profileSupportMailAppMissing);
+      _showNotice(
+        context,
+        AppLocalizations.of(context).profileSupportMailAppMissing,
+      );
     }
     return launched;
   }

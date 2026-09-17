@@ -40,10 +40,8 @@ class PromooImage extends StatelessWidget {
           semanticLabel: semanticLabel,
           showPulse: true,
         ),
-        errorWidget: (context, url, error) => _ImageFallback(
-          icon: fallbackIcon,
-          semanticLabel: semanticLabel,
-        ),
+        errorWidget: (context, url, error) =>
+            _ImageFallback(icon: fallbackIcon, semanticLabel: semanticLabel),
       );
     }
 

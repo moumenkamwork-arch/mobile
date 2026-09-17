@@ -24,10 +24,8 @@ class MyListingsState {
     this.failure,
   });
 
-  const MyListingsState.loading()
-    : this(status: MyListingsStatus.loading);
-  const MyListingsState.empty()
-    : this(status: MyListingsStatus.empty);
+  const MyListingsState.loading() : this(status: MyListingsStatus.loading);
+  const MyListingsState.empty() : this(status: MyListingsStatus.empty);
   const MyListingsState.error(AppFailure failure)
     : this(status: MyListingsStatus.error, failure: failure);
 
@@ -94,9 +92,7 @@ class MyListingsController extends Notifier<MyListingsState> {
       offers: offers,
       services: services,
     );
-    state = newState.isEmpty
-        ? const MyListingsState.empty()
-        : newState;
+    state = newState.isEmpty ? const MyListingsState.empty() : newState;
   }
 
   Future<void> retry() => load();

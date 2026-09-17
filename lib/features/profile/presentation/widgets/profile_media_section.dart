@@ -70,8 +70,8 @@ class ProfileMediaSection extends ConsumerWidget {
                       isOwner: isOwner,
                       onDelete: isOwner
                           ? () => ref
-                              .read(profileControllerProvider.notifier)
-                              .deleteMedia(item.imageUrl)
+                                .read(profileControllerProvider.notifier)
+                                .deleteMedia(item.imageUrl)
                           : null,
                     ),
                   ),
@@ -173,41 +173,14 @@ class _ProfileMediaTile extends StatelessWidget {
                     start: AppSpacing.sm,
                     end: AppSpacing.sm,
                     bottom: AppSpacing.sm,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Over the dark photo scrim in both themes.
-                        Text(
-                          item.caption,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(color: AppColors.dark.textPrimary),
-                        ),
-                        const SizedBox(height: AppSpacing.xxs),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.favorite_rounded,
-                              size: 14,
-                              color: AppColors.brandYellow,
-                            ),
-                            const SizedBox(width: AppSpacing.xxs),
-                            Flexible(
-                              child: Text(
-                                item.likesLabel,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.labelSmall
-                                    ?.copyWith(
-                                      color: AppColors.dark.textSecondary,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    // Over the dark photo scrim in both themes.
+                    child: Text(
+                      item.caption,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: AppColors.dark.textPrimary,
+                      ),
                     ),
                   ),
                 ],
@@ -226,10 +199,6 @@ List<ProfileMediaPreviewItem> _mediaItemsFrom(List<String> mediaUrls) {
       ProfileMediaPreviewItem(
         imageUrl: mediaUrls[i],
         caption: _captionFor(i),
-        likesLabel: _likesFor(i),
-        commentsLabel: _commentsFor(i),
-        sharesLabel: _sharesFor(i),
-        viewsLabel: _viewsFor(i),
         isVideo: _isVideo(mediaUrls[i]) || i == 0,
       ),
   ];
@@ -245,26 +214,6 @@ String _captionFor(int index) {
     'Creator partnership highlight',
   ];
   return captions[index % captions.length];
-}
-
-String _likesFor(int index) {
-  const values = ['12.4K', '9.8K', '8.2K', '6.7K', '5.9K', '4.6K'];
-  return values[index % values.length];
-}
-
-String _commentsFor(int index) {
-  const values = ['420', '318', '264', '190', '155', '122'];
-  return values[index % values.length];
-}
-
-String _sharesFor(int index) {
-  const values = ['86', '64', '52', '41', '35', '28'];
-  return values[index % values.length];
-}
-
-String _viewsFor(int index) {
-  const values = ['48.2K', '39.6K', '31.4K', '26.8K', '22.1K', '18.5K'];
-  return values[index % values.length];
 }
 
 bool _isVideo(String mediaUrl) {

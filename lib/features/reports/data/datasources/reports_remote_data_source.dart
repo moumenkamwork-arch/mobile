@@ -4,7 +4,9 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../domain/entities/report_draft.dart';
 
-final reportsRemoteDataSourceProvider = Provider<ReportsRemoteDataSource>((ref) {
+final reportsRemoteDataSourceProvider = Provider<ReportsRemoteDataSource>((
+  ref,
+) {
   return ReportsRemoteDataSource(ref.watch(apiClientProvider));
 });
 

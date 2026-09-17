@@ -64,7 +64,10 @@ class _PromooImageUploadFieldState
               child: CircularProgressIndicator(strokeWidth: 2.5),
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text(l10n.addCommonUploading, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              l10n.addCommonUploading,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
         ),
       );
@@ -86,7 +89,10 @@ class _PromooImageUploadFieldState
               child: SizedBox(
                 width: 56,
                 height: 56,
-                child: PromooImage(imageUrl: value, semanticLabel: widget.label),
+                child: PromooImage(
+                  imageUrl: value,
+                  semanticLabel: widget.label,
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -171,11 +177,13 @@ class _PromooImageUploadFieldState
     }
 
     setState(() => _isUploading = true);
-    final result = await ref.read(uploadRepositoryProvider).uploadImage(
-      filePath: picked.path,
-      bucket: widget.bucket,
-      relatedTo: widget.relatedTo,
-    );
+    final result = await ref
+        .read(uploadRepositoryProvider)
+        .uploadImage(
+          filePath: picked.path,
+          bucket: widget.bucket,
+          relatedTo: widget.relatedTo,
+        );
     if (!mounted) {
       return;
     }

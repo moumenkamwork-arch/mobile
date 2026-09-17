@@ -54,7 +54,8 @@ class PromooPageHeader extends ConsumerWidget {
     final notificationsUnread = ref.watch(
       notificationsControllerProvider.select((state) => state.unreadCount),
     );
-    final backgroundColor = colors.background.withValues(alpha: scrolled ? 0.72 : 0.9,
+    final backgroundColor = colors.background.withValues(
+      alpha: scrolled ? 0.72 : 0.9,
     );
 
     final bar = DecoratedBox(

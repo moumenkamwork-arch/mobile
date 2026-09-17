@@ -11,9 +11,11 @@ import '../../../../shared/widgets/promoo_page_header.dart';
 import '../../../../shared/widgets/promoo_text_field.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_spacing.dart';
-import '../../../profile/presentation/controllers/account_capabilities.dart';
 import '../../domain/entities/seat.dart';
 import '../controllers/seats_controller.dart';
+
+const _silverSeatColor = Color(0xFF9E9E9E);
+const _bronzeSeatColor = Color(0xFFC77B3B);
 
 /// Maps a [SeatTier] to the ICU `select` key used by the `seats*Label`
 /// messages (`seatsLegendLabel`/`seatsSingularLabel`/
@@ -22,12 +24,9 @@ import '../controllers/seats_controller.dart';
 /// "Gold Seat" is "مقعد ذهبي" (noun first), not a tier word glued onto "Seat".
 String _seatTierKey(SeatTier tier) => tier.apiValue ?? 'unknown';
 
-/// Influencer page recreating the original app: search bar, tier legend,
-/// and a large seat grid that overflows the screen in BOTH directions.
-///
-/// Tier zones follow the original layout: Gold seats sit in the top-left
-/// block, Silver surrounds them, Bronze fills the outer band — so scrolling
-/// down OR right always moves Gold → Silver → Bronze.
+/// Influencer directory: search bar, tier legend, and a roster of the
+/// influencers currently holding a seat. Read-only — seats are allocated
+/// outside the app, so there is no booking or payment surface here.
 class SeatsScreen extends ConsumerStatefulWidget {
   const SeatsScreen({super.key});
 
@@ -49,16 +48,6 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(seatsControllerProvider);
-    // Client's rule: only influencer accounts can see (and book) open seats.
-    // Every other role — including companies, who used to browse open seats
-    // to find someone to contract — sees occupied seats only. This is a
-    // *display* gate, not a data filter: the grid fills a fixed 12x12
-    // position layout per tier, so removing available seats from the list
-    // just leaves the same number of blank cells (they render identically
-    // to "no seat allocated here yet" either way) — it doesn't hide
-    // anything, it just reshuffles which cells are blank. The actual gate
-    // has to live in `_SeatCell`, deciding per-cell what to draw.
-    final canSeeAvailableSeats = ref.watch(accountCapabilitiesProvider).canBookSeat;
 
     // The header paints its own status-bar inset so the black chrome band
     // reaches the top edge in both themes (no paper seam in light mode).
@@ -67,7 +56,7 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
       children: [
         const PromooPageHeader(applyTopSafeArea: true),
         const SizedBox(height: AppSpacing.sm),
-        _StatsStrip(seats: state.seats, showAvailable: canSeeAvailableSeats),
+        _StatsStrip(seats: state.seats),
         const SizedBox(height: AppSpacing.sm),
         Padding(
           padding: const EdgeInsetsDirectional.symmetric(
@@ -93,12 +82,12 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
           ),
           child: _SeatLegend(),
         ),
-        Expanded(child: _buildBody(state, canSeeAvailableSeats)),
+        Expanded(child: _buildBody(state)),
       ],
     );
   }
 
-  Widget _buildBody(SeatsState state, bool canSeeAvailableSeats) {
+  Widget _buildBody(SeatsState state) {
     final l10n = AppLocalizations.of(context);
     switch (state.status) {
       case SeatsStatus.loading:
@@ -122,14 +111,8 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
           ),
         );
       default:
-        // Influencers get the full arena-style seat map (fixed layout, real
-        // tier positions, includes open seats). Everyone else only ever
-        // sees occupied seats, so a sparse map full of empty slots would
-        // just look broken — they get a plain, count-sized roster grid
-        // instead.
-        if (canSeeAvailableSeats) {
-          return _SeatGrid(seats: state.seats, query: _query);
-        }
+        // Only seats that are actually taken are listed, so the page reads
+        // as a roster of real influencers rather than a map of open slots.
         return _OccupiedSeatsGrid(
           seats: state.seats.where((seat) => !seat.isAvailable).toList(),
           query: _query,
@@ -139,13 +122,9 @@ class _SeatsScreenState extends ConsumerState<SeatsScreen> {
 }
 
 class _StatsStrip extends StatelessWidget {
-  const _StatsStrip({required this.seats, required this.showAvailable});
+  const _StatsStrip({required this.seats});
 
   final List<Seat> seats;
-  // False for every role except influencer — they can't see or book open
-  // seats, so an "available" count would just be a number for a thing they
-  // can't act on. Hidden rather than shown as a misleading 0.
-  final bool showAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -156,26 +135,10 @@ class _StatsStrip extends StatelessWidget {
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _StatChip(
-              icon: Icons.people_alt_rounded,
-              value: '$influencers',
-              label: l10n.seatsStatsInfluencers,
-            ),
-          ),
-          if (showAvailable) ...[
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _StatChip(
-                icon: Icons.event_seat_rounded,
-                value: '${seats.where((s) => s.isAvailable).length}',
-                label: l10n.seatsStatsAvailable,
-              ),
-            ),
-          ],
-        ],
+      child: _StatChip(
+        icon: Icons.people_alt_rounded,
+        value: '$influencers',
+        label: l10n.seatsStatsInfluencers,
       ),
     );
   }
@@ -243,11 +206,11 @@ class _SeatLegend extends StatelessWidget {
           label: l10n.seatsLegendLabel('gold'),
         ),
         _LegendItem(
-          color: _SeatGrid.silverColor,
+          color: _silverSeatColor,
           label: l10n.seatsLegendLabel('silver'),
         ),
         _LegendItem(
-          color: _SeatGrid.bronzeColor,
+          color: _bronzeSeatColor,
           label: l10n.seatsLegendLabel('bronze'),
         ),
       ],
@@ -282,246 +245,11 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
-class _SeatGrid extends StatelessWidget {
-  const _SeatGrid({required this.seats, required this.query});
-
-  static const silverColor = Color(0xFF9E9E9E);
-  static const bronzeColor = Color(0xFFC77B3B);
-
-  /// 12x12 cells split into 4-cell bands: band 0 = gold, 1 = silver,
-  /// 2 = bronze, using max(rowBand, colBand) so both scroll directions
-  /// move gold → silver → bronze.
-  static const bandSize = 4;
-  static const gridSize = 12;
-
-  static const _cellWidth = 66.0;
-  static const _cellHeight = 80.0;
-  static const _cellGap = 6.0;
-
-  final List<Seat> seats;
-  final String query;
-
-  static SeatTier tierForCell(int row, int col) {
-    final rowBand = row ~/ bandSize;
-    final colBand = col ~/ bandSize;
-    final band = rowBand > colBand ? rowBand : colBand;
-    return switch (band) {
-      0 => SeatTier.gold,
-      1 => SeatTier.silver,
-      _ => SeatTier.bronze,
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final byTier = <SeatTier, List<Seat>>{
-      SeatTier.gold: [],
-      SeatTier.silver: [],
-      SeatTier.bronze: [],
-    };
-    for (final seat in seats) {
-      byTier[seat.tier]?.add(seat);
-    }
-    for (final list in byTier.values) {
-      list.sort((a, b) => a.position.compareTo(b.position));
-    }
-
-    final cursors = <SeatTier, int>{
-      SeatTier.gold: 0,
-      SeatTier.silver: 0,
-      SeatTier.bronze: 0,
-    };
-
-    final rows = <Widget>[];
-    for (var row = 0; row < gridSize; row++) {
-      final cells = <Widget>[];
-      for (var col = 0; col < gridSize; col++) {
-        final tier = tierForCell(row, col);
-        final tierSeats = byTier[tier]!;
-        final cursor = cursors[tier]!;
-        final seat = cursor < tierSeats.length ? tierSeats[cursor] : null;
-        cursors[tier] = cursor + 1;
-
-        cells.add(
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              end: _cellGap,
-              bottom: _cellGap,
-            ),
-            child: _SeatCell(tier: tier, seat: seat, dimmed: _isDimmed(seat)),
-          ),
-        );
-      }
-      rows.add(Row(mainAxisSize: MainAxisSize.min, children: cells));
-    }
-
-    // A single InteractiveViewer (pan-only, no scale) instead of nested
-    // SingleChildScrollViews — nested scrollables with different axes each
-    // grab a straight-line drag, so a diagonal swipe only ever moves one
-    // direction at a time. One gesture recognizer here lets the grid pan
-    // freely in both directions from a single drag.
-    return InteractiveViewer(
-      constrained: false,
-      scaleEnabled: false,
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          AppSpacing.screenHorizontal,
-          AppSpacing.xs,
-          AppSpacing.screenHorizontal,
-          AppSpacing.shellScrollBottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: rows,
-        ),
-      ),
-    );
-  }
-
-  bool _isDimmed(Seat? seat) {
-    if (query.isEmpty) {
-      return false;
-    }
-    final name = seat?.holder?.name;
-    if (name == null) {
-      return true;
-    }
-    return !name.toLowerCase().contains(query.toLowerCase());
-  }
-}
-
-class _SeatCell extends ConsumerWidget {
-  const _SeatCell({required this.tier, required this.seat, this.dimmed = false});
-
-  final SeatTier tier;
-  final Seat? seat;
-  final bool dimmed;
-
-  Color _getTierColor(BuildContext context) => _tierColorFor(context, tier);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-    final tierColor = _getTierColor(context);
-    final holder = seat?.holder;
-    final isOccupied = seat != null && !seat!.isAvailable && holder != null;
-
-    final cell = InkWell(
-      onTap: () => _onTap(context, ref),
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: _SeatGrid._cellWidth,
-        height: _SeatGrid._cellHeight,
-        padding: const EdgeInsetsDirectional.all(AppSpacing.xxs),
-        decoration: BoxDecoration(
-          color: colors.background.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: tierColor.withValues(alpha: tier == SeatTier.gold ? 0.8 : 0.55,
-            ),
-            width: 1.2,
-          ),
-        ),
-        child: isOccupied
-            ? _OccupiedContent(holder: holder, tierColor: tierColor)
-            : _AvailableContent(priceLabel: _priceLabel),
-      ),
-    );
-
-    if (!dimmed) {
-      return cell;
-    }
-    return Opacity(opacity: 0.25, child: cell);
-  }
-
-  String get _priceLabel {
-    final price = seat?.price;
-    if (price != null) {
-      return price.label;
-    }
-    final fallback = switch (tier) {
-      SeatTier.gold => 499,
-      SeatTier.silver => 299,
-      _ => 149,
-    };
-    return '$fallback AED';
-  }
-
-  void _onTap(BuildContext context, WidgetRef ref) {
-    final currentSeat = seat;
-    if (currentSeat == null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).seatsMoreSeatsOpeningSoon,
-            ),
-          ),
-        );
-      return;
-    }
-
-    if (currentSeat.isAvailable) {
-      // Only influencers may book (guide: seats are for individual influencers;
-      // companies view to contract, not book). Same gate as the backend's
-      // requireAccountType(['influencer']) on POST /seats/:id/book.
-      if (ref.read(accountCapabilitiesProvider).canBookSeat) {
-        _showSeatSheet(context, currentSeat);
-      } else {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context).seatsOnlyInfluencersCanBook,
-              ),
-            ),
-          );
-      }
-    } else {
-      _showInfluencerSheet(context, currentSeat);
-    }
-  }
-
-  void _showSeatSheet(BuildContext context, Seat seat) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.colors.cardSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetContext) {
-        return _SeatDetailSheet(
-          seat: seat,
-          tierColor: _getTierColor(context),
-          // Real booking + payment is Stripe/v2 (not built yet — the checkout
-          // preview screen this used to push to is a disconnected mock with
-          // no working payment behind it and a different visual style from
-          // the rest of the app). A "coming soon" notice is honest about
-          // that instead of dropping the user on a dead-end fake form.
-          onBookNow: () {
-            final l10n = AppLocalizations.of(context);
-            Navigator.of(sheetContext).pop();
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(content: Text(l10n.seatsBookingComingSoon)),
-              );
-          },
-        );
-      },
-    );
-  }
-
-}
-
 Color _tierColorFor(BuildContext context, SeatTier tier) {
   return switch (tier) {
     SeatTier.gold => context.colors.primaryYellow,
-    SeatTier.silver => _SeatGrid.silverColor,
-    _ => _SeatGrid.bronzeColor,
+    SeatTier.silver => _silverSeatColor,
+    _ => _bronzeSeatColor,
   };
 }
 
@@ -581,32 +309,17 @@ void _showInfluencerSheet(BuildContext context, Seat seat) {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(sheetContext).pop();
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(content: Text(l10n.seatsFollowComingSoon)),
-                          );
-                      },
-                      child: Text(l10n.seatsFollow),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(sheetContext).pop();
-                        context.push(AppRoutes.profileById(holder.id));
-                      },
-                      child: Text(l10n.seatsViewProfile),
-                    ),
-                  ),
-                ],
+              // Only "View profile" — following happens on the profile page
+              // itself, so there is no half-wired action in this sheet.
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(sheetContext).pop();
+                    context.push(AppRoutes.profileById(holder.id));
+                  },
+                  child: Text(l10n.seatsViewProfile),
+                ),
               ),
             ],
           ),
@@ -652,10 +365,11 @@ class _OccupiedSeatsGrid extends StatelessWidget {
       );
     }
 
-    final sorted = [...seats]..sort((a, b) {
-      final tierOrder = _tierRank(a.tier).compareTo(_tierRank(b.tier));
-      return tierOrder != 0 ? tierOrder : a.position.compareTo(b.position);
-    });
+    final sorted = [...seats]
+      ..sort((a, b) {
+        final tierOrder = _tierRank(a.tier).compareTo(_tierRank(b.tier));
+        return tierOrder != 0 ? tierOrder : a.position.compareTo(b.position);
+      });
 
     // A plain, count-sized grid — unlike the influencer's full seat map (a
     // fixed-size arena layout with intentionally empty bookable slots),
@@ -717,43 +431,6 @@ class _OccupiedSeatTile extends StatelessWidget {
   }
 }
 
-class _AvailableContent extends StatelessWidget {
-  const _AvailableContent({required this.priceLabel});
-
-  final String priceLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.chair_outlined, color: context.colors.textPrimary, size: 20),
-        const SizedBox(height: AppSpacing.xxxs),
-        Text(
-          AppLocalizations.of(context).seatsBookSeatLabel,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 9,
-            height: 1.1,
-          ),
-        ),
-        const SizedBox(height: 1),
-        Text(
-          priceLabel,
-          maxLines: 1,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: context.colors.accent.withValues(alpha: 0.9),
-            fontSize: 8,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _OccupiedContent extends StatelessWidget {
   const _OccupiedContent({required this.holder, required this.tierColor});
 
@@ -801,84 +478,6 @@ class _OccupiedContent extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _SeatDetailSheet extends StatelessWidget {
-  const _SeatDetailSheet({
-    required this.seat,
-    required this.tierColor,
-    required this.onBookNow,
-  });
-
-  final Seat seat;
-  final Color tierColor;
-  final VoidCallback onBookNow;
-
-  String? _descriptionFor(AppLocalizations l10n, SeatTier tier) {
-    return switch (tier) {
-      SeatTier.gold => l10n.seatsTierDescriptionGold,
-      SeatTier.silver => l10n.seatsTierDescriptionSilver,
-      SeatTier.bronze => l10n.seatsTierDescriptionBronze,
-      SeatTier.unknown => null,
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(child: _SheetHandle()),
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: tierColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  l10n.seatsSingularLabel(_seatTierKey(seat.tier)),
-                  style: theme.textTheme.titleLarge,
-                ),
-                const Spacer(),
-                OutlinedButton(
-                  onPressed: onBookNow,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: context.colors.accent,
-                    side: BorderSide(color: context.colors.accent),
-                  ),
-                  child: Text(l10n.seatsBookNow),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              seat.price?.label ?? '',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: context.colors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              _descriptionFor(l10n, seat.tier) ?? '',
-              style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

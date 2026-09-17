@@ -8,7 +8,9 @@ import '../datasources/saved_data_source.dart';
 import '../datasources/saved_remote_data_source.dart';
 
 final savedRepositoryProvider = Provider<SavedRepository>((ref) {
-  return SavedRepositoryImpl(dataSource: ref.watch(savedRemoteDataSourceProvider));
+  return SavedRepositoryImpl(
+    dataSource: ref.watch(savedRemoteDataSourceProvider),
+  );
 });
 
 class SavedRepositoryImpl implements SavedRepository {

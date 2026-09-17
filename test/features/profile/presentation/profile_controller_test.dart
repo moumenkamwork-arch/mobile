@@ -163,6 +163,7 @@ class _ProfileRepository implements ProfileRepository {
   Future<Result<void>> deleteMedia(String imageUrl) async {
     return const Result.success(null);
   }
+
   static const Result<PromooProfile> editResult = Result.failure(
     AppFailure.unauthorized(message: 'Sign in to edit your profile.'),
   );

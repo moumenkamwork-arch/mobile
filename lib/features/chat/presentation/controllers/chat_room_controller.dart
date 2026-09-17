@@ -27,11 +27,10 @@ typedef ChatRoomArg = ({String? roomId, String? participantId});
 /// room showed the stale list until a manual pull-to-refresh — that's the
 /// bug this fixes. `autoDispose` tears the controller down once nothing
 /// watches it, so reopening a room always rebuilds fresh and refetches.
-final chatRoomControllerProvider =
-    NotifierProvider.autoDispose
-        .family<ChatRoomController, ChatRoomState, ChatRoomArg>(
-          ChatRoomController.new,
-        );
+final chatRoomControllerProvider = NotifierProvider.autoDispose
+    .family<ChatRoomController, ChatRoomState, ChatRoomArg>(
+      ChatRoomController.new,
+    );
 
 enum ChatRoomStatus { loading, success, empty, error, refreshing }
 
@@ -243,7 +242,10 @@ class ChatRoomController extends Notifier<ChatRoomState> {
     return _currentUserId;
   }
 
-  Future<void> _load({bool showLoading = false, bool refreshing = false}) async {
+  Future<void> _load({
+    bool showLoading = false,
+    bool refreshing = false,
+  }) async {
     final roomId = await _resolvedRoomId();
     if (roomId == null || _disposed) {
       return;
@@ -394,10 +396,7 @@ List<ChatMessage> appendSortedMessage(
   return next;
 }
 
-List<ChatMessage> markMessageFailed(
-  List<ChatMessage> messages,
-  String tempId,
-) {
+List<ChatMessage> markMessageFailed(List<ChatMessage> messages, String tempId) {
   return [
     for (final message in messages)
       if (message.id == tempId)

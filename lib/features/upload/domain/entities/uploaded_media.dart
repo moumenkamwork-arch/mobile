@@ -68,7 +68,9 @@ class UploadedMedia {
       fileUrl: (map['file_url'] ?? map['fileUrl'] ?? '') as String,
       fileName: map['file_name'] as String?,
       fileType: map['file_type'] as String?,
-      fileSize: map['file_size'] is num ? (map['file_size']! as num).toInt() : null,
+      fileSize: map['file_size'] is num
+          ? (map['file_size']! as num).toInt()
+          : null,
     );
   }
 }

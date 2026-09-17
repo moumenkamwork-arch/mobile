@@ -57,9 +57,7 @@ Future<void> showReportSheet(
     ..showSnackBar(
       SnackBar(
         content: Text(
-          submitted
-              ? l10n.reportSubmittedSnackbar
-              : l10n.reportFailedSnackbar,
+          submitted ? l10n.reportSubmittedSnackbar : l10n.reportFailedSnackbar,
         ),
       ),
     );
@@ -106,14 +104,16 @@ class _ReportSheetBodyState extends ConsumerState<_ReportSheetBody> {
       return;
     }
     setState(() => _isSubmitting = true);
-    final result = await ref.read(reportsRepositoryProvider).submitReport(
-      ReportDraft(
-        reportedId: widget.reportedId,
-        reportedType: widget.reportedType,
-        reason: reason,
-        details: _detailsController.text,
-      ),
-    );
+    final result = await ref
+        .read(reportsRepositoryProvider)
+        .submitReport(
+          ReportDraft(
+            reportedId: widget.reportedId,
+            reportedType: widget.reportedType,
+            reason: reason,
+            details: _detailsController.text,
+          ),
+        );
     if (!mounted) {
       return;
     }

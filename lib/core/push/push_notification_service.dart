@@ -58,7 +58,6 @@ class PushNotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
-
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (kDebugMode) {
           print('Received foreground push notification: ${message.messageId}');
@@ -103,13 +102,12 @@ class PushNotificationService {
   Future<void> _registerTokenWithBackend(String token) async {
     String deviceType = 'web';
     if (!kIsWeb) {
-      deviceType = Platform.isAndroid ? 'android' : (Platform.isIOS ? 'ios' : 'unknown');
+      deviceType = Platform.isAndroid
+          ? 'android'
+          : (Platform.isIOS ? 'ios' : 'unknown');
     }
 
-    await repository.registerDeviceToken(
-      token: token,
-      deviceType: deviceType,
-    );
+    await repository.registerDeviceToken(token: token, deviceType: deviceType);
   }
 
   /// Same destination rule as the in-app notifications list

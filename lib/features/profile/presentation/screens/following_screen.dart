@@ -75,8 +75,9 @@ class _FollowingScreenBody extends ConsumerWidget {
             for (final user in state.users) ...[
               _FollowingRow(
                 user: user,
-                onOpenProfile: () =>
-                    context.push(AppRoutes.profileById(user.username ?? user.id)),
+                onOpenProfile: () => context.push(
+                  AppRoutes.profileById(user.username ?? user.id),
+                ),
                 onUnfollow: () => ref
                     .read(followingControllerProvider.notifier)
                     .unfollow(user.id),
@@ -144,9 +145,9 @@ class _FollowingRow extends StatelessWidget {
                     if (type.isNotEmpty)
                       Text(
                         type,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.accent,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: colors.accent),
                       ),
                   ],
                 ),
@@ -154,7 +155,9 @@ class _FollowingRow extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
               OutlinedButton(
                 onPressed: onUnfollow,
-                child: Text(AppLocalizations.of(context).profileActionFollowing),
+                child: Text(
+                  AppLocalizations.of(context).profileActionFollowing,
+                ),
               ),
             ],
           ),

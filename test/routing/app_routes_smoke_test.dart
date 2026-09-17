@@ -42,15 +42,6 @@ void main() {
     const _RouteSmokeCase(AppRoutes.seats, 'Gold Seats'),
     // No longer a bottom-nav tab, but the route/screen itself still works.
     _RouteSmokeCase(AppRoutes.offers, 'Cafe opening spotlight'),
-    _RouteSmokeCase(
-      AppRoutes.seatCheckout(
-        seatId: 'seat-gold-2',
-        title: 'Gold Seat 2',
-        tier: 'Gold visibility placement',
-        price: '2500 AED',
-      ),
-      'Checkout preview',
-    ),
     // Rendered without a session, so the account-only rows are hidden by
     // design. Support is the one menu row a guest still gets.
     const _RouteSmokeCase(AppRoutes.profile, 'Support'),

@@ -39,7 +39,12 @@ class LeaderboardMedalGroup extends StatelessWidget {
             for (var i = 0; i < profiles.length; i++) ...[
               if (i != 0)
                 // Inset past the colour rail so it stays continuous.
-                Divider(height: 1, thickness: 1, indent: 4, color: colors.border),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  indent: 4,
+                  color: colors.border,
+                ),
               _LeaderboardRow(
                 profile: profiles[i],
                 onTap: onProfileSelected == null
@@ -128,7 +133,11 @@ class _LeaderboardRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      _ProfileAvatar(profile: profile, radius: 22, medal: medal),
+                      _ProfileAvatar(
+                        profile: profile,
+                        radius: 22,
+                        medal: medal,
+                      ),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(child: _Identity(profile: profile)),
                       const SizedBox(width: AppSpacing.sm),
@@ -204,9 +213,9 @@ class _Reach extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.end,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: context.colors.textSecondary,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
       ),
     );
   }
