@@ -22,8 +22,7 @@ class AppConfig {
 
   /// Production API base URL — owned in core, not `.env`.
   /// Override at build time with `--dart-define=PROMOO_BASE_URL=...` if needed.
-  static const defaultBaseUrl =
-      'https://promobackend-production-93d8.up.railway.app/api/v1';
+  static const defaultBaseUrl = 'https://api.promooportal.com/api/v1';
   static const defaultFallbackCurrency = 'AED';
   // The anon key is meant to be public/client-embeddable — Row Level
   // Security on the underlying tables is the real access boundary (already
